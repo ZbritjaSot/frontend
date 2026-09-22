@@ -7,6 +7,7 @@ import {
   SITE_URL,
   SITE_WORDMARK,
 } from "@/lib/site";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -64,6 +65,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0B0F0E",
+  width: "device-width",
+  initialScale: 1,
 };
 
 const jsonLd = {
@@ -100,7 +103,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
