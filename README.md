@@ -38,6 +38,8 @@ Open: `/` · `/admin` · `/biz`
 
 ## Branch (now)
 
-`feat/app-shells` — **B1** shells + **B2** public SSR list/detail (`/` + `/offers/[id]`).
+`feat/app-shells` — B1 shells · B2 public SSR offers · **B3** `/biz/login` (Sanctum cookies).
 
-Next: **B3** `/biz` login (Sanctum cookies).
+Demo biz: `kafe@demo.zbritjasot.com` / `password`
+
+Next: **B4** biz create + submit offer · **B5** admin login.

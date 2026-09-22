@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
+import { LogoutButton } from "@/features/auth/LogoutButton";
 
 export type DashboardNavItem = {
   href: string;
@@ -12,9 +13,15 @@ type DashboardShellProps = {
   area: "admin" | "biz";
   nav: DashboardNavItem[];
   children: ReactNode;
+  showLogout?: boolean;
 };
 
-export function DashboardShell({ area, nav, children }: DashboardShellProps) {
+export function DashboardShell({
+  area,
+  nav,
+  children,
+  showLogout = false,
+}: DashboardShellProps) {
   const homeHref = area === "admin" ? "/admin" : "/biz";
   const areaLabel = area === "admin" ? "Admin" : "Biznes";
 
@@ -41,9 +48,12 @@ export function DashboardShell({ area, nav, children }: DashboardShellProps) {
           ))}
         </nav>
 
-        <Link href="/" className="dash__public">
-          ← Faqja publike
-        </Link>
+        <div className="dash__aside-foot">
+          {showLogout ? <LogoutButton /> : null}
+          <Link href="/" className="dash__public">
+            ← Faqja publike
+          </Link>
+        </div>
       </aside>
 
       <div className="dash__main">
