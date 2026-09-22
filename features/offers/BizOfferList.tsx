@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import {
   useBizOffers,
   useDeleteBizOffer,
@@ -18,7 +20,6 @@ import {
   formatEur,
 } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { useState } from "react";
 import type { Offer } from "@/types";
 
 export function BizOfferList() {
@@ -26,6 +27,7 @@ export function BizOfferList() {
   const submitMutation = useSubmitBizOffer();
   const deleteMutation = useDeleteBizOffer();
   const [actionError, setActionError] = useState<string | null>(null);
+  const [offerToDelete, setOfferToDelete] = useState<Offer | null>(null);
 
   if (isLoading) {
     return <p className="shell-panel__lead">Duke ngarkuar ofertat…</p>;
@@ -57,15 +59,17 @@ export function BizOfferList() {
     }
   }
 
-  async function onDelete(offer: Offer) {
-    if (!window.confirm(`Fshi ofertën “${offer.name}”?`)) {
+  async function confirmDelete() {
+    if (!offerToDelete) {
       return;
     }
     setActionError(null);
     try {
-      await deleteMutation.mutateAsync(offer.id);
+      await deleteMutation.mutateAsync(offerToDelete.id);
+      setOfferToDelete(null);
     } catch (err) {
       setActionError(validationMessage(err, "Nuk mundëm ta fshijmë ofertën."));
+      setOfferToDelete(null);
     }
   }
 
@@ -144,7 +148,7 @@ export function BizOfferList() {
                     type="button"
                     className="btn btn--ghost btn--sm"
                     disabled={deleteMutation.isPending}
-                    onClick={() => onDelete(offer)}
+                    onClick={() => setOfferToDelete(offer)}
                   >
                     Fshi
                   </button>
@@ -154,6 +158,26 @@ export function BizOfferList() {
           ))}
         </ul>
       )}
+
+      <ConfirmModal
+        open={offerToDelete !== null}
+        title="Fshi ofertën"
+        message={
+          offerToDelete
+            ? `Je i sigurt që do ta fshish “${offerToDelete.name}”? Ky veprim nuk kthehet mbrapsht.`
+            : ""
+        }
+        confirmLabel="Fshi"
+        cancelLabel="Anulo"
+        danger
+        pending={deleteMutation.isPending}
+        onConfirm={confirmDelete}
+        onClose={() => {
+          if (!deleteMutation.isPending) {
+            setOfferToDelete(null);
+          }
+        }}
+      />
     </div>
   );
 }

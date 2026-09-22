@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { useLogout } from "@/hooks/useAuth";
 import { useState } from "react";
 
-export function LogoutButton() {
+type LogoutButtonProps = {
+  redirectTo: string;
+};
+
+export function LogoutButton({ redirectTo }: LogoutButtonProps) {
   const router = useRouter();
   const logout = useLogout();
   const [pending, setPending] = useState(false);
@@ -14,7 +18,7 @@ export function LogoutButton() {
     try {
       await logout();
     } finally {
-      router.replace("/biz/login");
+      router.replace(redirectTo);
       setPending(false);
     }
   }

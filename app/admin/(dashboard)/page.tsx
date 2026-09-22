@@ -11,12 +11,8 @@ export default function AdminHomePage() {
       <h1 className="dash__page-title">Paneli</h1>
       <div className="shell-panel">
         <p className="shell-panel__lead">
-          Paneli i administratorit. Këtu do të menaxhohen bizneset, kategoritë
-          dhe aprovimi i ofertave.
-        </p>
-        <p className="shell-panel__note">
-          Hyrja (Sanctum cookie) vjen në B5. Tani është vetëm struktura e faqes —
-          pa thirrje API.
+          Paneli i administratorit. Aprovo ofertat nga{" "}
+          <strong>Ofertat në pritje</strong>.
         </p>
       </div>
     </>

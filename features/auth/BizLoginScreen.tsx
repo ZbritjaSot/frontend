@@ -2,10 +2,10 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { BizLoginForm } from "@/features/auth/BizLoginForm";
+import Link from "next/link";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
-import Link from "next/link";
+import { LoginForm } from "@/features/auth/LoginForm";
 import { requireBusinessUser, useMe } from "@/hooks/useAuth";
 
 export function BizLoginScreen() {
@@ -29,7 +29,11 @@ export function BizLoginScreen() {
         <p className="auth-screen__eyebrow">Biznes</p>
         <p className="auth-screen__lead">Hyr në panelin e dyqanit</p>
 
-        <BizLoginForm />
+        <LoginForm
+          requiredRole="business"
+          nextPath="/biz"
+          wrongRoleMessage="Kjo llogari nuk është llogari biznesi."
+        />
 
         <p className="auth-screen__hint">
           Demo: <code>kafe@demo.zbritjasot.com</code> / <code>password</code>

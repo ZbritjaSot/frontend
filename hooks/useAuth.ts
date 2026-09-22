@@ -37,3 +37,7 @@ export function isUnauthenticated(error: unknown): boolean {
 export function requireBusinessUser(user: User | undefined): user is User {
   return !!user && hasRole(user, "business");
 }
+
+export function requireAdminUser(user: User | undefined): user is User {
+  return !!user && hasRole(user, "admin");
+}

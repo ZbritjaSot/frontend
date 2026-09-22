@@ -8,11 +8,17 @@ import { meQueryKey } from "@/hooks/useAuth";
 import { validationMessage } from "@/lib/api";
 import { loginSchema } from "@/schemas/login";
 
-type BizLoginFormProps = {
-  nextPath?: string;
+type LoginFormProps = {
+  requiredRole: "admin" | "business";
+  nextPath: string;
+  wrongRoleMessage: string;
 };
 
-export function BizLoginForm({ nextPath = "/biz" }: BizLoginFormProps) {
+export function LoginForm({
+  requiredRole,
+  nextPath,
+  wrongRoleMessage,
+}: LoginFormProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
@@ -34,17 +40,15 @@ export function BizLoginForm({ nextPath = "/biz" }: BizLoginFormProps) {
     try {
       const user = await loginWithCookies(parsed.data);
 
-      if (!hasRole(user, "business")) {
-        setError("Kjo llogari nuk është llogari biznesi.");
+      if (!hasRole(user, requiredRole)) {
+        setError(wrongRoleMessage);
         return;
       }
 
       queryClient.setQueryData(meQueryKey, user);
       router.replace(nextPath);
     } catch (err) {
-      setError(
-        validationMessage(err, "Email ose fjalëkalim i pasaktë."),
-      );
+      setError(validationMessage(err, "Email ose fjalëkalim i pasaktë."));
     } finally {
       setPending(false);
     }

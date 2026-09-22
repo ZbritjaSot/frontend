@@ -14,6 +14,7 @@ type DashboardShellProps = {
   nav: DashboardNavItem[];
   children: ReactNode;
   showLogout?: boolean;
+  logoutRedirectTo?: string;
 };
 
 export function DashboardShell({
@@ -21,9 +22,12 @@ export function DashboardShell({
   nav,
   children,
   showLogout = false,
+  logoutRedirectTo,
 }: DashboardShellProps) {
   const homeHref = area === "admin" ? "/admin" : "/biz";
   const areaLabel = area === "admin" ? "Admin" : "Biznes";
+  const logoutTo =
+    logoutRedirectTo ?? (area === "admin" ? "/admin/login" : "/biz/login");
 
   return (
     <div className="dash">
@@ -49,7 +53,7 @@ export function DashboardShell({
         </nav>
 
         <div className="dash__aside-foot">
-          {showLogout ? <LogoutButton /> : null}
+          {showLogout ? <LogoutButton redirectTo={logoutTo} /> : null}
           <Link href="/" className="dash__public">
             ← Faqja publike
           </Link>

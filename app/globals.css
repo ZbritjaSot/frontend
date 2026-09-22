@@ -710,6 +710,118 @@ a {
   font-size: 0.8125rem;
 }
 
+.btn--danger {
+  background: #ff5c5c;
+  color: #1a0505;
+}
+
+.btn--danger:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+/* ——— Modal ——— */
+
+.modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  background: color-mix(in srgb, var(--color-charcoal) 72%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  width: 100%;
+  max-height: min(90dvh, 40rem);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg-elevated);
+  box-shadow: 0 24px 64px color-mix(in srgb, #000 45%, transparent);
+  outline: none;
+}
+
+.modal--sm {
+  max-width: 24rem;
+}
+
+.modal--md {
+  max-width: 32rem;
+}
+
+.modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-md) 0;
+}
+
+.modal__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.modal__close {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: -0.25rem -0.25rem 0 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal__close:hover {
+  color: var(--color-text);
+}
+
+.modal__body {
+  padding: var(--space-md);
+  overflow: auto;
+}
+
+.modal__message {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+.modal__textarea {
+  appearance: none;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.85rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 500;
+  resize: vertical;
+}
+
+.modal__textarea:focus {
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  outline-offset: 1px;
+}
+
+.modal__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  padding: 0 var(--space-md) var(--space-md);
+}
+
 /* ——— Biz offers ——— */
 
 .biz-offers__toolbar {

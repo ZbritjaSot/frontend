@@ -38,8 +38,11 @@ Open: `/` · `/admin` · `/biz`
 
 ## Branch (now)
 
-`feat/app-shells` — B1–B4: shells, public SSR offers, biz login, **biz create/submit offers**.
+`feat/app-shells` — B1–B6: public offers, biz login/CRUD, **admin login + approve/reject**, reusable **Modal**.
 
-Demo: `kafe@demo.zbritjasot.com` / `password` → `/biz/offers`
+| Login | Email | Password |
+| --- | --- | --- |
+| `/biz/login` | `kafe@demo.zbritjasot.com` | `password` |
+| `/admin/login` | `admin@zbritjasot.com` | `password` |
 
-Next: **B5** admin login · **B6** approve/reject.
+Next: **B7** confirm expiry on public site (seed expired offers stay hidden).
