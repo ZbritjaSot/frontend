@@ -663,6 +663,221 @@ a {
   cursor: wait;
 }
 
+/* ——— Shared buttons ——— */
+
+.btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 0;
+  border-radius: var(--radius);
+  padding: 0.7rem 1rem;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.btn--primary {
+  background: var(--color-accent);
+  color: var(--color-charcoal);
+}
+
+.btn--primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-off-white) 28%, transparent);
+}
+
+.btn--sm {
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8125rem;
+}
+
+/* ——— Biz offers ——— */
+
+.biz-offers__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.biz-offers__hint {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.biz-offer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.biz-offer-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (min-width: 800px) {
+  .biz-offer-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.biz-offer-row__main {
+  display: flex;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+.biz-offer-row__status {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 0.15rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-charcoal);
+  background: var(--color-text-muted);
+}
+
+.biz-offer-row__status--draft {
+  background: color-mix(in srgb, var(--color-off-white) 35%, transparent);
+  color: var(--color-text);
+}
+
+.biz-offer-row__status--pending {
+  background: #f5c542;
+}
+
+.biz-offer-row__status--approved {
+  background: var(--color-accent);
+}
+
+.biz-offer-row__status--rejected {
+  background: #ff8e8e;
+}
+
+.biz-offer-row__status--expired {
+  background: color-mix(in srgb, var(--color-slate) 50%, transparent);
+  color: var(--color-text);
+}
+
+.biz-offer-row__name {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.biz-offer-row__meta {
+  margin: 0.3rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.biz-offer-row__was {
+  text-decoration: line-through;
+}
+
+.biz-offer-row__reject {
+  margin: 0.35rem 0 0;
+  color: #ff8e8e;
+  font-size: 0.8125rem;
+}
+
+.biz-offer-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.offer-form {
+  max-width: 36rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.offer-form__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+@media (min-width: 640px) {
+  .offer-form__row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.offer-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.offer-form__field input,
+.offer-form__field select {
+  appearance: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.85rem;
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 500;
+}
+
+.offer-form__field input:focus,
+.offer-form__field select:focus {
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  outline-offset: 1px;
+}
+
+.offer-form__error {
+  margin: 0;
+  color: #ff8e8e;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.offer-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: var(--space-sm);
+}
+
 .dash__main {
   display: flex;
   flex-direction: column;

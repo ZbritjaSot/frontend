@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BizOfferList } from "@/features/offers/BizOfferList";
 
 export const metadata: Metadata = {
   title: "Ofertat e mia",
@@ -9,16 +10,7 @@ export default function BizOffersPage() {
   return (
     <>
       <h1 className="dash__page-title">Ofertat e mia</h1>
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
-          Ofertat e dyqanit — draft, në pritje dhe të aprovuara — do të listohen
-          këtu.
-        </p>
-        <p className="shell-panel__note">
-          Krijimi dhe dërgimi për aprovim lidhet në B4 me{" "}
-          <code>/api/v1/biz/offers</code>.
-        </p>
-      </div>
+      <BizOfferList />
     </>
   );
 }

@@ -11,11 +11,11 @@ export default function BizHomePage() {
       <h1 className="dash__page-title">Paneli</h1>
       <div className="shell-panel">
         <p className="shell-panel__lead">
-          Mirë se vini. Këtu do të krijohen dhe dërgohen ofertat për aprovim.
+          Mirë se vini. Menaxho ofertat nga menyja <strong>Ofertat e mia</strong>.
         </p>
         <p className="shell-panel__note">
-          Hapi tjetër (B4): krijo dhe dërgo oferta te{" "}
-          <code>/api/v1/biz/offers</code>.
+          Krijo draft → dërgo për aprovim → admin aprovon → shfaqet te faqja
+          publike.
         </p>
       </div>
     </>

@@ -54,7 +54,12 @@ export async function apiFetch<T>(
   options: ApiFetchOptions = {},
 ): Promise<T> {
   const { auth = false, ...init } = options;
+  const method = (init.method ?? "GET").toUpperCase();
   const url = `${getApiUrl()}/api/v1${path.startsWith("/") ? path : `/${path}`}`;
+
+  if (auth && method !== "GET" && method !== "HEAD") {
+    await ensureCsrfCookie();
+  }
 
   const headers = new Headers(init.headers);
   if (!headers.has("Accept")) {
