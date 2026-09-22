@@ -38,4 +38,6 @@ Open: `/` · `/admin` · `/biz`
 
 ## Branch (now)
 
-`feat/app-shells` — **B1** route shells done. Next: **B2** public SSR offer list.
+`feat/app-shells` — **B1** shells + **B2** public SSR list/detail (`/` + `/offers/[id]`).
+
+Next: **B3** `/biz` login (Sanctum cookies).
