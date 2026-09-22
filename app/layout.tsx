@@ -7,6 +7,7 @@ import {
   SITE_URL,
   SITE_WORDMARK,
 } from "@/lib/site";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -100,7 +101,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
