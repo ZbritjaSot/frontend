@@ -6,15 +6,28 @@ import Link from "next/link";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { LoginForm } from "@/features/auth/LoginForm";
-import { requireAdminUser, useMe } from "@/hooks/useAuth";
+import {
+  requireAdminUser,
+  requireBusinessUser,
+  useMe,
+} from "@/hooks/useAuth";
 
 export function AdminLoginScreen() {
   const router = useRouter();
   const { data: user, isLoading, isFetching } = useMe();
 
   useEffect(() => {
-    if (!isLoading && !isFetching && requireAdminUser(user)) {
+    if (isLoading || isFetching || !user) {
+      return;
+    }
+
+    if (requireAdminUser(user)) {
       router.replace("/admin");
+      return;
+    }
+
+    if (requireBusinessUser(user)) {
+      router.replace("/biz");
     }
   }, [user, isLoading, isFetching, router]);
 

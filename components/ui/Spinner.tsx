@@ -4,16 +4,23 @@ type SpinnerProps = {
   size?: "sm" | "md" | "lg";
   /** Center in available space with padding. */
   block?: boolean;
+  /** `onAccent` = charcoal ring for lime buttons. */
+  tone?: "accent" | "onAccent";
 };
 
 export function Spinner({
   label = "Duke ngarkuar",
   size = "md",
   block = true,
+  tone = "accent",
 }: SpinnerProps) {
   return (
     <div
-      className={["spinner-wrap", block ? "spinner-wrap--block" : null]
+      className={[
+        "spinner-wrap",
+        block ? "spinner-wrap--block" : null,
+        tone === "onAccent" ? "spinner-wrap--on-accent" : null,
+      ]
         .filter(Boolean)
         .join(" ")}
       role="status"

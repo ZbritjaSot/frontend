@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   isUnauthenticated,
+  requireAdminUser,
   requireBusinessUser,
   useMe,
 } from "@/hooks/useAuth";
@@ -15,22 +16,34 @@ type RequireBusinessAuthProps = {
 
 export function RequireBusinessAuth({ children }: RequireBusinessAuthProps) {
   const router = useRouter();
-  const { data: user, error, isLoading, isFetching } = useMe();
+  const { data: user, error, isLoading, isFetching, isError } = useMe();
 
   useEffect(() => {
     if (isLoading || isFetching) {
       return;
     }
 
-    if (isUnauthenticated(error) || !user) {
+    if (isUnauthenticated(error) || (isError && !user)) {
       router.replace("/biz/login");
       return;
     }
 
-    if (!requireBusinessUser(user)) {
-      router.replace("/biz/login");
+    if (!user) {
+      return;
     }
-  }, [user, error, isLoading, isFetching, router]);
+
+    if (requireBusinessUser(user)) {
+      return;
+    }
+
+    // Logged in as admin — send them to the admin panel.
+    if (requireAdminUser(user)) {
+      router.replace("/admin");
+      return;
+    }
+
+    router.replace("/biz/login");
+  }, [user, error, isLoading, isFetching, isError, router]);
 
   if (isLoading || isFetching) {
     return <Spinner label="Duke kontrolluar hyrjen" />;

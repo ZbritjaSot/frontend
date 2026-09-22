@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { Spinner } from "@/components/ui/Spinner";
 import { hasRole, loginWithCookies } from "@/features/auth/api";
 import { meQueryKey } from "@/hooks/useAuth";
 import { validationMessage } from "@/lib/api";
@@ -89,7 +90,16 @@ export function LoginForm({
       ) : null}
 
       <button className="auth-form__submit" type="submit" disabled={pending}>
-        {pending ? "Duke u futur…" : "Hyr"}
+        {pending ? (
+          <Spinner
+            label="Duke u futur"
+            size="sm"
+            block={false}
+            tone="onAccent"
+          />
+        ) : (
+          "Hyr"
+        )}
       </button>
     </form>
   );
