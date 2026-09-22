@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { Spinner } from "@/components/ui/Spinner";
 import {
   useBizOffers,
   useDeleteBizOffer,
@@ -30,7 +31,7 @@ export function BizOfferList() {
   const [offerToDelete, setOfferToDelete] = useState<Offer | null>(null);
 
   if (isLoading) {
-    return <p className="shell-panel__lead">Duke ngarkuar ofertat…</p>;
+    return <Spinner label="Duke ngarkuar ofertat" />;
   }
 
   if (isError) {

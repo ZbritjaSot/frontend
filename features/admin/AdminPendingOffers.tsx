@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Modal } from "@/components/ui/Modal";
+import { Spinner } from "@/components/ui/Spinner";
 import {
   useApproveOffer,
   usePendingOffers,
@@ -27,7 +28,7 @@ export function AdminPendingOffers() {
   const [rejectReason, setRejectReason] = useState("");
 
   if (isLoading) {
-    return <p className="shell-panel__lead">Duke ngarkuar radhën…</p>;
+    return <Spinner label="Duke ngarkuar radhën" />;
   }
 
   if (isError) {

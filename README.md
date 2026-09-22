@@ -38,11 +38,11 @@ Open: `/` · `/admin` · `/biz`
 
 ## Branch (now)
 
-`feat/app-shells` — B1–B6: public offers, biz login/CRUD, **admin login + approve/reject**, reusable **Modal**.
+`feat/app-shells` — Phase 1 discount loop (B1–B7) + shared **Modal** + **Spinner**.
 
 | Login | Email | Password |
 | --- | --- | --- |
 | `/biz/login` | `kafe@demo.zbritjasot.com` | `password` |
 | `/admin/login` | `admin@zbritjasot.com` | `password` |
 
-Next: **B7** confirm expiry on public site (seed expired offers stay hidden).
+Expired / past-window offers never appear on `/`. Hourly job: `php artisan offers:expire`.

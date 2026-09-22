@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Spinner } from "@/components/ui/Spinner";
 import { OfferForm } from "@/features/offers/OfferForm";
 import { canEditOffer } from "@/features/offers/status";
 import { useBizOffer } from "@/hooks/useBizOffers";
@@ -14,7 +15,7 @@ export function EditOfferScreen({ id }: EditOfferScreenProps) {
   const { data: offer, isLoading, isError, error } = useBizOffer(id);
 
   if (isLoading) {
-    return <p className="shell-panel__lead">Duke ngarkuar…</p>;
+    return <Spinner label="Duke ngarkuar ofertën" />;
   }
 
   if (isError || !offer) {

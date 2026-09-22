@@ -38,7 +38,8 @@ export default async function HomePage() {
         <section className="public-state" aria-live="polite">
           <h2 className="public-state__title">Nuk ka oferta aktive</h2>
           <p className="public-state__copy">
-            Momentalisht nuk ka zbritje publike. Kthehu më vonë.
+            Momentalisht nuk ka zbritje publike. Ofertat e skaduara hiqen
+            automatikisht nga lista.
           </p>
         </section>
       ) : offers ? (

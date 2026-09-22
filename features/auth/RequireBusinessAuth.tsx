@@ -7,6 +7,7 @@ import {
   requireBusinessUser,
   useMe,
 } from "@/hooks/useAuth";
+import { Spinner } from "@/components/ui/Spinner";
 
 type RequireBusinessAuthProps = {
   children: ReactNode;
@@ -32,19 +33,11 @@ export function RequireBusinessAuth({ children }: RequireBusinessAuthProps) {
   }, [user, error, isLoading, isFetching, router]);
 
   if (isLoading || isFetching) {
-    return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">Duke kontrolluar hyrjen…</p>
-      </div>
-    );
+    return <Spinner label="Duke kontrolluar hyrjen" />;
   }
 
   if (!requireBusinessUser(user)) {
-    return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">Duke ridrejtuar te hyrja…</p>
-      </div>
-    );
+    return <Spinner label="Duke ridrejtuar" />;
   }
 
   return children;
