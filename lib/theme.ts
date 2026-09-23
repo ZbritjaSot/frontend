@@ -32,4 +32,21 @@ export function storeTheme(theme: Theme): void {
   } catch {
     // Ignore private-mode / blocked storage.
   }
+  themeListeners.forEach((listener) => listener());
+}
+
+const themeListeners = new Set<() => void>();
+
+export function subscribeTheme(listener: () => void): () => void {
+  themeListeners.add(listener);
+  return () => themeListeners.delete(listener);
+}
+
+/** Saved theme in the browser. The server always starts from light. */
+export function readThemePreference(): Theme {
+  return getStoredTheme() ?? "light";
+}
+
+export function serverThemePreference(): Theme {
+  return "light";
 }

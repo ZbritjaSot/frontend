@@ -16,9 +16,6 @@ export const businessFormSchema = z.object({
     .trim()
     .email("Email-i nuk është i vlefshëm.")
     .max(255),
-  owner_password: z
-    .string()
-    .min(8, "Fjalëkalimi duhet të ketë të paktën 8 karaktere."),
   is_active: z.boolean(),
 });
 

@@ -31,6 +31,20 @@ export async function fetchMe(): Promise<User> {
   return payload.user;
 }
 
+export async function changePassword(input: {
+  current_password: string;
+  password: string;
+  password_confirmation: string;
+}): Promise<User> {
+  await ensureCsrfCookie();
+  const payload = await apiFetch<AuthPayload>("/auth/password", {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify(input),
+  });
+  return payload.user;
+}
+
 export async function logout(): Promise<void> {
   await ensureCsrfCookie();
   await apiFetch<{ message: string }>("/auth/logout", {
