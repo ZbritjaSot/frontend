@@ -1,8 +1,10 @@
 "use client";
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/Spinner";
+import { useMe } from "@/hooks/useAuth";
 import { useBizBusiness, useBizSubscription } from "@/hooks/useBizProfile";
 import { formatDateSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
@@ -86,6 +88,7 @@ function subscriptionStatus(sub: BizSubscription): {
 export function BizProfilePanel() {
   const businessQuery = useBizBusiness();
   const subscriptionQuery = useBizSubscription();
+  const { data: user } = useMe();
 
   if (businessQuery.isLoading || subscriptionQuery.isLoading) {
     return <Spinner label="Duke ngarkuar profilin" />;
@@ -173,6 +176,25 @@ export function BizProfilePanel() {
             </p>
           </>
         )}
+      </section>
+
+      <section className="overflow-hidden rounded-2xl border border-line lg:col-span-2">
+        <div className="p-5">
+          <p className={`m-0 ${micro}`}>Llogaria</p>
+          <h2 className="m-0 mt-1 text-xl font-bold tracking-[-0.02em] text-ink">
+            {user?.name ?? "—"}
+          </h2>
+          <p className="m-0 mt-1 text-sm text-muted">{user?.email}</p>
+        </div>
+        <Link
+          href="/biz/profile/password"
+          className="flex items-center justify-between gap-4 border-t border-line px-5 py-4 text-inherit no-underline hover:bg-sunken"
+        >
+          <span className="font-bold">Ndrysho fjalëkalimin</span>
+          <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-line bg-sunken text-ink">
+            <LockOutlinedIcon fontSize="small" />
+          </span>
+        </Link>
       </section>
     </div>
   );

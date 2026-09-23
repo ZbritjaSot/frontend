@@ -36,6 +36,22 @@ export async function approveOffer(id: string): Promise<OfferBundle> {
   return payload.data;
 }
 
+export async function fetchApprovedOffers(
+  page = 1,
+  perPage = PENDING_OFFERS_PAGE_SIZE,
+): Promise<Paginated<OfferBundle>> {
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(perPage),
+    status: "approved",
+  });
+
+  return apiFetch<Paginated<OfferBundle>>(
+    `/admin/offer-bundles?${params.toString()}`,
+    { auth: true },
+  );
+}
+
 export async function rejectOffer(
   id: string,
   payload: { reason?: string; item_ids: string[] },
@@ -52,4 +68,19 @@ export async function rejectOffer(
     },
   );
   return body.data;
+}
+
+export async function takeDownOffer(
+  id: string,
+  reason: string,
+): Promise<OfferBundle> {
+  const payload = await apiFetch<BundlePayload>(
+    `/admin/offer-bundles/${id}/take-down`,
+    {
+      method: "POST",
+      auth: true,
+      body: JSON.stringify({ reason }),
+    },
+  );
+  return payload.data;
 }

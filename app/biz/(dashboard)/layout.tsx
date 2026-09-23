@@ -10,9 +10,9 @@ export default function BizDashboardLayout({
 }) {
   return (
     <RequireBusinessAuth>
-      <BizDashboardShell>
-        <BizPasswordGate>{children}</BizPasswordGate>
-      </BizDashboardShell>
+      <BizPasswordGate>
+        <BizDashboardShell>{children}</BizDashboardShell>
+      </BizPasswordGate>
     </RequireBusinessAuth>
   );
 }

@@ -48,15 +48,18 @@ export function ChangePasswordScreen() {
   }
 
   return (
-    <form
-      className="flex max-w-[40rem] flex-col gap-5"
-      onSubmit={onSubmit}
-      noValidate
-    >
-      <h2 className="m-0 text-lg font-bold text-ink">Ndrysho fjalëkalimin</h2>
-      <p className="text-[0.8125rem] text-muted">
-        Ky është hyrja e parë. Fjalëkalimi nga email-i duhet ndërruar para se të
-        vazhdosh.
+    <main className="flex min-h-dvh items-center justify-center p-8">
+      <form
+        className="flex w-full max-w-sm flex-col gap-5"
+        onSubmit={onSubmit}
+        noValidate
+      >
+      <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent uppercase">
+        Biznes
+      </p>
+      <h1 className="m-0 text-xl font-semibold">Ndrysho fjalëkalimin</h1>
+      <p className="m-0 text-sm leading-relaxed text-muted">
+        Fjalëkalimi nga email-i duhet ndërruar para se të hapet paneli.
       </p>
       {error ? (
         <p className={fieldError} role="alert">
@@ -93,9 +96,10 @@ export function ChangePasswordScreen() {
           onChange={(event) => setConfirmation(event.target.value)}
         />
       </label>
-      <button className={btnPrimary} type="submit" disabled={pending}>
-        {pending ? "Duke u ruajtur…" : "Ruaj fjalëkalimin"}
-      </button>
-    </form>
+        <button className={btnPrimary} type="submit" disabled={pending}>
+          {pending ? "Duke u ruajtur…" : "Ruaj fjalëkalimin"}
+        </button>
+      </form>
+    </main>
   );
 }

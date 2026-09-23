@@ -24,7 +24,6 @@ import {
   offerStatusClass,
   pageTitle,
   panelLead,
-  panelNote,
 } from "@/lib/ui";
 import { businessFormSchema, type BusinessFormInput } from "@/schemas/business";
 import type { Business } from "@/types";
@@ -56,7 +55,10 @@ export function AdminBusinesses() {
   const [editName, setEditName] = useState("");
   const [editActive, setEditActive] = useState(true);
   const [formError, setFormError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [createdAccount, setCreatedAccount] = useState<{
+    name: string;
+    email: string;
+  } | null>(null);
 
   function openCreate() {
     setForm(emptyForm);
@@ -83,9 +85,10 @@ export function AdminBusinesses() {
       await createMutation.mutateAsync(parsed.data);
       setCreating(false);
       setPage(1);
-      setNotice(
-        "Llogaria u krijua. Fjalëkalimi i rastësishëm u dërgua te email-i i pronarit.",
-      );
+      setCreatedAccount({
+        name: parsed.data.name,
+        email: parsed.data.owner_email,
+      });
     } catch (submitError) {
       setFormError(
         validationMessage(submitError, "Nuk mundëm ta krijojmë biznesin."),
@@ -162,8 +165,6 @@ export function AdminBusinesses() {
   return (
     <div>
       {header}
-
-      {notice ? <p className={panelNote}>{notice}</p> : null}
 
       {businesses.length === 0 ? (
         <div className="max-w-[40rem]">
@@ -254,6 +255,28 @@ export function AdminBusinesses() {
           />
         </div>
       )}
+
+      <Modal
+        open={createdAccount !== null}
+        title="Llogaria u krijua"
+        onClose={() => setCreatedAccount(null)}
+        footer={
+          <button
+            className={btnPrimary}
+            type="button"
+            onClick={() => setCreatedAccount(null)}
+          >
+            Në rregull
+          </button>
+        }
+      >
+        <p className="m-0 text-sm leading-relaxed text-muted">
+          <span className="font-semibold text-ink">{createdAccount?.name}</span>{" "}
+          është gati. Fjalëkalimi i përkohshëm u dërgua te{" "}
+          <span className="font-semibold text-ink">{createdAccount?.email}</span>
+          . Në hyrjen e parë pronari duhet ta ndryshojë.
+        </p>
+      </Modal>
 
       <Modal
         open={creating}

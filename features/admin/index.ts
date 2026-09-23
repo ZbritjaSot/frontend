@@ -6,8 +6,10 @@ export { RejectBundleModal } from "./RejectBundleModal";
 export {
   approveOffer,
   fetchAdminOfferBundle,
+  fetchApprovedOffers,
   fetchPendingOffers,
   rejectOffer,
+  takeDownOffer,
 } from "./offersApi";
 export {
   createSubscription,

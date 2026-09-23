@@ -1,17 +1,16 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
-import { AdminPendingOffers } from "@/features/admin/AdminPendingOffers";
-import { pageTitle } from "@/lib/ui";
+import { AdminOffersBoard } from "@/features/admin/AdminOffersBoard";
 
 export const metadata: Metadata = {
-  title: "Në pritje",
+  title: "Ofertat",
   robots: { index: false, follow: false },
 };
 
 export default function AdminOffersPage() {
   return (
-    <>
-      <h1 className={pageTitle}>Në pritje</h1>
-      <AdminPendingOffers />
-    </>
+    <Suspense>
+      <AdminOffersBoard />
+    </Suspense>
   );
 }

@@ -12,6 +12,7 @@ import {
   useAdminOfferBundle,
   useApproveOffer,
   useRejectOffer,
+  useTakeDownOffer,
 } from "@/hooks/useAdminOffers";
 import { validationMessage } from "@/lib/api";
 import { formatDateShortSq } from "@/lib/format";
@@ -37,10 +38,13 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
   const { data: bundle, isLoading, isError, error } = useAdminOfferBundle(id);
   const approveMutation = useApproveOffer();
   const rejectMutation = useRejectOffer();
+  const takeDownMutation = useTakeDownOffer();
   const [actionError, setActionError] = useState<string | null>(null);
   const [confirmApprove, setConfirmApprove] = useState(false);
   const [confirmReject, setConfirmReject] = useState(false);
+  const [confirmTakeDown, setConfirmTakeDown] = useState(false);
   const [reason, setReason] = useState("");
+  const [takeDownReason, setTakeDownReason] = useState("");
   const [problemIds, setProblemIds] = useState<string[]>([]);
 
   if (isLoading) {
@@ -62,6 +66,9 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
   }
 
   const isPending = bundle.status === "pending";
+  const isApproved = bundle.status === "approved";
+  const backHref = isApproved ? "/admin/offers?view=aktive" : "/admin/offers";
+  const backLabel = isApproved ? "Aktive" : "Në pritje";
 
   async function onApprove() {
     setActionError(null);
@@ -101,6 +108,35 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
     setReason("");
   }
 
+  function closeTakeDown() {
+    if (takeDownMutation.isPending) {
+      return;
+    }
+    setConfirmTakeDown(false);
+    setTakeDownReason("");
+  }
+
+  async function onTakeDown() {
+    const note = takeDownReason.trim();
+    if (note === "") {
+      setActionError("Shkruaj arsyen.");
+      return;
+    }
+    setActionError(null);
+    try {
+      await takeDownMutation.mutateAsync({
+        id: bundle!.id,
+        reason: note,
+      });
+      setConfirmTakeDown(false);
+      setTakeDownReason("");
+      router.replace("/admin/offers?view=aktive");
+    } catch (err) {
+      setActionError(validationMessage(err, "Nuk mundëm ta heqim dosjen."));
+      setConfirmTakeDown(false);
+    }
+  }
+
   async function onReject() {
     setActionError(null);
     try {
@@ -124,11 +160,11 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div className="grid min-w-0 grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-x-1.5">
           <Link
-            href="/admin/offers"
+            href={backHref}
             className="col-span-2 grid grid-cols-subgrid items-center text-sm font-semibold text-muted no-underline hover:text-ink"
           >
             <ArrowBackIcon fontSize="small" />
-            <span>Në pritje</span>
+            <span>{backLabel}</span>
           </Link>
           <div className="col-start-2 mt-3 flex flex-wrap items-center gap-3">
             <h1 className={`${pageTitle} mb-0!`}>{bundle.title}</h1>
@@ -175,6 +211,19 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
               Refuzo
             </button>
           </div>
+        ) : null}
+        {isApproved ? (
+          <button
+            type="button"
+            className={btnDanger}
+            disabled={takeDownMutation.isPending}
+            onClick={() => {
+              setActionError(null);
+              setConfirmTakeDown(true);
+            }}
+          >
+            Hiq nga faqja
+          </button>
         ) : null}
       </div>
 
@@ -246,6 +295,51 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
               disabled={rejectMutation.isPending}
               placeholder="Çfarë duhet rregulluar…"
               onChange={(event) => setReason(event.target.value)}
+            />
+          </label>
+        </div>
+      </Modal>
+
+      <Modal
+        open={confirmTakeDown}
+        title="Hiq nga faqja"
+        onClose={closeTakeDown}
+        footer={
+          <>
+            <button
+              type="button"
+              className={btnGhost}
+              disabled={takeDownMutation.isPending}
+              onClick={closeTakeDown}
+            >
+              Anulo
+            </button>
+            <button
+              type="button"
+              className={btnDanger}
+              disabled={takeDownMutation.isPending || takeDownReason.trim() === ""}
+              onClick={onTakeDown}
+            >
+              {takeDownMutation.isPending ? "Duke u hequr…" : "Hiq"}
+            </button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <p className="m-0 text-sm leading-relaxed text-muted">
+            Hiq “{bundle.title}” nga faqja publike? Biznesi merr email me
+            arsyen.
+          </p>
+          <label className={fieldLabel}>
+            <span>Arsye</span>
+            <textarea
+              className={`${inputClass} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`}
+              rows={4}
+              value={takeDownReason}
+              maxLength={1000}
+              disabled={takeDownMutation.isPending}
+              placeholder="Pse hiqet…"
+              onChange={(event) => setTakeDownReason(event.target.value)}
             />
           </label>
         </div>

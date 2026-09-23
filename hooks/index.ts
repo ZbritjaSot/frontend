@@ -10,9 +10,11 @@ export {
   adminOfferBundleQueryKey,
   adminPendingOffersQueryKey,
   useAdminOfferBundle,
+  useApprovedOffers,
   useApproveOffer,
   usePendingOffers,
   useRejectOffer,
+  useTakeDownOffer,
 } from "./useAdminOffers";
 export {
   adminBusinessesQueryKey,

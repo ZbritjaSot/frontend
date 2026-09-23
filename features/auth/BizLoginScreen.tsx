@@ -55,6 +55,7 @@ export function BizLoginScreen() {
           requiredRole="business"
           nextPath="/biz"
           wrongRoleMessage="Kjo llogari nuk është llogari biznesi."
+          forgotHref="/biz/forgot-password"
         />
 
         <p className="m-0 mt-8 text-[0.8125rem] leading-normal text-muted [&_code]:font-mono [&_code]:text-xs [&_code]:text-accent">

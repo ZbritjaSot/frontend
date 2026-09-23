@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Spinner } from "@/components/ui/Spinner";
@@ -14,12 +15,14 @@ type LoginFormProps = {
   requiredRole: "admin" | "business";
   nextPath: string;
   wrongRoleMessage: string;
+  forgotHref?: string;
 };
 
 export function LoginForm({
   requiredRole,
   nextPath,
   wrongRoleMessage,
+  forgotHref,
 }: LoginFormProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -85,6 +88,15 @@ export function LoginForm({
           required
         />
       </label>
+
+      {forgotHref ? (
+        <Link
+          href={forgotHref}
+          className="-mt-2 self-start text-sm font-semibold text-muted hover:text-accent"
+        >
+          Ke harruar fjalëkalimin?
+        </Link>
+      ) : null}
 
       {error ? (
         <p className={fieldError} role="alert">

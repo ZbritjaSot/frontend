@@ -45,6 +45,29 @@ export async function changePassword(input: {
   return payload.user;
 }
 
+export async function requestPasswordReset(email: string): Promise<void> {
+  await ensureCsrfCookie();
+  await apiFetch<{ message: string }>("/auth/forgot-password", {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function resetPassword(input: {
+  email: string;
+  token: string;
+  password: string;
+  password_confirmation: string;
+}): Promise<void> {
+  await ensureCsrfCookie();
+  await apiFetch<{ message: string }>("/auth/reset-password", {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify(input),
+  });
+}
+
 export async function logout(): Promise<void> {
   await ensureCsrfCookie();
   await apiFetch<{ message: string }>("/auth/logout", {
