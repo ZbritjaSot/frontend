@@ -7,10 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminBusinessesPage() {
-  return (
-    <>
-      <h1 className="dash__page-title">Bizneset</h1>
-      <AdminBusinesses />
-    </>
-  );
+  return <AdminBusinesses />;
 }

@@ -7,7 +7,7 @@ type OfferListProps = {
 
 export function OfferList({ offers }: OfferListProps) {
   return (
-    <ul className="offer-list">
+    <ul className="m-0 grid list-none gap-3 p-0">
       {offers.map((offer) => (
         <OfferListItem key={offer.id} offer={offer} />
       ))}

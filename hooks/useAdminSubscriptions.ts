@@ -25,7 +25,7 @@ export function useAdminSubscriptions() {
 export function useAdminBusinesses() {
   return useQuery({
     queryKey: adminBusinessesQueryKey,
-    queryFn: () => fetchAdminBusinesses(),
+    queryFn: () => fetchAdminBusinesses(1, 50),
   });
 }
 

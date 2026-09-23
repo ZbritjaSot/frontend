@@ -34,6 +34,7 @@ export {
   useActiveCategories,
   useBizOffer,
   useBizOffers,
+  useBizOffersByStatus,
   useCreateBizOffer,
   useDeleteBizOffer,
   useSubmitBizOffer,

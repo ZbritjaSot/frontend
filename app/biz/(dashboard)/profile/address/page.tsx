@@ -7,10 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function BizAddressPage() {
-  return (
-    <>
-      <h1 className="dash__page-title">Adresa</h1>
-      <BizAddressScreen />
-    </>
-  );
+  return <BizAddressScreen />;
 }

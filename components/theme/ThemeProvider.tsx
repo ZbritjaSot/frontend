@@ -12,6 +12,7 @@ import {
 import { usePathname } from "next/navigation";
 import {
   applyTheme,
+  isDashboardPath,
   readThemePreference,
   serverThemePreference,
   storeTheme,
@@ -26,10 +27,6 @@ type ThemeContextValue = {
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
-
-function isDashboardPath(pathname: string): boolean {
-  return pathname.startsWith("/admin") || pathname.startsWith("/biz");
-}
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();

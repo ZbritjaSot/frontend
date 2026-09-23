@@ -1,5 +1,8 @@
 "use client";
 
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import { useMemo, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { DateTimeField } from "@/components/ui/DateTimeField";
@@ -12,6 +15,12 @@ import {
 } from "@/hooks/useBizOffers";
 import { defaultOfferWindow, toDateTimeLocalValue } from "@/lib/datetime";
 import { validationMessage } from "@/lib/api";
+import {
+  btnGhost,
+  btnPrimary,
+  fieldError,
+  inputClass,
+} from "@/lib/ui";
 import { offerBundleFormSchema } from "@/schemas/offer";
 import type { OfferBundle } from "@/types";
 
@@ -283,196 +292,247 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
     }
   }
 
+  const micro =
+    "text-xs font-bold tracking-[0.08em] text-muted uppercase";
+  const iconButton =
+    "inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+
   return (
-    <form className="offer-form" onSubmit={onSubmit} noValidate>
-      <label className="offer-form__field">
-        <span>Titulli i dosjes</span>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          disabled={pending}
-          required
-          maxLength={255}
-          placeholder="p.sh. Nëntor 2026"
-        />
-      </label>
-
-      <div className="offer-form__row">
-        <label className="offer-form__field">
-          <span>Fillon</span>
-          <DateTimeField
-            value={startsAt}
-            onChange={setStartsAt}
+    <form className="flex flex-col gap-8" onSubmit={onSubmit} noValidate>
+      <section className="rounded-2xl border border-line px-5 py-5">
+        <label className="flex flex-col gap-2">
+          <span className={micro}>Titulli</span>
+          <input
+            className={`${inputClass} text-lg! font-semibold`}
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             disabled={pending}
-            aria-label="Fillon"
+            required
+            maxLength={255}
+            placeholder="p.sh. Nëntor 2026"
+            aria-label="Titulli i dosjes"
           />
         </label>
+        <div className="mt-5 grid gap-5 border-t border-line pt-5 md:grid-cols-2 md:gap-8">
+          <label className="flex flex-col gap-2">
+            <span className={micro}>Fillon</span>
+            <DateTimeField
+              value={startsAt}
+              onChange={setStartsAt}
+              disabled={pending}
+              aria-label="Fillon"
+            />
+          </label>
+          <label className="flex flex-col gap-2">
+            <span className={micro}>Skadon</span>
+            <DateTimeField
+              value={expiresAt}
+              onChange={setExpiresAt}
+              disabled={pending}
+              aria-label="Skadon"
+            />
+          </label>
+        </div>
+      </section>
 
-        <label className="offer-form__field">
-          <span>Skadon</span>
-          <DateTimeField
-            value={expiresAt}
-            onChange={setExpiresAt}
-            disabled={pending}
-            aria-label="Skadon"
-          />
-        </label>
-      </div>
-
-      <div className="offer-form__items">
-        <div className="offer-form__items-head">
-          <h2 className="offer-form__items-title">Produktet</h2>
-          <button
-            type="button"
-            className="btn btn--ghost btn--sm"
-            disabled={pending}
-            onClick={addItem}
-          >
-            + Shto produkt
-          </button>
+      <section>
+        <div className="mb-3 flex items-baseline justify-between gap-3">
+          <h2 className={`${micro} m-0`}>Produktet</h2>
+          <p className="m-0 text-sm font-semibold text-muted tabular-nums">
+            {items.length} {items.length === 1 ? "produkt" : "produkte"}
+          </p>
         </div>
 
         {offer?.status === "rejected" && offer.rejection_reason ? (
-          <p className="bundle-view__reject" role="status">
-            Arsye refuzimi: {offer.rejection_reason}
+          <p className="m-0 mb-3 text-sm font-semibold text-danger" role="status">
+            {offer.rejection_reason}
           </p>
         ) : null}
 
-        {items.map((item, index) => (
-          <fieldset
-            key={item.key}
-            className={
-              item.rejection_note
-                ? "offer-form__item offer-form__item--flagged"
-                : "offer-form__item"
-            }
-          >
-            <legend>
-              Produkt {index + 1}
-              {item.rejection_note ? " · Duhet rregulluar" : ""}
-            </legend>
+        <div className="overflow-hidden rounded-2xl border border-line">
+          {items.map((item, index) => {
+            const percent = Number(item.discount_percent);
+            const hasDeal =
+              item.original_price > 0 &&
+              item.discounted_price > 0 &&
+              item.discounted_price < item.original_price &&
+              Number.isFinite(percent) &&
+              percent >= 1 &&
+              percent <= 99;
 
-            {item.rejection_note ? (
-              <p className="offer-form__item-note">{item.rejection_note}</p>
-            ) : null}
-
-            <label className="offer-form__field">
-              <span>Kategoria</span>
-              <SelectField
-                value={item.category_id}
-                onChange={(value) =>
-                  patchItem(item.key, { category_id: value })
-                }
-                options={categoryOptions}
-                placeholder="Zgjidh kategorinë"
-                disabled={pending || categoriesLoading}
-                aria-label={`Kategoria e produktit ${index + 1}`}
-              />
-            </label>
-
-            <label className="offer-form__field">
-              <span>Emri i produktit</span>
-              <input
-                type="text"
-                value={item.name}
-                onChange={(e) => patchItem(item.key, { name: e.target.value })}
-                disabled={pending}
-                required
-                maxLength={255}
-              />
-            </label>
-
-            <label className="offer-form__field">
-              <span>Çmimi origjinal (EUR)</span>
-              <PosMoneyField
-                valueCents={item.original_price}
-                onChangeCents={(cents) => onOriginalChange(item.key, cents)}
-                disabled={pending}
-                aria-label={`Çmimi origjinal i produktit ${index + 1}`}
-              />
-            </label>
-
-            <div className="offer-form__row">
-              <label className="offer-form__field">
-                <span>Zbritja (%)</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  spellCheck={false}
-                  pattern="[0-9]*"
-                  maxLength={2}
-                  value={item.discount_percent}
-                  onKeyDown={onPercentKeyDown}
-                  onPaste={(event: ClipboardEvent<HTMLInputElement>) => {
-                    event.preventDefault();
-                    onPercentChange(
-                      item.key,
-                      event.clipboardData.getData("text"),
-                    );
-                  }}
-                  onChange={(e) => onPercentChange(item.key, e.target.value)}
-                  disabled={pending}
-                  placeholder="p.sh. 30"
-                  aria-label={`Zbritja në përqindje e produktit ${index + 1}`}
-                />
-              </label>
-
-              <label className="offer-form__field">
-                <span>Çmimi me zbritje (EUR)</span>
-                <PosMoneyField
-                  valueCents={item.discounted_price}
-                  onChangeCents={(cents) =>
-                    onDiscountedChange(item.key, cents)
-                  }
-                  disabled={pending}
-                  aria-label={`Çmimi me zbritje i produktit ${index + 1}`}
-                />
-              </label>
-            </div>
-
-            <p className="offer-form__hint">
-              Plotëso % (1–99) ose çmimin me zbritje — tjetri llogaritet
-              automatikisht. Çmimi me zbritje duhet të jetë më i ulët se
-              origjinali.
-            </p>
-
-            {items.length > 1 ? (
-              <button
-                type="button"
-                className="btn btn--ghost btn--sm"
-                disabled={pending}
-                onClick={() => removeItem(item.key)}
+            return (
+              <div
+                key={item.key}
+                className={`border-b border-line px-4 py-4 ${
+                  item.rejection_note
+                    ? "shadow-[inset_3px_0_0_var(--color-danger)]"
+                    : ""
+                }`}
               >
-                Hiq produktin
-              </button>
-            ) : null}
-          </fieldset>
-        ))}
-      </div>
+                <div className="flex items-stretch gap-4">
+                  <div
+                    className="flex w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-line bg-sunken text-muted sm:w-28"
+                    aria-hidden
+                  >
+                    <ImageOutlinedIcon fontSize="small" />
+                    <span className="text-[0.6875rem] font-semibold tracking-[0.08em] uppercase">
+                      Foto
+                    </span>
+                  </div>
+
+                  <div className="grid min-w-0 flex-1 gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="grid min-w-0 flex-1 gap-3 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+                        <input
+                          className={inputClass}
+                          type="text"
+                          value={item.name}
+                          onChange={(e) =>
+                            patchItem(item.key, { name: e.target.value })
+                          }
+                          disabled={pending}
+                          required
+                          maxLength={255}
+                          placeholder="Emri i produktit"
+                          aria-label={`Emri i produktit ${index + 1}`}
+                        />
+                        <SelectField
+                          value={item.category_id}
+                          onChange={(value) =>
+                            patchItem(item.key, { category_id: value })
+                          }
+                          options={categoryOptions}
+                          placeholder="Kategoria"
+                          disabled={pending || categoriesLoading}
+                          aria-label={`Kategoria e produktit ${index + 1}`}
+                        />
+                      </div>
+                      {items.length > 1 ? (
+                        <button
+                          type="button"
+                          className={iconButton}
+                          aria-label={`Hiq produktin ${index + 1}`}
+                          disabled={pending}
+                          onClick={() => removeItem(item.key)}
+                        >
+                          <DeleteOutlinedIcon
+                            fontSize="small"
+                            className="text-danger!"
+                          />
+                        </button>
+                      ) : null}
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <label className="flex flex-col gap-1.5">
+                        <span className={micro}>Origjinali</span>
+                        <PosMoneyField
+                          valueCents={item.original_price}
+                          onChangeCents={(cents) =>
+                            onOriginalChange(item.key, cents)
+                          }
+                          disabled={pending}
+                          aria-label={`Çmimi origjinal i produktit ${index + 1}`}
+                        />
+                      </label>
+                      <label className="flex flex-col gap-1.5">
+                        <span className={micro}>Zbritja</span>
+                        <div className="relative">
+                          <input
+                            className={`${inputClass} pr-8 text-right tabular-nums`}
+                            type="text"
+                            inputMode="numeric"
+                            autoComplete="off"
+                            spellCheck={false}
+                            pattern="[0-9]*"
+                            maxLength={2}
+                            value={item.discount_percent}
+                            onKeyDown={onPercentKeyDown}
+                            onPaste={(
+                              event: ClipboardEvent<HTMLInputElement>,
+                            ) => {
+                              event.preventDefault();
+                              onPercentChange(
+                                item.key,
+                                event.clipboardData.getData("text"),
+                              );
+                            }}
+                            onChange={(e) =>
+                              onPercentChange(item.key, e.target.value)
+                            }
+                            disabled={pending}
+                            placeholder="0"
+                            aria-label={`Zbritja në përqindje e produktit ${index + 1}`}
+                          />
+                          <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm font-bold text-muted">
+                            %
+                          </span>
+                        </div>
+                      </label>
+                      <label className="flex flex-col gap-1.5">
+                        <span className={micro}>Çmimi</span>
+                        <div
+                          className={
+                            hasDeal ? "[&_input]:text-accent!" : undefined
+                          }
+                        >
+                          <PosMoneyField
+                            valueCents={item.discounted_price}
+                            onChangeCents={(cents) =>
+                              onDiscountedChange(item.key, cents)
+                            }
+                            disabled={pending}
+                            aria-label={`Çmimi me zbritje i produktit ${index + 1}`}
+                          />
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {item.rejection_note ? (
+                  <p className="m-0 mt-3 text-sm font-semibold text-danger">
+                    {item.rejection_note}
+                  </p>
+                ) : null}
+              </div>
+            );
+          })}
+
+          <button
+            type="button"
+            className="flex w-full cursor-pointer items-center gap-2 bg-transparent px-4 py-3 text-sm font-semibold text-muted hover:bg-sunken hover:text-ink disabled:cursor-wait disabled:opacity-65"
+            disabled={pending}
+            onClick={addItem}
+          >
+            <AddOutlinedIcon fontSize="small" />
+            Shto produkt
+          </button>
+        </div>
+      </section>
 
       {error ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {error}
         </p>
       ) : null}
 
-      <div className="offer-form__actions">
-        <button className="btn btn--primary" type="submit" disabled={pending}>
-          {pending
-            ? "Duke u ruajtur…"
-            : mode === "create"
-              ? "Ruaj draft"
-              : "Përditëso"}
-        </button>
+      <div className="sticky bottom-0 z-20 -mx-5 flex items-center justify-end gap-2 border-t border-line bg-canvas px-5 py-3 sm:-mx-8 sm:px-8">
         <button
-          className="btn btn--ghost"
+          className={btnGhost}
           type="button"
           disabled={pending}
           onClick={() => router.push("/biz/offers")}
         >
           Anulo
+        </button>
+        <button className={btnPrimary} type="submit" disabled={pending}>
+          {pending
+            ? "Duke u ruajtur…"
+            : mode === "create"
+              ? "Ruaj draft"
+              : "Përditëso"}
         </button>
       </div>
     </form>

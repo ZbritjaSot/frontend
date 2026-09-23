@@ -1,5 +1,15 @@
 export type Theme = "light" | "dark";
 
+/** Admin and business dashboards stay dark. Public shop URLs start with /biznese. */
+export function isDashboardPath(pathname: string): boolean {
+  return (
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
+    pathname === "/biz" ||
+    pathname.startsWith("/biz/")
+  );
+}
+
 export const THEME_STORAGE_KEY = "zbritjasot-theme";
 
 export function isTheme(value: unknown): value is Theme {

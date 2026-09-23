@@ -1,49 +1,89 @@
 "use client";
 
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Link from "next/link";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
-import {
-  useBizOffers,
-  useDeleteBizOffer,
-  useSubmitBizOffer,
-} from "@/hooks/useBizOffers";
+import { BIZ_OFFERS_PAGE_SIZE } from "@/features/offers/bizApi";
 import {
   canDeleteOffer,
   canEditOffer,
   canSubmitOffer,
   OFFER_STATUS_LABEL,
 } from "@/features/offers/status";
+import {
+  useBizOffers,
+  useDeleteBizOffer,
+  useSubmitBizOffer,
+} from "@/hooks/useBizOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
+import {
+  btnGhost,
+  btnPrimary,
+  fieldError,
+  offerStatusClass,
+  pageTitle,
+  panelLead,
+} from "@/lib/ui";
 import type { OfferBundle } from "@/types";
 
+const rowButton =
+  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+
 export function BizOfferList() {
-  const { data, isLoading, isError, error, refetch, isFetching } = useBizOffers();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error, refetch } = useBizOffers(page);
   const submitMutation = useSubmitBizOffer();
   const deleteMutation = useDeleteBizOffer();
   const [actionError, setActionError] = useState<string | null>(null);
   const [bundleToDelete, setBundleToDelete] = useState<OfferBundle | null>(null);
 
-  if (isLoading) {
-    return <Spinner label="Duke ngarkuar ofertat" />;
+  const bundles = data?.data ?? [];
+  const lastPage = data?.meta?.last_page;
+  const total = data?.meta?.total ?? bundles.length;
+  if (!isLoading && lastPage !== undefined && page > lastPage) {
+    setPage(lastPage);
   }
 
-  if (isError) {
+  const header = (
+    <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <h1 className={`${pageTitle} mb-0!`}>Ofertat</h1>
+      <Link href="/biz/offers/new" className={btnPrimary}>
+        Dosje e re
+      </Link>
+    </div>
+  );
+
+  if (isLoading) {
     return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
-          {validationMessage(error, "Nuk mundëm t’i ngarkojmë ofertat.")}
-        </p>
-        <button className="btn btn--ghost" type="button" onClick={() => refetch()}>
-          Provo përsëri
-        </button>
+      <div>
+        {header}
+        <Spinner label="Duke ngarkuar ofertat" />
       </div>
     );
   }
 
-  const bundles = data?.data ?? [];
+  if (isError) {
+    return (
+      <div>
+        {header}
+        <div className="max-w-[40rem]">
+          <p className={panelLead}>
+            {validationMessage(error, "Nuk mundëm t’i ngarkojmë ofertat.")}
+          </p>
+          <button className={btnGhost} type="button" onClick={() => refetch()}>
+            Provo përsëri
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   async function onSubmit(bundle: OfferBundle) {
     setActionError(null);
@@ -71,101 +111,133 @@ export function BizOfferList() {
   }
 
   return (
-    <div className="biz-offers">
-      <div className="biz-offers__toolbar">
-        <Link href="/biz/offers/new" className="btn btn--primary">
-          Dosje e re
-        </Link>
-        {isFetching ? (
-          <span className="biz-offers__hint">Duke përditësuar…</span>
-        ) : null}
-      </div>
+    <div>
+      {header}
 
       {actionError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {actionError}
         </p>
       ) : null}
 
       {bundles.length === 0 ? (
-        <p className="shell-panel__lead">
-          Nuk ke asnjë dosje ofertash ende. Krijo të parën (edhe me një produkt).
-        </p>
+        <p className={panelLead}>Nuk ke oferta ende.</p>
       ) : (
-        <ul className="biz-offer-list">
-          {bundles.map((bundle) => {
-            const count = bundle.items_count ?? bundle.items?.length ?? 0;
-            return (
-              <li key={bundle.id} className="biz-offer-row">
-                <Link
-                  href={`/biz/offers/${bundle.id}`}
-                  className="biz-offer-row__main biz-offer-row__main--link"
-                >
-                  <span
-                    className={`biz-offer-row__status biz-offer-row__status--${bundle.status}`}
+        <div className="overflow-hidden rounded-2xl border border-line">
+          <div className="overflow-x-auto md:grid md:grid-cols-[minmax(0,1.4fr)_auto_auto_auto_auto] md:gap-x-4">
+            <div className="col-span-5 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
+              <span className="whitespace-nowrap">Oferta</span>
+              <span className="whitespace-nowrap md:pl-6">Produkte</span>
+              <span className="whitespace-nowrap md:pl-6">Skadon</span>
+              <span className="whitespace-nowrap md:pl-6">Statusi</span>
+              <span className="border-l border-line pl-4 whitespace-nowrap">
+                Veprimet
+              </span>
+            </div>
+            <ul className="col-span-5 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
+              {bundles.map((bundle) => {
+                const count = bundle.items_count ?? bundle.items?.length ?? 0;
+                const flagged =
+                  bundle.items?.filter((item) => item.rejection_note).length ??
+                  0;
+                return (
+                  <li
+                    key={bundle.id}
+                    className="col-span-5 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
                   >
-                    {OFFER_STATUS_LABEL[bundle.status]}
-                  </span>
-                  <div>
-                    <p className="biz-offer-row__name">{bundle.title}</p>
-                    <p className="biz-offer-row__meta">
-                      {count} {count === 1 ? "produkt" : "produkte"}
-                      {" · "}
-                      deri {formatDateShortSq(bundle.expires_at)}
-                      {bundle.status === "rejected" &&
-                      (bundle.items?.filter((i) => i.rejection_note).length ??
-                        0) > 0
-                        ? ` · ${bundle.items!.filter((i) => i.rejection_note).length} për rregullim`
-                        : null}
+                    <div className="min-w-0">
+                      <Link
+                        href={`/biz/offers/${bundle.id}`}
+                        className="truncate text-base font-semibold text-inherit no-underline hover:text-accent"
+                      >
+                        {bundle.title}
+                      </Link>
+                      {bundle.status === "rejected" && bundle.rejection_reason ? (
+                        <p className="m-0 truncate text-sm font-semibold text-danger">
+                          {bundle.rejection_reason}
+                        </p>
+                      ) : flagged > 0 ? (
+                        <p className="m-0 truncate text-sm text-muted">
+                          {flagged} për rregullim
+                        </p>
+                      ) : null}
+                    </div>
+                    <p className="m-0 text-sm font-semibold tabular-nums md:pl-6">
+                      {count}
                     </p>
-                    {bundle.status === "rejected" && bundle.rejection_reason ? (
-                      <p className="biz-offer-row__reject">
-                        Arsye: {bundle.rejection_reason}
-                      </p>
-                    ) : null}
-                  </div>
-                </Link>
-
-                <div className="biz-offer-row__actions">
-                  <Link
-                    href={`/biz/offers/${bundle.id}`}
-                    className="btn btn--ghost btn--sm"
-                  >
-                    Shiko
-                  </Link>
-                  {canEditOffer(bundle.status) ? (
-                    <Link
-                      href={`/biz/offers/${bundle.id}/edit`}
-                      className="btn btn--ghost btn--sm"
+                    <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
+                      {formatDateShortSq(bundle.expires_at)}
+                    </p>
+                    <span
+                      className={`${offerStatusClass(bundle.status)} mt-0! w-fit self-center! md:ml-6`}
                     >
-                      Ndrysho
-                    </Link>
-                  ) : null}
-                  {canSubmitOffer(bundle.status) ? (
-                    <button
-                      type="button"
-                      className="btn btn--primary btn--sm"
-                      disabled={submitMutation.isPending}
-                      onClick={() => onSubmit(bundle)}
-                    >
-                      Dërgo
-                    </button>
-                  ) : null}
-                  {canDeleteOffer(bundle.status) ? (
-                    <button
-                      type="button"
-                      className="btn btn--ghost btn--sm"
-                      disabled={deleteMutation.isPending}
-                      onClick={() => setBundleToDelete(bundle)}
-                    >
-                      Fshi
-                    </button>
-                  ) : null}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                      {OFFER_STATUS_LABEL[bundle.status]}
+                    </span>
+                    <div className="grid grid-cols-4 gap-1.5 border-l border-line pl-4">
+                      <Link
+                        href={`/biz/offers/${bundle.id}`}
+                        className={rowButton}
+                        aria-label={`Shiko ${bundle.title}`}
+                      >
+                        <VisibilityOutlinedIcon fontSize="small" />
+                      </Link>
+                      {canEditOffer(bundle.status) ? (
+                        <Link
+                          href={`/biz/offers/${bundle.id}/edit`}
+                          className={rowButton}
+                          aria-label={`Ndrysho ${bundle.title}`}
+                        >
+                          <EditOutlinedIcon fontSize="small" />
+                        </Link>
+                      ) : (
+                        <span className="size-9" aria-hidden />
+                      )}
+                      {canSubmitOffer(bundle.status) ? (
+                        <button
+                          type="button"
+                          className={rowButton}
+                          aria-label={`Dërgo ${bundle.title}`}
+                          disabled={submitMutation.isPending}
+                          onClick={() => onSubmit(bundle)}
+                        >
+                          <SendOutlinedIcon
+                            fontSize="small"
+                            className="text-accent!"
+                          />
+                        </button>
+                      ) : (
+                        <span className="size-9" aria-hidden />
+                      )}
+                      {canDeleteOffer(bundle.status) ? (
+                        <button
+                          type="button"
+                          className={rowButton}
+                          aria-label={`Fshi ${bundle.title}`}
+                          disabled={deleteMutation.isPending}
+                          onClick={() => setBundleToDelete(bundle)}
+                        >
+                          <DeleteOutlinedIcon
+                            fontSize="small"
+                            className="text-danger!"
+                          />
+                        </button>
+                      ) : (
+                        <span className="size-9" aria-hidden />
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <Pagination
+            page={page}
+            lastPage={lastPage ?? 1}
+            total={total}
+            perPage={BIZ_OFFERS_PAGE_SIZE}
+            onPageChange={setPage}
+          />
+        </div>
       )}
 
       <ConfirmModal
@@ -173,7 +245,9 @@ export function BizOfferList() {
         title="Fshi dosjen"
         message={
           bundleToDelete
-            ? `Je i sigurt që do ta fshish “${bundleToDelete.title}”? Të gjitha produktet në dosje fshihen. Ky veprim nuk kthehet mbrapsht.`
+            ? bundleToDelete.status === "approved"
+              ? `Fshi “${bundleToDelete.title}”? Hiqet nga faqja publike.`
+              : `Fshi “${bundleToDelete.title}”? Produktet në dosje fshihen.`
             : ""
         }
         confirmLabel="Fshi"

@@ -1,11 +1,36 @@
 "use client";
 
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Spinner } from "@/components/ui/Spinner";
 import { OfferForm } from "@/features/offers/OfferForm";
-import { canEditOffer } from "@/features/offers/status";
+import { canEditOffer, OFFER_STATUS_LABEL } from "@/features/offers/status";
 import { useBizOffer } from "@/hooks/useBizOffers";
 import { validationMessage } from "@/lib/api";
+import { btnGhost, pageTitle, panelLead } from "@/lib/ui";
+
+export function OffersBackHeading({
+  title,
+  children,
+}: {
+  title: string;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="mb-8 grid grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-x-1.5">
+      <Link
+        href="/biz/offers"
+        className="col-span-2 grid grid-cols-subgrid items-center text-sm font-semibold text-muted no-underline hover:text-ink"
+      >
+        <ArrowBackIcon fontSize="small" />
+        <span>Ofertat</span>
+      </Link>
+      <h1 className={`${pageTitle} col-start-2 mt-3 mb-0!`}>{title}</h1>
+      {children ? <div className="col-start-2 mt-2">{children}</div> : null}
+    </div>
+  );
+}
 
 type EditOfferScreenProps = {
   id: string;
@@ -20,12 +45,13 @@ export function EditOfferScreen({ id }: EditOfferScreenProps) {
 
   if (isError || !bundle) {
     return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
+      <div className="max-w-[40rem]">
+        <p className={panelLead}>
           {validationMessage(error, "Dosja nuk u gjet.")}
         </p>
-        <Link href="/biz/offers" className="btn btn--ghost">
-          ← Ofertat
+        <Link href="/biz/offers" className={btnGhost}>
+          <ArrowBackIcon fontSize="small" />
+          Ofertat
         </Link>
       </div>
     );
@@ -33,12 +59,14 @@ export function EditOfferScreen({ id }: EditOfferScreenProps) {
 
   if (!canEditOffer(bundle.status)) {
     return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
-          Kjo dosje nuk mund të ndryshohet (statusi: {bundle.status}).
+      <div className="max-w-[40rem]">
+        <p className={panelLead}>
+          Kjo dosje nuk mund të ndryshohet (statusi:{" "}
+          {OFFER_STATUS_LABEL[bundle.status]}).
         </p>
-        <Link href="/biz/offers" className="btn btn--ghost">
-          ← Ofertat
+        <Link href="/biz/offers" className={btnGhost}>
+          <ArrowBackIcon fontSize="small" />
+          Ofertat
         </Link>
       </div>
     );
@@ -46,7 +74,7 @@ export function EditOfferScreen({ id }: EditOfferScreenProps) {
 
   return (
     <>
-      <h1 className="dash__page-title">Ndrysho dosjen</h1>
+      <OffersBackHeading title="Ndrysho dosjen" />
       <OfferForm mode="edit" offer={bundle} />
     </>
   );

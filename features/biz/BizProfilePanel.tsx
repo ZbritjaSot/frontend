@@ -1,11 +1,15 @@
 "use client";
 
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/Spinner";
 import { useBizBusiness, useBizSubscription } from "@/hooks/useBizProfile";
 import { formatDateSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
+import { btnGhost, offerStatusClass, panelLead } from "@/lib/ui";
 import type { BizSubscription, Business } from "@/types";
+
+const micro = "text-xs font-bold tracking-[0.08em] text-muted uppercase";
 
 function AddressLink({ business }: { business: Business }) {
   const lines = [business.street, business.village, business.city].filter(
@@ -14,19 +18,25 @@ function AddressLink({ business }: { business: Business }) {
   const saved = lines.length > 0 ? lines : business.address ? [business.address] : [];
 
   return (
-    <Link href="/biz/profile/address" className="address-row">
-      <span className="address-row__label">Adresa</span>
-      {saved.length > 0 ? (
-        saved.map((line, index) => (
-          <span key={`${index}-${line}`} className="address-row__value">
-            {line}
-          </span>
-        ))
-      ) : (
-        <span className="address-row__value">Shto adresën</span>
-      )}
-      <span className="address-row__meta">
-        {saved.length > 0 ? "Ndrysho" : "Hap faqen e adresës"}
+    <Link
+      href="/biz/profile/address"
+      aria-label={saved.length > 0 ? "Ndrysho adresën" : "Shto adresën"}
+      className="flex items-center justify-between gap-4 border-t border-line px-5 py-4 text-inherit no-underline hover:bg-sunken"
+    >
+      <span className="grid min-w-0 gap-0.5">
+        <span className={micro}>Adresa</span>
+        {saved.length > 0 ? (
+          saved.map((line, index) => (
+            <span key={`${index}-${line}`} className="truncate font-bold">
+              {line}
+            </span>
+          ))
+        ) : (
+          <span className="font-bold">Shto adresën</span>
+        )}
+      </span>
+      <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-line bg-sunken text-ink">
+        <EditOutlinedIcon fontSize="small" />
       </span>
     </Link>
   );
@@ -34,15 +44,15 @@ function AddressLink({ business }: { business: Business }) {
 
 function statusClass(sub: BizSubscription): string {
   if (!sub.is_active) {
-    return "biz-offer-row__status--rejected";
+    return offerStatusClass("rejected");
   }
   if (sub.is_current) {
-    return "biz-offer-row__status--approved";
+    return offerStatusClass("approved");
   }
   if (new Date(sub.ends_at).getTime() <= Date.now()) {
-    return "biz-offer-row__status--expired";
+    return offerStatusClass("expired");
   }
-  return "biz-offer-row__status--pending";
+  return offerStatusClass("pending");
 }
 
 function subscriptionStatus(sub: BizSubscription): {
@@ -58,13 +68,13 @@ function subscriptionStatus(sub: BizSubscription): {
   if (sub.is_current) {
     return {
       label: "Aktive",
-      note: "Abonimi është i vlefshëm. Ofertat e aprovuara mund të shfaqen publike.",
+      note: "Ofertat e aprovuara mund të shfaqen publike.",
     };
   }
   if (new Date(sub.ends_at).getTime() <= Date.now()) {
     return {
       label: "Skaduar",
-      note: "Abonimi ka skaduar. Ofertat nuk shfaqen publike derisa të rinovohet.",
+      note: "Ofertat nuk shfaqen publike derisa të rinovohet.",
     };
   }
   return {
@@ -83,15 +93,15 @@ export function BizProfilePanel() {
 
   if (businessQuery.isError) {
     return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
+      <div>
+        <p className={panelLead}>
           {validationMessage(
             businessQuery.error,
             "Nuk mundëm ta ngarkojmë profilin.",
           )}
         </p>
         <button
-          className="btn btn--ghost"
+          className={`${btnGhost} mt-4`}
           type="button"
           onClick={() => businessQuery.refetch()}
         >
@@ -106,23 +116,37 @@ export function BizProfilePanel() {
   const status = subscription ? subscriptionStatus(subscription) : null;
 
   return (
-    <div className="biz-offers" style={{ display: "grid", gap: "1.5rem" }}>
-      <div className="shell-panel">
-        <h2 className="offer-form__title">Biznesi</h2>
-        <p className="shell-panel__lead" style={{ marginTop: "0.75rem" }}>
-          {business?.name}
-        </p>
-        <p className="shell-panel__note">
-          Statusi i llogarisë:{" "}
-          {business?.is_active ? "aktive" : "joaktive"}
-        </p>
+    <div className="grid gap-6 lg:grid-cols-2">
+      <section className="overflow-hidden rounded-2xl border border-line">
+        <div className="flex items-start justify-between gap-4 p-5">
+          <div className="min-w-0">
+            <p className={`m-0 ${micro}`}>Biznesi</p>
+            <h2 className="m-0 mt-1 truncate text-xl font-bold tracking-[-0.02em] text-ink">
+              {business?.name}
+            </h2>
+          </div>
+          {business ? (
+            <span
+              className={`${offerStatusClass(business.is_active ? "approved" : "rejected")} mt-0! self-center!`}
+            >
+              {business.is_active ? "Aktive" : "Joaktive"}
+            </span>
+          ) : null}
+        </div>
         {business ? <AddressLink business={business} /> : null}
-      </div>
+      </section>
 
-      <div className="shell-panel">
-        <h2 className="offer-form__title">Abonimi</h2>
+      <section className="rounded-2xl border border-line p-5">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="m-0 text-lg font-bold text-ink">Abonimi</h2>
+          {subscription && status ? (
+            <span className={`${statusClass(subscription)} mt-0! self-center!`}>
+              {status.label}
+            </span>
+          ) : null}
+        </div>
         {subscriptionQuery.isError ? (
-          <p className="shell-panel__lead" style={{ marginTop: "0.75rem" }}>
+          <p className={`${panelLead} mt-4`}>
             {validationMessage(
               subscriptionQuery.error,
               "Nuk mundëm ta ngarkojmë abonimin.",
@@ -130,29 +154,26 @@ export function BizProfilePanel() {
           </p>
         ) : subscription === null ? (
           <>
-            <p className="shell-panel__lead" style={{ marginTop: "0.75rem" }}>
-              Nuk ka abonim të regjistruar.
+            <p className="m-0 mt-4 text-lg font-semibold text-ink">
+              Nuk ka abonim
             </p>
-            <p className="shell-panel__note">
+            <p className="m-0 mt-2 text-sm leading-relaxed text-muted">
               Kontaktoni administratën për pagesë cash. Pa abonim aktiv, ofertat
               nuk shfaqen publike.
             </p>
           </>
         ) : (
           <>
-            <p className="shell-panel__lead" style={{ marginTop: "0.75rem" }}>
-              <span className={`biz-offer-row__status ${statusClass(subscription)}`}>
-                {status?.label}
-              </span>
-            </p>
-            <p className="shell-panel__note">
+            <p className="m-0 mt-4 text-lg font-semibold text-ink">
               {formatDateSq(subscription.starts_at)} →{" "}
               {formatDateSq(subscription.ends_at)}
             </p>
-            <p className="shell-panel__note">{status?.note}</p>
+            <p className="m-0 mt-2 text-sm leading-relaxed text-muted">
+              {status?.note}
+            </p>
           </>
         )}
-      </div>
+      </section>
     </div>
   );
 }

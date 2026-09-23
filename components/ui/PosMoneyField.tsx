@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, type ClipboardEvent, type KeyboardEvent } from "react";
+import { inputClass } from "@/lib/ui";
 
 type PosMoneyFieldProps = {
   valueCents: number;
@@ -113,7 +114,7 @@ export function PosMoneyField({
   return (
     <input
       id={fieldId}
-      className="pos-money"
+      className={`${inputClass} text-right tabular-nums tracking-wide`}
       type="text"
       inputMode="numeric"
       autoComplete="off"

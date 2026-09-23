@@ -7,10 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminSubscriptionsPage() {
-  return (
-    <>
-      <h1 className="dash__page-title">Abonimet cash</h1>
-      <AdminSubscriptions />
-    </>
-  );
+  return <AdminSubscriptions />;
 }

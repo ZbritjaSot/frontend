@@ -42,23 +42,28 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   return (
     <>
-      <section className="public-hero">
-        <h1 className="public-hero__title">Ofertat e sotme</h1>
-      </section>
-
+      <h1 className="sr-only">Ofertat</h1>
       <BrowseBar q={q} category={category} categories={categories} />
 
       {errorMessage ? (
-        <section className="public-state" aria-live="polite">
-          <h2 className="public-state__title">Diçka shkoi keq</h2>
-          <p className="public-state__copy">{errorMessage}</p>
+        <section
+          className="rounded-2xl border border-line bg-elevated px-5 py-10"
+          aria-live="polite"
+        >
+          <h2 className="m-0 text-lg font-semibold">Diçka shkoi keq</h2>
+          <p className="mt-3 max-w-lg leading-relaxed text-muted">
+            {errorMessage}
+          </p>
         </section>
       ) : offers && offers.length === 0 ? (
-        <section className="public-state" aria-live="polite">
-          <h2 className="public-state__title">
+        <section
+          className="rounded-2xl border border-line bg-elevated px-5 py-10"
+          aria-live="polite"
+        >
+          <h2 className="m-0 text-lg font-semibold">
             {filtering ? "Nuk u gjet asgjë" : "Nuk ka oferta aktive"}
           </h2>
-          <p className="public-state__copy">
+          <p className="mt-3 max-w-lg leading-relaxed text-muted">
             {filtering
               ? "Provo një fjalë tjetër ose një kategori tjetër."
               : "Momentalisht nuk ka zbritje publike. Ofertat e skaduara hiqen automatikisht nga lista."}

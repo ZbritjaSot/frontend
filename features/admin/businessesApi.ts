@@ -4,9 +4,19 @@ import type { Business, Paginated } from "@/types";
 
 type BusinessPayload = { data: Business };
 
-export async function fetchAdminBusinesses(perPage = 50) {
+export const ADMIN_BUSINESSES_PAGE_SIZE = 15;
+
+export async function fetchAdminBusinesses(
+  page = 1,
+  perPage = ADMIN_BUSINESSES_PAGE_SIZE,
+) {
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(perPage),
+  });
+
   return apiFetch<Paginated<Business>>(
-    `/admin/businesses?per_page=${perPage}`,
+    `/admin/businesses?${params.toString()}`,
     { auth: true },
   );
 }

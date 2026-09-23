@@ -1,9 +1,13 @@
 "use client";
 
+import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
+import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Modal } from "@/components/ui/Modal";
+import { Pagination } from "@/components/ui/Pagination";
 import { PosMoneyField } from "@/components/ui/PosMoneyField";
 import { SelectField } from "@/components/ui/SelectField";
 import { Spinner } from "@/components/ui/Spinner";
@@ -17,10 +21,31 @@ import { defaultSubscriptionWindow } from "@/lib/datetime";
 import { formatDateShortSq, formatDateTimeShortSq, formatEurFromCents } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
 import {
+  btnGhost,
+  btnPrimary,
+  checkInput,
+  fieldError,
+  fieldLabel,
+  inputClass,
+  offerStatusClass,
+  pageTitle,
+  panelLead,
+} from "@/lib/ui";
+import {
   PAYMENT_METHOD_OPTIONS,
   subscriptionFormSchema,
 } from "@/schemas/subscription";
 import type { PaymentMethod, Subscription } from "@/types";
+
+const textAreaClass = `${inputClass} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`;
+
+const SUBSCRIPTIONS_PAGE_SIZE = 15;
+
+const rowButton =
+  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+
+const tableGrid =
+  "md:grid md:grid-cols-[minmax(0,1.2fr)_auto_auto_auto_auto_auto] md:gap-x-4";
 
 function paymentMethodLabel(method: PaymentMethod): string {
   return (
@@ -43,15 +68,15 @@ function statusLabel(sub: Subscription): string {
 
 function statusClass(sub: Subscription): string {
   if (!sub.is_active) {
-    return "biz-offer-row__status--rejected";
+    return offerStatusClass("rejected");
   }
   if (sub.is_current) {
-    return "biz-offer-row__status--approved";
+    return offerStatusClass("approved");
   }
   if (new Date(sub.ends_at).getTime() <= Date.now()) {
-    return "biz-offer-row__status--expired";
+    return offerStatusClass("expired");
   }
-  return "biz-offer-row__status--pending";
+  return offerStatusClass("pending");
 }
 
 type BusinessGroup = {
@@ -76,11 +101,12 @@ function groupByBusiness(subscriptions: Subscription[]): BusinessGroup[] {
 
   const groups: BusinessGroup[] = [];
   for (const [businessId, list] of map) {
-    const sorted = [...list].sort(
-      (a, b) =>
-        new Date(b.created_at ?? b.starts_at).getTime() -
-        new Date(a.created_at ?? a.starts_at).getTime(),
-    );
+    const sorted = [...list].sort((a, b) => {
+      if (a.is_current !== b.is_current) {
+        return a.is_current ? -1 : 1;
+      }
+      return new Date(b.ends_at).getTime() - new Date(a.ends_at).getTime();
+    });
     const latest = sorted[0]!;
     groups.push({
       businessId,
@@ -106,7 +132,6 @@ export function AdminSubscriptions() {
     isError,
     error,
     refetch,
-    isFetching,
   } = useAdminSubscriptions();
   const { data: businessesData, isLoading: businessesLoading } =
     useAdminBusinesses();
@@ -126,6 +151,7 @@ export function AdminSubscriptions() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [toToggle, setToToggle] = useState<Subscription | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const groups = useMemo(
     () => groupByBusiness(data?.data ?? []),
@@ -134,6 +160,14 @@ export function AdminSubscriptions() {
   const expiredCount = groups.filter(
     (group) => statusLabel(group.latest) === "Skaduar",
   ).length;
+  const lastPage = Math.max(1, Math.ceil(groups.length / SUBSCRIPTIONS_PAGE_SIZE));
+  if (page > lastPage) {
+    setPage(lastPage);
+  }
+  const visibleGroups = groups.slice(
+    (page - 1) * SUBSCRIPTIONS_PAGE_SIZE,
+    page * SUBSCRIPTIONS_PAGE_SIZE,
+  );
 
   const businessOptions = useMemo(
     () =>
@@ -164,19 +198,48 @@ export function AdminSubscriptions() {
     resetCreateForm();
   }
 
+  const header = (
+    <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <h1 className={`${pageTitle} mb-0!`}>Abonimet</h1>
+      <div className="flex flex-wrap items-center gap-4">
+        {expiredCount > 0 ? (
+          <p className="m-0 text-sm font-semibold text-muted">
+            {expiredCount}{" "}
+            {expiredCount === 1 ? "abonim i skaduar" : "abonime të skaduara"}
+          </p>
+        ) : null}
+        <button
+          type="button"
+          className={btnPrimary}
+          onClick={() => setCreateOpen(true)}
+        >
+          Regjistro pagesë
+        </button>
+      </div>
+    </div>
+  );
+
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar abonimet" />;
+    return (
+      <div>
+        {header}
+        <Spinner label="Duke ngarkuar abonimet" />
+      </div>
+    );
   }
 
   if (isError) {
     return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
-          {validationMessage(error, "Nuk mundëm t’i ngarkojmë abonimet.")}
-        </p>
-        <button className="btn btn--ghost" type="button" onClick={() => refetch()}>
-          Provo përsëri
-        </button>
+      <div>
+        {header}
+        <div className="max-w-[40rem]">
+          <p className={panelLead}>
+            {validationMessage(error, "Nuk mundëm t’i ngarkojmë abonimet.")}
+          </p>
+          <button className={btnGhost} type="button" onClick={() => refetch()}>
+            Provo përsëri
+          </button>
+        </div>
       </div>
     );
   }
@@ -232,143 +295,153 @@ export function AdminSubscriptions() {
   }
 
   return (
-    <div className="admin-subs">
-      <div className="admin-subs__toolbar">
-        <div>
-          <p className="admin-subs__lead">
-            Lista e bizneseve dhe periudhave të abonimit.
-            {expiredCount > 0
-              ? ` ${expiredCount} ${expiredCount === 1 ? "abonim i skaduar" : "abonime të skaduara"}.`
-              : ""}
-          </p>
-          {isFetching ? (
-            <p className="biz-offers__hint">Duke përditësuar…</p>
-          ) : null}
-        </div>
-        <button
-          type="button"
-          className="btn btn--primary"
-          onClick={() => setCreateOpen(true)}
-        >
-          Regjistro pagesë
-        </button>
-      </div>
+    <div>
+      {header}
 
       {actionError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {actionError}
         </p>
       ) : null}
 
       {groups.length === 0 ? (
-        <div className="shell-panel">
-          <p className="shell-panel__lead">Nuk ka abonime të regjistruara.</p>
-          <button
-            type="button"
-            className="btn btn--primary"
-            onClick={() => setCreateOpen(true)}
-          >
-            Regjistro pagesë
-          </button>
+        <div className="max-w-[40rem]">
+          <p className={panelLead}>Nuk ka abonime të regjistruara.</p>
         </div>
       ) : (
-        <ul className="sub-history__list">
-          {groups.map((group) => {
-            const open = openBusinessId === group.businessId;
-            return (
-              <li
-                key={group.businessId}
-                className={`sub-history__item${open ? " is-open" : ""}${
-                  statusLabel(group.latest) === "Skaduar" ? " is-expired" : ""
-                }`}
-              >
-                <div className="sub-history__card">
-                  <button
-                    type="button"
-                    className="sub-history__expand"
-                    aria-expanded={open}
-                    onClick={() =>
-                      setOpenBusinessId((id) =>
-                        id === group.businessId ? null : group.businessId,
-                      )
-                    }
+        <div className="overflow-hidden rounded-2xl border border-line">
+          <div className={`overflow-x-auto ${tableGrid}`}>
+            <div className="col-span-6 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
+              <span className="whitespace-nowrap">Biznesi</span>
+              <span className="whitespace-nowrap">Periudha</span>
+              <span className="whitespace-nowrap md:pl-8">Çmimi</span>
+              <span className="whitespace-nowrap md:pl-8">Pagesa</span>
+              <span className="whitespace-nowrap">Statusi</span>
+              <span className="border-l border-line pl-4 whitespace-nowrap">
+                Veprimet
+              </span>
+            </div>
+            <ul className="col-span-6 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
+              {visibleGroups.map((group) => {
+                const open = openBusinessId === group.businessId;
+                return (
+                  <li
+                    key={group.businessId}
+                    className="col-span-6 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
                   >
-                    <div className="sub-history__title-row">
-                      <p className="sub-history__name">{group.businessName}</p>
-                      <span
-                        className={`biz-offer-row__status ${statusClass(group.latest)}`}
-                      >
-                        {statusLabel(group.latest)}
-                      </span>
-                    </div>
-                    <p className="sub-history__meta">
+                    <p className="m-0 truncate text-base font-semibold">
+                      {group.businessName}
+                    </p>
+                    <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums">
                       {formatDateShortSq(group.latest.starts_at)} →{" "}
                       {formatDateShortSq(group.latest.ends_at)}
-                      {" · "}
-                      {formatEurFromCents(group.latest.price)}
-                      {" · "}
-                      {paymentMethodLabel(group.latest.payment_method)}
-                      {" · "}
-                      {group.history.length} abonim
-                      {group.history.length === 1 ? "" : "e"}
                     </p>
-                    <span className="sub-history__hint">
-                      {open ? "Mbyll historinë" : "Shiko historinë"}{" "}
-                      <span className="sub-history__chevron" aria-hidden>
-                        ▾
-                      </span>
+                    <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-8">
+                      {formatEurFromCents(group.latest.price)}
+                    </p>
+                    <p className="m-0 text-sm font-semibold whitespace-nowrap md:pl-8">
+                      {paymentMethodLabel(group.latest.payment_method)}
+                    </p>
+                    <span
+                      className={`${statusClass(group.latest)} mt-0! w-fit self-center!`}
+                    >
+                      {statusLabel(group.latest)}
                     </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn btn--ghost btn--sm sub-history__toggle"
-                    disabled={updateMutation.isPending}
-                    onClick={() => setToToggle(group.latest)}
-                  >
-                    {group.latest.is_active ? "Çaktivizo" : "Aktivizo"}
-                  </button>
-                </div>
-
-                {open ? (
-                  <div className="sub-history__body">
-                    {group.history.map((sub, index) => (
-                      <div key={sub.id} className="sub-history__row">
-                        <div className="sub-history__row-top">
-                          <p className="sub-history__row-dates">
-                            {formatDateTimeShortSq(sub.starts_at)} →{" "}
-                            {formatDateTimeShortSq(sub.ends_at)}
-                            {" · "}
-                            {formatEurFromCents(sub.price)}
-                            {" · "}
-                            {paymentMethodLabel(sub.payment_method)}
-                          </p>
-                          <div className="sub-history__row-tags">
-                            {index === 0 ? (
-                              <span className="sub-history__latest-tag">
-                                Fundit
-                              </span>
+                    <div className="flex items-center gap-1.5 border-l border-line pl-4">
+                      <button
+                        className={`${rowButton}${open ? " border-accent/60" : ""}`}
+                        type="button"
+                        aria-expanded={open}
+                        aria-label={
+                          open
+                            ? `Mbyll historinë e ${group.businessName}`
+                            : `Shiko historinë e ${group.businessName}`
+                        }
+                        onClick={() =>
+                          setOpenBusinessId((id) =>
+                            id === group.businessId ? null : group.businessId,
+                          )
+                        }
+                      >
+                        <HistoryOutlinedIcon
+                          fontSize="small"
+                          className={open ? "text-accent!" : undefined}
+                        />
+                      </button>
+                      <button
+                        className={rowButton}
+                        type="button"
+                        aria-label={
+                          group.latest.is_active
+                            ? `Çaktivizo ${group.businessName}`
+                            : `Aktivizo ${group.businessName}`
+                        }
+                        disabled={updateMutation.isPending}
+                        onClick={() => setToToggle(group.latest)}
+                      >
+                        {group.latest.is_active ? (
+                          <LockOutlinedIcon fontSize="small" />
+                        ) : (
+                          <LockOpenOutlinedIcon
+                            fontSize="small"
+                            className="text-accent!"
+                          />
+                        )}
+                      </button>
+                    </div>
+                    {open ? (
+                      <div className="-mx-4 border-t border-line bg-sunken px-4 py-2 md:col-span-6">
+                        {group.history.map((sub, index) => (
+                          <div
+                            key={sub.id}
+                            className={`flex flex-col gap-1 py-3${
+                              index > 0 ? " border-t border-line/70" : ""
+                            }`}
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <p className="m-0 text-sm font-semibold text-ink tabular-nums">
+                                {formatDateTimeShortSq(sub.starts_at)} →{" "}
+                                {formatDateTimeShortSq(sub.ends_at)}
+                                {" · "}
+                                {formatEurFromCents(sub.price)}
+                                {" · "}
+                                {paymentMethodLabel(sub.payment_method)}
+                              </p>
+                              <div className="flex flex-wrap items-center gap-2">
+                                {index === 0 ? (
+                                  <span className="text-[0.6875rem] font-bold tracking-wide text-accent uppercase">
+                                    Fundit
+                                  </span>
+                                ) : null}
+                                <span
+                                  className={`${statusClass(sub)} mt-0! self-center!`}
+                                >
+                                  {statusLabel(sub)}
+                                </span>
+                              </div>
+                            </div>
+                            {sub.payment_note ? (
+                              <p className="m-0 text-sm text-muted">
+                                {sub.payment_note}
+                              </p>
                             ) : null}
-                            <span
-                              className={`biz-offer-row__status ${statusClass(sub)}`}
-                            >
-                              {statusLabel(sub)}
-                            </span>
                           </div>
-                        </div>
-                        {sub.payment_note ? (
-                          <p className="sub-history__row-note">
-                            {sub.payment_note}
-                          </p>
-                        ) : null}
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <Pagination
+            page={page}
+            lastPage={lastPage}
+            total={groups.length}
+            perPage={SUBSCRIPTIONS_PAGE_SIZE}
+            onPageChange={setPage}
+          />
+        </div>
       )}
 
       <Modal
@@ -380,7 +453,7 @@ export function AdminSubscriptions() {
           <>
             <button
               type="button"
-              className="btn btn--ghost"
+              className={btnGhost}
               disabled={createMutation.isPending}
               onClick={closeCreateModal}
             >
@@ -389,7 +462,7 @@ export function AdminSubscriptions() {
             <button
               type="submit"
               form="admin-sub-create-form"
-              className="btn btn--primary"
+              className={btnPrimary}
               disabled={createMutation.isPending}
             >
               {createMutation.isPending ? "Duke u ruajtur…" : "Ruaj abonimin"}
@@ -399,22 +472,22 @@ export function AdminSubscriptions() {
       >
         <form
           id="admin-sub-create-form"
-          className="offer-form admin-subs__modal-form"
+          className="flex w-full max-w-none flex-col gap-3"
           onSubmit={onCreate}
           noValidate
         >
-          <p className="biz-offers__hint">
+          <p className="m-0 text-[0.8125rem] text-muted">
             Çmimi, metoda dhe shënimet e pagesës nuk shfaqen te biznesi apo
             publiku.
           </p>
 
           {formError ? (
-            <p className="offer-form__error" role="alert">
+            <p className={fieldError} role="alert">
               {formError}
             </p>
           ) : null}
 
-          <label className="offer-form__field">
+          <label className={fieldLabel}>
             <span>Biznesi</span>
             <SelectField
               value={businessId}
@@ -426,8 +499,8 @@ export function AdminSubscriptions() {
             />
           </label>
 
-          <div className="offer-form__row">
-            <label className="offer-form__field">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <label className={fieldLabel}>
               <span>Fillon</span>
               <DateTimeField
                 value={startsAt}
@@ -436,7 +509,7 @@ export function AdminSubscriptions() {
                 aria-label="Fillon"
               />
             </label>
-            <label className="offer-form__field">
+            <label className={fieldLabel}>
               <span>Mbaron</span>
               <DateTimeField
                 value={endsAt}
@@ -447,8 +520,8 @@ export function AdminSubscriptions() {
             </label>
           </div>
 
-          <div className="offer-form__row">
-            <label className="offer-form__field">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <label className={fieldLabel}>
               <span>Metoda e pagesës</span>
               <SelectField
                 value={paymentMethod}
@@ -460,7 +533,7 @@ export function AdminSubscriptions() {
                 aria-label="Metoda e pagesës"
               />
             </label>
-            <label className="offer-form__field">
+            <label className={fieldLabel}>
               <span>Çmimi (EUR)</span>
               <PosMoneyField
                 valueCents={priceCents}
@@ -471,19 +544,21 @@ export function AdminSubscriptions() {
             </label>
           </div>
 
-          <label className="offer-form__field offer-form__check">
+          <label className="flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none">
             <input
+              className={checkInput}
               type="checkbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
               disabled={createMutation.isPending}
             />
-            <span>Aktiv</span>
+            <span className="min-w-0 flex-1 pt-px leading-[1.4]">Aktiv</span>
           </label>
 
-          <label className="offer-form__field">
+          <label className={fieldLabel}>
             <span>Shënim pagese (opsionale)</span>
             <textarea
+              className={textAreaClass}
               rows={4}
               value={paymentNote}
               onChange={(e) => setPaymentNote(e.target.value)}

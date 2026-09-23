@@ -1,5 +1,8 @@
 "use client";
 
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CloseIcon from "@mui/icons-material/Close";
+import MenuIcon from "@mui/icons-material/Menu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
@@ -10,10 +13,13 @@ import { LogoutButton } from "@/features/auth/LogoutButton";
 export type DashboardNavItem = {
   href: string;
   label: string;
+  icon?: ReactNode;
   /** Shown when > 0 (e.g. pending offer count). */
   badge?: number;
-  /** Pending is the yellow offer pill. Danger is the red expired pill. */
+  /** Pending is the yellow offer pill. Danger is the red pill. */
   badgeTone?: "pending" | "danger";
+  /** Screen-reader text. Defaults from the tone. */
+  badgeLabel?: string;
 };
 
 type DashboardShellProps = {
@@ -60,61 +66,66 @@ export function DashboardShell({
   }, [menuOpen]);
 
   return (
-    <div className={`dash${menuOpen ? " dash--menu-open" : ""}`}>
-      <header className="dash__topbar">
+    <div className="grid min-h-dvh grid-cols-1 grid-rows-[auto_1fr] min-[860px]:grid-cols-[15.5rem_1fr] min-[860px]:grid-rows-1">
+      <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-5 border-b border-line bg-elevated px-5 py-2.5 min-[860px]:hidden">
         <Link
           href={homeHref}
-          className="dash__brand"
+          className="flex min-w-0 items-center gap-3"
           aria-label={`${areaLabel} — paneli`}
         >
           <LogoMark size={28} />
-          <div className="dash__brand-text">
-            <Wordmark className="dash__wordmark" />
-            <span className="dash__area">{areaLabel}</span>
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <Wordmark className="text-[1.05rem]" />
+            <span className="text-[0.6875rem] font-bold tracking-[0.16em] text-accent uppercase">
+              {areaLabel}
+            </span>
           </div>
         </Link>
 
         <button
           type="button"
-          className="dash__menu-btn"
+          className="inline-flex size-11 cursor-pointer appearance-none items-center justify-center rounded-lg border border-line bg-transparent text-ink hover:border-accent/45"
           aria-expanded={menuOpen}
           aria-controls="dash-nav"
           onClick={() => setMenuOpen((open) => !open)}
         >
-          <span className="visually-hidden">
+          <span className="sr-only">
             {menuOpen ? "Mbyll menynë" : "Hap menynë"}
           </span>
-          <span className="dash__menu-icon" aria-hidden>
-            <span />
-            <span />
-            <span />
-          </span>
+          {menuOpen ? <CloseIcon /> : <MenuIcon />}
         </button>
       </header>
 
       {menuOpen ? (
         <button
           type="button"
-          className="dash__backdrop"
+          className="fixed inset-0 z-[35] cursor-pointer border-0 bg-charcoal/55 p-0 min-[860px]:hidden"
           aria-label="Mbyll menynë"
           onClick={() => setMenuOpen(false)}
         />
       ) : null}
 
-      <aside id="dash-nav" className="dash__aside">
+      <aside
+        id="dash-nav"
+        className={`fixed top-0 bottom-0 left-0 z-[40] flex w-[min(18rem,86vw)] flex-col gap-8 border-r border-line bg-elevated p-8 transition-transform min-[860px]:sticky min-[860px]:w-auto min-[860px]:min-h-dvh min-[860px]:translate-x-0 ${
+          menuOpen ? "translate-x-0" : "-translate-x-[105%]"
+        }`}
+      >
         <Link
           href={homeHref}
-          className="dash__brand dash__brand--aside"
+          className="hidden min-w-0 items-center gap-3 min-[860px]:flex"
           aria-label={`${areaLabel} — paneli`}
         >
           <LogoMark size={32} />
-          <div className="dash__brand-text">
-            <Wordmark className="dash__wordmark" />
-            <span className="dash__area">{areaLabel}</span>
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <Wordmark className="text-[1.05rem]" />
+            <span className="text-[0.6875rem] font-bold tracking-[0.16em] text-accent uppercase">
+              {areaLabel}
+            </span>
           </div>
         </Link>
 
-        <nav className="dash__nav" aria-label={areaLabel}>
+        <nav className="flex flex-col gap-1.5" aria-label={areaLabel}>
           {nav.map((item) => {
             const active =
               pathname === item.href ||
@@ -125,27 +136,33 @@ export function DashboardShell({
                 ? item.badge
                 : null;
             const badgeLabel =
-              item.badgeTone === "danger"
+              item.badgeLabel ??
+              (item.badgeTone === "danger"
                 ? `${badge} të skaduara`
-                : `${badge} në pritje`;
+                : `${badge} në pritje`);
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={active ? "is-active" : undefined}
+                className={`flex min-h-11 items-center justify-between gap-2 rounded-lg px-3 py-3 text-[0.9375rem] font-semibold text-ink/80 hover:bg-slate/12 hover:text-ink ${
+                  active ? "bg-accent/28 text-ink" : ""
+                }`}
                 onClick={() => setMenuOpen(false)}
               >
-                <span className="dash__nav-label">{item.label}</span>
+                <span className="flex min-w-0 items-center gap-2">
+                  {item.icon}
+                  <span className="min-w-0">{item.label}</span>
+                </span>
                 {badge !== null ? (
                   <span
-                    className={
+                    className={`inline-flex h-[1.35rem] min-w-[1.35rem] shrink-0 items-center justify-center rounded-full px-1.5 text-[0.6875rem] leading-none font-extrabold ${
                       item.badgeTone === "danger"
-                        ? "dash__nav-badge dash__nav-badge--danger"
+                        ? "bg-danger-soft text-charcoal"
                         : item.badgeTone === "pending"
-                          ? "dash__nav-badge dash__nav-badge--pending"
-                          : "dash__nav-badge"
-                    }
+                          ? "bg-pending text-charcoal"
+                          : "bg-accent text-on-accent"
+                    }`}
                     aria-label={badgeLabel}
                   >
                     {badge > 99 ? "99+" : badge}
@@ -156,16 +173,21 @@ export function DashboardShell({
           })}
         </nav>
 
-        <div className="dash__aside-foot">
+        <div className="mt-auto flex flex-col items-start gap-3">
           {showLogout ? <LogoutButton redirectTo={logoutTo} /> : null}
-          <Link href="/" className="dash__public" onClick={() => setMenuOpen(false)}>
-            ← Faqja publike
+          <Link
+            href="/"
+            className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-muted hover:text-accent"
+            onClick={() => setMenuOpen(false)}
+          >
+            <ArrowBackIcon fontSize="small" />
+            Faqja publike
           </Link>
         </div>
       </aside>
 
-      <div className="dash__main">
-        <div className="dash__body">{children}</div>
+      <div className="col-start-1 row-start-2 flex min-w-0 flex-col min-[860px]:col-start-2 min-[860px]:row-start-1">
+        <div className="p-5 sm:p-8">{children}</div>
       </div>
     </div>
   );

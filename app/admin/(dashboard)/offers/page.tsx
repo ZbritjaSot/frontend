@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { AdminPendingOffers } from "@/features/admin/AdminPendingOffers";
+import { pageTitle } from "@/lib/ui";
 
 export const metadata: Metadata = {
-  title: "Ofertat në pritje",
+  title: "Në pritje",
   robots: { index: false, follow: false },
 };
 
 export default function AdminOffersPage() {
   return (
     <>
-      <h1 className="dash__page-title">Ofertat në pritje</h1>
+      <h1 className={pageTitle}>Në pritje</h1>
       <AdminPendingOffers />
     </>
   );

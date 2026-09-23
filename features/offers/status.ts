@@ -17,5 +17,10 @@ export function canSubmitOffer(status: OfferStatus): boolean {
 }
 
 export function canDeleteOffer(status: OfferStatus): boolean {
-  return status === "draft" || status === "pending" || status === "rejected";
+  return (
+    status === "draft" ||
+    status === "pending" ||
+    status === "approved" ||
+    status === "rejected"
+  );
 }

@@ -3,11 +3,19 @@ import type { OfferBundle, Paginated } from "@/types";
 
 type BundlePayload = { data: OfferBundle };
 
+export const PENDING_OFFERS_PAGE_SIZE = 15;
+
 export async function fetchPendingOffers(
-  perPage = 50,
+  page = 1,
+  perPage = PENDING_OFFERS_PAGE_SIZE,
 ): Promise<Paginated<OfferBundle>> {
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(perPage),
+  });
+
   return apiFetch<Paginated<OfferBundle>>(
-    `/admin/offer-bundles/pending?per_page=${perPage}`,
+    `/admin/offer-bundles/pending?${params.toString()}`,
     { auth: true },
   );
 }

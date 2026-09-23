@@ -10,10 +10,11 @@ import type { BusinessFormInput } from "@/schemas/business";
 
 export const adminBusinessesQueryKey = ["admin", "businesses"] as const;
 
-export function useAdminBusinesses() {
+export function useAdminBusinesses(page: number) {
   return useQuery({
-    queryKey: adminBusinessesQueryKey,
-    queryFn: () => fetchAdminBusinesses(),
+    queryKey: [...adminBusinessesQueryKey, page],
+    queryFn: () => fetchAdminBusinesses(page),
+    placeholderData: (previous) => previous,
   });
 }
 

@@ -23,11 +23,23 @@ function toApiBody(input: OfferBundleFormInput) {
   };
 }
 
+export const BIZ_OFFERS_PAGE_SIZE = 15;
+
 export async function fetchBizOfferBundles(
-  perPage = 50,
+  page = 1,
+  perPage = BIZ_OFFERS_PAGE_SIZE,
+  status?: string,
 ): Promise<Paginated<OfferBundle>> {
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(perPage),
+  });
+  if (status) {
+    params.set("status", status);
+  }
+
   return apiFetch<Paginated<OfferBundle>>(
-    `/biz/offer-bundles?per_page=${perPage}`,
+    `/biz/offer-bundles?${params.toString()}`,
     { auth: true },
   );
 }

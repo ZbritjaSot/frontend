@@ -7,6 +7,7 @@ import { PlaceMap } from "@/components/place/PlaceMap";
 import { geocodeBizAddress, updateBizLocation } from "@/features/biz/api";
 import { bizBusinessQueryKey } from "@/hooks/useBizProfile";
 import { validationMessage } from "@/lib/api";
+import { btnGhost, btnPrimary, fieldError, inputClass } from "@/lib/ui";
 import { appleMapsUrl, googleMapsUrl } from "@/lib/maps";
 import { useWideScreen } from "@/lib/useWideScreen";
 import type { Business } from "@/types";
@@ -78,9 +79,11 @@ export function LocationForm({ business }: { business: Business }) {
     return true;
   }
 
+  const micro = "text-xs font-bold tracking-[0.08em] text-muted uppercase";
+
   return (
     <form
-      className="location-form"
+      className="grid gap-6"
       onSubmit={(event) => {
         event.preventDefault();
         if (!requireStreetAndCity()) {
@@ -89,139 +92,156 @@ export function LocationForm({ business }: { business: Business }) {
         save.mutate(false);
       }}
     >
-      <label className="offer-form__field">
-        <span>Rruga</span>
-        <input
-          value={street}
-          maxLength={255}
-          placeholder="Rr. Garibaldi"
-          onChange={(event) => {
-            setStreet(event.target.value);
-            setNotice(null);
-            setFindError(null);
-          }}
-        />
-      </label>
+      <section className="rounded-2xl border border-line p-5">
+        <div className="grid gap-4">
+          <label className="flex flex-col gap-2">
+            <span className={micro}>Rruga</span>
+            <input
+              className={inputClass}
+              value={street}
+              maxLength={255}
+              placeholder="Rr. Garibaldi"
+              onChange={(event) => {
+                setStreet(event.target.value);
+                setNotice(null);
+                setFindError(null);
+              }}
+            />
+          </label>
 
-      <div className="offer-form__row">
-        <label className="offer-form__field">
-          <span>Fshati (opsional)</span>
-          <input
-            value={village}
-            maxLength={255}
-            placeholder="Kodra e Trimave"
-            onChange={(event) => {
-              setVillage(event.target.value);
-              setNotice(null);
-              setFindError(null);
-            }}
-          />
-        </label>
-        <label className="offer-form__field">
-          <span>Qyteti</span>
-          <input
-            value={city}
-            maxLength={255}
-            placeholder="Prishtinë"
-            onChange={(event) => {
-              setCity(event.target.value);
-              setNotice(null);
-              setFindError(null);
-            }}
-          />
-        </label>
-      </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span className={micro}>Fshati</span>
+              <input
+                className={inputClass}
+                value={village}
+                maxLength={255}
+                placeholder="Opsional"
+                onChange={(event) => {
+                  setVillage(event.target.value);
+                  setNotice(null);
+                  setFindError(null);
+                }}
+              />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className={micro}>Qyteti</span>
+              <input
+                className={inputClass}
+                value={city}
+                maxLength={255}
+                placeholder="Prishtinë"
+                onChange={(event) => {
+                  setCity(event.target.value);
+                  setNotice(null);
+                  setFindError(null);
+                }}
+              />
+            </label>
+          </div>
 
-      <div className="location-form__actions">
-        <button
-          className="btn btn--ghost"
-          type="button"
-          disabled={find.isPending}
-          onClick={() => {
-            if (!requireStreetAndCity()) {
-              return;
-            }
-            find.mutate();
-          }}
-        >
-          {find.isPending ? "Duke kërkuar…" : "Gjej në hartë"}
-        </button>
-        <button className="btn btn--primary" type="submit" disabled={save.isPending}>
-          {save.isPending ? "Duke ruajtur…" : "Ruaj adresën"}
-        </button>
-      </div>
+          <div className="flex justify-end">
+            <button
+              className={btnGhost}
+              type="button"
+              disabled={find.isPending}
+              onClick={() => {
+                if (!requireStreetAndCity()) {
+                  return;
+                }
+                find.mutate();
+              }}
+            >
+              {find.isPending ? "Duke kërkuar…" : "Gjej në hartë"}
+            </button>
+          </div>
+        </div>
 
-      {findError ? (
-        <p className="offer-form__error" role="alert">
-          {findError}
-        </p>
-      ) : null}
-      {find.isError ? (
-        <p className="offer-form__error" role="alert">
-          {validationMessage(find.error, "Nuk e gjetëm këtë adresë.")}
-        </p>
-      ) : null}
+        {findError ? (
+          <p className={`${fieldError} mt-4`} role="alert">
+            {findError}
+          </p>
+        ) : null}
+        {find.isError ? (
+          <p className={`${fieldError} mt-4`} role="alert">
+            {validationMessage(find.error, "Nuk e gjetëm këtë adresë.")}
+          </p>
+        ) : null}
+        {notice ? (
+          <p className="m-0 mt-4 text-sm font-semibold text-accent">{notice}</p>
+        ) : null}
+
+        {wide ? (
+          <div className="mt-5">
+            <div className="h-80 overflow-hidden rounded-xl border border-line">
+              <PlaceMap
+                latitude={latitude}
+                longitude={longitude}
+                label={business.name}
+                interactive
+                onPick={(nextLat, nextLng) => {
+                  setLatitude(nextLat);
+                  setLongitude(nextLng);
+                  setNotice("Pika u zhvendos. Ruaje që të mbetet.");
+                }}
+              />
+            </div>
+            <p className="m-0 mt-3 text-sm text-muted">
+              Kliko hartën ose tërhiq pikën. Nëse adresa fshihet, fshihet edhe
+              pika.
+            </p>
+          </div>
+        ) : (
+          <p className="m-0 mt-5 text-sm text-muted">
+            Në telefon harta hapet te aplikacioni. Kërko adresën, pastaj ruaje.
+          </p>
+        )}
+
+        {place.address || (latitude != null && longitude != null) ? (
+          <div className="mt-4 flex flex-wrap gap-4 text-sm font-semibold">
+            <a
+              className="text-muted no-underline hover:text-accent"
+              href={appleMapsUrl(place)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Apple Maps
+            </a>
+            <a
+              className="text-muted no-underline hover:text-accent"
+              href={googleMapsUrl(place)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Google Maps
+            </a>
+          </div>
+        ) : null}
+      </section>
+
       {save.isError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {validationMessage(save.error, "Nuk mundëm ta ruajmë adresën.")}
         </p>
       ) : null}
-      {notice ? <p className="shell-panel__note">{notice}</p> : null}
 
-      {wide ? (
-        <div className="location-form__map">
-          <PlaceMap
-            latitude={latitude}
-            longitude={longitude}
-            label={business.name}
-            interactive
-            onPick={(nextLat, nextLng) => {
-              setLatitude(nextLat);
-              setLongitude(nextLng);
-              setNotice("Pika u zhvendos. Ruaje që të mbetet.");
-            }}
-          />
-          <p className="shell-panel__note">
-            Kliko hartën ose tërhiq pikën. Nëse adresa fshihet, fshihet edhe pika.
-          </p>
-        </div>
-      ) : (
-        <p className="shell-panel__note">
-          Në telefon harta hapet te aplikacioni. Kërko adresën, pastaj ruaje.
-        </p>
-      )}
-
-      {place.address || (latitude != null && longitude != null) ? (
-        <div className="place-card__apps">
-          <a
-            className="btn btn--ghost"
-            href={appleMapsUrl(place)}
-            target="_blank"
-            rel="noopener noreferrer"
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {hasSavedAddress ? (
+          <button
+            className="cursor-pointer border-0 bg-transparent text-sm font-semibold text-danger hover:underline disabled:cursor-wait disabled:opacity-65"
+            type="button"
+            disabled={save.isPending}
+            onClick={() => save.mutate(true)}
           >
-            Apple Maps
-          </a>
-          <a
-            className="btn btn--ghost"
-            href={googleMapsUrl(place)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Google Maps
-          </a>
-        </div>
-      ) : null}
-
-      {hasSavedAddress ? (
-        <button
-          className="btn btn--ghost"
-          type="button"
-          disabled={save.isPending}
-          onClick={() => save.mutate(true)}
-        >
-          Hiq adresën
+            Hiq adresën
+          </button>
+        ) : (
+          <span />
+        )}
+        <button className={btnPrimary} type="submit" disabled={save.isPending}>
+          {save.isPending ? "Duke ruajtur…" : "Ruaj adresën"}
         </button>
-      ) : null}
+      </div>
     </form>
   );
 }

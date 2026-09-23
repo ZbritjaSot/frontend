@@ -2,6 +2,15 @@
 
 import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
+import {
+  btnDanger,
+  btnGhost,
+  btnSm,
+  checkInput,
+  fieldError,
+  fieldLabel,
+  inputClass,
+} from "@/lib/ui";
 import type { OfferBundle } from "@/types";
 
 type RejectBundleModalProps = {
@@ -10,6 +19,10 @@ type RejectBundleModalProps = {
   onClose: () => void;
   onConfirm: (payload: { reason?: string; item_ids: string[] }) => void;
 };
+
+const textAreaClass = `${inputClass} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`;
+
+const toolBtnClass = `${btnGhost} ${btnSm} min-h-8! px-[0.65rem]! py-[0.3rem]! text-xs!`;
 
 export function RejectBundleModal({
   bundle,
@@ -86,20 +99,22 @@ function RejectBundleForm({
   }
 
   return (
-    <div className="reject-form">
-      <p className="modal__message">
+    <div className="flex flex-col gap-5">
+      <p className="m-0 leading-relaxed text-muted">
         Refuzo “{bundle.title}”. Shëno produktet që kanë problem — biznesi i sheh
         dhe i rregullon pa prekur të tjerat.
       </p>
 
       {items.length > 0 ? (
-        <div className="reject-items">
-          <div className="reject-items__toolbar">
-            <span className="reject-items__label">Produktet me problem</span>
-            <div className="reject-items__tools">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+            <span className="text-[0.8125rem] font-bold tracking-[0.04em] text-muted uppercase">
+              Produktet me problem
+            </span>
+            <div className="flex gap-[0.35rem]">
               <button
                 type="button"
-                className="btn btn--ghost btn--sm"
+                className={toolBtnClass}
                 disabled={pending}
                 onClick={selectAll}
               >
@@ -107,7 +122,7 @@ function RejectBundleForm({
               </button>
               <button
                 type="button"
-                className="btn btn--ghost btn--sm"
+                className={toolBtnClass}
                 disabled={pending}
                 onClick={clearAll}
               >
@@ -115,25 +130,26 @@ function RejectBundleForm({
               </button>
             </div>
           </div>
-          <ul className="reject-items__list">
+          <ul className="m-0 flex max-h-56 list-none flex-col gap-[0.35rem] overflow-auto rounded-lg border border-line bg-canvas p-[0.35rem]">
             {items.map((item) => {
               const checked = selectedIds.includes(item.id);
               return (
-                <li key={item.id}>
+                <li key={item.id} className="m-0">
                   <label
-                    className={
+                    className={`m-0 flex w-full cursor-pointer flex-row items-start gap-3 rounded-[0.4rem] border bg-elevated px-3 py-[0.7rem] font-medium text-ink transition-[border-color,background-color] duration-[0.12s] select-none ${
                       checked
-                        ? "offer-form__check reject-items__check reject-items__check--selected"
-                        : "offer-form__check reject-items__check"
-                    }
+                        ? "border-accent/55 bg-[color-mix(in_srgb,var(--color-accent)_10%,var(--color-bg-elevated))]"
+                        : "border-transparent hover:border-slate/35"
+                    }`}
                   >
                     <input
+                      className={checkInput}
                       type="checkbox"
                       checked={checked}
                       disabled={pending}
                       onChange={() => toggle(item.id)}
                     />
-                    <span>
+                    <span className="min-w-0 flex-1 pt-px leading-[1.4]">
                       {item.name}
                       {item.category ? ` · ${item.category.name}` : ""}
                     </span>
@@ -145,10 +161,10 @@ function RejectBundleForm({
         </div>
       ) : null}
 
-      <label className="offer-form__field reject-form__reason">
+      <label className={fieldLabel}>
         <span>Arsye (opsionale)</span>
         <textarea
-          className="modal__textarea"
+          className={textAreaClass}
           rows={3}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
@@ -159,15 +175,15 @@ function RejectBundleForm({
       </label>
 
       {localError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {localError}
         </p>
       ) : null}
 
-      <div className="reject-form__actions">
+      <div className="mt-8 flex flex-wrap justify-end gap-3 border-t border-line pt-5">
         <button
           type="button"
-          className="btn btn--ghost"
+          className={btnGhost}
           disabled={pending}
           onClick={onClose}
         >
@@ -175,7 +191,7 @@ function RejectBundleForm({
         </button>
         <button
           type="button"
-          className="btn btn--danger"
+          className={btnDanger}
           disabled={pending}
           onClick={handleConfirm}
         >

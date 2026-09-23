@@ -45,9 +45,12 @@ export default async function OfferPage({ params }: OfferPageProps) {
 
   if (failed) {
     return (
-      <section className="public-state" aria-live="polite">
-        <h1 className="public-state__title">Diçka shkoi keq</h1>
-        <p className="public-state__copy">
+      <section
+        className="rounded-2xl border border-line bg-elevated px-5 py-10"
+        aria-live="polite"
+      >
+        <h1 className="m-0 text-lg font-semibold">Diçka shkoi keq</h1>
+        <p className="mt-3 max-w-lg leading-relaxed text-muted">
           Nuk mundëm ta ngarkojmë këtë ofertë. Provo përsëri së shpejti.
         </p>
       </section>

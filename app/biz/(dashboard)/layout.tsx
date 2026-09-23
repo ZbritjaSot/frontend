@@ -1,13 +1,7 @@
 import type { ReactNode } from "react";
-import { DashboardShell } from "@/components/chrome/DashboardShell";
 import { BizPasswordGate } from "@/features/auth/BizPasswordGate";
 import { RequireBusinessAuth } from "@/features/auth/RequireBusinessAuth";
-
-const nav = [
-  { href: "/biz", label: "Paneli" },
-  { href: "/biz/offers", label: "Ofertat e mia" },
-  { href: "/biz/profile", label: "Profili" },
-];
+import { BizDashboardShell } from "@/features/biz/BizDashboardShell";
 
 export default function BizDashboardLayout({
   children,
@@ -16,9 +10,9 @@ export default function BizDashboardLayout({
 }) {
   return (
     <RequireBusinessAuth>
-      <DashboardShell area="biz" nav={nav} showLogout>
+      <BizDashboardShell>
         <BizPasswordGate>{children}</BizPasswordGate>
-      </DashboardShell>
+      </BizDashboardShell>
     </RequireBusinessAuth>
   );
 }
