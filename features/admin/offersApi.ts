@@ -1,20 +1,28 @@
 import { apiFetch } from "@/lib/api";
-import type { Offer, Paginated } from "@/types";
+import type { OfferBundle, Paginated } from "@/types";
 
-type OfferPayload = { data: Offer };
+type BundlePayload = { data: OfferBundle };
 
 export async function fetchPendingOffers(
   perPage = 50,
-): Promise<Paginated<Offer>> {
-  return apiFetch<Paginated<Offer>>(
-    `/admin/offers/pending?per_page=${perPage}`,
+): Promise<Paginated<OfferBundle>> {
+  return apiFetch<Paginated<OfferBundle>>(
+    `/admin/offer-bundles/pending?per_page=${perPage}`,
     { auth: true },
   );
 }
 
-export async function approveOffer(id: string): Promise<Offer> {
-  const payload = await apiFetch<OfferPayload>(
-    `/admin/offers/${id}/approve`,
+export async function fetchAdminOfferBundle(id: string): Promise<OfferBundle> {
+  const payload = await apiFetch<BundlePayload>(
+    `/admin/offer-bundles/${id}`,
+    { auth: true },
+  );
+  return payload.data;
+}
+
+export async function approveOffer(id: string): Promise<OfferBundle> {
+  const payload = await apiFetch<BundlePayload>(
+    `/admin/offer-bundles/${id}/approve`,
     { method: "POST", auth: true },
   );
   return payload.data;
@@ -22,15 +30,18 @@ export async function approveOffer(id: string): Promise<Offer> {
 
 export async function rejectOffer(
   id: string,
-  reason?: string,
-): Promise<Offer> {
-  const payload = await apiFetch<OfferPayload>(
-    `/admin/offers/${id}/reject`,
+  payload: { reason?: string; item_ids: string[] },
+): Promise<OfferBundle> {
+  const body = await apiFetch<BundlePayload>(
+    `/admin/offer-bundles/${id}/reject`,
     {
       method: "POST",
       auth: true,
-      body: JSON.stringify({ reason: reason || null }),
+      body: JSON.stringify({
+        reason: payload.reason || null,
+        item_ids: payload.item_ids,
+      }),
     },
   );
-  return payload.data;
+  return body.data;
 }

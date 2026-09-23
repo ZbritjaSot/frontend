@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Montserrat } from "next/font/google";
 import {
   SITE_DESCRIPTION,
@@ -7,6 +8,7 @@ import {
   SITE_URL,
   SITE_WORDMARK,
 } from "@/lib/site";
+import { THEME_STORAGE_KEY } from "@/lib/theme";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
@@ -64,7 +66,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B0F0E",
+  themeColor: "#F5F5F5",
   width: "device-width",
   initialScale: 1,
 };
@@ -97,8 +99,20 @@ const jsonLd = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="sq" className={`${montserrat.variable} h-full antialiased`}>
+    <html
+      lang="sq"
+      className={`${montserrat.variable} h-full antialiased`}
+      data-theme="light"
+      suppressHydrationWarning
+    >
       <body className="min-h-full">
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var p=location.pathname||"";if(p.indexOf("/admin")===0||p.indexOf("/biz")===0){document.documentElement.setAttribute("data-theme","dark");return;}var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else{document.documentElement.setAttribute("data-theme","light");}}catch(e){document.documentElement.setAttribute("data-theme","light");}})();`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

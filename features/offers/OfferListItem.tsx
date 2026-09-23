@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   formatDateShortSq,
   formatDiscountPercent,
-  formatEur,
+  formatEurFromCents,
 } from "@/lib/format";
 import type { PublicOffer } from "@/types";
 
@@ -22,16 +22,17 @@ export function OfferListItem({ offer }: OfferListItemProps) {
             <span className="offer-row__name">{offer.name}</span>
             <span className="offer-row__meta">
               {offer.business?.name ?? "Dyqan"}
+              {offer.bundle?.title ? ` · ${offer.bundle.title}` : ""}
               {offer.category ? ` · ${offer.category.name}` : ""}
             </span>
           </div>
         </div>
         <div className="offer-row__prices">
           <span className="offer-row__now">
-            {formatEur(offer.discounted_price)}
+            {formatEurFromCents(offer.discounted_price)}
           </span>
           <span className="offer-row__was">
-            {formatEur(offer.original_price)}
+            {formatEurFromCents(offer.original_price)}
           </span>
           <span className="offer-row__until">
             deri më {formatDateShortSq(offer.expires_at)}

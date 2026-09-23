@@ -1,40 +1,48 @@
 import { apiFetch } from "@/lib/api";
-import type { OfferFormInput } from "@/schemas/offer";
-import type { CategorySummary, Offer, Paginated } from "@/types";
+import type { OfferBundleFormInput } from "@/schemas/offer";
+import type { CategorySummary, OfferBundle, Paginated } from "@/types";
 import { fromDateTimeLocalValue } from "@/lib/datetime";
 
 type CategoryListPayload = {
   data: Array<CategorySummary & { is_active?: boolean; sort_order?: number }>;
 };
 
-type OfferPayload = { data: Offer };
+type BundlePayload = { data: OfferBundle };
 
-function toApiBody(input: OfferFormInput) {
+function toApiBody(input: OfferBundleFormInput) {
   return {
-    category_id: input.category_id,
-    name: input.name,
-    original_price: input.original_price,
-    discounted_price: input.discounted_price,
+    title: input.title,
     starts_at: fromDateTimeLocalValue(input.starts_at),
     expires_at: fromDateTimeLocalValue(input.expires_at),
+    items: input.items.map((item) => ({
+      category_id: item.category_id,
+      name: item.name,
+      original_price: item.original_price,
+      discounted_price: item.discounted_price,
+    })),
   };
 }
 
-export async function fetchBizOffers(perPage = 50): Promise<Paginated<Offer>> {
-  return apiFetch<Paginated<Offer>>(`/biz/offers?per_page=${perPage}`, {
-    auth: true,
-  });
+export async function fetchBizOfferBundles(
+  perPage = 50,
+): Promise<Paginated<OfferBundle>> {
+  return apiFetch<Paginated<OfferBundle>>(
+    `/biz/offer-bundles?per_page=${perPage}`,
+    { auth: true },
+  );
 }
 
-export async function fetchBizOffer(id: string): Promise<Offer> {
-  const payload = await apiFetch<OfferPayload>(`/biz/offers/${id}`, {
+export async function fetchBizOfferBundle(id: string): Promise<OfferBundle> {
+  const payload = await apiFetch<BundlePayload>(`/biz/offer-bundles/${id}`, {
     auth: true,
   });
   return payload.data;
 }
 
-export async function createBizOffer(input: OfferFormInput): Promise<Offer> {
-  const payload = await apiFetch<OfferPayload>("/biz/offers", {
+export async function createBizOfferBundle(
+  input: OfferBundleFormInput,
+): Promise<OfferBundle> {
+  const payload = await apiFetch<BundlePayload>("/biz/offer-bundles", {
     method: "POST",
     auth: true,
     body: JSON.stringify(toApiBody(input)),
@@ -42,11 +50,11 @@ export async function createBizOffer(input: OfferFormInput): Promise<Offer> {
   return payload.data;
 }
 
-export async function updateBizOffer(
+export async function updateBizOfferBundle(
   id: string,
-  input: OfferFormInput,
-): Promise<Offer> {
-  const payload = await apiFetch<OfferPayload>(`/biz/offers/${id}`, {
+  input: OfferBundleFormInput,
+): Promise<OfferBundle> {
+  const payload = await apiFetch<BundlePayload>(`/biz/offer-bundles/${id}`, {
     method: "PUT",
     auth: true,
     body: JSON.stringify(toApiBody(input)),
@@ -54,16 +62,16 @@ export async function updateBizOffer(
   return payload.data;
 }
 
-export async function submitBizOffer(id: string): Promise<Offer> {
-  const payload = await apiFetch<OfferPayload>(`/biz/offers/${id}/submit`, {
-    method: "POST",
-    auth: true,
-  });
+export async function submitBizOfferBundle(id: string): Promise<OfferBundle> {
+  const payload = await apiFetch<BundlePayload>(
+    `/biz/offer-bundles/${id}/submit`,
+    { method: "POST", auth: true },
+  );
   return payload.data;
 }
 
-export async function deleteBizOffer(id: string): Promise<void> {
-  await apiFetch<void>(`/biz/offers/${id}`, {
+export async function deleteBizOfferBundle(id: string): Promise<void> {
+  await apiFetch<void>(`/biz/offer-bundles/${id}`, {
     method: "DELETE",
     auth: true,
   });
@@ -78,3 +86,11 @@ export async function fetchActiveCategories(): Promise<CategorySummary[]> {
     slug: c.slug,
   }));
 }
+
+/** @deprecated aliases */
+export const fetchBizOffers = fetchBizOfferBundles;
+export const fetchBizOffer = fetchBizOfferBundle;
+export const createBizOffer = createBizOfferBundle;
+export const updateBizOffer = updateBizOfferBundle;
+export const submitBizOffer = submitBizOfferBundle;
+export const deleteBizOffer = deleteBizOfferBundle;

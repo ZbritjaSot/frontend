@@ -15,20 +15,16 @@ import {
   canSubmitOffer,
   OFFER_STATUS_LABEL,
 } from "@/features/offers/status";
-import {
-  formatDateShortSq,
-  formatDiscountPercent,
-  formatEur,
-} from "@/lib/format";
+import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import type { Offer } from "@/types";
+import type { OfferBundle } from "@/types";
 
 export function BizOfferList() {
   const { data, isLoading, isError, error, refetch, isFetching } = useBizOffers();
   const submitMutation = useSubmitBizOffer();
   const deleteMutation = useDeleteBizOffer();
   const [actionError, setActionError] = useState<string | null>(null);
-  const [offerToDelete, setOfferToDelete] = useState<Offer | null>(null);
+  const [bundleToDelete, setBundleToDelete] = useState<OfferBundle | null>(null);
 
   if (isLoading) {
     return <Spinner label="Duke ngarkuar ofertat" />;
@@ -47,12 +43,12 @@ export function BizOfferList() {
     );
   }
 
-  const offers = data?.data ?? [];
+  const bundles = data?.data ?? [];
 
-  async function onSubmit(offer: Offer) {
+  async function onSubmit(bundle: OfferBundle) {
     setActionError(null);
     try {
-      await submitMutation.mutateAsync(offer.id);
+      await submitMutation.mutateAsync(bundle.id);
     } catch (err) {
       setActionError(
         validationMessage(err, "Nuk mundëm ta dërgojmë për aprovim."),
@@ -61,16 +57,16 @@ export function BizOfferList() {
   }
 
   async function confirmDelete() {
-    if (!offerToDelete) {
+    if (!bundleToDelete) {
       return;
     }
     setActionError(null);
     try {
-      await deleteMutation.mutateAsync(offerToDelete.id);
-      setOfferToDelete(null);
+      await deleteMutation.mutateAsync(bundleToDelete.id);
+      setBundleToDelete(null);
     } catch (err) {
       setActionError(validationMessage(err, "Nuk mundëm ta fshijmë ofertën."));
-      setOfferToDelete(null);
+      setBundleToDelete(null);
     }
   }
 
@@ -78,7 +74,7 @@ export function BizOfferList() {
     <div className="biz-offers">
       <div className="biz-offers__toolbar">
         <Link href="/biz/offers/new" className="btn btn--primary">
-          Ofertë e re
+          Dosje e re
         </Link>
         {isFetching ? (
           <span className="biz-offers__hint">Duke përditësuar…</span>
@@ -91,81 +87,93 @@ export function BizOfferList() {
         </p>
       ) : null}
 
-      {offers.length === 0 ? (
+      {bundles.length === 0 ? (
         <p className="shell-panel__lead">
-          Nuk ke asnjë ofertë ende. Krijo të parën.
+          Nuk ke asnjë dosje ofertash ende. Krijo të parën (edhe me një produkt).
         </p>
       ) : (
         <ul className="biz-offer-list">
-          {offers.map((offer) => (
-            <li key={offer.id} className="biz-offer-row">
-              <div className="biz-offer-row__main">
-                <span
-                  className={`biz-offer-row__status biz-offer-row__status--${offer.status}`}
+          {bundles.map((bundle) => {
+            const count = bundle.items_count ?? bundle.items?.length ?? 0;
+            return (
+              <li key={bundle.id} className="biz-offer-row">
+                <Link
+                  href={`/biz/offers/${bundle.id}`}
+                  className="biz-offer-row__main biz-offer-row__main--link"
                 >
-                  {OFFER_STATUS_LABEL[offer.status]}
-                </span>
-                <div>
-                  <p className="biz-offer-row__name">{offer.name}</p>
-                  <p className="biz-offer-row__meta">
-                    {formatDiscountPercent(offer.discount_percent)} ·{" "}
-                    {formatEur(offer.discounted_price)}{" "}
-                    <span className="biz-offer-row__was">
-                      {formatEur(offer.original_price)}
-                    </span>
-                    {" · "}
-                    deri {formatDateShortSq(offer.expires_at)}
-                    {offer.category ? ` · ${offer.category.name}` : ""}
-                  </p>
-                  {offer.status === "rejected" && offer.rejection_reason ? (
-                    <p className="biz-offer-row__reject">
-                      Arsye: {offer.rejection_reason}
+                  <span
+                    className={`biz-offer-row__status biz-offer-row__status--${bundle.status}`}
+                  >
+                    {OFFER_STATUS_LABEL[bundle.status]}
+                  </span>
+                  <div>
+                    <p className="biz-offer-row__name">{bundle.title}</p>
+                    <p className="biz-offer-row__meta">
+                      {count} {count === 1 ? "produkt" : "produkte"}
+                      {" · "}
+                      deri {formatDateShortSq(bundle.expires_at)}
+                      {bundle.status === "rejected" &&
+                      (bundle.items?.filter((i) => i.rejection_note).length ??
+                        0) > 0
+                        ? ` · ${bundle.items!.filter((i) => i.rejection_note).length} për rregullim`
+                        : null}
                     </p>
+                    {bundle.status === "rejected" && bundle.rejection_reason ? (
+                      <p className="biz-offer-row__reject">
+                        Arsye: {bundle.rejection_reason}
+                      </p>
+                    ) : null}
+                  </div>
+                </Link>
+
+                <div className="biz-offer-row__actions">
+                  <Link
+                    href={`/biz/offers/${bundle.id}`}
+                    className="btn btn--ghost btn--sm"
+                  >
+                    Shiko
+                  </Link>
+                  {canEditOffer(bundle.status) ? (
+                    <Link
+                      href={`/biz/offers/${bundle.id}/edit`}
+                      className="btn btn--ghost btn--sm"
+                    >
+                      Ndrysho
+                    </Link>
+                  ) : null}
+                  {canSubmitOffer(bundle.status) ? (
+                    <button
+                      type="button"
+                      className="btn btn--primary btn--sm"
+                      disabled={submitMutation.isPending}
+                      onClick={() => onSubmit(bundle)}
+                    >
+                      Dërgo
+                    </button>
+                  ) : null}
+                  {canDeleteOffer(bundle.status) ? (
+                    <button
+                      type="button"
+                      className="btn btn--ghost btn--sm"
+                      disabled={deleteMutation.isPending}
+                      onClick={() => setBundleToDelete(bundle)}
+                    >
+                      Fshi
+                    </button>
                   ) : null}
                 </div>
-              </div>
-
-              <div className="biz-offer-row__actions">
-                {canEditOffer(offer.status) ? (
-                  <Link
-                    href={`/biz/offers/${offer.id}/edit`}
-                    className="btn btn--ghost btn--sm"
-                  >
-                    Ndrysho
-                  </Link>
-                ) : null}
-                {canSubmitOffer(offer.status) ? (
-                  <button
-                    type="button"
-                    className="btn btn--primary btn--sm"
-                    disabled={submitMutation.isPending}
-                    onClick={() => onSubmit(offer)}
-                  >
-                    Dërgo
-                  </button>
-                ) : null}
-                {canDeleteOffer(offer.status) ? (
-                  <button
-                    type="button"
-                    className="btn btn--ghost btn--sm"
-                    disabled={deleteMutation.isPending}
-                    onClick={() => setOfferToDelete(offer)}
-                  >
-                    Fshi
-                  </button>
-                ) : null}
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
 
       <ConfirmModal
-        open={offerToDelete !== null}
-        title="Fshi ofertën"
+        open={bundleToDelete !== null}
+        title="Fshi dosjen"
         message={
-          offerToDelete
-            ? `Je i sigurt që do ta fshish “${offerToDelete.name}”? Ky veprim nuk kthehet mbrapsht.`
+          bundleToDelete
+            ? `Je i sigurt që do ta fshish “${bundleToDelete.title}”? Të gjitha produktet në dosje fshihen. Ky veprim nuk kthehet mbrapsht.`
             : ""
         }
         confirmLabel="Fshi"
@@ -175,7 +183,7 @@ export function BizOfferList() {
         onConfirm={confirmDelete}
         onClose={() => {
           if (!deleteMutation.isPending) {
-            setOfferToDelete(null);
+            setBundleToDelete(null);
           }
         }}
       />
