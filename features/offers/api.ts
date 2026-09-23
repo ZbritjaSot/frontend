@@ -1,16 +1,55 @@
 import { apiFetch, ApiError } from "@/lib/api";
-import type { Paginated, PublicOffer } from "@/types";
+import type {
+  CategorySummary,
+  Paginated,
+  PublicBusiness,
+  PublicOffer,
+} from "@/types";
 
 const PUBLIC_FETCH: RequestInit = {
   cache: "no-store",
 };
 
+export type PublicOfferQuery = {
+  q?: string;
+  category?: string;
+  business?: string;
+  perPage?: number;
+};
+
 export async function fetchPublicOffers(
-  perPage = 24,
+  query: PublicOfferQuery = {},
 ): Promise<Paginated<PublicOffer>> {
-  return apiFetch<Paginated<PublicOffer>>(`/offers?per_page=${perPage}`, {
+  const params = new URLSearchParams();
+  params.set("per_page", String(query.perPage ?? 24));
+  if (query.q) {
+    params.set("q", query.q);
+  }
+  if (query.category) {
+    params.set("category", query.category);
+  }
+  if (query.business) {
+    params.set("business", query.business);
+  }
+
+  return apiFetch<Paginated<PublicOffer>>(`/offers?${params.toString()}`, {
     ...PUBLIC_FETCH,
   });
+}
+
+export async function fetchPublicCategories(): Promise<CategorySummary[]> {
+  const payload = await apiFetch<{ data: CategorySummary[] }>("/categories", {
+    ...PUBLIC_FETCH,
+  });
+  return payload.data;
+}
+
+export async function fetchPublicBusiness(id: string): Promise<PublicBusiness> {
+  const payload = await apiFetch<{ data: PublicBusiness }>(
+    `/businesses/${id}`,
+    { ...PUBLIC_FETCH },
+  );
+  return payload.data;
 }
 
 export async function fetchPublicOffer(id: string): Promise<PublicOffer> {

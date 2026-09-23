@@ -15,7 +15,11 @@ export function OfferDetail({ offer }: OfferDetailProps) {
   return (
     <article className="offer-detail">
       <p className="offer-detail__eyebrow">
-        {offer.business?.name ?? "Ofertë"}
+        {offer.business ? (
+          <Link href={`/biznese/${offer.business.id}`}>{offer.business.name}</Link>
+        ) : (
+          "Ofertë"
+        )}
         {offer.bundle?.title ? ` · ${offer.bundle.title}` : ""}
         {offer.category ? ` · ${offer.category.name}` : ""}
       </p>
