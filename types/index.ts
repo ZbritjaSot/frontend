@@ -25,6 +25,12 @@ export type Category = {
 export type BusinessSummary = {
   id: string;
   name: string;
+  street?: string | null;
+  village?: string | null;
+  city?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   is_active?: boolean;
 };
 
@@ -32,6 +38,12 @@ export type BusinessSummary = {
 export type Business = {
   id: string;
   name: string;
+  street?: string | null;
+  village?: string | null;
+  city?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   is_active: boolean;
   owner?: User | null;
   created_at?: string;

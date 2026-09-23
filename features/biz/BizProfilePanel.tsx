@@ -1,10 +1,36 @@
 "use client";
 
+import Link from "next/link";
 import { Spinner } from "@/components/ui/Spinner";
 import { useBizBusiness, useBizSubscription } from "@/hooks/useBizProfile";
 import { formatDateSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import type { BizSubscription } from "@/types";
+import type { BizSubscription, Business } from "@/types";
+
+function AddressLink({ business }: { business: Business }) {
+  const lines = [business.street, business.village, business.city].filter(
+    (part): part is string => Boolean(part),
+  );
+  const saved = lines.length > 0 ? lines : business.address ? [business.address] : [];
+
+  return (
+    <Link href="/biz/profile/address" className="address-row">
+      <span className="address-row__label">Adresa</span>
+      {saved.length > 0 ? (
+        saved.map((line, index) => (
+          <span key={`${index}-${line}`} className="address-row__value">
+            {line}
+          </span>
+        ))
+      ) : (
+        <span className="address-row__value">Shto adresën</span>
+      )}
+      <span className="address-row__meta">
+        {saved.length > 0 ? "Ndrysho" : "Hap faqen e adresës"}
+      </span>
+    </Link>
+  );
+}
 
 function statusClass(sub: BizSubscription): string {
   if (!sub.is_active) {
@@ -90,6 +116,7 @@ export function BizProfilePanel() {
           Statusi i llogarisë:{" "}
           {business?.is_active ? "aktive" : "joaktive"}
         </p>
+        {business ? <AddressLink business={business} /> : null}
       </div>
 
       <div className="shell-panel">
