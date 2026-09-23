@@ -11,32 +11,116 @@ export type CategorySummary = {
   slug: string;
 };
 
+/** Admin category payload (matches CategoryResource). */
+export type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
 export type BusinessSummary = {
   id: string;
   name: string;
   is_active?: boolean;
 };
 
-/** Public offer payload (matches Laravel PublicOfferResource). */
+/** Admin business payload (matches BusinessResource). */
+export type Business = {
+  id: string;
+  name: string;
+  is_active: boolean;
+  owner?: User | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+/** Admin subscription (matches SubscriptionResource). */
+export type PaymentMethod = "cash" | "card";
+
+export type Subscription = {
+  id: string;
+  business_id: string;
+  starts_at: string;
+  ends_at: string;
+  is_active: boolean;
+  is_current: boolean;
+  payment_method: PaymentMethod;
+  /** Integer cents (e.g. 5000 = 50.00 EUR). */
+  price: number;
+  payment_note: string | null;
+  business?: BusinessSummary;
+  created_at?: string;
+  updated_at?: string;
+};
+
+/** Biz read-only status — no payment_note. */
+export type BizSubscription = {
+  id: string;
+  starts_at: string;
+  ends_at: string;
+  is_active: boolean;
+  is_current: boolean;
+};
+
+/** Shared window meta from the parent offer folder. */
+export type OfferBundleSummary = {
+  id: string;
+  title: string;
+  starts_at: string;
+  expires_at: string;
+};
+
+/** Product line inside a folder (biz/admin). */
+export type OfferItem = {
+  id: string;
+  name: string;
+  /** Integer cents. */
+  original_price: number;
+  /** Integer cents. */
+  discounted_price: number;
+  discount_percent: number;
+  /** Set when admin flagged this product on reject. */
+  rejection_note?: string | null;
+  category?: CategorySummary;
+};
+
+/** Public offer payload (flat product; dates from bundle). */
 export type PublicOffer = {
   id: string;
   name: string;
-  original_price: string;
-  discounted_price: string;
+  /** Integer cents. */
+  original_price: number;
+  /** Integer cents. */
+  discounted_price: number;
   discount_percent: number;
   starts_at: string;
   expires_at: string;
+  bundle?: OfferBundleSummary | null;
   category?: CategorySummary;
   business?: BusinessSummary;
 };
 
-/** Admin / biz offer payload (matches OfferResource). */
-export type Offer = PublicOffer & {
+/** Biz / admin offer folder (matches OfferBundleResource). */
+export type OfferBundle = {
+  id: string;
+  title: string;
+  starts_at: string;
+  expires_at: string;
   status: OfferStatus;
   rejection_reason: string | null;
+  items_count?: number;
+  items?: OfferItem[];
+  business?: BusinessSummary;
   created_at?: string;
   updated_at?: string;
 };
+
+/** @deprecated Prefer OfferBundle — kept for transitional imports. */
+export type Offer = OfferBundle;
 
 export type User = {
   id: string;

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ApiError, fetchPublicOffers } from "@/features/offers/api";
 import { OfferList } from "@/features/offers/OfferList";
-import { SITE_TAGLINE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Ofertat",
@@ -24,9 +23,7 @@ export default async function HomePage() {
   return (
     <>
       <section className="public-hero">
-        <p className="public-hero__eyebrow">Kosovë · EUR</p>
         <h1 className="public-hero__title">Ofertat e sotme</h1>
-        <p className="public-hero__lead">{SITE_TAGLINE}</p>
       </section>
 
       {errorMessage ? (

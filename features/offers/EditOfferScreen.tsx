@@ -12,17 +12,17 @@ type EditOfferScreenProps = {
 };
 
 export function EditOfferScreen({ id }: EditOfferScreenProps) {
-  const { data: offer, isLoading, isError, error } = useBizOffer(id);
+  const { data: bundle, isLoading, isError, error } = useBizOffer(id);
 
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar ofertën" />;
+    return <Spinner label="Duke ngarkuar dosjen" />;
   }
 
-  if (isError || !offer) {
+  if (isError || !bundle) {
     return (
       <div className="shell-panel">
         <p className="shell-panel__lead">
-          {validationMessage(error, "Oferta nuk u gjet.")}
+          {validationMessage(error, "Dosja nuk u gjet.")}
         </p>
         <Link href="/biz/offers" className="btn btn--ghost">
           ← Ofertat
@@ -31,11 +31,11 @@ export function EditOfferScreen({ id }: EditOfferScreenProps) {
     );
   }
 
-  if (!canEditOffer(offer.status)) {
+  if (!canEditOffer(bundle.status)) {
     return (
       <div className="shell-panel">
         <p className="shell-panel__lead">
-          Kjo ofertë nuk mund të ndryshohet (statusi: {offer.status}).
+          Kjo dosje nuk mund të ndryshohet (statusi: {bundle.status}).
         </p>
         <Link href="/biz/offers" className="btn btn--ghost">
           ← Ofertat
@@ -46,8 +46,8 @@ export function EditOfferScreen({ id }: EditOfferScreenProps) {
 
   return (
     <>
-      <h1 className="dash__page-title">Ndrysho ofertën</h1>
-      <OfferForm mode="edit" offer={offer} />
+      <h1 className="dash__page-title">Ndrysho dosjen</h1>
+      <OfferForm mode="edit" offer={bundle} />
     </>
   );
 }

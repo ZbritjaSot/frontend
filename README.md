@@ -45,4 +45,4 @@ Open: `/` · `/admin` · `/biz`
 | `/biz/login` | `kafe@demo.zbritjasot.com` | `password` |
 | `/admin/login` | `admin@zbritjasot.com` | `password` |
 
-Expired / past-window offers never appear on `/`. Hourly job: `php artisan offers:expire`.
+Expired / past-window offers never appear on `/`. Expiry job (every minute): `php artisan offers:expire`.

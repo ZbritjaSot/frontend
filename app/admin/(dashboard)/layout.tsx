@@ -1,13 +1,6 @@
 import type { ReactNode } from "react";
-import { DashboardShell } from "@/components/chrome/DashboardShell";
 import { RequireAdminAuth } from "@/features/auth/RequireAdminAuth";
-
-const nav = [
-  { href: "/admin", label: "Paneli" },
-  { href: "/admin/offers", label: "Ofertat në pritje" },
-  { href: "/admin/businesses", label: "Bizneset" },
-  { href: "/admin/categories", label: "Kategoritë" },
-];
+import { AdminDashboardShell } from "@/features/admin/AdminDashboardShell";
 
 export default function AdminDashboardLayout({
   children,
@@ -16,9 +9,7 @@ export default function AdminDashboardLayout({
 }) {
   return (
     <RequireAdminAuth>
-      <DashboardShell area="admin" nav={nav} showLogout>
-        {children}
-      </DashboardShell>
+      <AdminDashboardShell>{children}</AdminDashboardShell>
     </RequireAdminAuth>
   );
 }

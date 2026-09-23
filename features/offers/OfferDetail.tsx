@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   formatDateSq,
   formatDiscountPercent,
-  formatEur,
+  formatEurFromCents,
 } from "@/lib/format";
 import type { PublicOffer } from "@/types";
 
@@ -14,8 +14,9 @@ export function OfferDetail({ offer }: OfferDetailProps) {
   return (
     <article className="offer-detail">
       <p className="offer-detail__eyebrow">
-        {offer.category?.name ?? "Ofertë"}
-        {offer.business ? ` · ${offer.business.name}` : ""}
+        {offer.business?.name ?? "Ofertë"}
+        {offer.bundle?.title ? ` · ${offer.bundle.title}` : ""}
+        {offer.category ? ` · ${offer.category.name}` : ""}
       </p>
 
       <p className="offer-detail__discount" aria-label="Zbritja">
@@ -26,10 +27,10 @@ export function OfferDetail({ offer }: OfferDetailProps) {
 
       <div className="offer-detail__prices">
         <span className="offer-detail__now">
-          {formatEur(offer.discounted_price)}
+          {formatEurFromCents(offer.discounted_price)}
         </span>
         <span className="offer-detail__was">
-          {formatEur(offer.original_price)}
+          {formatEurFromCents(offer.original_price)}
         </span>
       </div>
 

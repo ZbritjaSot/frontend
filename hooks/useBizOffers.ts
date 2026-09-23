@@ -2,30 +2,30 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  createBizOffer,
-  deleteBizOffer,
+  createBizOfferBundle,
+  deleteBizOfferBundle,
   fetchActiveCategories,
-  fetchBizOffer,
-  fetchBizOffers,
-  submitBizOffer,
-  updateBizOffer,
+  fetchBizOfferBundle,
+  fetchBizOfferBundles,
+  submitBizOfferBundle,
+  updateBizOfferBundle,
 } from "@/features/offers/bizApi";
-import type { OfferFormInput } from "@/schemas/offer";
+import type { OfferBundleFormInput } from "@/schemas/offer";
 
-export const bizOffersQueryKey = ["biz", "offers"] as const;
+export const bizOffersQueryKey = ["biz", "offer-bundles"] as const;
 export const categoriesQueryKey = ["categories", "active"] as const;
 
 export function useBizOffers() {
   return useQuery({
     queryKey: bizOffersQueryKey,
-    queryFn: () => fetchBizOffers(),
+    queryFn: () => fetchBizOfferBundles(),
   });
 }
 
 export function useBizOffer(id: string) {
   return useQuery({
     queryKey: [...bizOffersQueryKey, id],
-    queryFn: () => fetchBizOffer(id),
+    queryFn: () => fetchBizOfferBundle(id),
     enabled: Boolean(id),
   });
 }
@@ -41,7 +41,7 @@ export function useActiveCategories() {
 export function useCreateBizOffer() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: OfferFormInput) => createBizOffer(input),
+    mutationFn: (input: OfferBundleFormInput) => createBizOfferBundle(input),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: bizOffersQueryKey });
     },
@@ -51,7 +51,8 @@ export function useCreateBizOffer() {
 export function useUpdateBizOffer(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: OfferFormInput) => updateBizOffer(id, input),
+    mutationFn: (input: OfferBundleFormInput) =>
+      updateBizOfferBundle(id, input),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: bizOffersQueryKey });
     },
@@ -61,7 +62,7 @@ export function useUpdateBizOffer(id: string) {
 export function useSubmitBizOffer() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => submitBizOffer(id),
+    mutationFn: (id: string) => submitBizOfferBundle(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: bizOffersQueryKey });
     },
@@ -71,7 +72,7 @@ export function useSubmitBizOffer() {
 export function useDeleteBizOffer() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteBizOffer(id),
+    mutationFn: (id: string) => deleteBizOfferBundle(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: bizOffersQueryKey });
     },

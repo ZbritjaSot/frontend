@@ -1,21 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
+import { RejectBundleModal } from "@/features/admin/RejectBundleModal";
 import {
   useApproveOffer,
   usePendingOffers,
   useRejectOffer,
 } from "@/hooks/useAdminOffers";
-import {
-  formatDateShortSq,
-  formatDiscountPercent,
-  formatEur,
-} from "@/lib/format";
+import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import type { Offer } from "@/types";
+import type { OfferBundle } from "@/types";
 
 export function AdminPendingOffers() {
   const { data, isLoading, isError, error, refetch, isFetching } =
@@ -23,9 +20,8 @@ export function AdminPendingOffers() {
   const approveMutation = useApproveOffer();
   const rejectMutation = useRejectOffer();
   const [actionError, setActionError] = useState<string | null>(null);
-  const [toApprove, setToApprove] = useState<Offer | null>(null);
-  const [toReject, setToReject] = useState<Offer | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
+  const [toApprove, setToApprove] = useState<OfferBundle | null>(null);
+  const [toReject, setToReject] = useState<OfferBundle | null>(null);
 
   if (isLoading) {
     return <Spinner label="Duke ngarkuar radhën" />;
@@ -44,7 +40,7 @@ export function AdminPendingOffers() {
     );
   }
 
-  const offers = data?.data ?? [];
+  const bundles = data?.data ?? [];
 
   async function confirmApprove() {
     if (!toApprove) {
@@ -55,12 +51,15 @@ export function AdminPendingOffers() {
       await approveMutation.mutateAsync(toApprove.id);
       setToApprove(null);
     } catch (err) {
-      setActionError(validationMessage(err, "Nuk mundëm ta aprovojmë ofertën."));
+      setActionError(validationMessage(err, "Nuk mundëm ta aprovojmë dosjen."));
       setToApprove(null);
     }
   }
 
-  async function confirmReject() {
+  async function confirmReject(payload: {
+    reason?: string;
+    item_ids: string[];
+  }) {
     if (!toReject) {
       return;
     }
@@ -68,14 +67,13 @@ export function AdminPendingOffers() {
     try {
       await rejectMutation.mutateAsync({
         id: toReject.id,
-        reason: rejectReason.trim() || undefined,
+        reason: payload.reason,
+        item_ids: payload.item_ids,
       });
       setToReject(null);
-      setRejectReason("");
     } catch (err) {
-      setActionError(validationMessage(err, "Nuk mundëm ta refuzojmë ofertën."));
+      setActionError(validationMessage(err, "Nuk mundëm ta refuzojmë dosjen."));
       setToReject(null);
-      setRejectReason("");
     }
   }
 
@@ -93,36 +91,40 @@ export function AdminPendingOffers() {
         </p>
       ) : null}
 
-      {offers.length === 0 ? (
-        <p className="shell-panel__lead">Nuk ka oferta në pritje tani.</p>
+      {bundles.length === 0 ? (
+        <p className="shell-panel__lead">Nuk ka dosje në pritje tani.</p>
       ) : (
         <ul className="biz-offer-list">
-          {offers.map((offer) => (
-            <li key={offer.id} className="biz-offer-row">
-              <div className="biz-offer-row__main">
+          {bundles.map((bundle) => (
+            <li key={bundle.id} className="biz-offer-row">
+              <Link
+                href={`/admin/offers/${bundle.id}`}
+                className="biz-offer-row__main biz-offer-row__main--link"
+              >
                 <div>
-                  <p className="biz-offer-row__name">{offer.name}</p>
+                  <p className="biz-offer-row__name">{bundle.title}</p>
                   <p className="biz-offer-row__meta">
-                    {offer.business?.name ?? "Biznes"}
-                    {offer.category ? ` · ${offer.category.name}` : ""}
+                    {bundle.business?.name ?? "Biznes"}
                     {" · "}
-                    {formatDiscountPercent(offer.discount_percent)} ·{" "}
-                    {formatEur(offer.discounted_price)}{" "}
-                    <span className="biz-offer-row__was">
-                      {formatEur(offer.original_price)}
-                    </span>
+                    {bundle.items_count ?? bundle.items?.length ?? 0} produkte
                     {" · "}
-                    deri {formatDateShortSq(offer.expires_at)}
+                    deri {formatDateShortSq(bundle.expires_at)}
                   </p>
                 </div>
-              </div>
+              </Link>
 
               <div className="biz-offer-row__actions">
+                <Link
+                  href={`/admin/offers/${bundle.id}`}
+                  className="btn btn--ghost btn--sm"
+                >
+                  Shiko
+                </Link>
                 <button
                   type="button"
                   className="btn btn--primary btn--sm"
                   disabled={approveMutation.isPending || rejectMutation.isPending}
-                  onClick={() => setToApprove(offer)}
+                  onClick={() => setToApprove(bundle)}
                 >
                   Aprovo
                 </button>
@@ -130,10 +132,7 @@ export function AdminPendingOffers() {
                   type="button"
                   className="btn btn--ghost btn--sm"
                   disabled={approveMutation.isPending || rejectMutation.isPending}
-                  onClick={() => {
-                    setRejectReason("");
-                    setToReject(offer);
-                  }}
+                  onClick={() => setToReject(bundle)}
                 >
                   Refuzo
                 </button>
@@ -145,10 +144,10 @@ export function AdminPendingOffers() {
 
       <ConfirmModal
         open={toApprove !== null}
-        title="Aprovo ofertën"
+        title="Aprovo dosjen"
         message={
           toApprove
-            ? `Aprovo “${toApprove.name}”? Do të shfaqet te faqja publike nëse është brenda datave.`
+            ? `Aprovo “${toApprove.title}”? Të gjitha produktet do të shfaqen te faqja publike nëse janë brenda datave.`
             : ""
         }
         confirmLabel="Aprovo"
@@ -162,57 +161,16 @@ export function AdminPendingOffers() {
         }}
       />
 
-      <Modal
-        open={toReject !== null}
-        title="Refuzo ofertën"
+      <RejectBundleModal
+        bundle={toReject}
+        pending={rejectMutation.isPending}
         onClose={() => {
           if (!rejectMutation.isPending) {
             setToReject(null);
-            setRejectReason("");
           }
         }}
-        footer={
-          <>
-            <button
-              type="button"
-              className="btn btn--ghost"
-              disabled={rejectMutation.isPending}
-              onClick={() => {
-                setToReject(null);
-                setRejectReason("");
-              }}
-            >
-              Anulo
-            </button>
-            <button
-              type="button"
-              className="btn btn--danger"
-              disabled={rejectMutation.isPending}
-              onClick={confirmReject}
-            >
-              {rejectMutation.isPending ? "Duke u refuzuar…" : "Refuzo"}
-            </button>
-          </>
-        }
-      >
-        <p className="modal__message">
-          {toReject
-            ? `Refuzo “${toReject.name}”. Arsyeja është opsionale.`
-            : ""}
-        </p>
-        <label className="offer-form__field" style={{ marginTop: "1rem" }}>
-          <span>Arsye (opsionale)</span>
-          <textarea
-            className="modal__textarea"
-            rows={3}
-            value={rejectReason}
-            onChange={(e) => setRejectReason(e.target.value)}
-            disabled={rejectMutation.isPending}
-            maxLength={1000}
-            placeholder="p.sh. mungon informacioni…"
-          />
-        </label>
-      </Modal>
+        onConfirm={confirmReject}
+      />
     </div>
   );
 }

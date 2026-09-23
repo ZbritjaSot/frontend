@@ -10,6 +10,10 @@ import { LogoutButton } from "@/features/auth/LogoutButton";
 export type DashboardNavItem = {
   href: string;
   label: string;
+  /** Shown when > 0 (e.g. pending offer count). */
+  badge?: number;
+  /** Pending is the yellow offer pill. Danger is the red expired pill. */
+  badgeTone?: "pending" | "danger";
 };
 
 type DashboardShellProps = {
@@ -116,6 +120,15 @@ export function DashboardShell({
               pathname === item.href ||
               (item.href !== homeHref && pathname.startsWith(`${item.href}/`));
 
+            const badge =
+              typeof item.badge === "number" && item.badge > 0
+                ? item.badge
+                : null;
+            const badgeLabel =
+              item.badgeTone === "danger"
+                ? `${badge} të skaduara`
+                : `${badge} në pritje`;
+
             return (
               <Link
                 key={item.href}
@@ -123,7 +136,21 @@ export function DashboardShell({
                 className={active ? "is-active" : undefined}
                 onClick={() => setMenuOpen(false)}
               >
-                {item.label}
+                <span className="dash__nav-label">{item.label}</span>
+                {badge !== null ? (
+                  <span
+                    className={
+                      item.badgeTone === "danger"
+                        ? "dash__nav-badge dash__nav-badge--danger"
+                        : item.badgeTone === "pending"
+                          ? "dash__nav-badge dash__nav-badge--pending"
+                          : "dash__nav-badge"
+                    }
+                    aria-label={badgeLabel}
+                  >
+                    {badge > 99 ? "99+" : badge}
+                  </span>
+                ) : null}
               </Link>
             );
           })}
