@@ -1,33 +1,22 @@
 "use client";
 
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Link from "next/link";
 import { useState } from "react";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
-import { RejectBundleModal } from "@/features/admin/RejectBundleModal";
-import {
-  useApproveOffer,
-  usePendingOffers,
-  useRejectOffer,
-} from "@/hooks/useAdminOffers";
+import { PENDING_OFFERS_PAGE_SIZE } from "@/features/admin/offersApi";
+import { usePendingOffers } from "@/hooks/useAdminOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, btnPrimary, btnSm, fieldError, panelLead } from "@/lib/ui";
-import type { OfferBundle } from "@/types";
+import { btnGhost, panelLead } from "@/lib/ui";
 
-const rowClass =
-  "flex flex-col gap-5 border-b border-line py-5 min-[800px]:flex-row min-[800px]:items-center min-[800px]:justify-between";
-
-const rowActionClass = `${btnGhost} ${btnSm} min-w-[5.5rem] flex-auto min-[800px]:flex-none`;
+const rowButton =
+  "inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
 
 export function AdminPendingOffers() {
-  const { data, isLoading, isError, error, refetch, isFetching } =
-    usePendingOffers();
-  const approveMutation = useApproveOffer();
-  const rejectMutation = useRejectOffer();
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [toApprove, setToApprove] = useState<OfferBundle | null>(null);
-  const [toReject, setToReject] = useState<OfferBundle | null>(null);
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error, refetch } = usePendingOffers(page);
 
   if (isLoading) {
     return <Spinner label="Duke ngarkuar radhën" />;
@@ -47,136 +36,75 @@ export function AdminPendingOffers() {
   }
 
   const bundles = data?.data ?? [];
-
-  async function confirmApprove() {
-    if (!toApprove) {
-      return;
-    }
-    setActionError(null);
-    try {
-      await approveMutation.mutateAsync(toApprove.id);
-      setToApprove(null);
-    } catch (err) {
-      setActionError(validationMessage(err, "Nuk mundëm ta aprovojmë dosjen."));
-      setToApprove(null);
-    }
-  }
-
-  async function confirmReject(payload: {
-    reason?: string;
-    item_ids: string[];
-  }) {
-    if (!toReject) {
-      return;
-    }
-    setActionError(null);
-    try {
-      await rejectMutation.mutateAsync({
-        id: toReject.id,
-        reason: payload.reason,
-        item_ids: payload.item_ids,
-      });
-      setToReject(null);
-    } catch (err) {
-      setActionError(validationMessage(err, "Nuk mundëm ta refuzojmë dosjen."));
-      setToReject(null);
-    }
+  const lastPage = data?.meta?.last_page;
+  const total = data?.meta?.total ?? bundles.length;
+  if (lastPage !== undefined && page > lastPage) {
+    setPage(lastPage);
   }
 
   return (
     <div>
-      {isFetching ? (
-        <p className="mb-4 text-[0.8125rem] text-muted">Duke përditësuar…</p>
-      ) : null}
-
-      {actionError ? (
-        <p className={fieldError} role="alert">
-          {actionError}
-        </p>
-      ) : null}
-
       {bundles.length === 0 ? (
-        <p className={panelLead}>Nuk ka dosje në pritje tani.</p>
+        <p className={panelLead}>Nuk ka oferta në pritje.</p>
       ) : (
-        <ul className="m-0 list-none border-t border-line p-0">
-          {bundles.map((bundle) => (
-            <li key={bundle.id} className={rowClass}>
-              <Link
-                href={`/admin/offers/${bundle.id}`}
-                className="group flex min-w-0 flex-1 gap-5 rounded-lg text-inherit no-underline"
-              >
-                <div>
-                  <p className="m-0 text-[1.0625rem] font-semibold group-hover:underline group-hover:decoration-accent group-hover:underline-offset-[0.15em]">
-                    {bundle.title}
-                  </p>
-                  <p className="mt-[0.3rem] text-sm leading-[1.45] text-muted">
-                    {bundle.business?.name ?? "Biznes"}
-                    {" · "}
-                    {bundle.items_count ?? bundle.items?.length ?? 0} produkte
-                    {" · "}
-                    deri {formatDateShortSq(bundle.expires_at)}
-                  </p>
-                </div>
-              </Link>
-
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  href={`/admin/offers/${bundle.id}`}
-                  className={rowActionClass}
-                >
-                  Shiko
-                </Link>
-                <button
-                  type="button"
-                  className={`${btnPrimary} ${btnSm} min-w-[5.5rem] flex-auto min-[800px]:flex-none`}
-                  disabled={approveMutation.isPending || rejectMutation.isPending}
-                  onClick={() => setToApprove(bundle)}
-                >
-                  Aprovo
-                </button>
-                <button
-                  type="button"
-                  className={rowActionClass}
-                  disabled={approveMutation.isPending || rejectMutation.isPending}
-                  onClick={() => setToReject(bundle)}
-                >
-                  Refuzo
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div className="overflow-hidden rounded-2xl border border-line">
+          <div className="overflow-x-auto md:grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto_auto_auto] md:gap-x-4">
+            <div className="col-span-5 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
+              <span className="whitespace-nowrap">Oferta</span>
+              <span className="whitespace-nowrap">Biznesi</span>
+              <span className="whitespace-nowrap md:pl-6">Produkte</span>
+              <span className="whitespace-nowrap md:pl-6">Skadon</span>
+              <span className="border-l border-line pl-4 whitespace-nowrap">
+                Veprimet
+              </span>
+            </div>
+            <ul className="col-span-5 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
+              {bundles.map((bundle) => {
+                const count = bundle.items_count ?? bundle.items?.length ?? 0;
+                return (
+                  <li
+                    key={bundle.id}
+                    className="col-span-5 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
+                  >
+                    <Link
+                      href={`/admin/offers/${bundle.id}`}
+                      className="truncate text-base font-semibold text-inherit no-underline hover:text-accent"
+                    >
+                      {bundle.title}
+                    </Link>
+                    <p className="m-0 truncate text-sm font-semibold">
+                      {bundle.business?.name ?? "Biznes"}
+                    </p>
+                    <p className="m-0 text-sm font-semibold tabular-nums md:pl-6">
+                      {count}
+                    </p>
+                    <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
+                      {formatDateShortSq(bundle.expires_at)}
+                    </p>
+                    <div className="flex items-center gap-2 border-l border-line pl-4">
+                      <Link
+                        href={`/admin/offers/${bundle.id}`}
+                        className={rowButton}
+                        aria-label={`Shiko ${bundle.title}`}
+                      >
+                        <VisibilityOutlinedIcon fontSize="small" />
+                      </Link>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <Pagination
+            page={page}
+            lastPage={lastPage ?? 1}
+            total={total}
+            perPage={PENDING_OFFERS_PAGE_SIZE}
+            onPageChange={setPage}
+          />
+        </div>
       )}
 
-      <ConfirmModal
-        open={toApprove !== null}
-        title="Aprovo dosjen"
-        message={
-          toApprove
-            ? `Aprovo “${toApprove.title}”? Të gjitha produktet do të shfaqen te faqja publike nëse janë brenda datave.`
-            : ""
-        }
-        confirmLabel="Aprovo"
-        cancelLabel="Anulo"
-        pending={approveMutation.isPending}
-        onConfirm={confirmApprove}
-        onClose={() => {
-          if (!approveMutation.isPending) {
-            setToApprove(null);
-          }
-        }}
-      />
-
-      <RejectBundleModal
-        bundle={toReject}
-        pending={rejectMutation.isPending}
-        onClose={() => {
-          if (!rejectMutation.isPending) {
-            setToReject(null);
-          }
-        }}
-        onConfirm={confirmReject}
-      />
     </div>
   );
 }

@@ -1,8 +1,13 @@
 "use client";
 
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useState, type FormEvent } from "react";
 import { Modal } from "@/components/ui/Modal";
+import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
+import { ADMIN_BUSINESSES_PAGE_SIZE } from "@/features/admin/businessesApi";
 import {
   useAdminBusinesses,
   useCreateBusiness,
@@ -12,12 +17,12 @@ import { validationMessage } from "@/lib/api";
 import {
   btnGhost,
   btnPrimary,
-  btnSm,
   checkInput,
   fieldError,
   fieldLabel,
   inputClass,
   offerStatusClass,
+  pageTitle,
   panelLead,
   panelNote,
 } from "@/lib/ui";
@@ -31,10 +36,8 @@ const emptyForm: BusinessFormInput = {
   is_active: true,
 };
 
-const rowClass =
-  "flex flex-col gap-5 border-b border-line py-5 min-[800px]:flex-row min-[800px]:items-center min-[800px]:justify-between";
-
-const rowActionClass = `${btnGhost} ${btnSm} min-w-[5.5rem] flex-auto min-[800px]:flex-none`;
+const rowButton =
+  "inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
 
 const checkLabelClass =
   "flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none";
@@ -42,7 +45,8 @@ const checkLabelClass =
 const checkTextClass = "min-w-0 flex-1 pt-px leading-[1.4]";
 
 export function AdminBusinesses() {
-  const { data, isLoading, isError, error, refetch } = useAdminBusinesses();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error, refetch } = useAdminBusinesses(page);
   const createMutation = useCreateBusiness();
   const updateMutation = useUpdateBusiness();
 
@@ -78,6 +82,7 @@ export function AdminBusinesses() {
     try {
       await createMutation.mutateAsync(parsed.data);
       setCreating(false);
+      setPage(1);
       setNotice(
         "Llogaria u krijua. Fjalëkalimi i rastësishëm u dërgua te email-i i pronarit.",
       );
@@ -114,31 +119,49 @@ export function AdminBusinesses() {
   }
 
   const businesses = data?.data ?? [];
+  const lastPage = data?.meta?.last_page;
+  const total = data?.meta?.total ?? businesses.length;
+  if (lastPage !== undefined && page > lastPage) {
+    setPage(lastPage);
+  }
+
+  const header = (
+    <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <h1 className={`${pageTitle} mb-0!`}>Bizneset</h1>
+      <button className={btnPrimary} type="button" onClick={openCreate}>
+        Shto biznes
+      </button>
+    </div>
+  );
 
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar bizneset" />;
+    return (
+      <div>
+        {header}
+        <Spinner label="Duke ngarkuar bizneset" />
+      </div>
+    );
   }
 
   if (isError) {
     return (
-      <div className="max-w-[40rem]">
-        <p className={panelLead}>
-          {validationMessage(error, "Nuk mundëm t’i ngarkojmë bizneset.")}
-        </p>
-        <button className={btnGhost} type="button" onClick={() => refetch()}>
-          Provo përsëri
-        </button>
+      <div>
+        {header}
+        <div className="max-w-[40rem]">
+          <p className={panelLead}>
+            {validationMessage(error, "Nuk mundëm t’i ngarkojmë bizneset.")}
+          </p>
+          <button className={btnGhost} type="button" onClick={() => refetch()}>
+            Provo përsëri
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="mb-8 flex flex-wrap items-center gap-5">
-        <button className={btnPrimary} type="button" onClick={openCreate}>
-          Shto biznes
-        </button>
-      </div>
+      {header}
 
       {notice ? <p className={panelNote}>{notice}</p> : null}
 
@@ -147,50 +170,86 @@ export function AdminBusinesses() {
           <p className={panelLead}>Nuk ka biznese ende.</p>
         </div>
       ) : (
-        <ul className="m-0 list-none p-0">
-          {businesses.map((business) => (
-            <li key={business.id} className={rowClass}>
-              <div className="flex min-w-0 gap-5">
-                <span className="m-0 text-[1.0625rem] font-semibold">
-                  {business.name}
-                </span>
-                <span className="mt-[0.3rem] text-sm leading-[1.45] text-muted">
-                  {business.owner?.name ?? "Pa pronar"}
-                  {business.owner?.email ? ` · ${business.owner.email}` : ""}
-                </span>
-              </div>
-              <span
-                className={offerStatusClass(
-                  business.is_active ? "approved" : "rejected",
-                )}
-              >
-                {business.is_active ? "Aktive" : "Joaktive"}
+        <div className="overflow-hidden rounded-2xl border border-line">
+          <div className="overflow-x-auto md:grid md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_auto_auto] md:gap-x-4">
+            <div className="col-span-4 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
+              <span className="whitespace-nowrap">Biznesi</span>
+              <span className="whitespace-nowrap">Pronari</span>
+              <span className="whitespace-nowrap">Statusi</span>
+              <span className="border-l border-line pl-4 whitespace-nowrap">
+                Veprimet
               </span>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  className={rowActionClass}
-                  type="button"
-                  onClick={() => openEdit(business)}
+            </div>
+            <ul className="col-span-4 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
+              {businesses.map((business) => (
+                <li
+                  key={business.id}
+                  className="col-span-4 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
                 >
-                  Ndrysho
-                </button>
-                <button
-                  className={rowActionClass}
-                  type="button"
-                  disabled={updateMutation.isPending}
-                  onClick={() =>
-                    updateMutation.mutate({
-                      id: business.id,
-                      is_active: !business.is_active,
-                    })
-                  }
-                >
-                  {business.is_active ? "Çaktivizo" : "Aktivizo"}
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                  <p className="m-0 truncate text-base font-semibold">
+                    {business.name}
+                  </p>
+                  <div className="min-w-0">
+                    <p className="m-0 truncate text-base font-semibold">
+                      {business.owner?.name ?? "Pa pronar"}
+                    </p>
+                    {business.owner?.email ? (
+                      <p className="m-0 truncate text-sm text-muted">
+                        {business.owner.email}
+                      </p>
+                    ) : null}
+                  </div>
+                  <span
+                    className={`${offerStatusClass(
+                      business.is_active ? "approved" : "rejected",
+                    )} mt-0! w-fit self-center!`}
+                  >
+                    {business.is_active ? "Aktive" : "Joaktive"}
+                  </span>
+                  <div className="flex items-center gap-2 border-l border-line pl-4">
+                    <button
+                      className={rowButton}
+                      type="button"
+                      aria-label={`Ndrysho ${business.name}`}
+                      onClick={() => openEdit(business)}
+                    >
+                      <EditOutlinedIcon fontSize="small" />
+                    </button>
+                    <button
+                      className={rowButton}
+                      type="button"
+                      aria-label={
+                        business.is_active
+                          ? `Çaktivizo ${business.name}`
+                          : `Aktivizo ${business.name}`
+                      }
+                      disabled={updateMutation.isPending}
+                      onClick={() =>
+                        updateMutation.mutate({
+                          id: business.id,
+                          is_active: !business.is_active,
+                        })
+                      }
+                    >
+                      {business.is_active ? (
+                        <LockOutlinedIcon fontSize="small" />
+                      ) : (
+                        <LockOpenOutlinedIcon fontSize="small" />
+                      )}
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <Pagination
+            page={page}
+            lastPage={lastPage ?? 1}
+            total={total}
+            perPage={ADMIN_BUSINESSES_PAGE_SIZE}
+            onPageChange={setPage}
+          />
+        </div>
       )}
 
       <Modal

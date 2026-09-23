@@ -13,9 +13,19 @@ function toApiBody(input: CategoryFormInput) {
   };
 }
 
-export async function fetchAdminCategories(perPage = 200) {
+export const ADMIN_CATEGORIES_PAGE_SIZE = 15;
+
+export async function fetchAdminCategories(
+  page = 1,
+  perPage = ADMIN_CATEGORIES_PAGE_SIZE,
+) {
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(perPage),
+  });
+
   return apiFetch<Paginated<Category>>(
-    `/admin/categories?per_page=${perPage}`,
+    `/admin/categories?${params.toString()}`,
     { auth: true },
   );
 }

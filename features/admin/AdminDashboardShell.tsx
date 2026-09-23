@@ -18,7 +18,7 @@ const baseNav: DashboardNavItem[] = [
   { href: "/admin", label: "Paneli", icon: <DashboardIcon fontSize="small" /> },
   {
     href: "/admin/offers",
-    label: "Ofertat në pritje",
+    label: "Në pritje",
     icon: <PendingActionsIcon fontSize="small" />,
   },
   {

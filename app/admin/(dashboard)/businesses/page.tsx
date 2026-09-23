@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { AdminBusinesses } from "@/features/admin/AdminBusinesses";
-import { pageTitle } from "@/lib/ui";
 
 export const metadata: Metadata = {
   title: "Bizneset",
@@ -8,10 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminBusinessesPage() {
-  return (
-    <>
-      <h1 className={pageTitle}>Bizneset</h1>
-      <AdminBusinesses />
-    </>
-  );
+  return <AdminBusinesses />;
 }

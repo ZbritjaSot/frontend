@@ -13,7 +13,7 @@ export default function AdminHomePage() {
       <div className="max-w-[40rem]">
         <p className={panelLead}>
           Paneli i administratorit. Aprovo ofertat nga{" "}
-          <strong>Ofertat në pritje</strong>.
+          <strong>Në pritje</strong>.
         </p>
       </div>
     </>

@@ -142,7 +142,7 @@ export function DashboardShell({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex min-h-11 items-center justify-between gap-2 rounded-lg px-3 py-3 text-[0.9375rem] font-semibold text-muted hover:bg-slate/12 hover:text-ink ${
+                className={`flex min-h-11 items-center justify-between gap-2 rounded-lg px-3 py-3 text-[0.9375rem] font-semibold text-ink/80 hover:bg-slate/12 hover:text-ink ${
                   active ? "bg-accent/28 text-ink" : ""
                 }`}
                 onClick={() => setMenuOpen(false)}

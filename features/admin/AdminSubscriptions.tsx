@@ -1,10 +1,13 @@
 "use client";
 
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
+import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Modal } from "@/components/ui/Modal";
+import { Pagination } from "@/components/ui/Pagination";
 import { PosMoneyField } from "@/components/ui/PosMoneyField";
 import { SelectField } from "@/components/ui/SelectField";
 import { Spinner } from "@/components/ui/Spinner";
@@ -20,12 +23,12 @@ import { validationMessage } from "@/lib/api";
 import {
   btnGhost,
   btnPrimary,
-  btnSm,
   checkInput,
   fieldError,
   fieldLabel,
   inputClass,
   offerStatusClass,
+  pageTitle,
   panelLead,
 } from "@/lib/ui";
 import {
@@ -35,6 +38,14 @@ import {
 import type { PaymentMethod, Subscription } from "@/types";
 
 const textAreaClass = `${inputClass} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`;
+
+const SUBSCRIPTIONS_PAGE_SIZE = 15;
+
+const rowButton =
+  "inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+
+const tableGrid =
+  "md:grid md:grid-cols-[minmax(0,1.2fr)_auto_auto_auto_auto_auto] md:gap-x-4";
 
 function paymentMethodLabel(method: PaymentMethod): string {
   return (
@@ -120,7 +131,6 @@ export function AdminSubscriptions() {
     isError,
     error,
     refetch,
-    isFetching,
   } = useAdminSubscriptions();
   const { data: businessesData, isLoading: businessesLoading } =
     useAdminBusinesses();
@@ -140,6 +150,7 @@ export function AdminSubscriptions() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [toToggle, setToToggle] = useState<Subscription | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const groups = useMemo(
     () => groupByBusiness(data?.data ?? []),
@@ -148,6 +159,14 @@ export function AdminSubscriptions() {
   const expiredCount = groups.filter(
     (group) => statusLabel(group.latest) === "Skaduar",
   ).length;
+  const lastPage = Math.max(1, Math.ceil(groups.length / SUBSCRIPTIONS_PAGE_SIZE));
+  if (page > lastPage) {
+    setPage(lastPage);
+  }
+  const visibleGroups = groups.slice(
+    (page - 1) * SUBSCRIPTIONS_PAGE_SIZE,
+    page * SUBSCRIPTIONS_PAGE_SIZE,
+  );
 
   const businessOptions = useMemo(
     () =>
@@ -178,19 +197,48 @@ export function AdminSubscriptions() {
     resetCreateForm();
   }
 
+  const header = (
+    <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <h1 className={`${pageTitle} mb-0!`}>Abonimet</h1>
+      <div className="flex flex-wrap items-center gap-4">
+        {expiredCount > 0 ? (
+          <p className="m-0 text-sm font-semibold text-muted">
+            {expiredCount}{" "}
+            {expiredCount === 1 ? "abonim i skaduar" : "abonime të skaduara"}
+          </p>
+        ) : null}
+        <button
+          type="button"
+          className={btnPrimary}
+          onClick={() => setCreateOpen(true)}
+        >
+          Regjistro pagesë
+        </button>
+      </div>
+    </div>
+  );
+
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar abonimet" />;
+    return (
+      <div>
+        {header}
+        <Spinner label="Duke ngarkuar abonimet" />
+      </div>
+    );
   }
 
   if (isError) {
     return (
-      <div className="max-w-[40rem]">
-        <p className={panelLead}>
-          {validationMessage(error, "Nuk mundëm t’i ngarkojmë abonimet.")}
-        </p>
-        <button className={btnGhost} type="button" onClick={() => refetch()}>
-          Provo përsëri
-        </button>
+      <div>
+        {header}
+        <div className="max-w-[40rem]">
+          <p className={panelLead}>
+            {validationMessage(error, "Nuk mundëm t’i ngarkojmë abonimet.")}
+          </p>
+          <button className={btnGhost} type="button" onClick={() => refetch()}>
+            Provo përsëri
+          </button>
+        </div>
       </div>
     );
   }
@@ -246,27 +294,8 @@ export function AdminSubscriptions() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-5">
-      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
-        <div>
-          <p className="m-0 text-[0.9375rem] leading-snug text-muted">
-            Lista e bizneseve dhe periudhave të abonimit.
-            {expiredCount > 0
-              ? ` ${expiredCount} ${expiredCount === 1 ? "abonim i skaduar" : "abonime të skaduara"}.`
-              : ""}
-          </p>
-          {isFetching ? (
-            <p className="m-0 text-[0.8125rem] text-muted">Duke përditësuar…</p>
-          ) : null}
-        </div>
-        <button
-          type="button"
-          className={btnPrimary}
-          onClick={() => setCreateOpen(true)}
-        >
-          Regjistro pagesë
-        </button>
-      </div>
+    <div>
+      {header}
 
       {actionError ? (
         <p className={fieldError} role="alert">
@@ -277,121 +306,135 @@ export function AdminSubscriptions() {
       {groups.length === 0 ? (
         <div className="max-w-[40rem]">
           <p className={panelLead}>Nuk ka abonime të regjistruara.</p>
-          <button
-            type="button"
-            className={btnPrimary}
-            onClick={() => setCreateOpen(true)}
-          >
-            Regjistro pagesë
-          </button>
         </div>
       ) : (
-        <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-          {groups.map((group) => {
-            const open = openBusinessId === group.businessId;
-            const expired = statusLabel(group.latest) === "Skaduar";
-            return (
-              <li
-                key={group.businessId}
-                className="overflow-hidden rounded-lg border border-line bg-elevated"
-              >
-                <div
-                  className={`grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 px-3.5 py-3.5${
-                    expired
-                      ? " shadow-[inset_3px_0_0_var(--color-danger)]"
-                      : ""
-                  }`}
-                >
-                  <button
-                    type="button"
-                    className="group flex min-w-0 cursor-pointer appearance-none flex-col gap-1.5 border-0 bg-transparent p-0 text-left font-[inherit] text-inherit"
-                    aria-expanded={open}
-                    onClick={() =>
-                      setOpenBusinessId((id) =>
-                        id === group.businessId ? null : group.businessId,
-                      )
-                    }
+        <div className="overflow-hidden rounded-2xl border border-line">
+          <div className={`overflow-x-auto ${tableGrid}`}>
+            <div className="col-span-6 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
+              <span className="whitespace-nowrap">Biznesi</span>
+              <span className="whitespace-nowrap">Periudha</span>
+              <span className="whitespace-nowrap md:pl-8">Çmimi</span>
+              <span className="whitespace-nowrap md:pl-8">Pagesa</span>
+              <span className="whitespace-nowrap">Statusi</span>
+              <span className="border-l border-line pl-4 whitespace-nowrap">
+                Veprimet
+              </span>
+            </div>
+            <ul className="col-span-6 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
+              {visibleGroups.map((group) => {
+                const open = openBusinessId === group.businessId;
+                return (
+                  <li
+                    key={group.businessId}
+                    className="col-span-6 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
                   >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="m-0 text-base font-bold text-ink">
-                        {group.businessName}
-                      </p>
-                      <span className={statusClass(group.latest)}>
-                        {statusLabel(group.latest)}
-                      </span>
-                    </div>
-                    <p className="m-0 text-[0.8125rem] leading-[1.4] text-muted">
+                    <p className="m-0 truncate text-base font-semibold">
+                      {group.businessName}
+                    </p>
+                    <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums">
                       {formatDateShortSq(group.latest.starts_at)} →{" "}
                       {formatDateShortSq(group.latest.ends_at)}
-                      {" · "}
-                      {formatEurFromCents(group.latest.price)}
-                      {" · "}
-                      {paymentMethodLabel(group.latest.payment_method)}
-                      {" · "}
-                      {group.history.length} abonim
-                      {group.history.length === 1 ? "" : "e"}
                     </p>
-                    <span className="mt-[0.15rem] inline-flex items-center gap-[0.35rem] text-xs font-semibold text-muted group-hover:text-accent">
-                      {open ? "Mbyll historinë" : "Shiko historinë"}
-                      <ExpandMoreIcon
-                        fontSize="small"
-                        className={`transition-transform${open ? " rotate-180" : ""}`}
-                      />
+                    <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-8">
+                      {formatEurFromCents(group.latest.price)}
+                    </p>
+                    <p className="m-0 text-sm font-semibold whitespace-nowrap md:pl-8">
+                      {paymentMethodLabel(group.latest.payment_method)}
+                    </p>
+                    <span
+                      className={`${statusClass(group.latest)} mt-0! w-fit self-center!`}
+                    >
+                      {statusLabel(group.latest)}
                     </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`${btnGhost} ${btnSm} mt-[0.1rem] shrink-0`}
-                    disabled={updateMutation.isPending}
-                    onClick={() => setToToggle(group.latest)}
-                  >
-                    {group.latest.is_active ? "Çaktivizo" : "Aktivizo"}
-                  </button>
-                </div>
-
-                {open ? (
-                  <div className="border-t border-line bg-sunken px-2.5 pt-1 pb-2.5">
-                    {group.history.map((sub, index) => (
-                      <div
-                        key={sub.id}
-                        className={`flex flex-col gap-1 px-1.5 py-3${
-                          index > 0 ? " border-t border-line/70" : ""
-                        }`}
+                    <div className="flex items-center gap-2 border-l border-line pl-4">
+                      <button
+                        className={`${rowButton}${open ? " border-accent/60 text-accent" : ""}`}
+                        type="button"
+                        aria-expanded={open}
+                        aria-label={
+                          open
+                            ? `Mbyll historinë e ${group.businessName}`
+                            : `Shiko historinë e ${group.businessName}`
+                        }
+                        onClick={() =>
+                          setOpenBusinessId((id) =>
+                            id === group.businessId ? null : group.businessId,
+                          )
+                        }
                       >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <p className="m-0 text-sm font-semibold text-ink tabular-nums">
-                            {formatDateTimeShortSq(sub.starts_at)} →{" "}
-                            {formatDateTimeShortSq(sub.ends_at)}
-                            {" · "}
-                            {formatEurFromCents(sub.price)}
-                            {" · "}
-                            {paymentMethodLabel(sub.payment_method)}
-                          </p>
-                          <div className="flex flex-wrap items-center gap-[0.4rem]">
-                            {index === 0 ? (
-                              <span className="text-[0.6875rem] font-bold tracking-wide text-accent uppercase">
-                                Fundit
-                              </span>
+                        <HistoryOutlinedIcon fontSize="small" />
+                      </button>
+                      <button
+                        className={rowButton}
+                        type="button"
+                        aria-label={
+                          group.latest.is_active
+                            ? `Çaktivizo ${group.businessName}`
+                            : `Aktivizo ${group.businessName}`
+                        }
+                        disabled={updateMutation.isPending}
+                        onClick={() => setToToggle(group.latest)}
+                      >
+                        {group.latest.is_active ? (
+                          <LockOutlinedIcon fontSize="small" />
+                        ) : (
+                          <LockOpenOutlinedIcon fontSize="small" />
+                        )}
+                      </button>
+                    </div>
+                    {open ? (
+                      <div className="-mx-4 border-t border-line bg-sunken px-4 py-2 md:col-span-6">
+                        {group.history.map((sub, index) => (
+                          <div
+                            key={sub.id}
+                            className={`flex flex-col gap-1 py-3${
+                              index > 0 ? " border-t border-line/70" : ""
+                            }`}
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <p className="m-0 text-sm font-semibold text-ink tabular-nums">
+                                {formatDateTimeShortSq(sub.starts_at)} →{" "}
+                                {formatDateTimeShortSq(sub.ends_at)}
+                                {" · "}
+                                {formatEurFromCents(sub.price)}
+                                {" · "}
+                                {paymentMethodLabel(sub.payment_method)}
+                              </p>
+                              <div className="flex flex-wrap items-center gap-2">
+                                {index === 0 ? (
+                                  <span className="text-[0.6875rem] font-bold tracking-wide text-accent uppercase">
+                                    Fundit
+                                  </span>
+                                ) : null}
+                                <span
+                                  className={`${statusClass(sub)} mt-0! self-center!`}
+                                >
+                                  {statusLabel(sub)}
+                                </span>
+                              </div>
+                            </div>
+                            {sub.payment_note ? (
+                              <p className="m-0 text-sm text-muted">
+                                {sub.payment_note}
+                              </p>
                             ) : null}
-                            <span className={statusClass(sub)}>
-                              {statusLabel(sub)}
-                            </span>
                           </div>
-                        </div>
-                        {sub.payment_note ? (
-                          <p className="m-0 text-[0.8125rem] text-muted">
-                            {sub.payment_note}
-                          </p>
-                        ) : null}
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <Pagination
+            page={page}
+            lastPage={lastPage}
+            total={groups.length}
+            perPage={SUBSCRIPTIONS_PAGE_SIZE}
+            onPageChange={setPage}
+          />
+        </div>
       )}
 
       <Modal

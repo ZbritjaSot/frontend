@@ -13,10 +13,11 @@ import type { Category, Paginated } from "@/types";
 
 export const adminCategoriesQueryKey = ["admin", "categories"] as const;
 
-export function useAdminCategories() {
+export function useAdminCategories(page: number) {
   return useQuery({
-    queryKey: adminCategoriesQueryKey,
-    queryFn: () => fetchAdminCategories(),
+    queryKey: [...adminCategoriesQueryKey, page],
+    queryFn: () => fetchAdminCategories(page),
+    placeholderData: (previous) => previous,
   });
 }
 
@@ -48,22 +49,27 @@ export function useUpdateCategory() {
   });
 }
 
-export function useReorderCategories() {
+export function useReorderCategories(page: number) {
   const queryClient = useQueryClient();
+  const queryKey = [...adminCategoriesQueryKey, page];
   return useMutation({
     mutationFn: (ids: string[]) => reorderCategories(ids),
     onMutate: async (ids) => {
       await queryClient.cancelQueries({ queryKey: adminCategoriesQueryKey });
-      const previous = queryClient.getQueryData<Paginated<Category>>(
-        adminCategoriesQueryKey,
-      );
+      const previous = queryClient.getQueryData<Paginated<Category>>(queryKey);
       if (previous) {
         const byId = new Map(previous.data.map((category) => [category.id, category]));
-        queryClient.setQueryData<Paginated<Category>>(adminCategoriesQueryKey, {
+        const orders = previous.data
+          .map((category) => category.sort_order)
+          .sort((left, right) => left - right);
+        queryClient.setQueryData<Paginated<Category>>(queryKey, {
           ...previous,
           data: ids.flatMap((id, index) => {
             const category = byId.get(id);
-            return category ? [{ ...category, sort_order: index }] : [];
+            const sortOrder = orders[index];
+            return category && sortOrder !== undefined
+              ? [{ ...category, sort_order: sortOrder }]
+              : [];
           }),
         });
       }
@@ -71,7 +77,7 @@ export function useReorderCategories() {
     },
     onError: (_error, _ids, context) => {
       if (context?.previous) {
-        queryClient.setQueryData(adminCategoriesQueryKey, context.previous);
+        queryClient.setQueryData(queryKey, context.previous);
       }
     },
     onSettled: async () => {

@@ -1,13 +1,22 @@
 "use client";
 
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Modal } from "@/components/ui/Modal";
+import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import {
+  ADMIN_CATEGORIES_PAGE_SIZE,
+  fetchAdminCategories,
+} from "@/features/admin/categoriesApi";
+import {
+  adminCategoriesQueryKey,
   useAdminCategories,
   useCreateCategory,
   useDeleteCategory,
@@ -19,12 +28,12 @@ import {
   btnDanger,
   btnGhost,
   btnPrimary,
-  btnSm,
   checkInput,
   fieldError,
   fieldLabel,
   inputClass,
   offerStatusClass,
+  pageTitle,
   panelLead,
 } from "@/lib/ui";
 import { categoryFormSchema, type CategoryFormInput } from "@/schemas/category";
@@ -36,17 +45,17 @@ const emptyForm: CategoryFormInput = {
   is_active: true,
 };
 
-const rowActionClass = `${btnGhost} ${btnSm} min-w-[5.5rem] flex-auto min-[800px]:flex-none`;
-
-const arrowClass =
-  "inline-flex h-[1.35rem] w-7 cursor-pointer items-center justify-center rounded-md border border-line bg-transparent p-0 text-ink disabled:cursor-not-allowed disabled:opacity-35";
+const rowButton =
+  "inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60";
 
 export function AdminCategories() {
-  const { data, isLoading, isError, error, refetch } = useAdminCategories();
+  const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error, refetch } = useAdminCategories(page);
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
-  const reorderMutation = useReorderCategories();
+  const reorderMutation = useReorderCategories(page);
 
   const [editor, setEditor] = useState<Category | "new" | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -82,6 +91,11 @@ export function AdminCategories() {
     try {
       if (editor === "new") {
         await createMutation.mutateAsync(parsed.data);
+        const firstPage = await queryClient.fetchQuery({
+          queryKey: [...adminCategoriesQueryKey, 1],
+          queryFn: () => fetchAdminCategories(1),
+        });
+        setPage(firstPage.meta?.last_page ?? 1);
       } else if (editor) {
         await updateMutation.mutateAsync({ id: editor.id, ...parsed.data });
       }
@@ -95,6 +109,11 @@ export function AdminCategories() {
 
   const pending = createMutation.isPending || updateMutation.isPending;
   const categories = data?.data ?? [];
+  const lastPage = data?.meta?.last_page;
+  const total = data?.meta?.total ?? categories.length;
+  if (lastPage !== undefined && page > lastPage) {
+    setPage(lastPage);
+  }
 
   function move(from: number, to: number) {
     if (to < 0 || to >= categories.length || from === to) {
@@ -122,30 +141,43 @@ export function AdminCategories() {
     setOverId(null);
   }
 
+  const header = (
+    <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <h1 className={`${pageTitle} mb-0!`}>Kategoritë</h1>
+      <button className={btnPrimary} type="button" onClick={openCreate}>
+        Shto kategori
+      </button>
+    </div>
+  );
+
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar kategoritë" />;
+    return (
+      <div>
+        {header}
+        <Spinner label="Duke ngarkuar kategoritë" />
+      </div>
+    );
   }
 
   if (isError) {
     return (
-      <div className="max-w-[40rem]">
-        <p className={panelLead}>
-          {validationMessage(error, "Nuk mundëm t’i ngarkojmë kategoritë.")}
-        </p>
-        <button className={btnGhost} type="button" onClick={() => refetch()}>
-          Provo përsëri
-        </button>
+      <div>
+        {header}
+        <div className="max-w-[40rem]">
+          <p className={panelLead}>
+            {validationMessage(error, "Nuk mundëm t’i ngarkojmë kategoritë.")}
+          </p>
+          <button className={btnGhost} type="button" onClick={() => refetch()}>
+            Provo përsëri
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="mb-8 flex flex-wrap items-center gap-5">
-        <button className={btnPrimary} type="button" onClick={openCreate}>
-          Shto kategori
-        </button>
-      </div>
+      {header}
       {reorderMutation.isError ? (
         <p className={fieldError} role="alert">
           {validationMessage(
@@ -160,109 +192,121 @@ export function AdminCategories() {
           <p className={panelLead}>Nuk ka kategori ende.</p>
         </div>
       ) : (
-        <ul className="m-0 list-none p-0">
-          {categories.map((category, index) => (
-            <li
-              key={category.id}
-              className={`flex flex-row items-center gap-3 border-b border-line py-5${
-                overId === category.id
-                  ? " outline outline-1 outline-dashed outline-accent outline-offset-2"
-                  : ""
-              }`}
-              onDragOver={(event) => {
-                event.preventDefault();
-                setOverId(category.id);
-              }}
-              onDragLeave={() => {
-                setOverId((current) => (current === category.id ? null : current));
-              }}
-              onDrop={() => dropOn(category.id)}
-            >
-              <div className="flex shrink-0 flex-col gap-0.5">
-                <button
-                  className={arrowClass}
-                  type="button"
-                  aria-label="Lëviz lart"
-                  disabled={index === 0 || reorderMutation.isPending}
-                  onClick={() => move(index, index - 1)}
-                >
-                  <KeyboardArrowUpIcon className="text-[16px]!" fontSize="inherit" />
-                </button>
-                <button
-                  className={arrowClass}
-                  type="button"
-                  aria-label="Lëviz poshtë"
-                  disabled={
-                    index === categories.length - 1 || reorderMutation.isPending
-                  }
-                  onClick={() => move(index, index + 1)}
-                >
-                  <KeyboardArrowDownIcon className="text-[16px]!" fontSize="inherit" />
-                </button>
-              </div>
-              <div
-                className={`flex min-w-0 flex-1 cursor-grab items-start gap-2${
+        <div className="overflow-hidden rounded-2xl border border-line">
+          <div className="overflow-x-auto md:grid md:grid-cols-[2.25rem_minmax(12rem,1fr)_auto_auto] md:gap-x-4">
+          <div className="col-span-4 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
+            <span aria-hidden />
+            <span className="whitespace-nowrap">Kategoria</span>
+            <span className="whitespace-nowrap">Statusi</span>
+            <span className="border-l border-line pl-4 whitespace-nowrap">
+              Veprimet
+            </span>
+          </div>
+          <ul className="col-span-4 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
+            {categories.map((category) => (
+              <li
+                key={category.id}
+                className={`col-span-4 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4${
                   draggingId === category.id ? " opacity-45" : ""
+                }${
+                  overId === category.id
+                    ? " outline outline-1 outline-dashed outline-accent outline-offset-[-2px]"
+                    : ""
                 }`}
-                draggable={!reorderMutation.isPending}
-                onDragStart={(event) => {
-                  event.dataTransfer.effectAllowed = "move";
-                  event.dataTransfer.setData("text/plain", category.id);
-                  setDraggingId(category.id);
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  setOverId(category.id);
                 }}
-                onDragEnd={() => {
-                  setDraggingId(null);
-                  setOverId(null);
+                onDragLeave={() => {
+                  setOverId((current) =>
+                    current === category.id ? null : current,
+                  );
                 }}
+                onDrop={() => dropOn(category.id)}
               >
-                <DragIndicatorIcon fontSize="small" className="mt-0.5 text-muted" />
-                <span className="min-w-0">
-                  <span className="m-0 block text-[1.0625rem] font-semibold">
+                <button
+                  type="button"
+                  className="inline-flex size-9 cursor-grab items-center justify-center rounded-lg text-muted hover:bg-sunken hover:text-ink active:cursor-grabbing"
+                  aria-label={`Rendit ${category.name}`}
+                  draggable={!reorderMutation.isPending}
+                  onDragStart={(event) => {
+                    event.dataTransfer.effectAllowed = "move";
+                    event.dataTransfer.setData("text/plain", category.id);
+                    setDraggingId(category.id);
+                  }}
+                  onDragEnd={() => {
+                    setDraggingId(null);
+                    setOverId(null);
+                  }}
+                >
+                  <DragIndicatorIcon fontSize="small" />
+                </button>
+                <div className="min-w-0">
+                  <p className="m-0 truncate text-base font-semibold">
                     {category.name}
-                  </span>
-                  <span className="mt-[0.3rem] block text-sm leading-[1.45] text-muted">
+                  </p>
+                  <p className="m-0 truncate text-sm text-muted">
                     {category.slug}
-                  </span>
+                  </p>
+                </div>
+                <span
+                  className={`${offerStatusClass(
+                    category.is_active ? "approved" : "rejected",
+                  )} mt-0! w-fit self-center!`}
+                >
+                  {category.is_active ? "Aktive" : "Joaktive"}
                 </span>
-              </div>
-              <span
-                className={offerStatusClass(
-                  category.is_active ? "approved" : "rejected",
-                )}
-              >
-                {category.is_active ? "Aktive" : "Joaktive"}
-              </span>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  className={rowActionClass}
-                  type="button"
-                  onClick={() => openEdit(category)}
-                >
-                  Ndrysho
-                </button>
-                <button
-                  className={rowActionClass}
-                  type="button"
-                  onClick={() =>
-                    updateMutation.mutate({
-                      id: category.id,
-                      is_active: !category.is_active,
-                    })
-                  }
-                >
-                  {category.is_active ? "Çaktivizo" : "Aktivizo"}
-                </button>
-                <button
-                  className={`${btnDanger} ${btnSm} min-w-[5.5rem] flex-auto min-[800px]:flex-none`}
-                  type="button"
-                  onClick={() => setPendingDelete(category)}
-                >
-                  Fshi
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                <div className="flex items-center gap-2 border-l border-line pl-4">
+                  <button
+                    className={rowButton}
+                    type="button"
+                    aria-label={`Ndrysho ${category.name}`}
+                    onClick={() => openEdit(category)}
+                  >
+                    <EditOutlinedIcon fontSize="small" />
+                  </button>
+                  <button
+                    className={rowButton}
+                    type="button"
+                    aria-label={
+                      category.is_active
+                        ? `Çaktivizo ${category.name}`
+                        : `Aktivizo ${category.name}`
+                    }
+                    onClick={() =>
+                      updateMutation.mutate({
+                        id: category.id,
+                        is_active: !category.is_active,
+                      })
+                    }
+                  >
+                    {category.is_active ? (
+                      <LockOutlinedIcon fontSize="small" />
+                    ) : (
+                      <LockOpenOutlinedIcon fontSize="small" />
+                    )}
+                  </button>
+                  <button
+                    className={`${btnDanger} size-10 px-0`}
+                    type="button"
+                    aria-label={`Fshi ${category.name}`}
+                    onClick={() => setPendingDelete(category)}
+                  >
+                    <DeleteOutlinedIcon fontSize="small" />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+          <Pagination
+            page={page}
+            lastPage={lastPage ?? 1}
+            total={total}
+            perPage={ADMIN_CATEGORIES_PAGE_SIZE}
+            onPageChange={setPage}
+          />
+        </div>
       )}
 
       <Modal

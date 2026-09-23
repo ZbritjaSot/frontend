@@ -17,10 +17,11 @@ export const adminPendingOffersQueryKey = [
 export const adminOfferBundleQueryKey = (id: string) =>
   ["admin", "offer-bundles", id] as const;
 
-export function usePendingOffers() {
+export function usePendingOffers(page = 1) {
   return useQuery({
-    queryKey: adminPendingOffersQueryKey,
-    queryFn: () => fetchPendingOffers(),
+    queryKey: [...adminPendingOffersQueryKey, page],
+    queryFn: () => fetchPendingOffers(page),
+    placeholderData: (previous) => previous,
   });
 }
 
