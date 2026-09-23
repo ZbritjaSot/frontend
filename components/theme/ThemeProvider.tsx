@@ -4,13 +4,20 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
+  useLayoutEffect,
   useMemo,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { usePathname } from "next/navigation";
-import { applyTheme, getStoredTheme, storeTheme, type Theme } from "@/lib/theme";
+import {
+  applyTheme,
+  readThemePreference,
+  serverThemePreference,
+  storeTheme,
+  subscribeTheme,
+  type Theme,
+} from "@/lib/theme";
 
 type ThemeContextValue = {
   theme: Theme;
@@ -26,31 +33,25 @@ function isDashboardPath(pathname: string): boolean {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [preference, setPreference] = useState<Theme>(() => {
-    if (typeof window === "undefined") {
-      return "light";
-    }
-    return getStoredTheme() ?? "light";
-  });
+  const preference = useSyncExternalStore(
+    subscribeTheme,
+    readThemePreference,
+    serverThemePreference,
+  );
 
   const theme: Theme = isDashboardPath(pathname) ? "dark" : preference;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     applyTheme(theme);
   }, [theme]);
 
   const setTheme = useCallback((next: Theme) => {
-    setPreference(next);
     storeTheme(next);
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setPreference((current) => {
-      const next: Theme = current === "light" ? "dark" : "light";
-      storeTheme(next);
-      return next;
-    });
-  }, []);
+    storeTheme(preference === "light" ? "dark" : "light");
+  }, [preference]);
 
   const value = useMemo(
     () => ({ theme, setTheme, toggleTheme }),

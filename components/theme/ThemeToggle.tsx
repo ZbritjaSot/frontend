@@ -17,9 +17,9 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       onClick={toggleTheme}
       aria-label={isDark ? "Kalo në temën e ndritshme" : "Kalo në temën e errët"}
       title={isDark ? "Tema e ndritshme" : "Tema e errët"}
-      suppressHydrationWarning
     >
-      {isDark ? <SunIcon /> : <MoonIcon />}
+      <SunIcon />
+      <MoonIcon />
     </button>
   );
 }
@@ -27,7 +27,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
 function MoonIcon() {
   return (
     <svg
-      className="theme-toggle__icon"
+      className="theme-toggle__icon theme-toggle__icon--moon"
       viewBox="0 0 24 24"
       width="18"
       height="18"
@@ -44,7 +44,7 @@ function MoonIcon() {
 function SunIcon() {
   return (
     <svg
-      className="theme-toggle__icon"
+      className="theme-toggle__icon theme-toggle__icon--sun"
       viewBox="0 0 24 24"
       width="18"
       height="18"

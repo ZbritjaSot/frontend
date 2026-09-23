@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AdminBusinesses } from "@/features/admin/AdminBusinesses";
 
 export const metadata: Metadata = {
   title: "Bizneset",
@@ -9,11 +10,7 @@ export default function AdminBusinessesPage() {
   return (
     <>
       <h1 className="dash__page-title">Bizneset</h1>
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
-          Lista e bizneseve dhe krijimi i llogarive do të jetë këtu.
-        </p>
-      </div>
+      <AdminBusinesses />
     </>
   );
 }

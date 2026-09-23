@@ -9,12 +9,11 @@ function toApiBody(input: CategoryFormInput) {
   return {
     name: input.name.trim(),
     ...(slug ? { slug } : {}),
-    sort_order: input.sort_order,
     is_active: input.is_active,
   };
 }
 
-export async function fetchAdminCategories(perPage = 50) {
+export async function fetchAdminCategories(perPage = 200) {
   return apiFetch<Paginated<Category>>(
     `/admin/categories?per_page=${perPage}`,
     { auth: true },
@@ -30,9 +29,20 @@ export async function createCategory(input: CategoryFormInput) {
   return payload.data;
 }
 
+export async function reorderCategories(ids: string[]) {
+  await apiFetch<void>("/admin/categories/reorder", {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify({ ids }),
+  });
+}
+
 export async function updateCategory(
   id: string,
-  input: Partial<CategoryFormInput> & { is_active?: boolean },
+  input: Partial<CategoryFormInput> & {
+    is_active?: boolean;
+    sort_order?: number;
+  },
 ) {
   const body: Record<string, unknown> = {};
   if (input.name !== undefined) {

@@ -12,10 +12,6 @@ export const categoryFormSchema = z.object({
     .max(255, "Slug është shumë i gjatë.")
     .optional()
     .or(z.literal("")),
-  sort_order: z.coerce
-    .number({ error: "Renditja duhet të jetë numër." })
-    .int("Renditja duhet të jetë numër i plotë.")
-    .min(0, "Renditja nuk mund të jetë negative."),
   is_active: z.boolean(),
 });
 
