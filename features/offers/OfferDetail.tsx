@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { OfferPlace } from "@/components/place/OfferPlace";
 import {
   formatDateSq,
   formatDiscountPercent,
@@ -44,6 +45,17 @@ export function OfferDetail({ offer }: OfferDetailProps) {
           <dd>{formatDateSq(offer.expires_at)}</dd>
         </div>
       </dl>
+
+      {offer.business ? (
+        <OfferPlace
+          name={offer.business.name}
+          place={{
+            address: offer.business.address,
+            latitude: offer.business.latitude,
+            longitude: offer.business.longitude,
+          }}
+        />
+      ) : null}
 
       <Link href="/" className="offer-detail__back">
         ← Të gjitha ofertat

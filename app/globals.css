@@ -547,6 +547,106 @@ html[data-theme="dark"] .offer-detail__now {
   color: var(--color-accent);
 }
 
+.place-card {
+  margin-top: 1.75rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.place-card__kicker {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.place-card__title {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.place-card__address {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.place-card__map,
+.location-form__map .place-map {
+  height: 240px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.place-map {
+  width: 100%;
+  height: 100%;
+  background: #d7d2c4;
+}
+
+.place-pin {
+  background: transparent;
+  border: 0;
+}
+
+.place-pin__mark {
+  display: block;
+  width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--color-accent);
+  border: 2px solid #1c1c1c;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.place-card__apps,
+.location-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.address-row {
+  display: grid;
+  gap: 0.15rem;
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.address-row:hover {
+  border-color: var(--color-accent);
+}
+
+.address-row__label,
+.address-row__meta {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.address-row__value {
+  font-weight: 700;
+}
+
+.location-form {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+}
+
+.location-form__map {
+  display: grid;
+  gap: 0.45rem;
+}
+
 /* ——— Dashboard chrome ——— */
 
 .dash {

@@ -8,6 +8,32 @@ export async function fetchBizBusiness() {
   return payload.data;
 }
 
+export async function updateBizLocation(body: {
+  street: string | null;
+  village: string | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}) {
+  const payload = await apiFetch<{ data: Business }>("/biz/business", {
+    method: "PUT",
+    auth: true,
+    body: JSON.stringify(body),
+  });
+  return payload.data;
+}
+
+export async function geocodeBizAddress(address: string) {
+  const payload = await apiFetch<{
+    data: { latitude: number; longitude: number };
+  }>("/biz/business/geocode", {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify({ address }),
+  });
+  return payload.data;
+}
+
 export async function fetchBizSubscription() {
   const payload = await apiFetch<{ data: BizSubscription | null }>(
     "/biz/subscription",
