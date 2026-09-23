@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Link from "next/link";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
@@ -32,15 +33,23 @@ export function BizLoginScreen() {
   }, [user, isLoading, isFetching, router]);
 
   return (
-    <main className="auth-screen">
-      <div className="auth-screen__panel">
-        <Link href="/" className="auth-screen__brand" aria-label="ZbritjaSot">
+    <main className="flex min-h-dvh items-center justify-center p-8">
+      <div className="w-full max-w-sm">
+        <Link
+          href="/"
+          className="mb-14 inline-flex items-center gap-3"
+          aria-label="ZbritjaSot"
+        >
           <LogoMark size={40} priority />
-          <Wordmark className="auth-screen__wordmark" as="h1" />
+          <Wordmark className="text-2xl" as="h1" />
         </Link>
 
-        <p className="auth-screen__eyebrow">Biznes</p>
-        <p className="auth-screen__lead">Hyr në panelin e dyqanit</p>
+        <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent uppercase">
+          Biznes
+        </p>
+        <p className="m-0 mt-3 mb-8 text-xl font-semibold">
+          Hyr në panelin e dyqanit
+        </p>
 
         <LoginForm
           requiredRole="business"
@@ -48,12 +57,16 @@ export function BizLoginScreen() {
           wrongRoleMessage="Kjo llogari nuk është llogari biznesi."
         />
 
-        <p className="auth-screen__hint">
+        <p className="m-0 mt-8 text-[0.8125rem] leading-normal text-muted [&_code]:font-mono [&_code]:text-xs [&_code]:text-accent">
           Demo: <code>kafe@demo.zbritjasot.com</code> / <code>password</code>
         </p>
 
-        <Link href="/" className="auth-screen__back">
-          ← Faqja publike
+        <Link
+          href="/"
+          className="mt-8 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-accent"
+        >
+          <ArrowBackIcon fontSize="small" />
+          Faqja publike
         </Link>
       </div>
     </main>

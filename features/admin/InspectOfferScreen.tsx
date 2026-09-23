@@ -1,5 +1,6 @@
 "use client";
 
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -13,6 +14,7 @@ import {
   useRejectOffer,
 } from "@/hooks/useAdminOffers";
 import { validationMessage } from "@/lib/api";
+import { btnGhost, btnPrimary, btnSm, fieldError, panelLead } from "@/lib/ui";
 
 type InspectOfferScreenProps = {
   id: string;
@@ -33,12 +35,13 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
 
   if (isError || !bundle) {
     return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
+      <div className="max-w-[40rem]">
+        <p className={panelLead}>
           {validationMessage(error, "Dosja nuk u gjet.")}
         </p>
-        <Link href="/admin/offers" className="btn btn--ghost">
-          ← Radha
+        <Link href="/admin/offers" className={btnGhost}>
+          <ArrowBackIcon fontSize="small" />
+          Radha
         </Link>
       </div>
     );
@@ -76,15 +79,16 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
 
   return (
     <>
-      <div className="bundle-view__toolbar">
-        <Link href="/admin/offers" className="btn btn--ghost btn--sm">
-          ← Radha
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-5">
+        <Link href="/admin/offers" className={`${btnGhost} ${btnSm}`}>
+          <ArrowBackIcon fontSize="small" />
+          Radha
         </Link>
         {isPending ? (
-          <div className="bundle-view__toolbar-actions">
+          <div className="flex flex-wrap gap-3">
             <button
               type="button"
-              className="btn btn--primary btn--sm"
+              className={`${btnPrimary} ${btnSm}`}
               disabled={approveMutation.isPending || rejectMutation.isPending}
               onClick={() => setConfirmApprove(true)}
             >
@@ -92,7 +96,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
             </button>
             <button
               type="button"
-              className="btn btn--ghost btn--sm"
+              className={`${btnGhost} ${btnSm}`}
               disabled={approveMutation.isPending || rejectMutation.isPending}
               onClick={() => setConfirmReject(true)}
             >
@@ -103,7 +107,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
       </div>
 
       {actionError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {actionError}
         </p>
       ) : null}

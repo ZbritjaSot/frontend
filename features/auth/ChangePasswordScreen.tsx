@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { changePassword } from "@/features/auth/api";
 import { meQueryKey } from "@/hooks/useAuth";
 import { validationMessage } from "@/lib/api";
+import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
 
 export function ChangePasswordScreen() {
   const queryClient = useQueryClient();
@@ -47,45 +48,52 @@ export function ChangePasswordScreen() {
   }
 
   return (
-    <form className="offer-form" onSubmit={onSubmit} noValidate>
-      <h2 className="offer-form__title">Ndrysho fjalëkalimin</h2>
-      <p className="biz-offers__hint">
+    <form
+      className="flex max-w-[40rem] flex-col gap-5"
+      onSubmit={onSubmit}
+      noValidate
+    >
+      <h2 className="m-0 text-lg font-bold text-ink">Ndrysho fjalëkalimin</h2>
+      <p className="text-[0.8125rem] text-muted">
         Ky është hyrja e parë. Fjalëkalimi nga email-i duhet ndërruar para se të
         vazhdosh.
       </p>
       {error ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {error}
         </p>
       ) : null}
-      <label className="offer-form__field">
+      <label className={fieldLabel}>
         <span>Fjalëkalimi nga email-i</span>
         <input
+          className={inputClass}
           type="password"
           autoComplete="current-password"
           value={currentPassword}
           onChange={(event) => setCurrentPassword(event.target.value)}
         />
       </label>
-      <label className="offer-form__field">
+      <label className={fieldLabel}>
         <span>Fjalëkalimi i ri</span>
         <input
+          className={inputClass}
           type="password"
           autoComplete="new-password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         />
       </label>
-      <label className="offer-form__field">
+      <label className={fieldLabel}>
         <span>Përsërit fjalëkalimin e ri</span>
         <input
+          className={inputClass}
           type="password"
           autoComplete="new-password"
           value={confirmation}
           onChange={(event) => setConfirmation(event.target.value)}
         />
       </label>
-      <button className="btn btn--primary" type="submit" disabled={pending}>
+      <button className={btnPrimary} type="submit" disabled={pending}>
         {pending ? "Duke u ruajtur…" : "Ruaj fjalëkalimin"}
       </button>
     </form>

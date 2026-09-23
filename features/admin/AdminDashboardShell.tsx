@@ -1,5 +1,10 @@
 "use client";
 
+import CategoryIcon from "@mui/icons-material/Category";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PaymentsIcon from "@mui/icons-material/Payments";
+import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import StoreIcon from "@mui/icons-material/Store";
 import type { ReactNode } from "react";
 import {
   DashboardShell,
@@ -10,11 +15,27 @@ import { useAdminSubscriptions } from "@/hooks/useAdminSubscriptions";
 import type { Subscription } from "@/types";
 
 const baseNav: DashboardNavItem[] = [
-  { href: "/admin", label: "Paneli" },
-  { href: "/admin/offers", label: "Ofertat në pritje" },
-  { href: "/admin/subscriptions", label: "Abonimet" },
-  { href: "/admin/businesses", label: "Bizneset" },
-  { href: "/admin/categories", label: "Kategoritë" },
+  { href: "/admin", label: "Paneli", icon: <DashboardIcon fontSize="small" /> },
+  {
+    href: "/admin/offers",
+    label: "Ofertat në pritje",
+    icon: <PendingActionsIcon fontSize="small" />,
+  },
+  {
+    href: "/admin/subscriptions",
+    label: "Abonimet",
+    icon: <PaymentsIcon fontSize="small" />,
+  },
+  {
+    href: "/admin/businesses",
+    label: "Bizneset",
+    icon: <StoreIcon fontSize="small" />,
+  },
+  {
+    href: "/admin/categories",
+    label: "Kategoritë",
+    icon: <CategoryIcon fontSize="small" />,
+  },
 ];
 
 function isLatestExpired(sub: Subscription): boolean {

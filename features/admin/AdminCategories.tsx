@@ -1,5 +1,8 @@
 "use client";
 
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Modal } from "@/components/ui/Modal";
@@ -12,6 +15,18 @@ import {
   useUpdateCategory,
 } from "@/hooks/useAdminCategories";
 import { validationMessage } from "@/lib/api";
+import {
+  btnDanger,
+  btnGhost,
+  btnPrimary,
+  btnSm,
+  checkInput,
+  fieldError,
+  fieldLabel,
+  inputClass,
+  offerStatusClass,
+  panelLead,
+} from "@/lib/ui";
 import { categoryFormSchema, type CategoryFormInput } from "@/schemas/category";
 import type { Category } from "@/types";
 
@@ -20,6 +35,11 @@ const emptyForm: CategoryFormInput = {
   slug: "",
   is_active: true,
 };
+
+const rowActionClass = `${btnGhost} ${btnSm} min-w-[5.5rem] flex-auto min-[800px]:flex-none`;
+
+const arrowClass =
+  "inline-flex h-[1.35rem] w-7 cursor-pointer items-center justify-center rounded-md border border-line bg-transparent p-0 text-ink disabled:cursor-not-allowed disabled:opacity-35";
 
 export function AdminCategories() {
   const { data, isLoading, isError, error, refetch } = useAdminCategories();
@@ -108,11 +128,11 @@ export function AdminCategories() {
 
   if (isError) {
     return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
+      <div className="max-w-[40rem]">
+        <p className={panelLead}>
           {validationMessage(error, "Nuk mundëm t’i ngarkojmë kategoritë.")}
         </p>
-        <button className="btn btn--ghost" type="button" onClick={() => refetch()}>
+        <button className={btnGhost} type="button" onClick={() => refetch()}>
           Provo përsëri
         </button>
       </div>
@@ -120,14 +140,14 @@ export function AdminCategories() {
   }
 
   return (
-    <div className="biz-offers">
-      <div className="biz-offers__toolbar">
-        <button className="btn btn--primary" type="button" onClick={openCreate}>
+    <div>
+      <div className="mb-8 flex flex-wrap items-center gap-5">
+        <button className={btnPrimary} type="button" onClick={openCreate}>
           Shto kategori
         </button>
       </div>
       {reorderMutation.isError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {validationMessage(
             reorderMutation.error,
             "Nuk mundëm ta ndryshojmë renditjen.",
@@ -136,22 +156,19 @@ export function AdminCategories() {
       ) : null}
 
       {categories.length === 0 ? (
-        <div className="shell-panel">
-          <p className="shell-panel__lead">Nuk ka kategori ende.</p>
+        <div className="max-w-[40rem]">
+          <p className={panelLead}>Nuk ka kategori ende.</p>
         </div>
       ) : (
-        <ul className="biz-offers__list category-order">
+        <ul className="m-0 list-none p-0">
           {categories.map((category, index) => (
             <li
               key={category.id}
-              className={[
-                "biz-offer-row",
-                "category-order__row",
-                draggingId === category.id ? "is-dragging" : "",
-                overId === category.id ? "is-over" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+              className={`flex flex-row items-center gap-3 border-b border-line py-5${
+                overId === category.id
+                  ? " outline outline-1 outline-dashed outline-accent outline-offset-2"
+                  : ""
+              }`}
               onDragOver={(event) => {
                 event.preventDefault();
                 setOverId(category.id);
@@ -161,18 +178,18 @@ export function AdminCategories() {
               }}
               onDrop={() => dropOn(category.id)}
             >
-              <div className="category-order__arrows">
+              <div className="flex shrink-0 flex-col gap-0.5">
                 <button
-                  className="category-order__arrow"
+                  className={arrowClass}
                   type="button"
                   aria-label="Lëviz lart"
                   disabled={index === 0 || reorderMutation.isPending}
                   onClick={() => move(index, index - 1)}
                 >
-                  ↑
+                  <KeyboardArrowUpIcon className="text-[16px]!" fontSize="inherit" />
                 </button>
                 <button
-                  className="category-order__arrow"
+                  className={arrowClass}
                   type="button"
                   aria-label="Lëviz poshtë"
                   disabled={
@@ -180,11 +197,13 @@ export function AdminCategories() {
                   }
                   onClick={() => move(index, index + 1)}
                 >
-                  ↓
+                  <KeyboardArrowDownIcon className="text-[16px]!" fontSize="inherit" />
                 </button>
               </div>
               <div
-                className="biz-offer-row__main category-order__main"
+                className={`flex min-w-0 flex-1 cursor-grab items-start gap-2${
+                  draggingId === category.id ? " opacity-45" : ""
+                }`}
                 draggable={!reorderMutation.isPending}
                 onDragStart={(event) => {
                   event.dataTransfer.effectAllowed = "move";
@@ -196,28 +215,33 @@ export function AdminCategories() {
                   setOverId(null);
                 }}
               >
-                <span className="biz-offer-row__name">{category.name}</span>
-                <span className="biz-offer-row__meta">{category.slug}</span>
+                <DragIndicatorIcon fontSize="small" className="mt-0.5 text-muted" />
+                <span className="min-w-0">
+                  <span className="m-0 block text-[1.0625rem] font-semibold">
+                    {category.name}
+                  </span>
+                  <span className="mt-[0.3rem] block text-sm leading-[1.45] text-muted">
+                    {category.slug}
+                  </span>
+                </span>
               </div>
               <span
-                className={`biz-offer-row__status ${
-                  category.is_active
-                    ? "biz-offer-row__status--approved"
-                    : "biz-offer-row__status--rejected"
-                }`}
+                className={offerStatusClass(
+                  category.is_active ? "approved" : "rejected",
+                )}
               >
                 {category.is_active ? "Aktive" : "Joaktive"}
               </span>
-              <div className="biz-offer-row__actions">
+              <div className="flex flex-wrap gap-2">
                 <button
-                  className="btn btn--ghost btn--sm"
+                  className={rowActionClass}
                   type="button"
                   onClick={() => openEdit(category)}
                 >
                   Ndrysho
                 </button>
                 <button
-                  className="btn btn--ghost btn--sm"
+                  className={rowActionClass}
                   type="button"
                   onClick={() =>
                     updateMutation.mutate({
@@ -229,7 +253,7 @@ export function AdminCategories() {
                   {category.is_active ? "Çaktivizo" : "Aktivizo"}
                 </button>
                 <button
-                  className="btn btn--danger btn--sm"
+                  className={`${btnDanger} ${btnSm} min-w-[5.5rem] flex-auto min-[800px]:flex-none`}
                   type="button"
                   onClick={() => setPendingDelete(category)}
                 >
@@ -252,7 +276,7 @@ export function AdminCategories() {
         footer={
           <>
             <button
-              className="btn btn--ghost"
+              className={btnGhost}
               type="button"
               disabled={pending}
               onClick={() => setEditor(null)}
@@ -260,7 +284,7 @@ export function AdminCategories() {
               Anulo
             </button>
             <button
-              className="btn btn--primary"
+              className={btnPrimary}
               type="submit"
               form="admin-category-form"
               disabled={pending}
@@ -272,18 +296,19 @@ export function AdminCategories() {
       >
         <form
           id="admin-category-form"
-          className="offer-form"
+          className="flex max-w-[40rem] flex-col gap-5"
           onSubmit={onSubmit}
           noValidate
         >
           {formError ? (
-            <p className="offer-form__error" role="alert">
+            <p className={fieldError} role="alert">
               {formError}
             </p>
           ) : null}
-          <label className="offer-form__field">
+          <label className={fieldLabel}>
             <span>Emri</span>
             <input
+              className={inputClass}
               value={form.name}
               maxLength={255}
               onChange={(event) =>
@@ -291,9 +316,10 @@ export function AdminCategories() {
               }
             />
           </label>
-          <label className="offer-form__field">
+          <label className={fieldLabel}>
             <span>Slug (opsional)</span>
             <input
+              className={inputClass}
               value={form.slug ?? ""}
               maxLength={255}
               onChange={(event) =>
@@ -301,8 +327,9 @@ export function AdminCategories() {
               }
             />
           </label>
-          <label className="offer-form__check">
+          <label className="flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none">
             <input
+              className={checkInput}
               type="checkbox"
               checked={form.is_active}
               onChange={(event) =>
@@ -312,7 +339,9 @@ export function AdminCategories() {
                 }))
               }
             />
-            <span>Aktive në faqen publike</span>
+            <span className="min-w-0 flex-1 pt-px leading-[1.4]">
+              Aktive në faqen publike
+            </span>
           </label>
         </form>
       </Modal>

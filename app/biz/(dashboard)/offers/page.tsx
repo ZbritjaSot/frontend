@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BizOfferList } from "@/features/offers/BizOfferList";
+import { pageTitle } from "@/lib/ui";
 
 export const metadata: Metadata = {
   title: "Ofertat e mia",
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 export default function BizOffersPage() {
   return (
     <>
-      <h1 className="dash__page-title">Ofertat e mia</h1>
+      <h1 className={pageTitle}>Ofertat e mia</h1>
       <BizOfferList />
     </>
   );

@@ -12,6 +12,14 @@ import {
 } from "@/hooks/useBizOffers";
 import { defaultOfferWindow, toDateTimeLocalValue } from "@/lib/datetime";
 import { validationMessage } from "@/lib/api";
+import {
+  btnGhost,
+  btnPrimary,
+  btnSm,
+  fieldError,
+  fieldLabel,
+  inputClass,
+} from "@/lib/ui";
 import { offerBundleFormSchema } from "@/schemas/offer";
 import type { OfferBundle } from "@/types";
 
@@ -284,10 +292,15 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
   }
 
   return (
-    <form className="offer-form" onSubmit={onSubmit} noValidate>
-      <label className="offer-form__field">
+    <form
+      className="flex max-w-[40rem] flex-col gap-5"
+      onSubmit={onSubmit}
+      noValidate
+    >
+      <label className={fieldLabel}>
         <span>Titulli i dosjes</span>
         <input
+          className={inputClass}
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -298,8 +311,8 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
         />
       </label>
 
-      <div className="offer-form__row">
-        <label className="offer-form__field">
+      <div className="grid gap-5 min-[640px]:grid-cols-2">
+        <label className={fieldLabel}>
           <span>Fillon</span>
           <DateTimeField
             value={startsAt}
@@ -309,7 +322,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
           />
         </label>
 
-        <label className="offer-form__field">
+        <label className={fieldLabel}>
           <span>Skadon</span>
           <DateTimeField
             value={expiresAt}
@@ -320,12 +333,12 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
         </label>
       </div>
 
-      <div className="offer-form__items">
-        <div className="offer-form__items-head">
-          <h2 className="offer-form__items-title">Produktet</h2>
+      <div className="flex flex-col gap-5">
+        <div className="flex items-center justify-between gap-5">
+          <h2 className="m-0 text-base font-bold text-ink">Produktet</h2>
           <button
             type="button"
-            className="btn btn--ghost btn--sm"
+            className={`${btnGhost} ${btnSm}`}
             disabled={pending}
             onClick={addItem}
           >
@@ -334,7 +347,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
         </div>
 
         {offer?.status === "rejected" && offer.rejection_reason ? (
-          <p className="bundle-view__reject" role="status">
+          <p className="m-0 mb-8 text-[0.9375rem] text-danger" role="status">
             Arsye refuzimi: {offer.rejection_reason}
           </p>
         ) : null}
@@ -344,20 +357,20 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
             key={item.key}
             className={
               item.rejection_note
-                ? "offer-form__item offer-form__item--flagged"
-                : "offer-form__item"
+                ? "m-0 flex flex-col gap-5 rounded-lg border border-[color-mix(in_srgb,var(--color-danger)_45%,var(--color-border))] bg-elevated p-5 shadow-[inset_3px_0_0_var(--color-danger)]"
+                : "m-0 flex flex-col gap-5 rounded-lg border border-line bg-elevated p-5"
             }
           >
-            <legend>
+            <legend className="px-[0.35rem] text-[0.8125rem] font-bold text-muted">
               Produkt {index + 1}
               {item.rejection_note ? " · Duhet rregulluar" : ""}
             </legend>
 
             {item.rejection_note ? (
-              <p className="offer-form__item-note">{item.rejection_note}</p>
+              <p className="m-0 text-[0.8125rem] text-danger">{item.rejection_note}</p>
             ) : null}
 
-            <label className="offer-form__field">
+            <label className={fieldLabel}>
               <span>Kategoria</span>
               <SelectField
                 value={item.category_id}
@@ -371,9 +384,10 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
               />
             </label>
 
-            <label className="offer-form__field">
+            <label className={fieldLabel}>
               <span>Emri i produktit</span>
               <input
+                className={inputClass}
                 type="text"
                 value={item.name}
                 onChange={(e) => patchItem(item.key, { name: e.target.value })}
@@ -383,7 +397,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
               />
             </label>
 
-            <label className="offer-form__field">
+            <label className={fieldLabel}>
               <span>Çmimi origjinal (EUR)</span>
               <PosMoneyField
                 valueCents={item.original_price}
@@ -393,10 +407,11 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
               />
             </label>
 
-            <div className="offer-form__row">
-              <label className="offer-form__field">
+            <div className="grid gap-5 min-[640px]:grid-cols-2">
+              <label className={fieldLabel}>
                 <span>Zbritja (%)</span>
                 <input
+                  className={inputClass}
                   type="text"
                   inputMode="numeric"
                   autoComplete="off"
@@ -419,7 +434,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
                 />
               </label>
 
-              <label className="offer-form__field">
+              <label className={fieldLabel}>
                 <span>Çmimi me zbritje (EUR)</span>
                 <PosMoneyField
                   valueCents={item.discounted_price}
@@ -432,7 +447,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
               </label>
             </div>
 
-            <p className="offer-form__hint">
+            <p className="m-0 text-[0.8125rem] font-medium text-muted">
               Plotëso % (1–99) ose çmimin me zbritje — tjetri llogaritet
               automatikisht. Çmimi me zbritje duhet të jetë më i ulët se
               origjinali.
@@ -441,7 +456,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
             {items.length > 1 ? (
               <button
                 type="button"
-                className="btn btn--ghost btn--sm"
+                className={`${btnGhost} ${btnSm}`}
                 disabled={pending}
                 onClick={() => removeItem(item.key)}
               >
@@ -453,13 +468,13 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
       </div>
 
       {error ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {error}
         </p>
       ) : null}
 
-      <div className="offer-form__actions">
-        <button className="btn btn--primary" type="submit" disabled={pending}>
+      <div className="mt-3 flex flex-wrap gap-3">
+        <button className={btnPrimary} type="submit" disabled={pending}>
           {pending
             ? "Duke u ruajtur…"
             : mode === "create"
@@ -467,7 +482,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
               : "Përditëso"}
         </button>
         <button
-          className="btn btn--ghost"
+          className={btnGhost}
           type="button"
           disabled={pending}
           onClick={() => router.push("/biz/offers")}

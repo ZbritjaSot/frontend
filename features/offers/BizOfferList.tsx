@@ -17,7 +17,17 @@ import {
 } from "@/features/offers/status";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
+import {
+  btnGhost,
+  btnPrimary,
+  btnSm,
+  fieldError,
+  offerStatusClass,
+  panelLead,
+} from "@/lib/ui";
 import type { OfferBundle } from "@/types";
+
+const rowAction = `${btnSm} min-w-[5.5rem] flex-1 min-[800px]:flex-none`;
 
 export function BizOfferList() {
   const { data, isLoading, isError, error, refetch, isFetching } = useBizOffers();
@@ -32,11 +42,11 @@ export function BizOfferList() {
 
   if (isError) {
     return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
+      <div className="max-w-[40rem]">
+        <p className={panelLead}>
           {validationMessage(error, "Nuk mundëm t’i ngarkojmë ofertat.")}
         </p>
-        <button className="btn btn--ghost" type="button" onClick={() => refetch()}>
+        <button className={btnGhost} type="button" onClick={() => refetch()}>
           Provo përsëri
         </button>
       </div>
@@ -71,44 +81,47 @@ export function BizOfferList() {
   }
 
   return (
-    <div className="biz-offers">
-      <div className="biz-offers__toolbar">
-        <Link href="/biz/offers/new" className="btn btn--primary">
+    <div>
+      <div className="mb-8 flex flex-wrap items-center gap-5">
+        <Link href="/biz/offers/new" className={btnPrimary}>
           Dosje e re
         </Link>
         {isFetching ? (
-          <span className="biz-offers__hint">Duke përditësuar…</span>
+          <span className="text-[0.8125rem] text-muted">Duke përditësuar…</span>
         ) : null}
       </div>
 
       {actionError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {actionError}
         </p>
       ) : null}
 
       {bundles.length === 0 ? (
-        <p className="shell-panel__lead">
+        <p className={panelLead}>
           Nuk ke asnjë dosje ofertash ende. Krijo të parën (edhe me një produkt).
         </p>
       ) : (
-        <ul className="biz-offer-list">
+        <ul className="m-0 list-none border-t border-line p-0">
           {bundles.map((bundle) => {
             const count = bundle.items_count ?? bundle.items?.length ?? 0;
             return (
-              <li key={bundle.id} className="biz-offer-row">
+              <li
+                key={bundle.id}
+                className="flex flex-col gap-5 border-b border-line py-5 min-[800px]:flex-row min-[800px]:items-center min-[800px]:justify-between"
+              >
                 <Link
                   href={`/biz/offers/${bundle.id}`}
-                  className="biz-offer-row__main biz-offer-row__main--link"
+                  className="group flex min-w-0 flex-1 gap-5 rounded-lg text-inherit no-underline"
                 >
-                  <span
-                    className={`biz-offer-row__status biz-offer-row__status--${bundle.status}`}
-                  >
+                  <span className={offerStatusClass(bundle.status)}>
                     {OFFER_STATUS_LABEL[bundle.status]}
                   </span>
                   <div>
-                    <p className="biz-offer-row__name">{bundle.title}</p>
-                    <p className="biz-offer-row__meta">
+                    <p className="m-0 text-[1.0625rem] font-semibold group-hover:underline group-hover:decoration-accent group-hover:underline-offset-[0.15em]">
+                      {bundle.title}
+                    </p>
+                    <p className="m-0 mt-1 text-sm leading-snug text-muted">
                       {count} {count === 1 ? "produkt" : "produkte"}
                       {" · "}
                       deri {formatDateShortSq(bundle.expires_at)}
@@ -119,24 +132,24 @@ export function BizOfferList() {
                         : null}
                     </p>
                     {bundle.status === "rejected" && bundle.rejection_reason ? (
-                      <p className="biz-offer-row__reject">
+                      <p className="m-0 mt-[0.35rem] text-[0.8125rem] text-danger">
                         Arsye: {bundle.rejection_reason}
                       </p>
                     ) : null}
                   </div>
                 </Link>
 
-                <div className="biz-offer-row__actions">
+                <div className="flex flex-wrap gap-2">
                   <Link
                     href={`/biz/offers/${bundle.id}`}
-                    className="btn btn--ghost btn--sm"
+                    className={`${btnGhost} ${rowAction}`}
                   >
                     Shiko
                   </Link>
                   {canEditOffer(bundle.status) ? (
                     <Link
                       href={`/biz/offers/${bundle.id}/edit`}
-                      className="btn btn--ghost btn--sm"
+                      className={`${btnGhost} ${rowAction}`}
                     >
                       Ndrysho
                     </Link>
@@ -144,7 +157,7 @@ export function BizOfferList() {
                   {canSubmitOffer(bundle.status) ? (
                     <button
                       type="button"
-                      className="btn btn--primary btn--sm"
+                      className={`${btnPrimary} ${rowAction}`}
                       disabled={submitMutation.isPending}
                       onClick={() => onSubmit(bundle)}
                     >
@@ -154,7 +167,7 @@ export function BizOfferList() {
                   {canDeleteOffer(bundle.status) ? (
                     <button
                       type="button"
-                      className="btn btn--ghost btn--sm"
+                      className={`${btnGhost} ${rowAction}`}
                       disabled={deleteMutation.isPending}
                       onClick={() => setBundleToDelete(bundle)}
                     >

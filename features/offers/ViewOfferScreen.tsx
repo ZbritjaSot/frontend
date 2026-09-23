@@ -1,11 +1,13 @@
 "use client";
 
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/Spinner";
 import { OfferBundleView } from "@/features/offers/OfferBundleView";
 import { canEditOffer, canSubmitOffer } from "@/features/offers/status";
 import { useBizOffer, useSubmitBizOffer } from "@/hooks/useBizOffers";
 import { validationMessage } from "@/lib/api";
+import { btnGhost, btnPrimary, btnSm, fieldError, panelLead } from "@/lib/ui";
 import { useState } from "react";
 
 type ViewOfferScreenProps = {
@@ -23,12 +25,13 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
 
   if (isError || !bundle) {
     return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
+      <div className="max-w-[40rem]">
+        <p className={panelLead}>
           {validationMessage(error, "Dosja nuk u gjet.")}
         </p>
-        <Link href="/biz/offers" className="btn btn--ghost">
-          ← Ofertat
+        <Link href="/biz/offers" className={btnGhost}>
+          <ArrowBackIcon fontSize="small" />
+          Ofertat
         </Link>
       </div>
     );
@@ -48,15 +51,16 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
 
   return (
     <>
-      <div className="bundle-view__toolbar">
-        <Link href="/biz/offers" className="btn btn--ghost btn--sm">
-          ← Ofertat
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-5">
+        <Link href="/biz/offers" className={`${btnGhost} ${btnSm}`}>
+          <ArrowBackIcon fontSize="small" />
+          Ofertat
         </Link>
-        <div className="bundle-view__toolbar-actions">
+        <div className="flex flex-wrap gap-3">
           {canEditOffer(bundle.status) ? (
             <Link
               href={`/biz/offers/${bundle.id}/edit`}
-              className="btn btn--ghost btn--sm"
+              className={`${btnGhost} ${btnSm}`}
             >
               Ndrysho
             </Link>
@@ -64,7 +68,7 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
           {canSubmitOffer(bundle.status) ? (
             <button
               type="button"
-              className="btn btn--primary btn--sm"
+              className={`${btnPrimary} ${btnSm}`}
               disabled={submitMutation.isPending}
               onClick={onSubmit}
             >
@@ -75,7 +79,7 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
       </div>
 
       {actionError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {actionError}
         </p>
       ) : null}

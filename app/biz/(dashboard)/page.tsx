@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageTitle, panelLead, panelNote } from "@/lib/ui";
 
 export const metadata: Metadata = {
   title: "Biznes",
@@ -8,12 +9,12 @@ export const metadata: Metadata = {
 export default function BizHomePage() {
   return (
     <>
-      <h1 className="dash__page-title">Paneli</h1>
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
+      <h1 className={pageTitle}>Paneli</h1>
+      <div className="max-w-[40rem]">
+        <p className={panelLead}>
           Mirë se vini. Menaxho ofertat nga menyja <strong>Ofertat e mia</strong>.
         </p>
-        <p className="shell-panel__note">
+        <p className={panelNote}>
           Krijo draft → dërgo për aprovim → admin aprovon → shfaqet te faqja
           publike.
         </p>

@@ -62,8 +62,8 @@ export function PlaceMap({
       }).addTo(map);
 
       const icon = L.divIcon({
-        className: "place-pin",
-        html: '<span class="place-pin__mark"></span>',
+        className: "border-0 bg-transparent",
+        html: '<span class="block size-4 ml-1.5 rounded-[50%_50%_50%_0] border-2 border-[#1c1c1c] bg-accent -rotate-45 shadow-[0_2px_8px_rgba(0,0,0,0.35)]"></span>',
         iconSize: [28, 28],
         iconAnchor: [14, 28],
       });
@@ -120,7 +120,7 @@ export function PlaceMap({
   return (
     <div
       ref={nodeRef}
-      className="place-map"
+      className="h-full w-full bg-[#d7d2c4]"
       role="img"
       aria-label={label}
     />

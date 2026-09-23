@@ -9,6 +9,18 @@ import {
   useUpdateBusiness,
 } from "@/hooks/useAdminBusinesses";
 import { validationMessage } from "@/lib/api";
+import {
+  btnGhost,
+  btnPrimary,
+  btnSm,
+  checkInput,
+  fieldError,
+  fieldLabel,
+  inputClass,
+  offerStatusClass,
+  panelLead,
+  panelNote,
+} from "@/lib/ui";
 import { businessFormSchema, type BusinessFormInput } from "@/schemas/business";
 import type { Business } from "@/types";
 
@@ -18,6 +30,16 @@ const emptyForm: BusinessFormInput = {
   owner_email: "",
   is_active: true,
 };
+
+const rowClass =
+  "flex flex-col gap-5 border-b border-line py-5 min-[800px]:flex-row min-[800px]:items-center min-[800px]:justify-between";
+
+const rowActionClass = `${btnGhost} ${btnSm} min-w-[5.5rem] flex-auto min-[800px]:flex-none`;
+
+const checkLabelClass =
+  "flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none";
+
+const checkTextClass = "min-w-0 flex-1 pt-px leading-[1.4]";
 
 export function AdminBusinesses() {
   const { data, isLoading, isError, error, refetch } = useAdminBusinesses();
@@ -99,11 +121,11 @@ export function AdminBusinesses() {
 
   if (isError) {
     return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
+      <div className="max-w-[40rem]">
+        <p className={panelLead}>
           {validationMessage(error, "Nuk mundëm t’i ngarkojmë bizneset.")}
         </p>
-        <button className="btn btn--ghost" type="button" onClick={() => refetch()}>
+        <button className={btnGhost} type="button" onClick={() => refetch()}>
           Provo përsëri
         </button>
       </div>
@@ -111,49 +133,49 @@ export function AdminBusinesses() {
   }
 
   return (
-    <div className="biz-offers">
-      <div className="biz-offers__toolbar">
-        <button className="btn btn--primary" type="button" onClick={openCreate}>
+    <div>
+      <div className="mb-8 flex flex-wrap items-center gap-5">
+        <button className={btnPrimary} type="button" onClick={openCreate}>
           Shto biznes
         </button>
       </div>
 
-      {notice ? <p className="shell-panel__note">{notice}</p> : null}
+      {notice ? <p className={panelNote}>{notice}</p> : null}
 
       {businesses.length === 0 ? (
-        <div className="shell-panel">
-          <p className="shell-panel__lead">Nuk ka biznese ende.</p>
+        <div className="max-w-[40rem]">
+          <p className={panelLead}>Nuk ka biznese ende.</p>
         </div>
       ) : (
-        <ul className="biz-offers__list">
+        <ul className="m-0 list-none p-0">
           {businesses.map((business) => (
-            <li key={business.id} className="biz-offer-row">
-              <div className="biz-offer-row__main">
-                <span className="biz-offer-row__name">{business.name}</span>
-                <span className="biz-offer-row__meta">
+            <li key={business.id} className={rowClass}>
+              <div className="flex min-w-0 gap-5">
+                <span className="m-0 text-[1.0625rem] font-semibold">
+                  {business.name}
+                </span>
+                <span className="mt-[0.3rem] text-sm leading-[1.45] text-muted">
                   {business.owner?.name ?? "Pa pronar"}
                   {business.owner?.email ? ` · ${business.owner.email}` : ""}
                 </span>
               </div>
               <span
-                className={`biz-offer-row__status ${
-                  business.is_active
-                    ? "biz-offer-row__status--approved"
-                    : "biz-offer-row__status--rejected"
-                }`}
+                className={offerStatusClass(
+                  business.is_active ? "approved" : "rejected",
+                )}
               >
                 {business.is_active ? "Aktive" : "Joaktive"}
               </span>
-              <div className="biz-offer-row__actions">
+              <div className="flex flex-wrap gap-2">
                 <button
-                  className="btn btn--ghost btn--sm"
+                  className={rowActionClass}
                   type="button"
                   onClick={() => openEdit(business)}
                 >
                   Ndrysho
                 </button>
                 <button
-                  className="btn btn--ghost btn--sm"
+                  className={rowActionClass}
                   type="button"
                   disabled={updateMutation.isPending}
                   onClick={() =>
@@ -183,7 +205,7 @@ export function AdminBusinesses() {
         footer={
           <>
             <button
-              className="btn btn--ghost"
+              className={btnGhost}
               type="button"
               disabled={createMutation.isPending}
               onClick={() => setCreating(false)}
@@ -191,7 +213,7 @@ export function AdminBusinesses() {
               Anulo
             </button>
             <button
-              className="btn btn--primary"
+              className={btnPrimary}
               type="submit"
               form="admin-business-create"
               disabled={createMutation.isPending}
@@ -203,22 +225,23 @@ export function AdminBusinesses() {
       >
         <form
           id="admin-business-create"
-          className="offer-form"
+          className="flex max-w-[40rem] flex-col gap-5"
           onSubmit={onCreate}
           noValidate
         >
-          <p className="biz-offers__hint">
+          <p className="text-[0.8125rem] text-muted">
             Një fjalëkalim i rastësishëm i dërgohet pronarit me email. Në
             hyrjen e parë duhet ta ndryshojë.
           </p>
           {formError ? (
-            <p className="offer-form__error" role="alert">
+            <p className={fieldError} role="alert">
               {formError}
             </p>
           ) : null}
-          <label className="offer-form__field">
+          <label className={fieldLabel}>
             <span>Emri i biznesit</span>
             <input
+              className={inputClass}
               value={form.name}
               maxLength={255}
               onChange={(event) =>
@@ -226,9 +249,10 @@ export function AdminBusinesses() {
               }
             />
           </label>
-          <label className="offer-form__field">
+          <label className={fieldLabel}>
             <span>Emri i pronarit</span>
             <input
+              className={inputClass}
               value={form.owner_name}
               maxLength={255}
               onChange={(event) =>
@@ -239,9 +263,10 @@ export function AdminBusinesses() {
               }
             />
           </label>
-          <label className="offer-form__field">
+          <label className={fieldLabel}>
             <span>Email</span>
             <input
+              className={inputClass}
               type="email"
               value={form.owner_email}
               maxLength={255}
@@ -253,8 +278,9 @@ export function AdminBusinesses() {
               }
             />
           </label>
-          <label className="offer-form__check">
+          <label className={checkLabelClass}>
             <input
+              className={checkInput}
               type="checkbox"
               checked={form.is_active}
               onChange={(event) =>
@@ -264,7 +290,7 @@ export function AdminBusinesses() {
                 }))
               }
             />
-            <span>Llogaria aktive</span>
+            <span className={checkTextClass}>Llogaria aktive</span>
           </label>
         </form>
       </Modal>
@@ -280,7 +306,7 @@ export function AdminBusinesses() {
         footer={
           <>
             <button
-              className="btn btn--ghost"
+              className={btnGhost}
               type="button"
               disabled={updateMutation.isPending}
               onClick={() => setEditing(null)}
@@ -288,7 +314,7 @@ export function AdminBusinesses() {
               Anulo
             </button>
             <button
-              className="btn btn--primary"
+              className={btnPrimary}
               type="submit"
               form="admin-business-edit"
               disabled={updateMutation.isPending}
@@ -300,30 +326,32 @@ export function AdminBusinesses() {
       >
         <form
           id="admin-business-edit"
-          className="offer-form"
+          className="flex max-w-[40rem] flex-col gap-5"
           onSubmit={onEdit}
           noValidate
         >
           {formError ? (
-            <p className="offer-form__error" role="alert">
+            <p className={fieldError} role="alert">
               {formError}
             </p>
           ) : null}
-          <label className="offer-form__field">
+          <label className={fieldLabel}>
             <span>Emri i biznesit</span>
             <input
+              className={inputClass}
               value={editName}
               maxLength={255}
               onChange={(event) => setEditName(event.target.value)}
             />
           </label>
-          <label className="offer-form__check">
+          <label className={checkLabelClass}>
             <input
+              className={checkInput}
               type="checkbox"
               checked={editActive}
               onChange={(event) => setEditActive(event.target.checked)}
             />
-            <span>Llogaria aktive</span>
+            <span className={checkTextClass}>Llogaria aktive</span>
           </label>
         </form>
       </Modal>

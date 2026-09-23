@@ -7,6 +7,11 @@ import {
   useState,
   type KeyboardEvent,
 } from "react";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { triggerClass } from "@/lib/ui";
+
+const optionClass =
+  "w-full cursor-pointer appearance-none rounded-md border-0 bg-transparent px-3 py-2.5 text-left text-base font-medium text-ink hover:bg-accent/14 hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent/55";
 
 export type SelectOption = {
   value: string;
@@ -21,6 +26,7 @@ type SelectFieldProps = {
   disabled?: boolean;
   id?: string;
   "aria-label"?: string;
+  className?: string;
 };
 
 export function SelectField({
@@ -31,6 +37,7 @@ export function SelectField({
   disabled = false,
   id,
   "aria-label": ariaLabel,
+  className,
 }: SelectFieldProps) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -74,14 +81,11 @@ export function SelectField({
   }
 
   return (
-    <div
-      className={`field-select${open ? " is-open" : ""}${disabled ? " is-disabled" : ""}`}
-      ref={rootRef}
-    >
+    <div className="relative w-full" ref={rootRef}>
       <button
         type="button"
         id={id}
-        className="field-select__trigger"
+        className={[triggerClass, className].filter(Boolean).join(" ")}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listId}
@@ -90,23 +94,24 @@ export function SelectField({
         onClick={() => setOpen((v) => !v)}
         onKeyDown={onTriggerKeyDown}
       >
-        <span className={selected ? undefined : "field-select__placeholder"}>
+        <span className={selected ? undefined : "text-muted"}>
           {selected?.label ?? placeholder}
         </span>
-        <span className="field-select__chevron" aria-hidden>
-          ▾
-        </span>
+        <KeyboardArrowDownIcon
+          fontSize="small"
+          className={`shrink-0 text-muted transition-transform ${open ? "rotate-180" : ""}`}
+        />
       </button>
 
       {open ? (
         <ul
           id={listId}
-          className="field-select__list"
+          className="absolute top-[calc(100%+0.35rem)] right-0 left-0 z-40 m-0 max-h-64 list-none overflow-auto rounded-lg border border-line bg-elevated p-1.5 shadow-[0_12px_32px_var(--color-shadow)]"
           role="listbox"
           aria-label={ariaLabel}
         >
           {options.length === 0 ? (
-            <li className="field-select__empty">Asnjë opsion</li>
+            <li className="px-3 py-2.5 text-sm text-muted">Asnjë opsion</li>
           ) : (
             options.map((option) => {
               const isSelected = option.value === value;
@@ -116,7 +121,9 @@ export function SelectField({
                     type="button"
                     role="option"
                     aria-selected={isSelected}
-                    className={`field-select__option${isSelected ? " is-selected" : ""}`}
+                    className={
+                      isSelected ? `${optionClass} bg-accent/14 text-accent` : optionClass
+                    }
                     onClick={() => {
                       onChange(option.value);
                       setOpen(false);

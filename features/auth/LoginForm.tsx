@@ -7,6 +7,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { hasRole, loginWithCookies } from "@/features/auth/api";
 import { meQueryKey } from "@/hooks/useAuth";
 import { validationMessage } from "@/lib/api";
+import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
 import { loginSchema } from "@/schemas/login";
 
 type LoginFormProps = {
@@ -56,10 +57,11 @@ export function LoginForm({
   }
 
   return (
-    <form className="auth-form" onSubmit={onSubmit} noValidate>
-      <label className="auth-form__field">
+    <form className="flex flex-col gap-5" onSubmit={onSubmit} noValidate>
+      <label className={fieldLabel}>
         <span>Email</span>
         <input
+          className={inputClass}
           type="email"
           name="email"
           autoComplete="username"
@@ -70,9 +72,10 @@ export function LoginForm({
         />
       </label>
 
-      <label className="auth-form__field">
+      <label className={fieldLabel}>
         <span>Fjalëkalimi</span>
         <input
+          className={inputClass}
           type="password"
           name="password"
           autoComplete="current-password"
@@ -84,12 +87,12 @@ export function LoginForm({
       </label>
 
       {error ? (
-        <p className="auth-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {error}
         </p>
       ) : null}
 
-      <button className="auth-form__submit" type="submit" disabled={pending}>
+      <button className={`${btnPrimary} w-full`} type="submit" disabled={pending}>
         {pending ? (
           <Spinner
             label="Duke u futur"

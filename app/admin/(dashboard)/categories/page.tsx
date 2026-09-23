@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminCategories } from "@/features/admin/AdminCategories";
+import { pageTitle } from "@/lib/ui";
 
 export const metadata: Metadata = {
   title: "Kategoritë",
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 export default function AdminCategoriesPage() {
   return (
     <>
-      <h1 className="dash__page-title">Kategoritë</h1>
+      <h1 className={pageTitle}>Kategoritë</h1>
       <AdminCategories />
     </>
   );

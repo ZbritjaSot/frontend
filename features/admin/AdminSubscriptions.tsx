@@ -1,5 +1,6 @@
 "use client";
 
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DateTimeField } from "@/components/ui/DateTimeField";
@@ -17,10 +18,23 @@ import { defaultSubscriptionWindow } from "@/lib/datetime";
 import { formatDateShortSq, formatDateTimeShortSq, formatEurFromCents } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
 import {
+  btnGhost,
+  btnPrimary,
+  btnSm,
+  checkInput,
+  fieldError,
+  fieldLabel,
+  inputClass,
+  offerStatusClass,
+  panelLead,
+} from "@/lib/ui";
+import {
   PAYMENT_METHOD_OPTIONS,
   subscriptionFormSchema,
 } from "@/schemas/subscription";
 import type { PaymentMethod, Subscription } from "@/types";
+
+const textAreaClass = `${inputClass} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`;
 
 function paymentMethodLabel(method: PaymentMethod): string {
   return (
@@ -43,15 +57,15 @@ function statusLabel(sub: Subscription): string {
 
 function statusClass(sub: Subscription): string {
   if (!sub.is_active) {
-    return "biz-offer-row__status--rejected";
+    return offerStatusClass("rejected");
   }
   if (sub.is_current) {
-    return "biz-offer-row__status--approved";
+    return offerStatusClass("approved");
   }
   if (new Date(sub.ends_at).getTime() <= Date.now()) {
-    return "biz-offer-row__status--expired";
+    return offerStatusClass("expired");
   }
-  return "biz-offer-row__status--pending";
+  return offerStatusClass("pending");
 }
 
 type BusinessGroup = {
@@ -170,11 +184,11 @@ export function AdminSubscriptions() {
 
   if (isError) {
     return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
+      <div className="max-w-[40rem]">
+        <p className={panelLead}>
           {validationMessage(error, "Nuk mundëm t’i ngarkojmë abonimet.")}
         </p>
-        <button className="btn btn--ghost" type="button" onClick={() => refetch()}>
+        <button className={btnGhost} type="button" onClick={() => refetch()}>
           Provo përsëri
         </button>
       </div>
@@ -232,22 +246,22 @@ export function AdminSubscriptions() {
   }
 
   return (
-    <div className="admin-subs">
-      <div className="admin-subs__toolbar">
+    <div className="flex w-full flex-col gap-5">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
         <div>
-          <p className="admin-subs__lead">
+          <p className="m-0 text-[0.9375rem] leading-snug text-muted">
             Lista e bizneseve dhe periudhave të abonimit.
             {expiredCount > 0
               ? ` ${expiredCount} ${expiredCount === 1 ? "abonim i skaduar" : "abonime të skaduara"}.`
               : ""}
           </p>
           {isFetching ? (
-            <p className="biz-offers__hint">Duke përditësuar…</p>
+            <p className="m-0 text-[0.8125rem] text-muted">Duke përditësuar…</p>
           ) : null}
         </div>
         <button
           type="button"
-          className="btn btn--primary"
+          className={btnPrimary}
           onClick={() => setCreateOpen(true)}
         >
           Regjistro pagesë
@@ -255,37 +269,42 @@ export function AdminSubscriptions() {
       </div>
 
       {actionError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {actionError}
         </p>
       ) : null}
 
       {groups.length === 0 ? (
-        <div className="shell-panel">
-          <p className="shell-panel__lead">Nuk ka abonime të regjistruara.</p>
+        <div className="max-w-[40rem]">
+          <p className={panelLead}>Nuk ka abonime të regjistruara.</p>
           <button
             type="button"
-            className="btn btn--primary"
+            className={btnPrimary}
             onClick={() => setCreateOpen(true)}
           >
             Regjistro pagesë
           </button>
         </div>
       ) : (
-        <ul className="sub-history__list">
+        <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
           {groups.map((group) => {
             const open = openBusinessId === group.businessId;
+            const expired = statusLabel(group.latest) === "Skaduar";
             return (
               <li
                 key={group.businessId}
-                className={`sub-history__item${open ? " is-open" : ""}${
-                  statusLabel(group.latest) === "Skaduar" ? " is-expired" : ""
-                }`}
+                className="overflow-hidden rounded-lg border border-line bg-elevated"
               >
-                <div className="sub-history__card">
+                <div
+                  className={`grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 px-3.5 py-3.5${
+                    expired
+                      ? " shadow-[inset_3px_0_0_var(--color-danger)]"
+                      : ""
+                  }`}
+                >
                   <button
                     type="button"
-                    className="sub-history__expand"
+                    className="group flex min-w-0 cursor-pointer appearance-none flex-col gap-1.5 border-0 bg-transparent p-0 text-left font-[inherit] text-inherit"
                     aria-expanded={open}
                     onClick={() =>
                       setOpenBusinessId((id) =>
@@ -293,15 +312,15 @@ export function AdminSubscriptions() {
                       )
                     }
                   >
-                    <div className="sub-history__title-row">
-                      <p className="sub-history__name">{group.businessName}</p>
-                      <span
-                        className={`biz-offer-row__status ${statusClass(group.latest)}`}
-                      >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="m-0 text-base font-bold text-ink">
+                        {group.businessName}
+                      </p>
+                      <span className={statusClass(group.latest)}>
                         {statusLabel(group.latest)}
                       </span>
                     </div>
-                    <p className="sub-history__meta">
+                    <p className="m-0 text-[0.8125rem] leading-[1.4] text-muted">
                       {formatDateShortSq(group.latest.starts_at)} →{" "}
                       {formatDateShortSq(group.latest.ends_at)}
                       {" · "}
@@ -312,17 +331,18 @@ export function AdminSubscriptions() {
                       {group.history.length} abonim
                       {group.history.length === 1 ? "" : "e"}
                     </p>
-                    <span className="sub-history__hint">
-                      {open ? "Mbyll historinë" : "Shiko historinë"}{" "}
-                      <span className="sub-history__chevron" aria-hidden>
-                        ▾
-                      </span>
+                    <span className="mt-[0.15rem] inline-flex items-center gap-[0.35rem] text-xs font-semibold text-muted group-hover:text-accent">
+                      {open ? "Mbyll historinë" : "Shiko historinë"}
+                      <ExpandMoreIcon
+                        fontSize="small"
+                        className={`transition-transform${open ? " rotate-180" : ""}`}
+                      />
                     </span>
                   </button>
 
                   <button
                     type="button"
-                    className="btn btn--ghost btn--sm sub-history__toggle"
+                    className={`${btnGhost} ${btnSm} mt-[0.1rem] shrink-0`}
                     disabled={updateMutation.isPending}
                     onClick={() => setToToggle(group.latest)}
                   >
@@ -331,11 +351,16 @@ export function AdminSubscriptions() {
                 </div>
 
                 {open ? (
-                  <div className="sub-history__body">
+                  <div className="border-t border-line bg-sunken px-2.5 pt-1 pb-2.5">
                     {group.history.map((sub, index) => (
-                      <div key={sub.id} className="sub-history__row">
-                        <div className="sub-history__row-top">
-                          <p className="sub-history__row-dates">
+                      <div
+                        key={sub.id}
+                        className={`flex flex-col gap-1 px-1.5 py-3${
+                          index > 0 ? " border-t border-line/70" : ""
+                        }`}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="m-0 text-sm font-semibold text-ink tabular-nums">
                             {formatDateTimeShortSq(sub.starts_at)} →{" "}
                             {formatDateTimeShortSq(sub.ends_at)}
                             {" · "}
@@ -343,21 +368,19 @@ export function AdminSubscriptions() {
                             {" · "}
                             {paymentMethodLabel(sub.payment_method)}
                           </p>
-                          <div className="sub-history__row-tags">
+                          <div className="flex flex-wrap items-center gap-[0.4rem]">
                             {index === 0 ? (
-                              <span className="sub-history__latest-tag">
+                              <span className="text-[0.6875rem] font-bold tracking-wide text-accent uppercase">
                                 Fundit
                               </span>
                             ) : null}
-                            <span
-                              className={`biz-offer-row__status ${statusClass(sub)}`}
-                            >
+                            <span className={statusClass(sub)}>
                               {statusLabel(sub)}
                             </span>
                           </div>
                         </div>
                         {sub.payment_note ? (
-                          <p className="sub-history__row-note">
+                          <p className="m-0 text-[0.8125rem] text-muted">
                             {sub.payment_note}
                           </p>
                         ) : null}
@@ -380,7 +403,7 @@ export function AdminSubscriptions() {
           <>
             <button
               type="button"
-              className="btn btn--ghost"
+              className={btnGhost}
               disabled={createMutation.isPending}
               onClick={closeCreateModal}
             >
@@ -389,7 +412,7 @@ export function AdminSubscriptions() {
             <button
               type="submit"
               form="admin-sub-create-form"
-              className="btn btn--primary"
+              className={btnPrimary}
               disabled={createMutation.isPending}
             >
               {createMutation.isPending ? "Duke u ruajtur…" : "Ruaj abonimin"}
@@ -399,22 +422,22 @@ export function AdminSubscriptions() {
       >
         <form
           id="admin-sub-create-form"
-          className="offer-form admin-subs__modal-form"
+          className="flex w-full max-w-none flex-col gap-3"
           onSubmit={onCreate}
           noValidate
         >
-          <p className="biz-offers__hint">
+          <p className="m-0 text-[0.8125rem] text-muted">
             Çmimi, metoda dhe shënimet e pagesës nuk shfaqen te biznesi apo
             publiku.
           </p>
 
           {formError ? (
-            <p className="offer-form__error" role="alert">
+            <p className={fieldError} role="alert">
               {formError}
             </p>
           ) : null}
 
-          <label className="offer-form__field">
+          <label className={fieldLabel}>
             <span>Biznesi</span>
             <SelectField
               value={businessId}
@@ -426,8 +449,8 @@ export function AdminSubscriptions() {
             />
           </label>
 
-          <div className="offer-form__row">
-            <label className="offer-form__field">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <label className={fieldLabel}>
               <span>Fillon</span>
               <DateTimeField
                 value={startsAt}
@@ -436,7 +459,7 @@ export function AdminSubscriptions() {
                 aria-label="Fillon"
               />
             </label>
-            <label className="offer-form__field">
+            <label className={fieldLabel}>
               <span>Mbaron</span>
               <DateTimeField
                 value={endsAt}
@@ -447,8 +470,8 @@ export function AdminSubscriptions() {
             </label>
           </div>
 
-          <div className="offer-form__row">
-            <label className="offer-form__field">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <label className={fieldLabel}>
               <span>Metoda e pagesës</span>
               <SelectField
                 value={paymentMethod}
@@ -460,7 +483,7 @@ export function AdminSubscriptions() {
                 aria-label="Metoda e pagesës"
               />
             </label>
-            <label className="offer-form__field">
+            <label className={fieldLabel}>
               <span>Çmimi (EUR)</span>
               <PosMoneyField
                 valueCents={priceCents}
@@ -471,19 +494,21 @@ export function AdminSubscriptions() {
             </label>
           </div>
 
-          <label className="offer-form__field offer-form__check">
+          <label className="flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none">
             <input
+              className={checkInput}
               type="checkbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
               disabled={createMutation.isPending}
             />
-            <span>Aktiv</span>
+            <span className="min-w-0 flex-1 pt-px leading-[1.4]">Aktiv</span>
           </label>
 
-          <label className="offer-form__field">
+          <label className={fieldLabel}>
             <span>Shënim pagese (opsionale)</span>
             <textarea
+              className={textAreaClass}
               rows={4}
               value={paymentNote}
               onChange={(e) => setPaymentNote(e.target.value)}

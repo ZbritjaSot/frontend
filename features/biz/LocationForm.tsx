@@ -7,6 +7,7 @@ import { PlaceMap } from "@/components/place/PlaceMap";
 import { geocodeBizAddress, updateBizLocation } from "@/features/biz/api";
 import { bizBusinessQueryKey } from "@/hooks/useBizProfile";
 import { validationMessage } from "@/lib/api";
+import { btnGhost, btnPrimary, fieldError, fieldLabel, inputClass, panelNote } from "@/lib/ui";
 import { appleMapsUrl, googleMapsUrl } from "@/lib/maps";
 import { useWideScreen } from "@/lib/useWideScreen";
 import type { Business } from "@/types";
@@ -80,7 +81,7 @@ export function LocationForm({ business }: { business: Business }) {
 
   return (
     <form
-      className="location-form"
+      className="mt-5 grid gap-3.5"
       onSubmit={(event) => {
         event.preventDefault();
         if (!requireStreetAndCity()) {
@@ -89,9 +90,10 @@ export function LocationForm({ business }: { business: Business }) {
         save.mutate(false);
       }}
     >
-      <label className="offer-form__field">
+      <label className={fieldLabel}>
         <span>Rruga</span>
         <input
+          className={inputClass}
           value={street}
           maxLength={255}
           placeholder="Rr. Garibaldi"
@@ -103,10 +105,11 @@ export function LocationForm({ business }: { business: Business }) {
         />
       </label>
 
-      <div className="offer-form__row">
-        <label className="offer-form__field">
+      <div className="grid gap-5 min-[640px]:grid-cols-2">
+        <label className={fieldLabel}>
           <span>Fshati (opsional)</span>
           <input
+            className={inputClass}
             value={village}
             maxLength={255}
             placeholder="Kodra e Trimave"
@@ -117,9 +120,10 @@ export function LocationForm({ business }: { business: Business }) {
             }}
           />
         </label>
-        <label className="offer-form__field">
+        <label className={fieldLabel}>
           <span>Qyteti</span>
           <input
+            className={inputClass}
             value={city}
             maxLength={255}
             placeholder="Prishtinë"
@@ -132,9 +136,9 @@ export function LocationForm({ business }: { business: Business }) {
         </label>
       </div>
 
-      <div className="location-form__actions">
+      <div className="flex flex-wrap gap-2">
         <button
-          className="btn btn--ghost"
+          className={btnGhost}
           type="button"
           disabled={find.isPending}
           onClick={() => {
@@ -146,55 +150,57 @@ export function LocationForm({ business }: { business: Business }) {
         >
           {find.isPending ? "Duke kërkuar…" : "Gjej në hartë"}
         </button>
-        <button className="btn btn--primary" type="submit" disabled={save.isPending}>
+        <button className={btnPrimary} type="submit" disabled={save.isPending}>
           {save.isPending ? "Duke ruajtur…" : "Ruaj adresën"}
         </button>
       </div>
 
       {findError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {findError}
         </p>
       ) : null}
       {find.isError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {validationMessage(find.error, "Nuk e gjetëm këtë adresë.")}
         </p>
       ) : null}
       {save.isError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {validationMessage(save.error, "Nuk mundëm ta ruajmë adresën.")}
         </p>
       ) : null}
-      {notice ? <p className="shell-panel__note">{notice}</p> : null}
+      {notice ? <p className={`${panelNote} mb-0`}>{notice}</p> : null}
 
       {wide ? (
-        <div className="location-form__map">
-          <PlaceMap
-            latitude={latitude}
-            longitude={longitude}
-            label={business.name}
-            interactive
-            onPick={(nextLat, nextLng) => {
-              setLatitude(nextLat);
-              setLongitude(nextLng);
-              setNotice("Pika u zhvendos. Ruaje që të mbetet.");
-            }}
-          />
-          <p className="shell-panel__note">
+        <div className="grid gap-[0.45rem]">
+          <div className="h-60 overflow-hidden rounded-[14px] border border-line">
+            <PlaceMap
+              latitude={latitude}
+              longitude={longitude}
+              label={business.name}
+              interactive
+              onPick={(nextLat, nextLng) => {
+                setLatitude(nextLat);
+                setLongitude(nextLng);
+                setNotice("Pika u zhvendos. Ruaje që të mbetet.");
+              }}
+            />
+          </div>
+          <p className={`${panelNote} mb-0`}>
             Kliko hartën ose tërhiq pikën. Nëse adresa fshihet, fshihet edhe pika.
           </p>
         </div>
       ) : (
-        <p className="shell-panel__note">
+        <p className={`${panelNote} mb-0`}>
           Në telefon harta hapet te aplikacioni. Kërko adresën, pastaj ruaje.
         </p>
       )}
 
       {place.address || (latitude != null && longitude != null) ? (
-        <div className="place-card__apps">
+        <div className="flex flex-wrap gap-2">
           <a
-            className="btn btn--ghost"
+            className={btnGhost}
             href={appleMapsUrl(place)}
             target="_blank"
             rel="noopener noreferrer"
@@ -202,7 +208,7 @@ export function LocationForm({ business }: { business: Business }) {
             Apple Maps
           </a>
           <a
-            className="btn btn--ghost"
+            className={btnGhost}
             href={googleMapsUrl(place)}
             target="_blank"
             rel="noopener noreferrer"
@@ -214,7 +220,7 @@ export function LocationForm({ business }: { business: Business }) {
 
       {hasSavedAddress ? (
         <button
-          className="btn btn--ghost"
+          className={btnGhost}
           type="button"
           disabled={save.isPending}
           onClick={() => save.mutate(true)}

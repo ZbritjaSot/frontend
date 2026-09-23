@@ -70,9 +70,9 @@ export default async function BusinessPage({
 
   if (failed || !business) {
     return (
-      <section className="public-state" aria-live="polite">
-        <h1 className="public-state__title">Diçka shkoi keq</h1>
-        <p className="public-state__copy">
+      <section className="border-t border-line py-14" aria-live="polite">
+        <h1 className="m-0 text-lg font-semibold">Diçka shkoi keq</h1>
+        <p className="mt-3 max-w-lg leading-relaxed text-muted">
           Nuk mundëm ta ngarkojmë këtë dyqan. Provo përsëri së shpejti.
         </p>
       </section>
@@ -85,15 +85,23 @@ export default async function BusinessPage({
 
   return (
     <>
-      <p className="public-hero__eyebrow">
-        <Link href="/">Ofertat</Link>
+      <p className="mb-3 text-xs font-bold tracking-[0.24em] text-accent uppercase">
+        <Link href="/" className="hover:underline">
+          Ofertat
+        </Link>
       </p>
-      <section className="public-hero">
-        <h1 className="public-hero__title">{business.name}</h1>
+      <section className="mb-14">
+        <h1 className="m-0 max-w-[18ch] text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.05] tracking-[-0.03em]">
+          {business.name}
+        </h1>
         {lines.length > 0 ? (
-          <p className="public-hero__lead">{lines.join(", ")}</p>
+          <p className="mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-muted">
+            {lines.join(", ")}
+          </p>
         ) : business.address ? (
-          <p className="public-hero__lead">{business.address}</p>
+          <p className="mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-muted">
+            {business.address}
+          </p>
         ) : null}
       </section>
 
@@ -114,9 +122,9 @@ export default async function BusinessPage({
       />
 
       {offers.length === 0 ? (
-        <section className="public-state" aria-live="polite">
-          <h2 className="public-state__title">Nuk ka oferta aktive</h2>
-          <p className="public-state__copy">
+        <section className="border-t border-line py-14" aria-live="polite">
+          <h2 className="m-0 text-lg font-semibold">Nuk ka oferta aktive</h2>
+          <p className="mt-3 max-w-lg leading-relaxed text-muted">
             Ky dyqan nuk ka zbritje që përputhen me kërkimin.
           </p>
         </section>

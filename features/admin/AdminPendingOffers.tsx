@@ -12,7 +12,13 @@ import {
 } from "@/hooks/useAdminOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
+import { btnGhost, btnPrimary, btnSm, fieldError, panelLead } from "@/lib/ui";
 import type { OfferBundle } from "@/types";
+
+const rowClass =
+  "flex flex-col gap-5 border-b border-line py-5 min-[800px]:flex-row min-[800px]:items-center min-[800px]:justify-between";
+
+const rowActionClass = `${btnGhost} ${btnSm} min-w-[5.5rem] flex-auto min-[800px]:flex-none`;
 
 export function AdminPendingOffers() {
   const { data, isLoading, isError, error, refetch, isFetching } =
@@ -29,11 +35,11 @@ export function AdminPendingOffers() {
 
   if (isError) {
     return (
-      <div className="shell-panel">
-        <p className="shell-panel__lead">
+      <div className="max-w-[40rem]">
+        <p className={panelLead}>
           {validationMessage(error, "Nuk mundëm t’i ngarkojmë ofertat.")}
         </p>
-        <button className="btn btn--ghost" type="button" onClick={() => refetch()}>
+        <button className={btnGhost} type="button" onClick={() => refetch()}>
           Provo përsëri
         </button>
       </div>
@@ -78,32 +84,32 @@ export function AdminPendingOffers() {
   }
 
   return (
-    <div className="biz-offers">
+    <div>
       {isFetching ? (
-        <p className="biz-offers__hint" style={{ marginBottom: "1rem" }}>
-          Duke përditësuar…
-        </p>
+        <p className="mb-4 text-[0.8125rem] text-muted">Duke përditësuar…</p>
       ) : null}
 
       {actionError ? (
-        <p className="offer-form__error" role="alert">
+        <p className={fieldError} role="alert">
           {actionError}
         </p>
       ) : null}
 
       {bundles.length === 0 ? (
-        <p className="shell-panel__lead">Nuk ka dosje në pritje tani.</p>
+        <p className={panelLead}>Nuk ka dosje në pritje tani.</p>
       ) : (
-        <ul className="biz-offer-list">
+        <ul className="m-0 list-none border-t border-line p-0">
           {bundles.map((bundle) => (
-            <li key={bundle.id} className="biz-offer-row">
+            <li key={bundle.id} className={rowClass}>
               <Link
                 href={`/admin/offers/${bundle.id}`}
-                className="biz-offer-row__main biz-offer-row__main--link"
+                className="group flex min-w-0 flex-1 gap-5 rounded-lg text-inherit no-underline"
               >
                 <div>
-                  <p className="biz-offer-row__name">{bundle.title}</p>
-                  <p className="biz-offer-row__meta">
+                  <p className="m-0 text-[1.0625rem] font-semibold group-hover:underline group-hover:decoration-accent group-hover:underline-offset-[0.15em]">
+                    {bundle.title}
+                  </p>
+                  <p className="mt-[0.3rem] text-sm leading-[1.45] text-muted">
                     {bundle.business?.name ?? "Biznes"}
                     {" · "}
                     {bundle.items_count ?? bundle.items?.length ?? 0} produkte
@@ -113,16 +119,16 @@ export function AdminPendingOffers() {
                 </div>
               </Link>
 
-              <div className="biz-offer-row__actions">
+              <div className="flex flex-wrap gap-2">
                 <Link
                   href={`/admin/offers/${bundle.id}`}
-                  className="btn btn--ghost btn--sm"
+                  className={rowActionClass}
                 >
                   Shiko
                 </Link>
                 <button
                   type="button"
-                  className="btn btn--primary btn--sm"
+                  className={`${btnPrimary} ${btnSm} min-w-[5.5rem] flex-auto min-[800px]:flex-none`}
                   disabled={approveMutation.isPending || rejectMutation.isPending}
                   onClick={() => setToApprove(bundle)}
                 >
@@ -130,7 +136,7 @@ export function AdminPendingOffers() {
                 </button>
                 <button
                   type="button"
-                  className="btn btn--ghost btn--sm"
+                  className={rowActionClass}
                   disabled={approveMutation.isPending || rejectMutation.isPending}
                   onClick={() => setToReject(bundle)}
                 >

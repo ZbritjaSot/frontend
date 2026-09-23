@@ -109,7 +109,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeBoot }} />
       </head>
-      <body className="min-h-full">
+      <body className="min-h-full bg-canvas font-sans text-ink">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

@@ -1,8 +1,17 @@
 "use client";
 
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useEffect, useId, useRef, useState } from "react";
 import { SelectField } from "@/components/ui/SelectField";
 import { formatCalendarDateSq, formatMonthYearSq } from "@/lib/format";
+import { triggerClass } from "@/lib/ui";
+
+const dayClass =
+  "aspect-square cursor-pointer appearance-none rounded-md border-0 bg-transparent text-[0.8125rem] font-semibold text-ink hover:bg-slate/12 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent/55";
+const navClass =
+  "inline-flex size-8 cursor-pointer appearance-none items-center justify-center rounded-lg border border-line bg-elevated text-lg leading-none text-ink hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent/55";
 
 const WEEKDAYS = ["H", "M", "M", "E", "P", "S", "D"] as const;
 
@@ -166,15 +175,12 @@ export function DateTimeField({
   }
 
   return (
-    <div
-      className={`field-datetime${open ? " is-open" : ""}${disabled ? " is-disabled" : ""}`}
-      ref={rootRef}
-    >
-      <div className="field-datetime__row">
+    <div className="relative w-full" ref={rootRef}>
+      <div className="flex flex-col gap-[0.45rem]">
         <button
           type="button"
           id={id}
-          className="field-datetime__date"
+          className={triggerClass}
           aria-haspopup="dialog"
           aria-expanded={open}
           aria-controls={panelId}
@@ -190,20 +196,25 @@ export function DateTimeField({
           }}
         >
           <span>{label}</span>
-          <span className="field-datetime__icon" aria-hidden>
-            ▾
-          </span>
+          <KeyboardArrowDownIcon
+            fontSize="small"
+            className={`shrink-0 text-muted transition-transform ${open ? "rotate-180" : ""}`}
+          />
         </button>
 
-        <div className="field-datetime__time" aria-label="Ora">
+        <div
+          className="grid max-w-[9.5rem] grid-cols-[1fr_auto_1fr] items-center gap-1.5 [&_ul]:min-w-[4.5rem]"
+          aria-label="Ora"
+        >
           <SelectField
             value={hour}
             onChange={(h) => commitTime(h, minute)}
             options={HOUR_OPTIONS}
             disabled={disabled}
             aria-label="Ora"
+            className="justify-center! px-2! tabular-nums"
           />
-          <span className="field-datetime__sep" aria-hidden>
+          <span className="font-bold text-muted" aria-hidden>
             :
           </span>
           <SelectField
@@ -212,6 +223,7 @@ export function DateTimeField({
             options={MINUTE_OPTIONS}
             disabled={disabled}
             aria-label="Minutat"
+            className="justify-center! px-2! tabular-nums"
           />
         </div>
       </div>
@@ -219,42 +231,42 @@ export function DateTimeField({
       {open ? (
         <div
           id={panelId}
-          className="field-datetime__panel"
+          className="absolute top-[calc(100%+0.35rem)] left-0 z-[45] w-[min(100%,18.5rem)] rounded-lg border border-line bg-elevated p-3.5 shadow-[0_12px_32px_var(--color-shadow)]"
           role="dialog"
           aria-label="Kalendari"
         >
-          <div className="field-datetime__monthbar">
+          <div className="mb-3 flex items-center justify-between gap-2">
             <button
               type="button"
-              className="field-datetime__nav"
+              className={navClass}
               aria-label="Muaji i kaluar"
               onClick={() => shiftMonth(-1)}
             >
-              ‹
+              <ChevronLeftIcon fontSize="small" />
             </button>
-            <p className="field-datetime__monthlabel">
+            <p className="m-0 text-sm font-bold text-ink capitalize">
               {formatMonthYearSq(viewYear, viewMonth)}
             </p>
             <button
               type="button"
-              className="field-datetime__nav"
+              className={navClass}
               aria-label="Muaji tjetër"
               onClick={() => shiftMonth(1)}
             >
-              ›
+              <ChevronRightIcon fontSize="small" />
             </button>
           </div>
 
-          <div className="field-datetime__weekdays">
+          <div className="mb-1.5 grid grid-cols-7 gap-0.5 text-center text-[0.6875rem] font-bold text-muted">
             {WEEKDAYS.map((d, i) => (
               <span key={`${d}-${i}`}>{d}</span>
             ))}
           </div>
 
-          <div className="field-datetime__grid">
+          <div className="grid grid-cols-7 gap-0.5">
             {cells.map((cell) => {
               if (cell.day === null) {
-                return <span key={cell.key} className="field-datetime__empty" />;
+                return <span key={cell.key} className="aspect-square" />;
               }
 
               const selected =
@@ -273,9 +285,11 @@ export function DateTimeField({
                   key={cell.key}
                   type="button"
                   className={[
-                    "field-datetime__day",
-                    selected ? "is-selected" : "",
-                    isToday ? "is-today" : "",
+                    dayClass,
+                    isToday
+                      ? "shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-accent)_55%,transparent)]"
+                      : "",
+                    selected ? "bg-accent text-on-accent" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
