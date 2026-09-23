@@ -101,6 +101,18 @@ export type OfferItem = {
 };
 
 /** Public offer payload (flat product; dates from bundle). */
+/** Public shop page. No owner, email, or subscription fields. */
+export type PublicBusiness = {
+  id: string;
+  name: string;
+  street?: string | null;
+  village?: string | null;
+  city?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+};
+
 export type PublicOffer = {
   id: string;
   name: string;

@@ -1,18 +1,38 @@
 import type { Metadata } from "next";
-import { ApiError, fetchPublicOffers } from "@/features/offers/api";
+import { BrowseBar } from "@/features/browse/BrowseBar";
+import {
+  ApiError,
+  fetchPublicCategories,
+  fetchPublicOffers,
+} from "@/features/offers/api";
 import { OfferList } from "@/features/offers/OfferList";
+import type { CategorySummary, PublicOffer } from "@/types";
 
 export const metadata: Metadata = {
   title: "Ofertat",
 };
 
-export default async function HomePage() {
-  let offers = null;
+type HomePageProps = {
+  searchParams: Promise<{ q?: string; category?: string }>;
+};
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const params = await searchParams;
+  const q = params.q?.trim() ?? "";
+  const category = params.category?.trim() || undefined;
+  const filtering = q !== "" || Boolean(category);
+
+  let offers: PublicOffer[] | null = null;
+  let categories: CategorySummary[] = [];
   let errorMessage: string | null = null;
 
   try {
-    const page = await fetchPublicOffers();
+    const [page, categoryList] = await Promise.all([
+      fetchPublicOffers({ q: q || undefined, category }),
+      fetchPublicCategories().catch(() => []),
+    ]);
     offers = page.data;
+    categories = categoryList;
   } catch (error) {
     errorMessage =
       error instanceof ApiError
@@ -26,6 +46,8 @@ export default async function HomePage() {
         <h1 className="public-hero__title">Ofertat e sotme</h1>
       </section>
 
+      <BrowseBar q={q} category={category} categories={categories} />
+
       {errorMessage ? (
         <section className="public-state" aria-live="polite">
           <h2 className="public-state__title">Diçka shkoi keq</h2>
@@ -33,10 +55,13 @@ export default async function HomePage() {
         </section>
       ) : offers && offers.length === 0 ? (
         <section className="public-state" aria-live="polite">
-          <h2 className="public-state__title">Nuk ka oferta aktive</h2>
+          <h2 className="public-state__title">
+            {filtering ? "Nuk u gjet asgjë" : "Nuk ka oferta aktive"}
+          </h2>
           <p className="public-state__copy">
-            Momentalisht nuk ka zbritje publike. Ofertat e skaduara hiqen
-            automatikisht nga lista.
+            {filtering
+              ? "Provo një fjalë tjetër ose një kategori tjetër."
+              : "Momentalisht nuk ka zbritje publike. Ofertat e skaduara hiqen automatikisht nga lista."}
           </p>
         </section>
       ) : offers ? (
