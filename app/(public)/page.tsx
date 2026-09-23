@@ -42,23 +42,24 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   return (
     <>
-      <section className="mb-14">
-        <h1 className="m-0 max-w-[18ch] text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.05] tracking-[-0.03em]">
-          Ofertat e sotme
-        </h1>
-      </section>
-
+      <h1 className="sr-only">Ofertat</h1>
       <BrowseBar q={q} category={category} categories={categories} />
 
       {errorMessage ? (
-        <section className="border-t border-line py-14" aria-live="polite">
+        <section
+          className="rounded-2xl border border-line bg-elevated px-5 py-10"
+          aria-live="polite"
+        >
           <h2 className="m-0 text-lg font-semibold">Diçka shkoi keq</h2>
           <p className="mt-3 max-w-lg leading-relaxed text-muted">
             {errorMessage}
           </p>
         </section>
       ) : offers && offers.length === 0 ? (
-        <section className="border-t border-line py-14" aria-live="polite">
+        <section
+          className="rounded-2xl border border-line bg-elevated px-5 py-10"
+          aria-live="polite"
+        >
           <h2 className="m-0 text-lg font-semibold">
             {filtering ? "Nuk u gjet asgjë" : "Nuk ka oferta aktive"}
           </h2>

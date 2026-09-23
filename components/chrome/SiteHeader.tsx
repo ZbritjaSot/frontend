@@ -24,7 +24,7 @@ export function SiteHeader() {
         >
           <Link href="/">Ofertat</Link>
         </nav>
-        <ThemeToggle className="border-chrome-text/18 bg-transparent text-chrome-muted hover:border-chrome-text/35 hover:text-chrome-text" />
+        <ThemeToggle className="border-chrome-text/18 bg-transparent text-chrome-muted hover:border-chrome-text/35 hover:text-chrome-text light:border-chrome-text/60 light:text-chrome-text light:hover:border-accent light:hover:text-accent" />
       </div>
     </header>
   );

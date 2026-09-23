@@ -21,7 +21,7 @@ export function OfferBundleView({
   const flaggedCount = items.filter((item) => item.rejection_note).length;
 
   return (
-    <article className="max-w-[40rem]">
+    <article className="max-w-160">
       <header className="mb-8 flex flex-col items-start gap-3">
         <span className={offerStatusClass(bundle.status)}>
           {OFFER_STATUS_LABEL[bundle.status]}

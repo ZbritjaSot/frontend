@@ -12,7 +12,7 @@ type BrowseBarProps = {
 };
 
 const chipClass =
-  "rounded-full border px-[0.8rem] py-[0.35rem] text-sm no-underline";
+  "shrink-0 rounded-full border px-3 py-1.5 text-sm font-semibold whitespace-nowrap no-underline";
 
 export function BrowseBar({
   basePath = "/",
@@ -21,35 +21,42 @@ export function BrowseBar({
   categories,
 }: BrowseBarProps) {
   return (
-    <div className="mb-14 grid gap-[0.85rem]">
-      <form className="flex flex-wrap gap-2" action={basePath} method="get">
+    <div className="mb-8 grid gap-4">
+      <form
+        className="flex min-h-12 overflow-hidden rounded-xl border border-line bg-elevated focus-within:border-accent"
+        action={basePath}
+        method="get"
+      >
         {category ? (
           <input type="hidden" name="category" value={category} />
         ) : null}
-        <label className="relative min-w-0 flex-[1_1_14rem]">
+        <label className="relative min-w-0 flex-1">
           <span className="sr-only">Kërko</span>
           <SearchIcon
             fontSize="small"
-            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted"
+            className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-muted"
           />
           <input
             name="q"
             defaultValue={q}
             maxLength={100}
             placeholder="Kërko ofertë ose dyqan"
-            className="w-full min-h-11 rounded-lg border border-line bg-elevated py-[0.65rem] pr-[0.85rem] pl-10 text-base text-ink outline-2 outline-offset-1 focus:outline-accent"
+            className="h-12 w-full border-0 bg-transparent pr-3 pl-11 text-base text-ink outline-none"
           />
         </label>
-        <button className={btnPrimary} type="submit">
+        <button className={`${btnPrimary} rounded-none px-5`} type="submit">
           Kërko
         </button>
       </form>
-      <nav className="flex flex-wrap gap-[0.4rem]" aria-label="Kategoritë">
+      <nav
+        className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-2.5 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0"
+        aria-label="Kategoritë"
+      >
         <Link
           href={browsePath(basePath, { q })}
           className={
             category
-              ? `${chipClass} border-line text-inherit`
+              ? `${chipClass} border-line bg-elevated text-ink hover:border-accent/60`
               : `${chipClass} border-transparent bg-accent text-charcoal`
           }
         >
@@ -65,7 +72,7 @@ export function BrowseBar({
             className={
               item.slug === category
                 ? `${chipClass} border-transparent bg-accent text-charcoal`
-                : `${chipClass} border-line text-inherit`
+                : `${chipClass} border-line bg-elevated text-ink hover:border-accent/60`
             }
           >
             {item.name}

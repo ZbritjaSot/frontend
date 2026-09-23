@@ -55,11 +55,18 @@ export function PlaceMap({
         scrollWheelZoom: false,
       }).setView([lat, lng], hasPin ? 16 : 13);
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-      }).addTo(map);
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          attribution:
+            '&copy; Esri, Maxar, Earthstar Geographics',
+          maxZoom: 19,
+        },
+      ).addTo(map);
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+        { maxZoom: 19, pane: "overlayPane" },
+      ).addTo(map);
 
       const icon = L.divIcon({
         className: "border-0 bg-transparent",

@@ -1,3 +1,4 @@
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -70,7 +71,10 @@ export default async function BusinessPage({
 
   if (failed || !business) {
     return (
-      <section className="border-t border-line py-14" aria-live="polite">
+      <section
+        className="rounded-2xl border border-line bg-elevated px-5 py-10"
+        aria-live="polite"
+      >
         <h1 className="m-0 text-lg font-semibold">Diçka shkoi keq</h1>
         <p className="mt-3 max-w-lg leading-relaxed text-muted">
           Nuk mundëm ta ngarkojmë këtë dyqan. Provo përsëri së shpejti.
@@ -83,36 +87,44 @@ export default async function BusinessPage({
     (part): part is string => Boolean(part),
   );
 
+  const address =
+    lines.length > 0 ? lines.join(", ") : (business.address ?? "");
+
   return (
     <>
-      <p className="mb-3 text-xs font-bold tracking-[0.24em] text-accent uppercase">
-        <Link href="/" className="hover:underline">
-          Ofertat
-        </Link>
-      </p>
-      <section className="mb-14">
-        <h1 className="m-0 max-w-[18ch] text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[1.05] tracking-[-0.03em]">
-          {business.name}
-        </h1>
-        {lines.length > 0 ? (
-          <p className="mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-muted">
-            {lines.join(", ")}
-          </p>
-        ) : business.address ? (
-          <p className="mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-muted">
-            {business.address}
-          </p>
-        ) : null}
-      </section>
+      <div className="mb-8 flex flex-col items-start gap-5 lg:flex-row lg:gap-8">
+        <div className="shrink-0">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-accent"
+          >
+            <ArrowBackIcon fontSize="small" />
+            Të gjitha ofertat
+          </Link>
+          <header className="mt-4">
+            <h1 className="m-0 text-[clamp(1.85rem,3vw,2.5rem)] leading-[1.1] font-bold tracking-[-0.03em]">
+              {business.name}
+            </h1>
+            {address ? (
+              <p className="mt-2 max-w-xl text-base leading-relaxed text-muted">
+                {address}
+              </p>
+            ) : null}
+          </header>
+        </div>
 
-      <OfferPlace
-        name={business.name}
-        place={{
-          address: business.address,
-          latitude: business.latitude,
-          longitude: business.longitude,
-        }}
-      />
+        <OfferPlace
+          showHeading={false}
+          className="w-full lg:min-w-0 lg:flex-1"
+          mapClassName="h-80"
+          name={business.name}
+          place={{
+            address: business.address,
+            latitude: business.latitude,
+            longitude: business.longitude,
+          }}
+        />
+      </div>
 
       <BrowseBar
         basePath={`/biznese/${business.id}`}
@@ -122,7 +134,10 @@ export default async function BusinessPage({
       />
 
       {offers.length === 0 ? (
-        <section className="border-t border-line py-14" aria-live="polite">
+        <section
+          className="rounded-2xl border border-line bg-elevated px-5 py-10"
+          aria-live="polite"
+        >
           <h2 className="m-0 text-lg font-semibold">Nuk ka oferta aktive</h2>
           <p className="mt-3 max-w-lg leading-relaxed text-muted">
             Ky dyqan nuk ka zbritje që përputhen me kërkimin.
