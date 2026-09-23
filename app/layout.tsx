@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { Montserrat } from "next/font/google";
 import {
   SITE_DESCRIPTION,
@@ -71,6 +70,8 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+const themeBoot = `(function(){try{var p=location.pathname||"";if(p.indexOf("/admin")===0||p.indexOf("/biz")===0){document.documentElement.setAttribute("data-theme","dark");return;}var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else{document.documentElement.setAttribute("data-theme","light");}}catch(e){document.documentElement.setAttribute("data-theme","light");}})();`;
+
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -105,14 +106,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       data-theme="light"
       suppressHydrationWarning
     >
+      <head>
+        <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeBoot }} />
+      </head>
       <body className="min-h-full">
-        <Script
-          id="theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var p=location.pathname||"";if(p.indexOf("/admin")===0||p.indexOf("/biz")===0){document.documentElement.setAttribute("data-theme","dark");return;}var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else{document.documentElement.setAttribute("data-theme","light");}}catch(e){document.documentElement.setAttribute("data-theme","light");}})();`,
-          }}
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
