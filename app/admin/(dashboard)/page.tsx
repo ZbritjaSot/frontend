@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { pageTitle, panelLead } from "@/lib/ui";
+import { AdminHomePanel } from "@/features/admin/AdminHomePanel";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -7,15 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminHomePage() {
-  return (
-    <>
-      <h1 className={pageTitle}>Paneli</h1>
-      <div className="max-w-[40rem]">
-        <p className={panelLead}>
-          Paneli i administratorit. Aprovo ofertat nga{" "}
-          <strong>Në pritje</strong>.
-        </p>
-      </div>
-    </>
-  );
+  return <AdminHomePanel />;
 }

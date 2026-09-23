@@ -175,12 +175,12 @@ export function DateTimeField({
   }
 
   return (
-    <div className="relative w-full" ref={rootRef}>
-      <div className="flex flex-col gap-[0.45rem]">
+    <div className="@container relative w-full" ref={rootRef}>
+      <div className="flex flex-col gap-[0.45rem] @min-[17rem]:flex-row @min-[17rem]:items-center">
         <button
           type="button"
           id={id}
-          className={triggerClass}
+          className={`${triggerClass} @min-[17rem]:w-auto @min-[17rem]:min-w-0 @min-[17rem]:flex-1`}
           aria-haspopup="dialog"
           aria-expanded={open}
           aria-controls={panelId}
@@ -203,7 +203,7 @@ export function DateTimeField({
         </button>
 
         <div
-          className="grid max-w-[9.5rem] grid-cols-[1fr_auto_1fr] items-center gap-1.5 [&_ul]:min-w-[4.5rem]"
+          className="grid w-full max-w-[9.5rem] shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-1.5 @min-[17rem]:w-[9.5rem] [&_ul]:min-w-[4.5rem]"
           aria-label="Ora"
         >
           <SelectField

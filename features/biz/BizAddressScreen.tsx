@@ -6,7 +6,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { LocationForm } from "@/features/biz/LocationForm";
 import { useBizBusiness } from "@/hooks/useBizProfile";
 import { validationMessage } from "@/lib/api";
-import { panelLead } from "@/lib/ui";
+import { pageTitle, panelLead } from "@/lib/ui";
 
 export function BizAddressScreen() {
   const businessQuery = useBizBusiness();
@@ -15,9 +15,23 @@ export function BizAddressScreen() {
     return <Spinner label="Duke ngarkuar adresën" />;
   }
 
+  const heading = (
+    <div className="mb-8 grid grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-x-1.5">
+      <Link
+        href="/biz/profile"
+        className="col-span-2 grid grid-cols-subgrid items-center text-sm font-semibold text-muted no-underline hover:text-ink"
+      >
+        <ArrowBackIcon fontSize="small" />
+        <span>Profili</span>
+      </Link>
+      <h1 className={`${pageTitle} col-start-2 mt-3 mb-0!`}>Adresa</h1>
+    </div>
+  );
+
   if (businessQuery.isError || !businessQuery.data) {
     return (
-      <div className="max-w-[40rem]">
+      <div>
+        {heading}
         <p className={panelLead}>
           {validationMessage(
             businessQuery.error,
@@ -29,14 +43,8 @@ export function BizAddressScreen() {
   }
 
   return (
-    <div className="max-w-[40rem]">
-      <Link
-        href="/biz/profile"
-        className="mt-14 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-accent"
-      >
-        <ArrowBackIcon fontSize="small" />
-        Profili
-      </Link>
+    <div>
+      {heading}
       <LocationForm key={businessQuery.data.id} business={businessQuery.data} />
     </div>
   );

@@ -49,7 +49,7 @@ export function BrowseBar({
         </button>
       </form>
       <nav
-        className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-2.5 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0"
+        className="-mx-5 flex gap-2 overflow-x-auto overscroll-x-contain px-5 pb-2.5 sm:mx-0 sm:px-0"
         aria-label="Kategoritë"
       >
         <Link

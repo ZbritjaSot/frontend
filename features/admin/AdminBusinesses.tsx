@@ -37,7 +37,7 @@ const emptyForm: BusinessFormInput = {
 };
 
 const rowButton =
-  "inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
 
 const checkLabelClass =
   "flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none";
@@ -206,7 +206,7 @@ export function AdminBusinesses() {
                   >
                     {business.is_active ? "Aktive" : "Joaktive"}
                   </span>
-                  <div className="flex items-center gap-2 border-l border-line pl-4">
+                  <div className="flex items-center gap-1.5 border-l border-line pl-4">
                     <button
                       className={rowButton}
                       type="button"
@@ -234,7 +234,10 @@ export function AdminBusinesses() {
                       {business.is_active ? (
                         <LockOutlinedIcon fontSize="small" />
                       ) : (
-                        <LockOpenOutlinedIcon fontSize="small" />
+                        <LockOpenOutlinedIcon
+                          fontSize="small"
+                          className="text-accent!"
+                        />
                       )}
                     </button>
                   </div>

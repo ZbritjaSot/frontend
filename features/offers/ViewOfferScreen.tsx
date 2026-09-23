@@ -4,10 +4,22 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/Spinner";
 import { OfferBundleView } from "@/features/offers/OfferBundleView";
-import { canEditOffer, canSubmitOffer } from "@/features/offers/status";
+import {
+  canEditOffer,
+  canSubmitOffer,
+  OFFER_STATUS_LABEL,
+} from "@/features/offers/status";
 import { useBizOffer, useSubmitBizOffer } from "@/hooks/useBizOffers";
+import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, btnPrimary, btnSm, fieldError, panelLead } from "@/lib/ui";
+import {
+  btnGhost,
+  btnPrimary,
+  fieldError,
+  offerStatusClass,
+  pageTitle,
+  panelLead,
+} from "@/lib/ui";
 import { useState } from "react";
 
 type ViewOfferScreenProps = {
@@ -49,26 +61,44 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
     }
   }
 
+  const count = bundle.items?.length ?? bundle.items_count ?? 0;
+
   return (
     <>
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-5">
-        <Link href="/biz/offers" className={`${btnGhost} ${btnSm}`}>
-          <ArrowBackIcon fontSize="small" />
-          Ofertat
-        </Link>
-        <div className="flex flex-wrap gap-3">
-          {canEditOffer(bundle.status) ? (
-            <Link
-              href={`/biz/offers/${bundle.id}/edit`}
-              className={`${btnGhost} ${btnSm}`}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="grid min-w-0 grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-x-1.5">
+          <Link
+            href="/biz/offers"
+            className="col-span-2 grid grid-cols-subgrid items-center text-sm font-semibold text-muted no-underline hover:text-ink"
+          >
+            <ArrowBackIcon fontSize="small" />
+            <span>Ofertat</span>
+          </Link>
+          <div className="col-start-2 mt-3 flex flex-wrap items-center gap-3">
+            <h1 className={`${pageTitle} mb-0!`}>{bundle.title}</h1>
+            <span
+              className={`${offerStatusClass(bundle.status)} mt-0! self-center!`}
             >
+              {OFFER_STATUS_LABEL[bundle.status]}
+            </span>
+          </div>
+          <p className="col-start-2 m-0 mt-2 text-sm text-muted">
+            {formatDateShortSq(bundle.starts_at)} →{" "}
+            {formatDateShortSq(bundle.expires_at)}
+            {" · "}
+            {count} {count === 1 ? "produkt" : "produkte"}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {canEditOffer(bundle.status) ? (
+            <Link href={`/biz/offers/${bundle.id}/edit`} className={btnGhost}>
               Ndrysho
             </Link>
           ) : null}
           {canSubmitOffer(bundle.status) ? (
             <button
               type="button"
-              className={`${btnPrimary} ${btnSm}`}
+              className={btnPrimary}
               disabled={submitMutation.isPending}
               onClick={onSubmit}
             >
@@ -84,7 +114,7 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
         </p>
       ) : null}
 
-      <OfferBundleView bundle={bundle} />
+      <OfferBundleView bundle={bundle} showHeading={false} />
     </>
   );
 }

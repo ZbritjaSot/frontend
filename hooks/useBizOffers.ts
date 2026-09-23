@@ -15,10 +15,26 @@ import type { OfferBundleFormInput } from "@/schemas/offer";
 export const bizOffersQueryKey = ["biz", "offer-bundles"] as const;
 export const categoriesQueryKey = ["categories", "active"] as const;
 
-export function useBizOffers() {
+export function useBizOffers(page = 1) {
   return useQuery({
-    queryKey: bizOffersQueryKey,
-    queryFn: () => fetchBizOfferBundles(),
+    queryKey: [...bizOffersQueryKey, page],
+    queryFn: () => fetchBizOfferBundles(page),
+    placeholderData: (previous) => previous,
+  });
+}
+
+export function useRejectedOfferCount() {
+  return useQuery({
+    queryKey: [...bizOffersQueryKey, "rejected-count"],
+    queryFn: () => fetchBizOfferBundles(1, 1, "rejected"),
+    select: (page) => page.meta?.total ?? 0,
+  });
+}
+
+export function useBizOffersByStatus(status: string, perPage = 4) {
+  return useQuery({
+    queryKey: [...bizOffersQueryKey, "by-status", status, perPage],
+    queryFn: () => fetchBizOfferBundles(1, perPage, status),
   });
 }
 

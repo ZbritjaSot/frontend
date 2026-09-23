@@ -16,8 +16,10 @@ export type DashboardNavItem = {
   icon?: ReactNode;
   /** Shown when > 0 (e.g. pending offer count). */
   badge?: number;
-  /** Pending is the yellow offer pill. Danger is the red expired pill. */
+  /** Pending is the yellow offer pill. Danger is the red pill. */
   badgeTone?: "pending" | "danger";
+  /** Screen-reader text. Defaults from the tone. */
+  badgeLabel?: string;
 };
 
 type DashboardShellProps = {
@@ -134,9 +136,10 @@ export function DashboardShell({
                 ? item.badge
                 : null;
             const badgeLabel =
-              item.badgeTone === "danger"
+              item.badgeLabel ??
+              (item.badgeTone === "danger"
                 ? `${badge} të skaduara`
-                : `${badge} në pritje`;
+                : `${badge} në pritje`);
 
             return (
               <Link

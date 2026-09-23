@@ -12,7 +12,7 @@ import { validationMessage } from "@/lib/api";
 import { btnGhost, panelLead } from "@/lib/ui";
 
 const rowButton =
-  "inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
 
 export function AdminPendingOffers() {
   const [page, setPage] = useState(1);
@@ -81,7 +81,7 @@ export function AdminPendingOffers() {
                     <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
                       {formatDateShortSq(bundle.expires_at)}
                     </p>
-                    <div className="flex items-center gap-2 border-l border-line pl-4">
+                    <div className="flex items-center gap-1.5 border-l border-line pl-4">
                       <Link
                         href={`/admin/offers/${bundle.id}`}
                         className={rowButton}

@@ -7,7 +7,7 @@ import { PlaceMap } from "@/components/place/PlaceMap";
 import { geocodeBizAddress, updateBizLocation } from "@/features/biz/api";
 import { bizBusinessQueryKey } from "@/hooks/useBizProfile";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, btnPrimary, fieldError, fieldLabel, inputClass, panelNote } from "@/lib/ui";
+import { btnGhost, btnPrimary, fieldError, inputClass } from "@/lib/ui";
 import { appleMapsUrl, googleMapsUrl } from "@/lib/maps";
 import { useWideScreen } from "@/lib/useWideScreen";
 import type { Business } from "@/types";
@@ -79,9 +79,11 @@ export function LocationForm({ business }: { business: Business }) {
     return true;
   }
 
+  const micro = "text-xs font-bold tracking-[0.08em] text-muted uppercase";
+
   return (
     <form
-      className="mt-5 grid gap-3.5"
+      className="grid gap-6"
       onSubmit={(event) => {
         event.preventDefault();
         if (!requireStreetAndCity()) {
@@ -90,144 +92,156 @@ export function LocationForm({ business }: { business: Business }) {
         save.mutate(false);
       }}
     >
-      <label className={fieldLabel}>
-        <span>Rruga</span>
-        <input
-          className={inputClass}
-          value={street}
-          maxLength={255}
-          placeholder="Rr. Garibaldi"
-          onChange={(event) => {
-            setStreet(event.target.value);
-            setNotice(null);
-            setFindError(null);
-          }}
-        />
-      </label>
+      <section className="rounded-2xl border border-line p-5">
+        <div className="grid gap-4">
+          <label className="flex flex-col gap-2">
+            <span className={micro}>Rruga</span>
+            <input
+              className={inputClass}
+              value={street}
+              maxLength={255}
+              placeholder="Rr. Garibaldi"
+              onChange={(event) => {
+                setStreet(event.target.value);
+                setNotice(null);
+                setFindError(null);
+              }}
+            />
+          </label>
 
-      <div className="grid gap-5 min-[640px]:grid-cols-2">
-        <label className={fieldLabel}>
-          <span>Fshati (opsional)</span>
-          <input
-            className={inputClass}
-            value={village}
-            maxLength={255}
-            placeholder="Kodra e Trimave"
-            onChange={(event) => {
-              setVillage(event.target.value);
-              setNotice(null);
-              setFindError(null);
-            }}
-          />
-        </label>
-        <label className={fieldLabel}>
-          <span>Qyteti</span>
-          <input
-            className={inputClass}
-            value={city}
-            maxLength={255}
-            placeholder="Prishtinë"
-            onChange={(event) => {
-              setCity(event.target.value);
-              setNotice(null);
-              setFindError(null);
-            }}
-          />
-        </label>
-      </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span className={micro}>Fshati</span>
+              <input
+                className={inputClass}
+                value={village}
+                maxLength={255}
+                placeholder="Opsional"
+                onChange={(event) => {
+                  setVillage(event.target.value);
+                  setNotice(null);
+                  setFindError(null);
+                }}
+              />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className={micro}>Qyteti</span>
+              <input
+                className={inputClass}
+                value={city}
+                maxLength={255}
+                placeholder="Prishtinë"
+                onChange={(event) => {
+                  setCity(event.target.value);
+                  setNotice(null);
+                  setFindError(null);
+                }}
+              />
+            </label>
+          </div>
 
-      <div className="flex flex-wrap gap-2">
-        <button
-          className={btnGhost}
-          type="button"
-          disabled={find.isPending}
-          onClick={() => {
-            if (!requireStreetAndCity()) {
-              return;
-            }
-            find.mutate();
-          }}
-        >
-          {find.isPending ? "Duke kërkuar…" : "Gjej në hartë"}
-        </button>
-        <button className={btnPrimary} type="submit" disabled={save.isPending}>
-          {save.isPending ? "Duke ruajtur…" : "Ruaj adresën"}
-        </button>
-      </div>
+          <div className="flex justify-end">
+            <button
+              className={btnGhost}
+              type="button"
+              disabled={find.isPending}
+              onClick={() => {
+                if (!requireStreetAndCity()) {
+                  return;
+                }
+                find.mutate();
+              }}
+            >
+              {find.isPending ? "Duke kërkuar…" : "Gjej në hartë"}
+            </button>
+          </div>
+        </div>
 
-      {findError ? (
-        <p className={fieldError} role="alert">
-          {findError}
-        </p>
-      ) : null}
-      {find.isError ? (
-        <p className={fieldError} role="alert">
-          {validationMessage(find.error, "Nuk e gjetëm këtë adresë.")}
-        </p>
-      ) : null}
+        {findError ? (
+          <p className={`${fieldError} mt-4`} role="alert">
+            {findError}
+          </p>
+        ) : null}
+        {find.isError ? (
+          <p className={`${fieldError} mt-4`} role="alert">
+            {validationMessage(find.error, "Nuk e gjetëm këtë adresë.")}
+          </p>
+        ) : null}
+        {notice ? (
+          <p className="m-0 mt-4 text-sm font-semibold text-accent">{notice}</p>
+        ) : null}
+
+        {wide ? (
+          <div className="mt-5">
+            <div className="h-80 overflow-hidden rounded-xl border border-line">
+              <PlaceMap
+                latitude={latitude}
+                longitude={longitude}
+                label={business.name}
+                interactive
+                onPick={(nextLat, nextLng) => {
+                  setLatitude(nextLat);
+                  setLongitude(nextLng);
+                  setNotice("Pika u zhvendos. Ruaje që të mbetet.");
+                }}
+              />
+            </div>
+            <p className="m-0 mt-3 text-sm text-muted">
+              Kliko hartën ose tërhiq pikën. Nëse adresa fshihet, fshihet edhe
+              pika.
+            </p>
+          </div>
+        ) : (
+          <p className="m-0 mt-5 text-sm text-muted">
+            Në telefon harta hapet te aplikacioni. Kërko adresën, pastaj ruaje.
+          </p>
+        )}
+
+        {place.address || (latitude != null && longitude != null) ? (
+          <div className="mt-4 flex flex-wrap gap-4 text-sm font-semibold">
+            <a
+              className="text-muted no-underline hover:text-accent"
+              href={appleMapsUrl(place)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Apple Maps
+            </a>
+            <a
+              className="text-muted no-underline hover:text-accent"
+              href={googleMapsUrl(place)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Google Maps
+            </a>
+          </div>
+        ) : null}
+      </section>
+
       {save.isError ? (
         <p className={fieldError} role="alert">
           {validationMessage(save.error, "Nuk mundëm ta ruajmë adresën.")}
         </p>
       ) : null}
-      {notice ? <p className={`${panelNote} mb-0`}>{notice}</p> : null}
 
-      {wide ? (
-        <div className="grid gap-[0.45rem]">
-          <div className="h-60 overflow-hidden rounded-[14px] border border-line">
-            <PlaceMap
-              latitude={latitude}
-              longitude={longitude}
-              label={business.name}
-              interactive
-              onPick={(nextLat, nextLng) => {
-                setLatitude(nextLat);
-                setLongitude(nextLng);
-                setNotice("Pika u zhvendos. Ruaje që të mbetet.");
-              }}
-            />
-          </div>
-          <p className={`${panelNote} mb-0`}>
-            Kliko hartën ose tërhiq pikën. Nëse adresa fshihet, fshihet edhe pika.
-          </p>
-        </div>
-      ) : (
-        <p className={`${panelNote} mb-0`}>
-          Në telefon harta hapet te aplikacioni. Kërko adresën, pastaj ruaje.
-        </p>
-      )}
-
-      {place.address || (latitude != null && longitude != null) ? (
-        <div className="flex flex-wrap gap-2">
-          <a
-            className={btnGhost}
-            href={appleMapsUrl(place)}
-            target="_blank"
-            rel="noopener noreferrer"
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {hasSavedAddress ? (
+          <button
+            className="cursor-pointer border-0 bg-transparent text-sm font-semibold text-danger hover:underline disabled:cursor-wait disabled:opacity-65"
+            type="button"
+            disabled={save.isPending}
+            onClick={() => save.mutate(true)}
           >
-            Apple Maps
-          </a>
-          <a
-            className={btnGhost}
-            href={googleMapsUrl(place)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Google Maps
-          </a>
-        </div>
-      ) : null}
-
-      {hasSavedAddress ? (
-        <button
-          className={btnGhost}
-          type="button"
-          disabled={save.isPending}
-          onClick={() => save.mutate(true)}
-        >
-          Hiq adresën
+            Hiq adresën
+          </button>
+        ) : (
+          <span />
+        )}
+        <button className={btnPrimary} type="submit" disabled={save.isPending}>
+          {save.isPending ? "Duke ruajtur…" : "Ruaj adresën"}
         </button>
-      ) : null}
+      </div>
     </form>
   );
 }

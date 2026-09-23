@@ -25,7 +25,6 @@ import {
 } from "@/hooks/useAdminCategories";
 import { validationMessage } from "@/lib/api";
 import {
-  btnDanger,
   btnGhost,
   btnPrimary,
   checkInput,
@@ -46,7 +45,7 @@ const emptyForm: CategoryFormInput = {
 };
 
 const rowButton =
-  "inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60";
+  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60";
 
 export function AdminCategories() {
   const queryClient = useQueryClient();
@@ -256,7 +255,7 @@ export function AdminCategories() {
                 >
                   {category.is_active ? "Aktive" : "Joaktive"}
                 </span>
-                <div className="flex items-center gap-2 border-l border-line pl-4">
+                <div className="flex items-center gap-1.5 border-l border-line pl-4">
                   <button
                     className={rowButton}
                     type="button"
@@ -283,16 +282,22 @@ export function AdminCategories() {
                     {category.is_active ? (
                       <LockOutlinedIcon fontSize="small" />
                     ) : (
-                      <LockOpenOutlinedIcon fontSize="small" />
+                      <LockOpenOutlinedIcon
+                        fontSize="small"
+                        className="text-accent!"
+                      />
                     )}
                   </button>
                   <button
-                    className={`${btnDanger} size-10 px-0`}
+                    className={rowButton}
                     type="button"
                     aria-label={`Fshi ${category.name}`}
                     onClick={() => setPendingDelete(category)}
                   >
-                    <DeleteOutlinedIcon fontSize="small" />
+                    <DeleteOutlinedIcon
+                      fontSize="small"
+                      className="text-danger!"
+                    />
                   </button>
                 </div>
               </li>

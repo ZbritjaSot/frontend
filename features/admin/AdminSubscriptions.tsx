@@ -42,7 +42,7 @@ const textAreaClass = `${inputClass} h-[calc(1.5em*4+1.4rem)] resize-none overfl
 const SUBSCRIPTIONS_PAGE_SIZE = 15;
 
 const rowButton =
-  "inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
 
 const tableGrid =
   "md:grid md:grid-cols-[minmax(0,1.2fr)_auto_auto_auto_auto_auto] md:gap-x-4";
@@ -101,11 +101,12 @@ function groupByBusiness(subscriptions: Subscription[]): BusinessGroup[] {
 
   const groups: BusinessGroup[] = [];
   for (const [businessId, list] of map) {
-    const sorted = [...list].sort(
-      (a, b) =>
-        new Date(b.created_at ?? b.starts_at).getTime() -
-        new Date(a.created_at ?? a.starts_at).getTime(),
-    );
+    const sorted = [...list].sort((a, b) => {
+      if (a.is_current !== b.is_current) {
+        return a.is_current ? -1 : 1;
+      }
+      return new Date(b.ends_at).getTime() - new Date(a.ends_at).getTime();
+    });
     const latest = sorted[0]!;
     groups.push({
       businessId,
@@ -346,9 +347,9 @@ export function AdminSubscriptions() {
                     >
                       {statusLabel(group.latest)}
                     </span>
-                    <div className="flex items-center gap-2 border-l border-line pl-4">
+                    <div className="flex items-center gap-1.5 border-l border-line pl-4">
                       <button
-                        className={`${rowButton}${open ? " border-accent/60 text-accent" : ""}`}
+                        className={`${rowButton}${open ? " border-accent/60" : ""}`}
                         type="button"
                         aria-expanded={open}
                         aria-label={
@@ -362,7 +363,10 @@ export function AdminSubscriptions() {
                           )
                         }
                       >
-                        <HistoryOutlinedIcon fontSize="small" />
+                        <HistoryOutlinedIcon
+                          fontSize="small"
+                          className={open ? "text-accent!" : undefined}
+                        />
                       </button>
                       <button
                         className={rowButton}
@@ -378,7 +382,10 @@ export function AdminSubscriptions() {
                         {group.latest.is_active ? (
                           <LockOutlinedIcon fontSize="small" />
                         ) : (
-                          <LockOpenOutlinedIcon fontSize="small" />
+                          <LockOpenOutlinedIcon
+                            fontSize="small"
+                            className="text-accent!"
+                          />
                         )}
                       </button>
                     </div>

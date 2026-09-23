@@ -1,12 +1,15 @@
 "use client";
 
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/Spinner";
 import { useBizBusiness, useBizSubscription } from "@/hooks/useBizProfile";
 import { formatDateSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, offerStatusClass, panelLead, panelNote } from "@/lib/ui";
+import { btnGhost, offerStatusClass, panelLead } from "@/lib/ui";
 import type { BizSubscription, Business } from "@/types";
+
+const micro = "text-xs font-bold tracking-[0.08em] text-muted uppercase";
 
 function AddressLink({ business }: { business: Business }) {
   const lines = [business.street, business.village, business.city].filter(
@@ -17,20 +20,23 @@ function AddressLink({ business }: { business: Business }) {
   return (
     <Link
       href="/biz/profile/address"
-      className="mt-4 grid gap-[0.15rem] rounded-[14px] border border-line px-4 py-[0.9rem] text-inherit no-underline hover:border-accent"
+      aria-label={saved.length > 0 ? "Ndrysho adresën" : "Shto adresën"}
+      className="flex items-center justify-between gap-4 border-t border-line px-5 py-4 text-inherit no-underline hover:bg-sunken"
     >
-      <span className="text-xs tracking-[0.04em] text-muted uppercase">Adresa</span>
-      {saved.length > 0 ? (
-        saved.map((line, index) => (
-          <span key={`${index}-${line}`} className="font-bold">
-            {line}
-          </span>
-        ))
-      ) : (
-        <span className="font-bold">Shto adresën</span>
-      )}
-      <span className="text-xs tracking-[0.04em] text-muted uppercase">
-        {saved.length > 0 ? "Ndrysho" : "Hap faqen e adresës"}
+      <span className="grid min-w-0 gap-0.5">
+        <span className={micro}>Adresa</span>
+        {saved.length > 0 ? (
+          saved.map((line, index) => (
+            <span key={`${index}-${line}`} className="truncate font-bold">
+              {line}
+            </span>
+          ))
+        ) : (
+          <span className="font-bold">Shto adresën</span>
+        )}
+      </span>
+      <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-line bg-sunken text-ink">
+        <EditOutlinedIcon fontSize="small" />
       </span>
     </Link>
   );
@@ -62,13 +68,13 @@ function subscriptionStatus(sub: BizSubscription): {
   if (sub.is_current) {
     return {
       label: "Aktive",
-      note: "Abonimi është i vlefshëm. Ofertat e aprovuara mund të shfaqen publike.",
+      note: "Ofertat e aprovuara mund të shfaqen publike.",
     };
   }
   if (new Date(sub.ends_at).getTime() <= Date.now()) {
     return {
       label: "Skaduar",
-      note: "Abonimi ka skaduar. Ofertat nuk shfaqen publike derisa të rinovohet.",
+      note: "Ofertat nuk shfaqen publike derisa të rinovohet.",
     };
   }
   return {
@@ -87,7 +93,7 @@ export function BizProfilePanel() {
 
   if (businessQuery.isError) {
     return (
-      <div className="max-w-[40rem]">
+      <div>
         <p className={panelLead}>
           {validationMessage(
             businessQuery.error,
@@ -95,7 +101,7 @@ export function BizProfilePanel() {
           )}
         </p>
         <button
-          className={btnGhost}
+          className={`${btnGhost} mt-4`}
           type="button"
           onClick={() => businessQuery.refetch()}
         >
@@ -110,23 +116,37 @@ export function BizProfilePanel() {
   const status = subscription ? subscriptionStatus(subscription) : null;
 
   return (
-    <div className="grid gap-6">
-      <div className="max-w-[40rem]">
-        <h2 className="m-0 text-lg font-bold text-ink">Biznesi</h2>
-        <p className={panelLead} style={{ marginTop: "0.75rem" }}>
-          {business?.name}
-        </p>
-        <p className={`${panelNote} mb-0`}>
-          Statusi i llogarisë:{" "}
-          {business?.is_active ? "aktive" : "joaktive"}
-        </p>
+    <div className="grid gap-6 lg:grid-cols-2">
+      <section className="overflow-hidden rounded-2xl border border-line">
+        <div className="flex items-start justify-between gap-4 p-5">
+          <div className="min-w-0">
+            <p className={`m-0 ${micro}`}>Biznesi</p>
+            <h2 className="m-0 mt-1 truncate text-xl font-bold tracking-[-0.02em] text-ink">
+              {business?.name}
+            </h2>
+          </div>
+          {business ? (
+            <span
+              className={`${offerStatusClass(business.is_active ? "approved" : "rejected")} mt-0! self-center!`}
+            >
+              {business.is_active ? "Aktive" : "Joaktive"}
+            </span>
+          ) : null}
+        </div>
         {business ? <AddressLink business={business} /> : null}
-      </div>
+      </section>
 
-      <div className="max-w-[40rem]">
-        <h2 className="m-0 text-lg font-bold text-ink">Abonimi</h2>
+      <section className="rounded-2xl border border-line p-5">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="m-0 text-lg font-bold text-ink">Abonimi</h2>
+          {subscription && status ? (
+            <span className={`${statusClass(subscription)} mt-0! self-center!`}>
+              {status.label}
+            </span>
+          ) : null}
+        </div>
         {subscriptionQuery.isError ? (
-          <p className={panelLead} style={{ marginTop: "0.75rem" }}>
+          <p className={`${panelLead} mt-4`}>
             {validationMessage(
               subscriptionQuery.error,
               "Nuk mundëm ta ngarkojmë abonimin.",
@@ -134,29 +154,26 @@ export function BizProfilePanel() {
           </p>
         ) : subscription === null ? (
           <>
-            <p className={panelLead} style={{ marginTop: "0.75rem" }}>
-              Nuk ka abonim të regjistruar.
+            <p className="m-0 mt-4 text-lg font-semibold text-ink">
+              Nuk ka abonim
             </p>
-            <p className={`${panelNote} mb-0`}>
+            <p className="m-0 mt-2 text-sm leading-relaxed text-muted">
               Kontaktoni administratën për pagesë cash. Pa abonim aktiv, ofertat
               nuk shfaqen publike.
             </p>
           </>
         ) : (
           <>
-            <p className={panelLead} style={{ marginTop: "0.75rem" }}>
-              <span className={statusClass(subscription)}>
-                {status?.label}
-              </span>
-            </p>
-            <p className={`${panelNote} mb-0`}>
+            <p className="m-0 mt-4 text-lg font-semibold text-ink">
               {formatDateSq(subscription.starts_at)} →{" "}
               {formatDateSq(subscription.ends_at)}
             </p>
-            <p className={`${panelNote} mb-0`}>{status?.note}</p>
+            <p className="m-0 mt-2 text-sm leading-relaxed text-muted">
+              {status?.note}
+            </p>
           </>
         )}
-      </div>
+      </section>
     </div>
   );
 }

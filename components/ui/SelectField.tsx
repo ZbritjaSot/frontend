@@ -3,10 +3,12 @@
 import {
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
 } from "react";
+import { createPortal } from "react-dom";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { triggerClass } from "@/lib/ui";
 
@@ -41,7 +43,15 @@ export function SelectField({
 }: SelectFieldProps) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLUListElement>(null);
   const [open, setOpen] = useState(false);
+  const [menuBox, setMenuBox] = useState<{
+    left: number;
+    width: number;
+    maxHeight: number;
+    top?: number;
+    bottom?: number;
+  } | null>(null);
 
   const selected = options.find((o) => o.value === value);
 
@@ -51,7 +61,11 @@ export function SelectField({
     }
 
     const onPointerDown = (event: MouseEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        !rootRef.current?.contains(target) &&
+        !menuRef.current?.contains(target)
+      ) {
         setOpen(false);
       }
     };
@@ -67,6 +81,53 @@ export function SelectField({
     return () => {
       window.removeEventListener("mousedown", onPointerDown);
       window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function place() {
+      const trigger = rootRef.current?.querySelector("button");
+      if (!trigger) {
+        return;
+      }
+      const rect = trigger.getBoundingClientRect();
+      const gap = 6;
+      const footerReserve = 72;
+      const spaceBelow =
+        window.innerHeight - rect.bottom - gap - footerReserve;
+      const spaceAbove = rect.top - gap - 12;
+      const openBelow = spaceBelow >= spaceAbove;
+      const maxHeight = Math.max(
+        120,
+        Math.min(256, openBelow ? spaceBelow : spaceAbove),
+      );
+      setMenuBox(
+        openBelow
+          ? {
+              left: rect.left,
+              width: rect.width,
+              maxHeight,
+              top: rect.bottom + gap,
+            }
+          : {
+              left: rect.left,
+              width: rect.width,
+              maxHeight,
+              bottom: window.innerHeight - rect.top + gap,
+            },
+      );
+    }
+
+    place();
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
+    return () => {
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
     };
   }, [open]);
 
@@ -103,10 +164,19 @@ export function SelectField({
         />
       </button>
 
-      {open ? (
+      {open && menuBox
+        ? createPortal(
         <ul
+          ref={menuRef}
           id={listId}
-          className="absolute top-[calc(100%+0.35rem)] right-0 left-0 z-40 m-0 max-h-64 list-none overflow-auto rounded-lg border border-line bg-elevated p-1.5 shadow-[0_12px_32px_var(--color-shadow)]"
+          className="fixed z-[100] m-0 list-none overflow-auto rounded-lg border border-line bg-elevated p-1.5 shadow-[0_12px_32px_var(--color-shadow)]"
+          style={{
+            left: menuBox.left,
+            width: menuBox.width,
+            maxHeight: menuBox.maxHeight,
+            top: menuBox.top,
+            bottom: menuBox.bottom,
+          }}
           role="listbox"
           aria-label={ariaLabel}
         >
@@ -135,8 +205,10 @@ export function SelectField({
               );
             })
           )}
-        </ul>
-      ) : null}
+        </ul>,
+          document.body,
+        )
+        : null}
     </div>
   );
 }
