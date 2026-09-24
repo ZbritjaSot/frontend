@@ -41,6 +41,8 @@ function HeroOffer({ offer }: { offer: PublicOffer }) {
       <span className="block overflow-hidden rounded-[1.6rem]">
         <ProductVisual
           name={offer.name}
+          imageUrl={offer.image?.detail_url}
+          priority
           className="aspect-[5/4] w-full transition duration-700 ease-out group-hover:scale-105 sm:aspect-[4/5]"
         />
       </span>

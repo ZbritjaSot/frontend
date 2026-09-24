@@ -6,9 +6,11 @@ import type { PublicOffer } from "@/types";
 export function ProductPoster({
   offer,
   emphasis = false,
+  eager = false,
 }: {
   offer: PublicOffer;
   emphasis?: boolean;
+  eager?: boolean;
 }) {
   const shop = offer.business?.name;
 
@@ -17,6 +19,8 @@ export function ProductPoster({
       <span className="relative block overflow-hidden rounded-[1.25rem]">
         <ProductVisual
           name={offer.name}
+          imageUrl={offer.image?.thumb_url}
+          eager={eager}
           className={`w-full transition duration-700 ease-out group-hover:scale-[1.04] ${
             emphasis ? "aspect-[4/5]" : "aspect-[4/5] sm:aspect-[5/6]"
           }`}
@@ -77,6 +81,7 @@ export function OfferRow({ offer }: { offer: PublicOffer }) {
     >
       <ProductVisual
         name={offer.name}
+        imageUrl={offer.image?.thumb_url}
         className="size-20 shrink-0 rounded-2xl"
       />
       <span className="min-w-0 flex-1">
@@ -104,16 +109,18 @@ export function OfferRow({ offer }: { offer: PublicOffer }) {
 
 export function ShopLink({
   name,
+  logoUrl,
   href,
   size = "sm",
 }: {
   name: string;
+  logoUrl?: string | null;
   href?: string;
   size?: "sm" | "md" | "lg";
 }) {
   const inner = (
     <>
-      <ShopLogo name={name} size={size} />
+      <ShopLogo name={name} logoUrl={logoUrl} size={size} />
       <span className="min-w-0 truncate font-bold tracking-tight">{name}</span>
     </>
   );

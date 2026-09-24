@@ -1,7 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 
 const password = process.env.E2E_PASSWORD ?? "password";
-const bizEmail = process.env.E2E_BIZ_EMAIL ?? "kafe@demo.zbritjasot.com";
+const bizEmail = process.env.E2E_BIZ_EMAIL ?? "viva@demo.zbritjasot.com";
 const adminEmail = process.env.E2E_ADMIN_EMAIL ?? "admin@zbritjasot.com";
 const apiUrl = process.env.E2E_API_URL ?? "http://localhost:8001";
 

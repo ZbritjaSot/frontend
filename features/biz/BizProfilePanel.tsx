@@ -5,8 +5,15 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Link from "next/link";
 import { bizProfileKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Spinner } from "@/components/ui/Spinner";
+import { useQueryClient } from "@tanstack/react-query";
+import { LogoField } from "@/features/gallery/LogoField";
+import { deleteBizLogo, uploadBizLogo } from "@/features/gallery/api";
 import { useMe } from "@/hooks/useAuth";
-import { useBizBusiness, useBizSubscription } from "@/hooks/useBizProfile";
+import {
+  bizBusinessQueryKey,
+  useBizBusiness,
+  useBizSubscription,
+} from "@/hooks/useBizProfile";
 import { formatDateSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
 import { btnGhost, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
@@ -87,6 +94,7 @@ function subscriptionStatus(sub: BizSubscription): {
 }
 
 export function BizProfilePanel() {
+  const queryClient = useQueryClient();
   const businessQuery = useBizBusiness();
   const subscriptionQuery = useBizSubscription();
   const { data: user } = useMe();
@@ -127,11 +135,31 @@ export function BizProfilePanel() {
       </div>
       <section className="overflow-hidden rounded-2xl border border-line">
         <div className="flex items-start justify-between gap-4 p-5">
-          <div className="min-w-0">
-            <p className={`m-0 ${micro}`}>Biznesi</p>
-            <h2 className="m-0 mt-1 truncate text-xl font-bold tracking-[-0.02em] text-ink">
-              {business?.name}
-            </h2>
+          <div className="flex min-w-0 items-center gap-4">
+            {business ? (
+              <LogoField
+                name={business.name}
+                logoUrl={business.logo_url}
+                onUpload={async (file) => {
+                  await uploadBizLogo(file);
+                  await queryClient.invalidateQueries({
+                    queryKey: bizBusinessQueryKey,
+                  });
+                }}
+                onRemove={async () => {
+                  await deleteBizLogo();
+                  await queryClient.invalidateQueries({
+                    queryKey: bizBusinessQueryKey,
+                  });
+                }}
+              />
+            ) : null}
+            <div className="min-w-0">
+              <p className={`m-0 ${micro}`}>Biznesi</p>
+              <h2 className="m-0 mt-1 truncate text-xl font-bold tracking-[-0.02em] text-ink">
+                {business?.name}
+              </h2>
+            </div>
           </div>
           {business ? (
             <span

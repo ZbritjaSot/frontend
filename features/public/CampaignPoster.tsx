@@ -5,7 +5,13 @@ import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateShortSq, formatDiscountPercent } from "@/lib/format";
 import type { PublicFolder } from "@/types";
 
-export function CampaignPoster({ folder }: { folder: PublicFolder }) {
+export function CampaignPoster({
+  folder,
+  eager = false,
+}: {
+  folder: PublicFolder;
+  eager?: boolean;
+}) {
   const shop = folder.business?.name ?? "Dyqan";
   const lead = leadProduct(folder);
   const count = folderCount(folder);
@@ -17,7 +23,7 @@ export function CampaignPoster({ folder }: { folder: PublicFolder }) {
     >
       <span className="flex min-w-0 flex-1 flex-col p-5 sm:p-6">
         <span className="flex items-center gap-2.5">
-          <ShopLogo name={shop} size="sm" />
+          <ShopLogo name={shop} logoUrl={folder.business?.logo_url} size="sm" />
           <span className="truncate text-sm font-semibold">{shop}</span>
         </span>
         <span className="mt-8 block text-[clamp(1.7rem,3vw,2.15rem)] leading-[1.02] font-extrabold tracking-[-0.045em]">
@@ -36,7 +42,9 @@ export function CampaignPoster({ folder }: { folder: PublicFolder }) {
       <span className="relative w-[34%] shrink-0 self-stretch overflow-hidden">
         <ProductVisual
           fill
-          name={lead?.name ?? folder.title}
+          name={folder.cover?.name ?? lead?.name ?? folder.title}
+          imageUrl={folder.cover?.thumb_url ?? lead?.image?.thumb_url}
+          eager={eager}
           className="transition duration-700 ease-out group-hover:scale-105"
         />
       </span>
@@ -52,7 +60,7 @@ export function CampaignRail({ folders }: { folders: PublicFolder[] }) {
   return (
     <Rail label="Fletushkat">
       {folders.map((folder) => (
-        <CampaignPoster key={folder.id} folder={folder} />
+        <CampaignPoster key={folder.id} folder={folder} eager />
       ))}
     </Rail>
   );

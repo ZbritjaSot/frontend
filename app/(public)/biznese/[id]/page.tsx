@@ -120,7 +120,11 @@ export default async function BusinessPage({
         <BackLink href="/">Kreu</BackLink>
         <header className="mt-8 grid items-end gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,420px)]">
           <div>
-            <ShopLogo name={business.name} size="xl" />
+            <ShopLogo
+              name={business.name}
+              logoUrl={business.logo_url}
+              size="xl"
+            />
             <p className="m-0 mt-6 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
               {place}
             </p>

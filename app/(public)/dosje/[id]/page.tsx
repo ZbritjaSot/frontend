@@ -55,7 +55,9 @@ export default async function FolderPage({ params }: FolderPageProps) {
 
   const shop = folder.business?.name ?? "Dyqan";
   const count = folder.items.length;
-  const lead = leadProduct(folder);
+  const lead =
+    folder.items.find((item) => item.id === folder.cover?.id) ??
+    leadProduct(folder);
   const backHref = folder.business ? `/biznese/${folder.business.id}` : "/";
 
   return (
@@ -68,7 +70,11 @@ export default async function FolderPage({ params }: FolderPageProps) {
           <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.7fr)]">
             <div>
               <p className="m-0 flex items-center gap-3 text-sm font-semibold">
-                <ShopLogo name={shop} size="sm" />
+                <ShopLogo
+                  name={shop}
+                  logoUrl={folder.business?.logo_url}
+                  size="sm"
+                />
                 {folder.business ? (
                   <Link
                     href={`/biznese/${folder.business.id}`}
@@ -94,7 +100,9 @@ export default async function FolderPage({ params }: FolderPageProps) {
                 <span className="relative block overflow-hidden rounded-[1.6rem]">
                   <ProductVisual
                     name={lead.name}
-                    className="aspect-[4/5] w-full transition duration-700 group-hover:scale-[1.03]"
+                    imageUrl={lead.image?.thumb_url}
+                    eager
+                    className="aspect-[4/5] w-full"
                   />
                 </span>
                 <span className="mt-3 block font-extrabold tracking-tight">

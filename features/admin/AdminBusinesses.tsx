@@ -3,13 +3,19 @@
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
+import { AdminGallery } from "@/features/gallery/AdminGallery";
+import { deleteAdminLogo, uploadAdminLogo } from "@/features/gallery/api";
+import { LogoField } from "@/features/gallery/LogoField";
+import { ShopLogo } from "@/features/public/visuals";
 import { adminBusinessKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { ADMIN_BUSINESSES_PAGE_SIZE } from "@/features/admin/businessesApi";
 import {
+  adminBusinessesQueryKey,
   useAdminBusinesses,
   useCreateBusiness,
   useUpdateBusiness,
@@ -45,6 +51,7 @@ const checkLabelClass =
 const checkTextClass = "min-w-0 flex-1 pt-px leading-[1.4]";
 
 export function AdminBusinesses() {
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error, refetch } = useAdminBusinesses(page);
   const createMutation = useCreateBusiness();
@@ -191,8 +198,13 @@ export function AdminBusinesses() {
                   key={business.id}
                   className="col-span-4 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
                 >
-                  <p className="m-0 truncate text-base font-semibold">
-                    {business.name}
+                  <p className="m-0 flex min-w-0 items-center gap-3 truncate text-base font-semibold">
+                    <ShopLogo
+                      name={business.name}
+                      logoUrl={business.logo_url}
+                      size="sm"
+                    />
+                    <span className="truncate">{business.name}</span>
                   </p>
                   <div className="min-w-0">
                     <p className="m-0 truncate text-base font-semibold">
@@ -423,6 +435,31 @@ export function AdminBusinesses() {
             <p className={fieldError} role="alert">
               {formError}
             </p>
+          ) : null}
+          {editing ? (
+            <>
+              <LogoField
+                name={editName || editing.name}
+                logoUrl={editing.logo_url}
+                onUpload={async (file) => {
+                  const updated = await uploadAdminLogo(editing.id, file);
+                  setEditing(updated);
+                  await queryClient.invalidateQueries({
+                    queryKey: adminBusinessesQueryKey,
+                  });
+                }}
+                onRemove={async () => {
+                  await deleteAdminLogo(editing.id);
+                  setEditing((current) =>
+                    current ? { ...current, logo_url: null } : current,
+                  );
+                  await queryClient.invalidateQueries({
+                    queryKey: adminBusinessesQueryKey,
+                  });
+                }}
+              />
+              <AdminGallery businessId={editing.id} />
+            </>
           ) : null}
           <label className={fieldLabel}>
             <span>Emri i biznesit</span>

@@ -29,7 +29,12 @@ export function OfferDetail({ offer, related = [] }: OfferDetailProps) {
         <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:gap-14">
           <div className="lg:col-span-6">
             <div className="overflow-hidden rounded-[1.75rem]">
-              <ProductVisual name={offer.name} className="aspect-[4/5] w-full" />
+              <ProductVisual
+                name={offer.name}
+                imageUrl={offer.image?.detail_url}
+                priority
+                className="aspect-[4/5] w-full"
+              />
             </div>
           </div>
 
@@ -48,6 +53,7 @@ export function OfferDetail({ offer, related = [] }: OfferDetailProps) {
             <div className="mt-5">
               <ShopLink
                 name={shop}
+                logoUrl={offer.business?.logo_url}
                 href={offer.business ? `/biznese/${offer.business.id}` : undefined}
                 size="md"
               />

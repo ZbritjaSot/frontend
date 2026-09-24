@@ -58,9 +58,25 @@ export function BizLoginScreen() {
           forgotHref="/biz/forgot-password"
         />
 
-        <p className="m-0 mt-8 text-[0.8125rem] leading-normal text-muted [&_code]:font-mono [&_code]:text-xs [&_code]:text-accent">
-          Demo: <code>kafe@demo.zbritjasot.com</code> / <code>password</code>
-        </p>
+        <div className="mt-8 text-[0.8125rem] leading-relaxed text-muted [&_code]:font-mono [&_code]:text-xs [&_code]:text-accent">
+          <p className="m-0">
+            Demo, fjalëkalimi <code>password</code>
+          </p>
+          <ul className="m-0 mt-2 list-none p-0">
+            <li>
+              <code>viva@demo.zbritjasot.com</code>
+            </li>
+            <li>
+              <code>interex@demo.zbritjasot.com</code>
+            </li>
+            <li>
+              <code>etc@demo.zbritjasot.com</code>
+            </li>
+            <li>
+              <code>meridian@demo.zbritjasot.com</code>
+            </li>
+          </ul>
+        </div>
 
         <Link
           href="/"

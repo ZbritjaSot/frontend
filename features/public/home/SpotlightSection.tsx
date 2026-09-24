@@ -18,7 +18,7 @@ export function SpotlightSection({ offers }: { offers: PublicOffer[] }) {
             key={offer.id}
             className="w-[68vw] max-w-[16rem] shrink-0 snap-start sm:w-60 lg:w-auto lg:max-w-none"
           >
-            <ProductPoster offer={offer} />
+            <ProductPoster offer={offer} eager />
           </div>
         ))}
       </div>

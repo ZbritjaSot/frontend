@@ -20,7 +20,11 @@ export function ShopDirectory({ shops }: { shops: ShopPresence[] }) {
               href={`/biznese/${shop.business.id}`}
               className="group -mx-2 flex items-center gap-4 rounded-lg px-2 py-4 hover:bg-hover"
             >
-              <ShopLogo name={shop.business.name} size="sm" />
+              <ShopLogo
+                name={shop.business.name}
+                logoUrl={shop.business.logo_url}
+                size="sm"
+              />
               <span className="min-w-0">
                 <span className="block truncate text-lg leading-tight font-extrabold tracking-tight">
                   {shop.business.name}
