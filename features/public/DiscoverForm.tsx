@@ -23,7 +23,7 @@ export function DiscoverForm({
       <form
         action={basePath}
         method="get"
-        className="flex items-center rounded-full bg-white ring-1 ring-line dark:bg-[#141c18] dark:ring-white/10"
+        className="flex items-center rounded-full bg-mist ring-1 ring-line dark:bg-[#141c18] dark:ring-white/10"
       >
         {category ? (
           <input type="hidden" name="category" value={category} />

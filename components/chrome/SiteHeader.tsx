@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-20 border-b border-white/8 bg-chrome/92 text-chrome-text backdrop-blur-md">
+    <header className="sticky top-0 z-20 border-b border-line bg-chrome text-chrome-text backdrop-blur-md dark:border-white/8 dark:bg-chrome/90">
       <div className="mx-auto flex min-h-16 w-full max-w-7xl items-center justify-between gap-5 px-5 sm:px-8">
         <Link
           href="/"
@@ -25,7 +25,7 @@ export function SiteHeader() {
           >
             Ofertat
           </Link>
-          <ThemeToggle className="border-white/15 bg-transparent text-chrome-muted hover:border-white/40 hover:text-chrome-text" />
+          <ThemeToggle />
         </div>
       </div>
     </header>

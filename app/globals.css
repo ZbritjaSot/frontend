@@ -24,6 +24,7 @@
   --color-chrome-muted: var(--color-chrome-muted);
   --color-pending: #f5c542;
   --color-hover: var(--color-surface-hover);
+  --color-mist: var(--color-bg-mist);
 }
 
 :root {
@@ -32,22 +33,23 @@
   --color-slate: #6b7280;
   --color-off-white: #f5f5f5;
 
-  /* Light theme — cool mineral paper. Lime is the accent, not the surface. */
-  --color-bg: #f1f2f0;
-  --color-bg-elevated: #fbfbfa;
-  --color-bg-muted: #e4e6e2;
-  --color-border: color-mix(in srgb, var(--color-charcoal) 12%, transparent);
-  --color-text: var(--color-charcoal);
-  --color-text-muted: #4a5551;
+  /* Light theme — deep olive. Cream cards, olive header, lime accent. */
+  --color-bg: #7f8f62;
+  --color-bg-elevated: #f4efe4;
+  --color-bg-muted: #8e9e6c;
+  --color-bg-mist: #f4efe4;
+  --color-border: #5c6844;
+  --color-text: #1a1c14;
+  --color-text-muted: #2a3024;
   --color-accent: var(--color-lime);
   --color-on-accent: var(--color-charcoal);
   --color-danger: #d32f2f;
   --color-danger-soft: #e57373;
-  --color-shadow: color-mix(in srgb, var(--color-charcoal) 8%, transparent);
-  --color-surface-hover: color-mix(in srgb, var(--color-charcoal) 5%, var(--color-bg-elevated));
-  --color-chrome: color-mix(in srgb, var(--color-slate) 22%, var(--color-charcoal));
-  --color-chrome-text: var(--color-off-white);
-  --color-chrome-muted: color-mix(in srgb, var(--color-off-white) 55%, var(--color-slate));
+  --color-shadow: color-mix(in srgb, #2e3a22 28%, transparent);
+  --color-surface-hover: #9aab78;
+  --color-chrome: #3a4830;
+  --color-chrome-text: #f4efe4;
+  --color-chrome-muted: #c9d0b8;
   --color-chrome-footer: var(--color-bg-elevated);
   --color-chrome-footer-text: var(--color-text-muted);
 
@@ -68,6 +70,7 @@ html[data-theme="dark"] {
   --color-danger-soft: #ff8e8e;
   --color-shadow: color-mix(in srgb, #000 55%, transparent);
   --color-surface-hover: color-mix(in srgb, var(--color-off-white) 6%, var(--color-bg-elevated));
+  --color-bg-mist: var(--color-bg-elevated);
   --color-chrome: color-mix(in srgb, var(--color-charcoal) 92%, transparent);
   --color-chrome-text: var(--color-off-white);
   --color-chrome-muted: var(--color-slate);

@@ -29,7 +29,7 @@ export function CampaignPoster({ folder }: { folder: PublicFolder }) {
             ? ` · ${formatDiscountPercent(lead?.discount_percent ?? folder.lead_discount_percent ?? 0)}`
             : ""}
         </span>
-        <span className="mt-5 block text-sm font-extrabold tracking-tight text-ink transition-colors group-hover:text-accent">
+        <span className="mt-5 block text-sm font-extrabold tracking-tight text-ink underline-offset-4 group-hover:underline group-hover:decoration-accent">
           Shiko produktet
         </span>
       </span>

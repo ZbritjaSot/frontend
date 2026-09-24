@@ -66,7 +66,7 @@ export function DashboardShell({
   }, [menuOpen]);
 
   return (
-    <div className="grid min-h-dvh grid-cols-1 grid-rows-[auto_1fr] min-[860px]:grid-cols-[15.5rem_1fr] min-[860px]:grid-rows-1">
+    <div className="grid h-dvh overflow-hidden grid-cols-1 grid-rows-[auto_minmax(0,1fr)] min-[860px]:grid-cols-[15.5rem_minmax(0,1fr)] min-[860px]:grid-rows-1">
       <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-5 border-b border-line bg-elevated px-5 py-2.5 min-[860px]:hidden">
         <Link
           href={homeHref}
@@ -107,13 +107,13 @@ export function DashboardShell({
 
       <aside
         id="dash-nav"
-        className={`fixed top-0 bottom-0 left-0 z-[40] flex w-[min(18rem,86vw)] flex-col gap-8 border-r border-line bg-elevated p-8 transition-transform min-[860px]:sticky min-[860px]:w-auto min-[860px]:min-h-dvh min-[860px]:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-[40] flex h-dvh w-[min(18rem,86vw)] flex-col gap-8 overflow-hidden border-r border-line bg-elevated p-8 transition-transform min-[860px]:static min-[860px]:z-auto min-[860px]:h-auto min-[860px]:w-auto min-[860px]:translate-x-0 ${
           menuOpen ? "translate-x-0" : "-translate-x-[105%]"
         }`}
       >
         <Link
           href={homeHref}
-          className="hidden min-w-0 items-center gap-3 min-[860px]:flex"
+          className="hidden min-w-0 shrink-0 items-center gap-3 min-[860px]:flex"
           aria-label={`${areaLabel} — paneli`}
         >
           <LogoMark size={32} />
@@ -125,7 +125,7 @@ export function DashboardShell({
           </div>
         </Link>
 
-        <nav className="flex flex-col gap-1.5" aria-label={areaLabel}>
+        <nav className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto" aria-label={areaLabel}>
           {nav.map((item) => {
             const active =
               pathname === item.href ||
@@ -173,7 +173,7 @@ export function DashboardShell({
           })}
         </nav>
 
-        <div className="mt-auto flex flex-col items-start gap-3">
+        <div className="flex shrink-0 flex-col items-start gap-3">
           {showLogout ? <LogoutButton redirectTo={logoutTo} /> : null}
           <Link
             href="/"
@@ -186,7 +186,7 @@ export function DashboardShell({
         </div>
       </aside>
 
-      <div className="col-start-1 row-start-2 flex min-w-0 flex-col min-[860px]:col-start-2 min-[860px]:row-start-1">
+      <div className="col-start-1 row-start-2 min-h-0 min-w-0 overflow-y-auto min-[860px]:col-start-2 min-[860px]:row-start-1">
         <div className="p-5 sm:p-8">{children}</div>
       </div>
     </div>
