@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
   // Coming Soon (`coming-soon` branch) stays on `output: "export"` for Cloudflare Pages.
   // Feature app needs a Node host for SSR + Sanctum cookie auth — no static export here.
   poweredByHeader: false,
+  distDir: process.env.E2E_NEXT === "1" ? ".next-e2e" : ".next",
   async headers() {
     return [
       {
