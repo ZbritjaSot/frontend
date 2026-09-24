@@ -4,6 +4,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import StoreIcon from "@mui/icons-material/Store";
 import Link from "next/link";
+import { bizHomeKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { IndicatorLink } from "@/components/ui/IndicatorLink";
 import { Spinner } from "@/components/ui/Spinner";
 import { useBizOffersByStatus } from "@/hooks/useBizOffers";
@@ -73,6 +74,8 @@ export function BizHomePanel() {
           Dosje e re
         </Link>
       </div>
+
+      <IndicatorKey items={bizHomeKey(rejectedTotal)} />
 
       <div className="mb-6 grid items-stretch gap-3 sm:grid-cols-2">
         <IndicatorLink

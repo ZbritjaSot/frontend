@@ -2,6 +2,7 @@
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Link from "next/link";
+import { bizOfferDetailKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Spinner } from "@/components/ui/Spinner";
 import { OfferBundleView } from "@/features/offers/OfferBundleView";
 import {
@@ -65,7 +66,7 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
 
   return (
     <>
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <div className="grid min-w-0 grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-x-1.5">
           <Link
             href="/biz/offers"
@@ -107,6 +108,8 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
           ) : null}
         </div>
       </div>
+
+      <IndicatorKey items={bizOfferDetailKey} />
 
       {actionError ? (
         <p className={fieldError} role="alert">

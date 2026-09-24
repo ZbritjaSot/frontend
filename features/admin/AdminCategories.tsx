@@ -8,6 +8,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { adminCategoryKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
@@ -141,12 +142,15 @@ export function AdminCategories() {
   }
 
   const header = (
-    <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-      <h1 className={`${pageTitle} mb-0!`}>Kategoritë</h1>
-      <button className={btnPrimary} type="button" onClick={openCreate}>
-        Shto kategori
-      </button>
-    </div>
+    <>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+        <h1 className={`${pageTitle} mb-0!`}>Kategoritë</h1>
+        <button className={btnPrimary} type="button" onClick={openCreate}>
+          Shto kategori
+        </button>
+      </div>
+      <IndicatorKey items={adminCategoryKey} />
+    </>
   );
 
   if (isLoading) {

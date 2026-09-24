@@ -3,12 +3,13 @@
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Link from "next/link";
+import { bizProfileKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Spinner } from "@/components/ui/Spinner";
 import { useMe } from "@/hooks/useAuth";
 import { useBizBusiness, useBizSubscription } from "@/hooks/useBizProfile";
 import { formatDateSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, offerStatusClass, panelLead } from "@/lib/ui";
+import { btnGhost, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 import type { BizSubscription, Business } from "@/types";
 
 const micro = "text-xs font-bold tracking-[0.08em] text-muted uppercase";
@@ -120,6 +121,10 @@ export function BizProfilePanel() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
+      <div className="lg:col-span-2">
+        <h1 className={`${pageTitle} mb-4!`}>Profili</h1>
+        <IndicatorKey items={bizProfileKey} />
+      </div>
       <section className="overflow-hidden rounded-2xl border border-line">
         <div className="flex items-start justify-between gap-4 p-5">
           <div className="min-w-0">

@@ -7,6 +7,7 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Link from "next/link";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { bizOfferKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { BIZ_OFFERS_PAGE_SIZE } from "@/features/offers/bizApi";
@@ -52,7 +53,7 @@ export function BizOfferList() {
   }
 
   const header = (
-    <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
       <h1 className={`${pageTitle} mb-0!`}>Ofertat</h1>
       <Link href="/biz/offers/new" className={btnPrimary}>
         Dosje e re
@@ -64,6 +65,7 @@ export function BizOfferList() {
     return (
       <div>
         {header}
+        <IndicatorKey items={bizOfferKey} />
         <Spinner label="Duke ngarkuar ofertat" />
       </div>
     );
@@ -73,6 +75,7 @@ export function BizOfferList() {
     return (
       <div>
         {header}
+        <IndicatorKey items={bizOfferKey} />
         <div className="max-w-[40rem]">
           <p className={panelLead}>
             {validationMessage(error, "Nuk mundëm t’i ngarkojmë ofertat.")}
@@ -113,6 +116,7 @@ export function BizOfferList() {
   return (
     <div>
       {header}
+      <IndicatorKey items={bizOfferKey} />
 
       {actionError ? (
         <p className={fieldError} role="alert">

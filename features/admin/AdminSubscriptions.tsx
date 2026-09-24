@@ -5,6 +5,7 @@ import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { adminSubscriptionKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
@@ -199,7 +200,8 @@ export function AdminSubscriptions() {
   }
 
   const header = (
-    <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <>
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
       <h1 className={`${pageTitle} mb-0!`}>Abonimet</h1>
       <div className="flex flex-wrap items-center gap-4">
         {expiredCount > 0 ? (
@@ -217,6 +219,8 @@ export function AdminSubscriptions() {
         </button>
       </div>
     </div>
+      <IndicatorKey items={adminSubscriptionKey} />
+    </>
   );
 
   if (isLoading) {

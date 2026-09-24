@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { adminInspectKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
 import { OfferBundleView } from "@/features/offers/OfferBundleView";
@@ -157,7 +158,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
 
   return (
     <>
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <div className="grid min-w-0 grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-x-1.5">
           <Link
             href={backHref}
@@ -226,6 +227,8 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
           </button>
         ) : null}
       </div>
+
+      <IndicatorKey items={adminInspectKey} />
 
       {actionError ? (
         <p className={fieldError} role="alert">

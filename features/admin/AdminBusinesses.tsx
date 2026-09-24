@@ -4,6 +4,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useState, type FormEvent } from "react";
+import { adminBusinessKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
@@ -129,12 +130,15 @@ export function AdminBusinesses() {
   }
 
   const header = (
-    <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-      <h1 className={`${pageTitle} mb-0!`}>Bizneset</h1>
-      <button className={btnPrimary} type="button" onClick={openCreate}>
-        Shto biznes
-      </button>
-    </div>
+    <>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+        <h1 className={`${pageTitle} mb-0!`}>Bizneset</h1>
+        <button className={btnPrimary} type="button" onClick={openCreate}>
+          Shto biznes
+        </button>
+      </div>
+      <IndicatorKey items={adminBusinessKey} />
+    </>
   );
 
   if (isLoading) {

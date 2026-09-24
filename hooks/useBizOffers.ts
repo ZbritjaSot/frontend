@@ -25,9 +25,9 @@ export function useBizOffers(page = 1) {
 
 export function useRejectedOfferCount() {
   return useQuery({
-    queryKey: [...bizOffersQueryKey, "rejected-count"],
-    queryFn: () => fetchBizOfferBundles(1, 1, "rejected"),
-    select: (page) => page.meta?.total ?? 0,
+    queryKey: [...bizOffersQueryKey, "by-status", "rejected", 4],
+    queryFn: () => fetchBizOfferBundles(1, 4, "rejected"),
+    select: (page) => page.meta?.total ?? page.data.length,
   });
 }
 

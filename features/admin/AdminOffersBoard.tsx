@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { AdminLiveOffers } from "@/features/admin/AdminLiveOffers";
 import { AdminPendingOffers } from "@/features/admin/AdminPendingOffers";
+import { adminOfferKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { pageTitle } from "@/lib/ui";
 
 const tabClass =
@@ -40,6 +41,7 @@ export function AdminOffersBoard() {
           </button>
         </div>
       </div>
+      <IndicatorKey items={adminOfferKey} />
       {view === "pending" ? <AdminPendingOffers /> : <AdminLiveOffers />}
     </>
   );

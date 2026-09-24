@@ -6,6 +6,7 @@ import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import StoreIcon from "@mui/icons-material/Store";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Link from "next/link";
+import { adminHomeKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { IndicatorLink } from "@/components/ui/IndicatorLink";
 import { Spinner } from "@/components/ui/Spinner";
 import { latestExpiredSubscriptions } from "@/features/admin/expiredSubscriptions";
@@ -40,6 +41,7 @@ export function AdminHomePanel() {
   return (
     <div>
       <h1 className={pageTitle}>Paneli</h1>
+      <IndicatorKey items={adminHomeKey(pendingTotal, expired.length)} />
       <div className="mb-6 grid items-stretch gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <IndicatorLink
           href="/admin/offers"
