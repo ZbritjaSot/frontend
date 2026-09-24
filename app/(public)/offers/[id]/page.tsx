@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
+  fetchPublicFolder,
   fetchPublicOffer,
   isNotFound,
 } from "@/features/offers/api";
+import { withCampaign } from "@/features/public/compose";
+import { EmptyNote, Frame } from "@/features/public/Frame";
 import { OfferDetail } from "@/features/offers/OfferDetail";
 import type { PublicOffer } from "@/types";
 import { SITE_NAME } from "@/lib/site";
@@ -32,10 +35,21 @@ export default async function OfferPage({ params }: OfferPageProps) {
   const { id } = await params;
 
   let offer: PublicOffer | null = null;
+  let related: PublicOffer[] = [];
   let failed = false;
 
   try {
     offer = await fetchPublicOffer(id);
+    if (offer.bundle?.id) {
+      try {
+        const folder = await fetchPublicFolder(offer.bundle.id);
+        related = withCampaign(folder)
+          .filter((item) => item.id !== offer?.id)
+          .slice(0, 4);
+      } catch {
+        related = [];
+      }
+    }
   } catch (error) {
     if (isNotFound(error)) {
       notFound();
@@ -45,15 +59,12 @@ export default async function OfferPage({ params }: OfferPageProps) {
 
   if (failed) {
     return (
-      <section
-        className="rounded-2xl border border-line bg-elevated px-5 py-10"
-        aria-live="polite"
-      >
-        <h1 className="m-0 text-lg font-semibold">Diçka shkoi keq</h1>
-        <p className="mt-3 max-w-lg leading-relaxed text-muted">
-          Nuk mundëm ta ngarkojmë këtë ofertë. Provo përsëri së shpejti.
-        </p>
-      </section>
+      <Frame className="py-16">
+        <EmptyNote
+          title="Diçka shkoi keq"
+          body="Nuk mundëm ta ngarkojmë këtë ofertë. Provo përsëri së shpejti."
+        />
+      </Frame>
     );
   }
 
@@ -61,5 +72,5 @@ export default async function OfferPage({ params }: OfferPageProps) {
     notFound();
   }
 
-  return <OfferDetail offer={offer} />;
+  return <OfferDetail offer={offer} related={related} />;
 }

@@ -1,22 +1,27 @@
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OfferPlace } from "@/components/place/OfferPlace";
-import { BrowseBar } from "@/features/browse/BrowseBar";
+import { CampaignRail } from "@/features/public/CampaignPoster";
+import { campaignWord, productWord } from "@/features/public/compose";
+import { DiscoverForm } from "@/features/public/DiscoverForm";
+import { BackLink, Band, EmptyNote, Frame, Pager } from "@/features/public/Frame";
+import { ProductGrid } from "@/features/public/ProductPoster";
+import { ResultsView } from "@/features/public/ResultsView";
+import { ShopLogo } from "@/features/public/visuals";
 import {
   fetchPublicBusiness,
   fetchPublicCategories,
+  fetchPublicFolders,
   fetchPublicOffers,
   isNotFound,
 } from "@/features/offers/api";
-import { OfferList } from "@/features/offers/OfferList";
+import { browsePath } from "@/lib/browse";
 import { SITE_NAME } from "@/lib/site";
-import type { CategorySummary, PublicBusiness, PublicOffer } from "@/types";
+import type { CategorySummary, PublicBusiness, PublicFolder, PublicOffer } from "@/types";
 
 type BusinessPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; page?: string }>;
 };
 
 export async function generateMetadata({
@@ -43,24 +48,46 @@ export default async function BusinessPage({
   const query = await searchParams;
   const q = query.q?.trim() ?? "";
   const category = query.category?.trim() || undefined;
+  const page = Math.max(1, Number(query.page) || 1);
+  const filtering = q !== "" || Boolean(category);
+  const basePath = `/biznese/${id}`;
 
   let business: PublicBusiness | null = null;
+  let folders: PublicFolder[] = [];
   let offers: PublicOffer[] = [];
+  let folderLastPage = 1;
+  let offerLastPage = 1;
+  let folderTotal = 0;
+  let offerTotal = 0;
   let categories: CategorySummary[] = [];
   let failed = false;
 
   try {
-    const [shop, page, categoryList] = await Promise.all([
+    const [shop, folderResult, offerResult, categoryList] = await Promise.all([
       fetchPublicBusiness(id),
+      fetchPublicFolders({
+        q: q || undefined,
+        category,
+        business: id,
+        page,
+        perPage: 24,
+      }),
       fetchPublicOffers({
         q: q || undefined,
         category,
         business: id,
+        page,
+        perPage: 16,
       }),
       fetchPublicCategories().catch(() => []),
     ]);
     business = shop;
-    offers = page.data;
+    folders = folderResult.data;
+    offers = offerResult.data;
+    folderLastPage = folderResult.meta?.last_page ?? 1;
+    offerLastPage = offerResult.meta?.last_page ?? 1;
+    folderTotal = folderResult.meta?.total ?? folders.length;
+    offerTotal = offerResult.meta?.total ?? offers.length;
     categories = categoryList;
   } catch (error) {
     if (isNotFound(error)) {
@@ -71,83 +98,110 @@ export default async function BusinessPage({
 
   if (failed || !business) {
     return (
-      <section
-        className="rounded-2xl border border-line bg-elevated px-5 py-10"
-        aria-live="polite"
-      >
-        <h1 className="m-0 text-lg font-semibold">Diçka shkoi keq</h1>
-        <p className="mt-3 max-w-lg leading-relaxed text-muted">
-          Nuk mundëm ta ngarkojmë këtë dyqan. Provo përsëri së shpejti.
-        </p>
-      </section>
+      <Frame className="py-16">
+        <EmptyNote
+          title="Diçka shkoi keq"
+          body="Nuk mundëm ta ngarkojmë këtë dyqan. Provo përsëri së shpejti."
+        />
+      </Frame>
     );
   }
 
   const lines = [business.street, business.village, business.city].filter(
     (part): part is string => Boolean(part),
   );
-
-  const address =
-    lines.length > 0 ? lines.join(", ") : (business.address ?? "");
+  const address = lines.length > 0 ? lines.join(", ") : (business.address ?? "");
+  const place = business.city ?? business.village ?? "Dyqan lokal";
+  const lastPage = offers.length > 0 || offerLastPage > 1 ? offerLastPage : folderLastPage;
 
   return (
-    <>
-      <div className="mb-8 flex flex-col items-start gap-5 lg:flex-row lg:gap-8">
-        <div className="shrink-0">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-accent"
-          >
-            <ArrowBackIcon fontSize="small" />
-            Të gjitha ofertat
-          </Link>
-          <header className="mt-4">
-            <h1 className="m-0 text-[clamp(1.85rem,3vw,2.5rem)] leading-[1.1] font-bold tracking-[-0.03em]">
+    <article>
+      <Frame className="pt-8">
+        <BackLink href="/">Kreu</BackLink>
+        <header className="mt-8 grid items-end gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,420px)]">
+          <div>
+            <ShopLogo name={business.name} size="xl" />
+            <p className="m-0 mt-6 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
+              {place}
+            </p>
+            <h1 className="m-0 mt-3 text-[clamp(2.6rem,6vw,4.4rem)] leading-[0.92] font-extrabold tracking-[-0.05em]">
               {business.name}
             </h1>
             {address ? (
-              <p className="mt-2 max-w-xl text-base leading-relaxed text-muted">
+              <p className="mt-4 mb-0 max-w-md text-base leading-relaxed text-muted">
                 {address}
               </p>
             ) : null}
-          </header>
-        </div>
+            <p className="mt-4 mb-0 text-sm font-semibold">
+              {folderTotal} {campaignWord(folderTotal)} · {offerTotal}{" "}
+              {productWord(offerTotal)}
+            </p>
+          </div>
+          <OfferPlace
+            surface="plain"
+            showHeading={false}
+            className="w-full"
+            mapClassName="h-72 rounded-[1.5rem]"
+            name={business.name}
+            place={{
+              address: business.address,
+              latitude: business.latitude,
+              longitude: business.longitude,
+            }}
+          />
+        </header>
+      </Frame>
 
-        <OfferPlace
-          showHeading={false}
-          className="w-full lg:min-w-0 lg:flex-1"
-          mapClassName="h-80"
-          name={business.name}
-          place={{
-            address: business.address,
-            latitude: business.latitude,
-            longitude: business.longitude,
-          }}
-        />
-      </div>
-
-      <BrowseBar
-        basePath={`/biznese/${business.id}`}
-        q={q}
-        category={category}
-        categories={categories}
-      />
-
-      {offers.length === 0 ? (
-        <section
-          className="rounded-2xl border border-line bg-elevated px-5 py-10"
-          aria-live="polite"
-        >
-          <h2 className="m-0 text-lg font-semibold">Nuk ka oferta aktive</h2>
-          <p className="mt-3 max-w-lg leading-relaxed text-muted">
-            Ky dyqan nuk ka zbritje që përputhen me kërkimin.
-          </p>
-        </section>
+      {!filtering ? (
+        <>
+          <Band className="pb-4">
+            <DiscoverForm
+              basePath={basePath}
+              categories={categories}
+            />
+          </Band>
+          {page === 1 && folders.length > 0 ? (
+            <Band>
+              <h2 className="m-0 mb-6 text-[clamp(1.7rem,3vw,2.3rem)] leading-none font-extrabold tracking-[-0.04em]">
+                Fletushkat
+              </h2>
+              <CampaignRail folders={folders} />
+            </Band>
+          ) : null}
+          {offers.length > 0 ? (
+            <Band>
+              <h2 className="m-0 mb-8 text-[clamp(1.7rem,3vw,2.3rem)] leading-none font-extrabold tracking-[-0.04em]">
+                {page > 1 ? "Më shumë produkte" : "Zbritjet aktive"}
+              </h2>
+              <ProductGrid offers={offers} />
+              <Pager
+                page={page}
+                lastPage={lastPage}
+                hrefFor={(next) => browsePath(basePath, { page: next })}
+              />
+            </Band>
+          ) : folders.length === 0 ? (
+            <Band>
+              <EmptyNote
+                title="Nuk ka oferta aktive"
+                body="Ky dyqan nuk ka zbritje publike për momentin."
+              />
+            </Band>
+          ) : null}
+        </>
       ) : (
-        <section aria-label="Ofertat e dyqanit">
-          <OfferList offers={offers} />
-        </section>
+        <ResultsView
+          basePath={basePath}
+          folders={folders}
+          offers={offers}
+          categories={categories}
+          q={q}
+          category={category}
+          page={page}
+          offerLastPage={offerLastPage}
+          folderLastPage={folderLastPage}
+        />
       )}
-    </>
+    </article>
   );
 }

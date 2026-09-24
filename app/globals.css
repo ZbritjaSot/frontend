@@ -23,6 +23,7 @@
   --color-chrome-text: var(--color-chrome-text);
   --color-chrome-muted: var(--color-chrome-muted);
   --color-pending: #f5c542;
+  --color-hover: var(--color-surface-hover);
 }
 
 :root {
@@ -31,19 +32,20 @@
   --color-slate: #6b7280;
   --color-off-white: #f5f5f5;
 
-  /* Light theme — soft mist paper; chrome is lifted charcoal, not pure black. */
-  --color-bg: color-mix(in srgb, var(--color-charcoal) 7%, var(--color-off-white));
-  --color-bg-elevated: #ffffff;
-  --color-bg-muted: color-mix(in srgb, var(--color-charcoal) 10%, var(--color-off-white));
+  /* Light theme — cool mineral paper. Lime is the accent, not the surface. */
+  --color-bg: #f1f2f0;
+  --color-bg-elevated: #fbfbfa;
+  --color-bg-muted: #e4e6e2;
   --color-border: color-mix(in srgb, var(--color-charcoal) 12%, transparent);
   --color-text: var(--color-charcoal);
-  --color-text-muted: color-mix(in srgb, var(--color-charcoal) 28%, var(--color-slate));
+  --color-text-muted: #4a5551;
   --color-accent: var(--color-lime);
   --color-on-accent: var(--color-charcoal);
   --color-danger: #d32f2f;
   --color-danger-soft: #e57373;
-  --color-shadow: color-mix(in srgb, var(--color-charcoal) 12%, transparent);
-  --color-chrome: color-mix(in srgb, var(--color-slate) 28%, var(--color-charcoal));
+  --color-shadow: color-mix(in srgb, var(--color-charcoal) 8%, transparent);
+  --color-surface-hover: color-mix(in srgb, var(--color-charcoal) 5%, var(--color-bg-elevated));
+  --color-chrome: color-mix(in srgb, var(--color-slate) 22%, var(--color-charcoal));
   --color-chrome-text: var(--color-off-white);
   --color-chrome-muted: color-mix(in srgb, var(--color-off-white) 55%, var(--color-slate));
   --color-chrome-footer: var(--color-bg-elevated);
@@ -65,6 +67,7 @@ html[data-theme="dark"] {
   --color-danger: #ff8e8e;
   --color-danger-soft: #ff8e8e;
   --color-shadow: color-mix(in srgb, #000 55%, transparent);
+  --color-surface-hover: color-mix(in srgb, var(--color-off-white) 6%, var(--color-bg-elevated));
   --color-chrome: color-mix(in srgb, var(--color-charcoal) 92%, transparent);
   --color-chrome-text: var(--color-off-white);
   --color-chrome-muted: var(--color-slate);

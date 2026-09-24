@@ -113,6 +113,20 @@ export type PublicBusiness = {
   longitude?: number | null;
 };
 
+/** Public offer folder: one shop, one title, its products. */
+export type PublicFolder = {
+  id: string;
+  title: string;
+  starts_at: string;
+  expires_at: string;
+  business?: BusinessSummary | null;
+  /** Set on the public list. The detail response includes `items` instead. */
+  items_count?: number;
+  /** Strongest discount in the folder. Set on the list so the page does not need every product. */
+  lead_discount_percent?: number | null;
+  items: PublicOffer[];
+};
+
 export type PublicOffer = {
   id: string;
   name: string;

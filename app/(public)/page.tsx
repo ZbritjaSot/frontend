@@ -1,37 +1,57 @@
 import type { Metadata } from "next";
-import { BrowseBar } from "@/features/browse/BrowseBar";
+import { HomeView } from "@/features/public/HomeView";
+import { EmptyNote, Frame } from "@/features/public/Frame";
+import { ResultsView } from "@/features/public/ResultsView";
 import {
   ApiError,
   fetchPublicCategories,
+  fetchPublicFolders,
   fetchPublicOffers,
 } from "@/features/offers/api";
-import { OfferList } from "@/features/offers/OfferList";
-import type { CategorySummary, PublicOffer } from "@/types";
+import type { CategorySummary, PublicFolder, PublicOffer } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Ofertat",
+  title: "Zbritjet e ditës",
 };
 
 type HomePageProps = {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; page?: string }>;
 };
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
   const category = params.category?.trim() || undefined;
-  const filtering = q !== "" || Boolean(category);
+  const page = Math.max(1, Number(params.page) || 1);
+  const browsing = q === "" && !category && page === 1;
 
-  let offers: PublicOffer[] | null = null;
+  let folders: PublicFolder[] = [];
+  let offers: PublicOffer[] = [];
+  let folderLastPage = 1;
+  let offerLastPage = 1;
   let categories: CategorySummary[] = [];
   let errorMessage: string | null = null;
 
   try {
-    const [page, categoryList] = await Promise.all([
-      fetchPublicOffers({ q: q || undefined, category }),
+    const [folderResult, offerResult, categoryList] = await Promise.all([
+      fetchPublicFolders({
+        q: q || undefined,
+        category,
+        page,
+        perPage: browsing ? 12 : 8,
+      }),
+      fetchPublicOffers({
+        q: q || undefined,
+        category,
+        page,
+        perPage: browsing ? 24 : 16,
+      }),
       fetchPublicCategories().catch(() => []),
     ]);
-    offers = page.data;
+    folders = folderResult.data;
+    offers = offerResult.data;
+    folderLastPage = folderResult.meta?.last_page ?? 1;
+    offerLastPage = offerResult.meta?.last_page ?? 1;
     categories = categoryList;
   } catch (error) {
     errorMessage =
@@ -40,40 +60,30 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         : "Nuk mundëm t’i ngarkojmë ofertat tani. Provo përsëri së shpejti.";
   }
 
-  return (
-    <>
-      <h1 className="sr-only">Ofertat</h1>
-      <BrowseBar q={q} category={category} categories={categories} />
+  if (errorMessage) {
+    return (
+      <Frame className="py-16">
+        <EmptyNote title="Diçka shkoi keq" body={errorMessage} />
+      </Frame>
+    );
+  }
 
-      {errorMessage ? (
-        <section
-          className="rounded-2xl border border-line bg-elevated px-5 py-10"
-          aria-live="polite"
-        >
-          <h2 className="m-0 text-lg font-semibold">Diçka shkoi keq</h2>
-          <p className="mt-3 max-w-lg leading-relaxed text-muted">
-            {errorMessage}
-          </p>
-        </section>
-      ) : offers && offers.length === 0 ? (
-        <section
-          className="rounded-2xl border border-line bg-elevated px-5 py-10"
-          aria-live="polite"
-        >
-          <h2 className="m-0 text-lg font-semibold">
-            {filtering ? "Nuk u gjet asgjë" : "Nuk ka oferta aktive"}
-          </h2>
-          <p className="mt-3 max-w-lg leading-relaxed text-muted">
-            {filtering
-              ? "Provo një fjalë tjetër ose një kategori tjetër."
-              : "Momentalisht nuk ka zbritje publike. Ofertat e skaduara hiqen automatikisht nga lista."}
-          </p>
-        </section>
-      ) : offers ? (
-        <section aria-label="Lista e ofertave">
-          <OfferList offers={offers} />
-        </section>
-      ) : null}
-    </>
+  if (!browsing) {
+    return (
+      <ResultsView
+        folders={folders}
+        offers={offers}
+        categories={categories}
+        q={q}
+        category={category}
+        page={page}
+        offerLastPage={offerLastPage}
+        folderLastPage={folderLastPage}
+      />
+    );
+  }
+
+  return (
+    <HomeView folders={folders} offers={offers} categories={categories} />
   );
 }

@@ -127,7 +127,7 @@ export function PlaceMap({
   return (
     <div
       ref={nodeRef}
-      className="h-full w-full bg-[#d7d2c4]"
+      className="relative isolate z-0 h-full w-full bg-[#d7d2c4]"
       role="img"
       aria-label={label}
     />
