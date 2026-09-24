@@ -36,6 +36,17 @@ npm run dev
 
 Open: `/` · `/admin` · `/biz`
 
+## Tests
+
+```bash
+npm test
+npm run test:e2e
+```
+
+`npm test` runs the Vitest checks for prices, dates, and offer rules.
+
+`npm run test:e2e` runs the Playwright shop → admin → public path. It does not use your normal local database. The script creates MySQL database `zbritjasot_e2e` with the same host and user as the backend `.env`, migrates and seeds it, then starts the API on port 8001 and the site on port 3001. It can run beside `npm run dev`. The backend repo is expected at `../backend`. The demo logins below are the seeded accounts. The test deletes the folders it creates.
+
 ## Branch (now)
 
 `feat/app-shells` — Phase 1 discount loop (B1–B7) + shared **Modal** + **Spinner**.
