@@ -29,6 +29,12 @@ export function SiteFooter() {
             <Link href="/biznese" className={link}>
               Dyqanet
             </Link>
+            <Link href="/privatesia" className={link}>
+              Privatësia
+            </Link>
+            <Link href="/kushtet" className={link}>
+              Kushtet
+            </Link>
           </nav>
         </div>
         <p className="m-0 text-sm text-ivory/60 dark:text-muted">
