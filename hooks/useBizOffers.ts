@@ -23,10 +23,10 @@ export function useBizOffers(page = 1) {
   });
 }
 
-export function useRejectedOfferCount() {
+export function usePendingOfferCount() {
   return useQuery({
-    queryKey: [...bizOffersQueryKey, "by-status", "rejected", 4],
-    queryFn: () => fetchBizOfferBundles(1, 4, "rejected"),
+    queryKey: [...bizOffersQueryKey, "by-status", "pending", 4],
+    queryFn: () => fetchBizOfferBundles(1, 4, "pending"),
     select: (page) => page.meta?.total ?? page.data.length,
   });
 }

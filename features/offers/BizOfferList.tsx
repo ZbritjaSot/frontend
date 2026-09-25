@@ -141,9 +141,6 @@ export function BizOfferList() {
             <ul className="col-span-5 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
               {bundles.map((bundle) => {
                 const count = bundle.items_count ?? bundle.items?.length ?? 0;
-                const flagged =
-                  bundle.items?.filter((item) => item.rejection_note).length ??
-                  0;
                 return (
                   <li
                     key={bundle.id}
@@ -156,13 +153,9 @@ export function BizOfferList() {
                       >
                         {bundle.title}
                       </Link>
-                      {bundle.status === "rejected" && bundle.rejection_reason ? (
+                      {bundle.status === "taken_down" && bundle.rejection_reason ? (
                         <p className="m-0 truncate text-sm font-semibold text-danger">
                           {bundle.rejection_reason}
-                        </p>
-                      ) : flagged > 0 ? (
-                        <p className="m-0 truncate text-sm text-muted">
-                          {flagged} për rregullim
                         </p>
                       ) : null}
                     </div>

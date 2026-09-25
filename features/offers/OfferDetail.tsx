@@ -34,7 +34,7 @@ export function OfferDetail({ offer, related = [] }: OfferDetailProps) {
                 sizes="(max-width: 1024px) 100vw, 640px"
                 className="aspect-[4/5] w-full"
               />
-              {offer.discount_percent > 0 ? (
+              {offer.discount_percent != null && offer.discount_percent > 0 ? (
                 <span className="absolute top-4 left-4 z-10">
                   <DiscountBadge percent={offer.discount_percent} />
                 </span>

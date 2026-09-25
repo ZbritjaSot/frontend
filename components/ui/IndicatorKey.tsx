@@ -15,6 +15,7 @@ export type IndicatorMark =
   | "pending"
   | "approved"
   | "rejected"
+  | "taken_down"
   | "expired"
   | "active"
   | "inactive"
@@ -65,6 +66,10 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
     case "rejected":
       return (
         <span className={`${offerStatusClass("rejected")} ${pill}`}>Refuzuar</span>
+      );
+    case "taken_down":
+      return (
+        <span className={`${offerStatusClass("taken_down")} ${pill}`}>Hequr</span>
       );
     case "expired":
       return (
@@ -178,10 +183,10 @@ export const bizOfferKey: IndicatorItem[] = [
   { mark: "draft", text: "Ende nuk është dërguar." },
   { mark: "pending", text: "Pret aprovimin." },
   { mark: "approved", text: "Mund të dalë në faqen publike." },
-  { mark: "rejected", text: "Duhet rregulluar dhe ridërguar." },
+  { mark: "taken_down", text: "Është hequr nga faqja publike." },
   { mark: "expired", text: "Data ka kaluar. Nuk shfaqet." },
   { mark: "view", text: "Hap dosjen." },
-  { mark: "edit", text: "Ndrysho. Vetëm draft ose e refuzuar." },
+  { mark: "edit", text: "Ndrysho. Vetëm draft." },
   { mark: "send", text: "Dërgo për aprovim." },
   { mark: "delete", text: "Fshi dosjen." },
 ];
@@ -190,17 +195,16 @@ export const bizOfferDetailKey: IndicatorItem[] = [
   { mark: "draft", text: "Ende nuk është dërguar." },
   { mark: "pending", text: "Pret aprovimin." },
   { mark: "approved", text: "Mund të dalë në faqen publike." },
-  { mark: "rejected", text: "Duhet rregulluar dhe ridërguar." },
+  { mark: "taken_down", text: "Është hequr nga faqja publike." },
   { mark: "expired", text: "Data ka kaluar. Nuk shfaqet." },
-  { mark: "problem", text: "Produkti është shënuar për rregullim." },
 ];
 
-export function bizHomeKey(rejectedCount: number): IndicatorItem[] {
+export function bizHomeKey(waitingCount: number): IndicatorItem[] {
   return [
   {
-    mark: "count-danger",
-    count: rejectedCount,
-    text: "Sa dosje janë refuzuar. I njëjti numër te Ofertat.",
+    mark: "count-pending",
+    count: waitingCount,
+    text: "Sa dosje presin aprovim. I njëjti numër te Ofertat.",
   },
   { mark: "active", text: "Abonimi lejon ofertat publike." },
   { mark: "pending", text: "Abonimi ende s’ka filluar." },
@@ -244,10 +248,10 @@ export const adminOfferKey: IndicatorItem[] = [
 export const adminInspectKey: IndicatorItem[] = [
   { mark: "pending", text: "Pret vendimin tënd." },
   { mark: "approved", text: "Është në faqen publike, nëse abonimi është aktiv." },
-  { mark: "rejected", text: "I është kthyer biznesit për rregullim." },
+  { mark: "taken_down", text: "Është hequr nga faqja publike." },
   { mark: "expired", text: "Data ka kaluar." },
   { mark: "draft", text: "Biznesi ende s’e ka dërguar." },
-  { mark: "problem", text: "Shëno produktet me problem para se ta refuzosh." },
+  { mark: "edit", text: "Ndrysho dosjen para se ta aprovosh." },
 ];
 
 export const adminBusinessKey: IndicatorItem[] = [

@@ -8,7 +8,12 @@ import Image from "next/image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
-import { fetchBizGallery, uploadBizGallery } from "@/features/gallery/api";
+import {
+  fetchAdminGallery,
+  fetchBizGallery,
+  uploadAdminGallery,
+  uploadBizGallery,
+} from "@/features/gallery/api";
 import { validationMessage } from "@/lib/api";
 import { fieldError } from "@/lib/ui";
 import type { OfferImage } from "@/types";
@@ -18,12 +23,15 @@ export const bizGalleryQueryKey = ["biz", "gallery"] as const;
 export function ItemPhoto({
   name,
   thumbUrl,
+  businessId,
   disabled,
   onPick,
   onClear,
 }: {
   name: string;
   thumbUrl?: string | null;
+  /** When set, photos come from that shop's gallery instead of the signed-in shop. */
+  businessId?: string;
   disabled?: boolean;
   onPick: (image: OfferImage) => void;
   onClear: () => void;
@@ -34,9 +42,13 @@ export function ItemPhoto({
   const [picking, setPicking] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const galleryKey = businessId
+    ? (["admin", "gallery", businessId] as const)
+    : bizGalleryQueryKey;
   const gallery = useQuery({
-    queryKey: bizGalleryQueryKey,
-    queryFn: fetchBizGallery,
+    queryKey: galleryKey,
+    queryFn: () =>
+      businessId ? fetchAdminGallery(businessId) : fetchBizGallery(),
     enabled: open && picking,
   });
 
@@ -53,8 +65,10 @@ export function ItemPhoto({
     setError(null);
     setBusy(true);
     try {
-      const image = await uploadBizGallery(file);
-      await queryClient.invalidateQueries({ queryKey: bizGalleryQueryKey });
+      const image = businessId
+        ? await uploadAdminGallery(businessId, file)
+        : await uploadBizGallery(file);
+      await queryClient.invalidateQueries({ queryKey: galleryKey });
       onPick(image);
       close();
     } catch (caught) {

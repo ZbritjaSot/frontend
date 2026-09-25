@@ -113,10 +113,12 @@ export default async function FolderPage({ params }: FolderPageProps) {
                   {lead.name}
                 </span>
                 <span className="mt-1 flex min-w-0 items-baseline gap-3">
-                  <span className="text-lg font-extrabold text-accent tabular-nums">
-                    {formatEurFromCents(lead.discounted_price)}
-                  </span>
-                  {lead.discount_percent > 0 ? (
+                  {lead.discounted_price != null ? (
+                    <span className="text-lg font-extrabold text-accent tabular-nums">
+                      {formatEurFromCents(lead.discounted_price)}
+                    </span>
+                  ) : null}
+                  {lead.discount_percent != null && lead.discount_percent > 0 ? (
                     <span className="text-sm font-bold">
                       {formatDiscountPercent(lead.discount_percent)}
                     </span>

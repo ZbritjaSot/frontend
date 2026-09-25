@@ -1,7 +1,9 @@
 import type { BusinessSummary, PublicFolder, PublicOffer } from "@/types";
 
 export function byDiscount(offers: PublicOffer[]): PublicOffer[] {
-  return [...offers].sort((a, b) => b.discount_percent - a.discount_percent);
+  return [...offers].sort(
+    (a, b) => (b.discount_percent ?? -1) - (a.discount_percent ?? -1),
+  );
 }
 
 export function endingSoon(
@@ -84,6 +86,12 @@ export function withCampaign(folder: PublicFolder): PublicOffer[] {
   }));
 }
 
-export function savingsCents(original: number, discounted: number): number {
+export function savingsCents(
+  original: number | null,
+  discounted: number | null,
+): number {
+  if (original == null || discounted == null) {
+    return 0;
+  }
   return Math.max(0, original - discounted);
 }

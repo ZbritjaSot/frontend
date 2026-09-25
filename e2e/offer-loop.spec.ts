@@ -41,7 +41,7 @@ async function createAndSubmit(
   window: "live" | "expired",
 ) {
   await page.goto("/biz/offers/new");
-  await page.getByLabel("Titulli i dosjes").fill(title);
+  await page.getByLabel("Titulli i kampanjës").fill(title);
 
   if (window === "expired") {
     await page.getByRole("button", { name: "Fillon" }).click();

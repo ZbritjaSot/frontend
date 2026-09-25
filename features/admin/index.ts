@@ -2,14 +2,13 @@ export { AdminDashboardShell } from "./AdminDashboardShell";
 export { AdminPendingOffers } from "./AdminPendingOffers";
 export { AdminSubscriptions } from "./AdminSubscriptions";
 export { InspectOfferScreen } from "./InspectOfferScreen";
-export { RejectBundleModal } from "./RejectBundleModal";
 export {
   approveOffer,
   fetchAdminOfferBundle,
   fetchApprovedOffers,
   fetchPendingOffers,
-  rejectOffer,
   takeDownOffer,
+  updateAdminOfferBundle,
 } from "./offersApi";
 export {
   createSubscription,

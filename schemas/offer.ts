@@ -1,11 +1,19 @@
 import { z } from "zod";
 import { MAX_PRICE_CENTS } from "@/lib/format";
 
-const centsPrice = z
+const optionalCents = z
   .number({ error: "Çmimi duhet të jetë numër." })
   .int("Çmimi duhet të jetë i plotë (cent).")
   .positive("Çmimi duhet të jetë më i madh se 0.")
-  .max(MAX_PRICE_CENTS, "Çmimi është shumë i lartë.");
+  .max(MAX_PRICE_CENTS, "Çmimi është shumë i lartë.")
+  .nullable();
+
+const optionalPercent = z
+  .number({ error: "Zbritja duhet të jetë numër." })
+  .int("Zbritja duhet të jetë e plotë.")
+  .min(1, "Zbritja duhet të jetë midis 1% dhe 99%.")
+  .max(99, "Zbritja duhet të jetë midis 1% dhe 99%.")
+  .nullable();
 
 const offerItemSchema = z
   .object({
@@ -15,26 +23,32 @@ const offerItemSchema = z
       .trim()
       .min(1, "Emri i produktit është i detyrueshëm.")
       .max(255, "Emri është shumë i gjatë."),
-    /** Integer cents (POS entry). */
-    original_price: centsPrice,
-    /** Integer cents (POS entry). */
-    discounted_price: centsPrice,
+    original_price: optionalCents,
+    discounted_price: optionalCents,
+    discount_percent: optionalPercent,
     gallery_image_id: z.string().uuid().nullable().optional(),
   })
-  .refine((data) => data.discounted_price < data.original_price, {
-    message: "Çmimi me zbritje duhet të jetë më i ulët se çmimi origjinal.",
-    path: ["discounted_price"],
-  })
   .refine(
-    (data) => {
-      const percent = Math.round(
-        ((data.original_price - data.discounted_price) / data.original_price) *
-          100,
-      );
-      return percent >= 1 && percent <= 99;
-    },
+    (data) => data.discounted_price !== null || data.discount_percent !== null,
     {
-      message: "Zbritja duhet të jetë midis 1% dhe 99%.",
+      message: "Vendos çmimin me zbritje ose përqindjen.",
+      path: ["discounted_price"],
+    },
+  )
+  .refine(
+    (data) => data.discounted_price === null || data.original_price !== null,
+    {
+      message: "Çmimi origjinal duhet kur vendoset çmimi me zbritje.",
+      path: ["original_price"],
+    },
+  )
+  .refine(
+    (data) =>
+      data.discounted_price === null ||
+      data.original_price === null ||
+      data.discounted_price < data.original_price,
+    {
+      message: "Çmimi me zbritje duhet të jetë më i ulët se çmimi origjinal.",
       path: ["discounted_price"],
     },
   );
@@ -44,7 +58,7 @@ export const offerBundleFormSchema = z
     title: z
       .string()
       .trim()
-      .min(1, "Titulli i dosjes është i detyrueshëm.")
+      .min(1, "Titulli i kampanjës është i detyrueshëm.")
       .max(255, "Titulli është shumë i gjatë."),
     starts_at: z.string().min(1, "Data e fillimit është e detyrueshme."),
     expires_at: z.string().min(1, "Data e skadimit është e detyrueshme."),

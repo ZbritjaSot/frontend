@@ -15,6 +15,7 @@ function folder(overrides: Record<string, unknown> = {}) {
         name: "Espresso",
         original_price: 200,
         discounted_price: 140,
+        discount_percent: null,
       },
     ],
     ...overrides,
@@ -30,13 +31,43 @@ function messages(input: unknown): string[] {
 }
 
 describe("offer form validation", () => {
-  it("accepts a folder with a 30 percent discount in cents", () => {
+  it("accepts a price, a percent, or both", () => {
     expect(offerBundleFormSchema.safeParse(folder()).success).toBe(true);
+    expect(
+      offerBundleFormSchema.safeParse(
+        folder({
+          items: [
+            {
+              category_id: categoryId,
+              name: "Qumësht",
+              original_price: null,
+              discounted_price: null,
+              discount_percent: 20,
+            },
+          ],
+        }),
+      ).success,
+    ).toBe(true);
+    expect(
+      offerBundleFormSchema.safeParse(
+        folder({
+          items: [
+            {
+              category_id: categoryId,
+              name: "Bukë",
+              original_price: 200,
+              discounted_price: 140,
+              discount_percent: 25,
+            },
+          ],
+        }),
+      ).success,
+    ).toBe(true);
   });
 
-  it("requires a title, a product, and an end date after the start", () => {
+  it("requires a campaign title, a product, and an end date after the start", () => {
     expect(messages(folder({ title: "  " }))).toContain(
-      "Titulli i dosjes është i detyrueshëm.",
+      "Titulli i kampanjës është i detyrueshëm.",
     );
     expect(messages(folder({ items: [] }))).toContain(
       "Shto të paktën një produkt.",
@@ -59,24 +90,20 @@ describe("offer form validation", () => {
     ).toContain("Çmimi është shumë i lartë.");
   });
 
-  it("requires the discounted price to be lower and the percent to stay from 1 to 99", () => {
+  it("requires one of price or percent, and a lower sale price", () => {
     const item = folder().items[0];
+    expect(
+      messages(
+        folder({
+          items: [{ ...item, original_price: null, discounted_price: null, discount_percent: null }],
+        }),
+      ),
+    ).toContain("Vendos çmimin me zbritje ose përqindjen.");
     expect(
       messages(folder({ items: [{ ...item, discounted_price: 200 }] })),
     ).toContain("Çmimi me zbritje duhet të jetë më i ulët se çmimi origjinal.");
     expect(
-      messages(
-        folder({
-          items: [{ ...item, original_price: 1000, discounted_price: 996 }],
-        }),
-      ),
-    ).toContain("Zbritja duhet të jetë midis 1% dhe 99%.");
-    expect(
-      messages(
-        folder({
-          items: [{ ...item, original_price: 200, discounted_price: 1 }],
-        }),
-      ),
+      messages(folder({ items: [{ ...item, discount_percent: 0 }] })),
     ).toContain("Zbritja duhet të jetë midis 1% dhe 99%.");
   });
 });

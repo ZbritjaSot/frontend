@@ -71,7 +71,7 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-extrabold">{offer.name}</span>
         <span className="mt-1 flex min-w-0 items-center gap-2">
-          {offer.discount_percent > 0 ? (
+          {offer.discount_percent != null && offer.discount_percent > 0 ? (
             <span className="shrink-0">
               <DiscountBadge percent={offer.discount_percent} />
             </span>
@@ -85,7 +85,13 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
         <span className="block truncate text-xs font-bold text-muted tabular-nums">
           {formatDateShortSq(offer.expires_at)}
         </span>
-        <PriceLine sale={offer.discounted_price} original={offer.original_price} size="sm" />
+        {offer.discounted_price != null ? (
+          <PriceLine
+            sale={offer.discounted_price}
+            original={offer.original_price ?? 0}
+            size="sm"
+          />
+        ) : null}
       </span>
     </Link>
   );

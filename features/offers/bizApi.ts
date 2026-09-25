@@ -9,7 +9,7 @@ type CategoryListPayload = {
 
 type BundlePayload = { data: OfferBundle };
 
-function toApiBody(input: OfferBundleFormInput) {
+export function toApiBody(input: OfferBundleFormInput) {
   return {
     title: input.title,
     starts_at: fromDateTimeLocalValue(input.starts_at),
@@ -20,6 +20,7 @@ function toApiBody(input: OfferBundleFormInput) {
       name: item.name,
       original_price: item.original_price,
       discounted_price: item.discounted_price,
+      discount_percent: item.discount_percent,
       gallery_image_id: item.gallery_image_id ?? null,
     })),
   };

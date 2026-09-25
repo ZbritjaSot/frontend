@@ -6,9 +6,10 @@ import {
   fetchAdminOfferBundle,
   fetchApprovedOffers,
   fetchPendingOffers,
-  rejectOffer,
   takeDownOffer,
+  updateAdminOfferBundle,
 } from "@/features/admin/offersApi";
+import type { OfferBundleFormInput } from "@/schemas/offer";
 
 export const adminPendingOffersQueryKey = [
   "admin",
@@ -64,19 +65,12 @@ export function useApproveOffer() {
   });
 }
 
-export function useRejectOffer() {
+export function useUpdateAdminOffer(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      reason,
-      item_ids,
-    }: {
-      id: string;
-      reason?: string;
-      item_ids: string[];
-    }) => rejectOffer(id, { reason, item_ids }),
-    onSuccess: async (_data, { id }) => {
+    mutationFn: (input: OfferBundleFormInput) =>
+      updateAdminOfferBundle(id, input),
+    onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: adminPendingOffersQueryKey,
       });

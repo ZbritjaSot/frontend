@@ -8,7 +8,7 @@ import {
   DashboardShell,
   type DashboardNavItem,
 } from "@/components/chrome/DashboardShell";
-import { useRejectedOfferCount } from "@/hooks/useBizOffers";
+import { usePendingOfferCount } from "@/hooks/useBizOffers";
 
 const baseNav: DashboardNavItem[] = [
   { href: "/biz", label: "Paneli", icon: <DashboardIcon fontSize="small" /> },
@@ -21,15 +21,15 @@ const baseNav: DashboardNavItem[] = [
 ];
 
 export function BizDashboardShell({ children }: { children: ReactNode }) {
-  const { data: rejectedCount = 0 } = useRejectedOfferCount();
+  const { data: pendingCount = 0 } = usePendingOfferCount();
 
   const nav = baseNav.map((item) => {
     if (item.href === "/biz/offers") {
       return {
         ...item,
-        badge: rejectedCount,
-        badgeTone: "danger" as const,
-        badgeLabel: `${rejectedCount} të refuzuara`,
+        badge: pendingCount,
+        badgeTone: "pending" as const,
+        badgeLabel: `${pendingCount} në pritje`,
       };
     }
     return item;

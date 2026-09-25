@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { PosMoneyField } from "@/components/ui/PosMoneyField";
 import { SelectField } from "@/components/ui/SelectField";
+import { useUpdateAdminOffer } from "@/hooks/useAdminOffers";
 import {
   useActiveCategories,
   useCreateBizOffer,
@@ -41,6 +42,8 @@ type ItemDraft = {
 type OfferFormProps = {
   mode: "create" | "edit";
   offer?: OfferBundle;
+  /** Admin edits a waiting flyer. The shop form stays on drafts. */
+  audience?: "biz" | "admin";
 };
 
 function emptyItem(key: string): ItemDraft {
@@ -55,26 +58,6 @@ function emptyItem(key: string): ItemDraft {
     thumb_url: null,
     rejection_note: null,
   };
-}
-
-function percentFromCents(originalCents: number, discountedCents: number): string {
-  if (
-    !(originalCents > 0) ||
-    !(discountedCents >= 0) ||
-    discountedCents >= originalCents
-  ) {
-    return "";
-  }
-  return String(
-    Math.round(((originalCents - discountedCents) / originalCents) * 100),
-  );
-}
-
-function discountedFromPercent(originalCents: number, percent: number): number {
-  if (!(originalCents > 0) || !(percent >= 1) || percent > 99) {
-    return 0;
-  }
-  return Math.max(1, Math.round(originalCents * (1 - percent / 100)));
 }
 
 /** Keep % as integer digits only, clamped to 1–99 while typing. */
@@ -117,12 +100,19 @@ function onPercentKeyDown(event: KeyboardEvent<HTMLInputElement>) {
   }
 }
 
-export function OfferForm({ mode, offer }: OfferFormProps) {
+export function OfferForm({ mode, offer, audience = "biz" }: OfferFormProps) {
   const router = useRouter();
   const { data: categories = [], isLoading: categoriesLoading } =
     useActiveCategories();
   const createMutation = useCreateBizOffer();
-  const updateMutation = useUpdateBizOffer(offer?.id ?? "");
+  const updateBizMutation = useUpdateBizOffer(offer?.id ?? "");
+  const updateAdminMutation = useUpdateAdminOffer(offer?.id ?? "");
+  const updateMutation =
+    audience === "admin" ? updateAdminMutation : updateBizMutation;
+  const leaveHref =
+    audience === "admin" && offer
+      ? `/admin/offers/${offer.id}`
+      : "/biz/offers";
 
   const defaults = defaultOfferWindow();
   const [title, setTitle] = useState(offer?.title ?? "");
@@ -138,9 +128,10 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
         key: item.id ?? `item-${index}`,
         category_id: item.category?.id ?? "",
         name: item.name,
-        original_price: item.original_price,
-        discounted_price: item.discounted_price,
-        discount_percent: String(item.discount_percent),
+        original_price: item.original_price ?? 0,
+        discounted_price: item.discounted_price ?? 0,
+        discount_percent:
+          item.discount_percent == null ? "" : String(item.discount_percent),
         gallery_image_id: item.image?.id ?? null,
         thumb_url: item.image?.thumb_url ?? null,
         rejection_note: item.rejection_note ?? null,
@@ -177,75 +168,15 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
   }
 
   function onOriginalChange(key: string, cents: number) {
-    setItems((prev) =>
-      prev.map((item) => {
-        if (item.key !== key) {
-          return item;
-        }
-        const percent = Number(item.discount_percent);
-        if (cents > 0 && Number.isFinite(percent) && percent >= 1 && percent <= 99) {
-          return {
-            ...item,
-            original_price: cents,
-            discounted_price: discountedFromPercent(cents, percent),
-          };
-        }
-        if (cents > 0 && item.discounted_price > 0) {
-          return {
-            ...item,
-            original_price: cents,
-            discount_percent: percentFromCents(cents, item.discounted_price),
-          };
-        }
-        return { ...item, original_price: cents };
-      }),
-    );
+    patchItem(key, { original_price: cents });
   }
 
   function onPercentChange(key: string, value: string) {
-    const sanitized = sanitizeDiscountPercentInput(value);
-    setItems((prev) =>
-      prev.map((item) => {
-        if (item.key !== key) {
-          return item;
-        }
-        const percent = Number(sanitized);
-        if (
-          item.original_price > 0 &&
-          Number.isFinite(percent) &&
-          percent >= 1 &&
-          percent <= 99
-        ) {
-          return {
-            ...item,
-            discount_percent: sanitized,
-            discounted_price: discountedFromPercent(
-              item.original_price,
-              percent,
-            ),
-          };
-        }
-        return { ...item, discount_percent: sanitized };
-      }),
-    );
+    patchItem(key, { discount_percent: sanitizeDiscountPercentInput(value) });
   }
 
   function onDiscountedChange(key: string, cents: number) {
-    setItems((prev) =>
-      prev.map((item) => {
-        if (item.key !== key) {
-          return item;
-        }
-        if (item.original_price > 0) {
-          return {
-            ...item,
-            discounted_price: cents,
-            discount_percent: percentFromCents(item.original_price, cents),
-          };
-        }
-        return { ...item, discounted_price: cents };
-      }),
-    );
+    patchItem(key, { discounted_price: cents });
   }
 
   function addItem() {
@@ -284,12 +215,15 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
           name,
           original_price,
           discounted_price,
+          discount_percent,
           gallery_image_id,
         }) => ({
           category_id,
           name,
-          original_price,
-          discounted_price,
+          original_price: original_price > 0 ? original_price : null,
+          discounted_price: discounted_price > 0 ? discounted_price : null,
+          discount_percent:
+            discount_percent.trim() === "" ? null : Number(discount_percent),
           gallery_image_id,
         }),
       ),
@@ -310,7 +244,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
         router.replace("/biz/offers");
       } else if (offer) {
         await updateMutation.mutateAsync(parsed.data);
-        router.replace("/biz/offers");
+        router.replace(leaveHref);
       }
     } catch (err) {
       setError(validationMessage(err, "Nuk mundëm ta ruajmë ofertën."));
@@ -326,7 +260,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
     <form className="flex flex-col gap-8" onSubmit={onSubmit} noValidate>
       <section className="rounded-2xl border border-line px-5 py-5">
         <label className="flex flex-col gap-2">
-          <span className={micro}>Titulli</span>
+          <span className={micro}>Titulli i kampanjës</span>
           <input
             className={`${inputClass} text-lg! font-semibold`}
             type="text"
@@ -336,7 +270,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
             required
             maxLength={255}
             placeholder="p.sh. Nëntor 2026"
-            aria-label="Titulli i dosjes"
+            aria-label="Titulli i kampanjës"
           />
         </label>
         <div className="mt-5 grid gap-5 border-t border-line pt-5 md:grid-cols-2 md:gap-8">
@@ -369,12 +303,6 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
           </p>
         </div>
 
-        {offer?.status === "rejected" && offer.rejection_reason ? (
-          <p className="m-0 mb-3 text-sm font-semibold text-danger" role="status">
-            {offer.rejection_reason}
-          </p>
-        ) : null}
-
         <div className="overflow-hidden rounded-2xl border border-line">
           {items.map((item, index) => {
             const percent = Number(item.discount_percent);
@@ -389,16 +317,15 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
             return (
               <div
                 key={item.key}
-                className={`border-b border-line px-4 py-4 ${
-                  item.rejection_note
-                    ? "shadow-[inset_3px_0_0_var(--color-danger)]"
-                    : ""
-                }`}
+                className="border-b border-line px-4 py-4"
               >
                 <div className="flex items-stretch gap-4">
                   <ItemPhoto
                     name={item.name}
                     thumbUrl={item.thumb_url}
+                    businessId={
+                      audience === "admin" ? offer?.business?.id : undefined
+                    }
                     disabled={pending}
                     onPick={(image) => {
                       patchItem(item.key, {
@@ -461,8 +388,8 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
                       ) : null}
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      <label className="flex flex-col gap-1.5">
+                    <div className="flex flex-wrap items-end gap-3">
+                      <label className="flex min-w-36 flex-1 flex-col gap-1.5">
                         <span className={micro}>Origjinali</span>
                         <PosMoneyField
                           valueCents={item.original_price}
@@ -473,7 +400,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
                           aria-label={`Çmimi origjinal i produktit ${index + 1}`}
                         />
                       </label>
-                      <label className="flex flex-col gap-1.5">
+                      <label className="flex w-24 shrink-0 flex-col gap-1.5">
                         <span className={micro}>Zbritja</span>
                         <div className="relative">
                           <input
@@ -507,7 +434,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
                           </span>
                         </div>
                       </label>
-                      <label className="flex flex-col gap-1.5">
+                      <label className="flex w-32 shrink-0 flex-col gap-1.5">
                         <span className={micro}>Çmimi</span>
                         <div
                           className={
@@ -544,11 +471,6 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
                   </div>
                 </div>
 
-                {item.rejection_note ? (
-                  <p className="m-0 mt-3 text-sm font-semibold text-danger">
-                    {item.rejection_note}
-                  </p>
-                ) : null}
               </div>
             );
           })}
@@ -576,7 +498,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
           className={btnGhost}
           type="button"
           disabled={pending}
-          onClick={() => router.push("/biz/offers")}
+          onClick={() => router.push(leaveHref)}
         >
           Anulo
         </button>
