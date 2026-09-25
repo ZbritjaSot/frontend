@@ -55,7 +55,7 @@ function DealCopy({ offer }: { offer: PublicOffer }) {
 
   return (
     <div className="mt-6 max-w-md">
-      {offer.discount_percent > 0 ? (
+      {offer.discount_percent != null && offer.discount_percent > 0 ? (
         <p className="m-0 text-5xl leading-none font-extrabold tracking-[-0.05em] text-accent">
           {formatDiscountPercent(offer.discount_percent)}
         </p>

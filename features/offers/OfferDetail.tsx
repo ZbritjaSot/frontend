@@ -51,13 +51,15 @@ export function OfferDetail({ offer, related = [] }: OfferDetailProps) {
             <h1 className={`m-0 mt-3 text-[clamp(2.2rem,4vw,3.4rem)] ${display}`}>
               {offer.name}
             </h1>
-            <div className="mt-5">
-              <PriceLine
-                sale={offer.discounted_price}
-                original={offer.original_price}
-                size="xl"
-              />
-            </div>
+            {offer.discounted_price != null ? (
+              <div className="mt-5">
+                <PriceLine
+                  sale={offer.discounted_price}
+                  original={offer.original_price ?? 0}
+                  size="xl"
+                />
+              </div>
+            ) : null}
             {saved > 0 ? (
               <p className="mt-3 mb-0 text-sm font-semibold">
                 Kurse {formatEurFromCents(saved)}
