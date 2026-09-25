@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { OfferPlace } from "@/components/place/OfferPlace";
-import { CampaignRail } from "@/features/public/CampaignPoster";
+import { CampaignGrid, CampaignPoster } from "@/features/public/CampaignPoster";
 import { campaignWord, productWord } from "@/features/public/compose";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
 import { BackLink, Band, EmptyNote, Frame, Pager } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import { ResultsView } from "@/features/public/ResultsView";
+import { display, kicker, panel } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
 import {
   fetchPublicBusiness,
@@ -21,7 +22,7 @@ import type { CategorySummary, PublicBusiness, PublicFolder, PublicOffer } from 
 
 type BusinessPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ q?: string; category?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; page?: string; fp?: string }>;
 };
 
 export async function generateMetadata({
@@ -49,6 +50,7 @@ export default async function BusinessPage({
   const q = query.q?.trim() ?? "";
   const category = query.category?.trim() || undefined;
   const page = Math.max(1, Number(query.page) || 1);
+  const flyerPage = Math.max(1, Number(query.fp) || 1);
   const filtering = q !== "" || Boolean(category);
   const basePath = `/biznese/${id}`;
 
@@ -69,8 +71,8 @@ export default async function BusinessPage({
         q: q || undefined,
         category,
         business: id,
-        page,
-        perPage: 24,
+        page: filtering ? page : flyerPage,
+        perPage: 12,
       }),
       fetchPublicOffers({
         q: q || undefined,
@@ -112,23 +114,22 @@ export default async function BusinessPage({
   );
   const address = lines.length > 0 ? lines.join(", ") : (business.address ?? "");
   const place = business.city ?? business.village ?? "Dyqan lokal";
-  const lastPage = offers.length > 0 || offerLastPage > 1 ? offerLastPage : folderLastPage;
 
   return (
     <article>
       <Frame className="pt-8">
         <BackLink href="/">Kreu</BackLink>
-        <header className="mt-8 grid items-end gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,420px)]">
-          <div>
+        <header className="mt-8 grid items-end gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,420px)]">
+          <div className={`${panel} p-6 sm:p-8`}>
             <ShopLogo
               name={business.name}
               logoUrl={business.logo_url}
               size="xl"
             />
-            <p className="m-0 mt-6 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
-              {place}
-            </p>
-            <h1 className="m-0 mt-3 text-[clamp(2.6rem,6vw,4.4rem)] leading-[0.92] font-extrabold tracking-[-0.05em]">
+            <div className="mt-6">
+              <p className={kicker}>{place}</p>
+            </div>
+            <h1 className={`m-0 mt-3 text-[clamp(2.8rem,6vw,4.8rem)] ${display}`}>
               {business.name}
             </h1>
             {address ? (
@@ -145,7 +146,7 @@ export default async function BusinessPage({
             surface="plain"
             showHeading={false}
             className="w-full"
-            mapClassName="h-72 rounded-[1.5rem]"
+            mapClassName="h-72 overflow-hidden rounded-2xl border border-line"
             name={business.name}
             place={{
               address: business.address,
@@ -164,12 +165,22 @@ export default async function BusinessPage({
               categories={categories}
             />
           </Band>
-          {page === 1 && folders.length > 0 ? (
+          {folders.length > 0 ? (
             <Band>
-              <h2 className="m-0 mb-6 text-[clamp(1.7rem,3vw,2.3rem)] leading-none font-extrabold tracking-[-0.04em]">
+              <h2 className="m-0 mb-6 text-[clamp(2rem,4vw,3rem)] leading-[0.9] font-extrabold tracking-[-0.05em]">
                 Fletushkat
               </h2>
-              <CampaignRail folders={folders} />
+              <div className="grid gap-4">
+                {flyerPage === 1 ? (
+                  <CampaignPoster folder={folders[0]} layout="feature" eager />
+                ) : null}
+                <CampaignGrid folders={flyerPage === 1 ? folders.slice(1) : folders} />
+              </div>
+              <Pager
+                page={flyerPage}
+                lastPage={folderLastPage}
+                hrefFor={(next) => browsePath(basePath, { page, fp: next })}
+              />
             </Band>
           ) : null}
           {offers.length > 0 ? (
@@ -177,11 +188,11 @@ export default async function BusinessPage({
               <h2 className="m-0 mb-8 text-[clamp(1.7rem,3vw,2.3rem)] leading-none font-extrabold tracking-[-0.04em]">
                 {page > 1 ? "Më shumë produkte" : "Zbritjet aktive"}
               </h2>
-              <ProductGrid offers={offers} />
+              <ProductGrid offers={offers} dense={offers.length > 9} />
               <Pager
                 page={page}
-                lastPage={lastPage}
-                hrefFor={(next) => browsePath(basePath, { page: next })}
+                lastPage={offerLastPage}
+                hrefFor={(next) => browsePath(basePath, { page: next, fp: flyerPage })}
               />
             </Band>
           ) : folders.length === 0 ? (
@@ -204,6 +215,8 @@ export default async function BusinessPage({
           page={page}
           offerLastPage={offerLastPage}
           folderLastPage={folderLastPage}
+          offerTotal={offerTotal}
+          folderTotal={folderTotal}
         />
       )}
     </article>

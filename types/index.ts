@@ -122,6 +122,8 @@ export type PublicBusiness = {
   latitude?: number | null;
   longitude?: number | null;
   logo_url?: string | null;
+  flyers_count?: number;
+  offers_count?: number;
 };
 
 /** Public offer folder: one shop, one title, its products. */

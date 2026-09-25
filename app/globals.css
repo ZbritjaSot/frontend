@@ -22,6 +22,8 @@
   --color-chrome: var(--color-chrome);
   --color-chrome-text: var(--color-chrome-text);
   --color-chrome-muted: var(--color-chrome-muted);
+  --color-forest: var(--color-forest);
+  --color-ivory: var(--color-ivory);
   --color-pending: #f5c542;
   --color-hover: var(--color-surface-hover);
   --color-mist: var(--color-bg-mist);
@@ -32,24 +34,26 @@
   --color-charcoal: #0b0f0e;
   --color-slate: #6b7280;
   --color-off-white: #f5f5f5;
+  --color-forest: #243528;
+  --color-ivory: #f6f3ea;
 
-  /* Light theme — deep olive. Cream cards, olive header, lime accent. */
-  --color-bg: #7f8f62;
-  --color-bg-elevated: #f4efe4;
-  --color-bg-muted: #8e9e6c;
-  --color-bg-mist: #f4efe4;
-  --color-border: #5c6844;
-  --color-text: #1a1c14;
-  --color-text-muted: #2a3024;
+  /* Light theme — warm ivory paper, forest for editorial blocks, lime as accent. */
+  --color-bg: #f4f1e8;
+  --color-bg-elevated: #fffdf8;
+  --color-bg-muted: #e7e2d6;
+  --color-bg-mist: #ece7db;
+  --color-border: rgba(24, 32, 24, 0.1);
+  --color-text: #182018;
+  --color-text-muted: #5c6558;
   --color-accent: var(--color-lime);
   --color-on-accent: var(--color-charcoal);
   --color-danger: #d32f2f;
   --color-danger-soft: #e57373;
-  --color-shadow: color-mix(in srgb, #2e3a22 28%, transparent);
-  --color-surface-hover: #9aab78;
-  --color-chrome: #3a4830;
-  --color-chrome-text: #f4efe4;
-  --color-chrome-muted: #c9d0b8;
+  --color-shadow: rgba(24, 32, 24, 0.08);
+  --color-surface-hover: rgba(24, 32, 24, 0.045);
+  --color-chrome: rgba(244, 241, 232, 0.9);
+  --color-chrome-text: #182018;
+  --color-chrome-muted: #5c6558;
   --color-chrome-footer: var(--color-bg-elevated);
   --color-chrome-footer-text: var(--color-text-muted);
 

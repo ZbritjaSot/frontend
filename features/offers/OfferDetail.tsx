@@ -2,13 +2,11 @@ import Link from "next/link";
 import { OfferPlace } from "@/components/place/OfferPlace";
 import { savingsCents } from "@/features/public/compose";
 import { BackLink, Band, Frame, SectionHeading } from "@/features/public/Frame";
+import { DiscountBadge, PriceLine } from "@/features/public/price";
+import { display, kicker } from "@/features/public/tone";
 import { ProductGrid, ShopLink } from "@/features/public/ProductPoster";
 import { ProductVisual } from "@/features/public/visuals";
-import {
-  formatDateSq,
-  formatDiscountPercent,
-  formatEurFromCents,
-} from "@/lib/format";
+import { formatDateSq, formatEurFromCents } from "@/lib/format";
 import type { PublicOffer } from "@/types";
 
 type OfferDetailProps = {
@@ -26,67 +24,64 @@ export function OfferDetail({ offer, related = [] }: OfferDetailProps) {
     <article>
       <Frame className="pt-8">
         <BackLink href={backHref}>{backLabel}</BackLink>
-        <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:gap-14">
-          <div className="lg:col-span-6">
-            <div className="overflow-hidden rounded-[1.75rem]">
+        <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:gap-10">
+          <div className="lg:col-span-7">
+            <div className="relative overflow-hidden rounded-[1.35rem] border border-line">
               <ProductVisual
                 name={offer.name}
                 imageUrl={offer.image?.detail_url}
                 priority
+                sizes="(max-width: 1024px) 100vw, 640px"
                 className="aspect-[4/5] w-full"
               />
+              {offer.discount_percent > 0 ? (
+                <span className="absolute top-4 left-4 z-10">
+                  <DiscountBadge percent={offer.discount_percent} />
+                </span>
+              ) : null}
             </div>
           </div>
 
-          <div className="lg:col-span-6 lg:pt-4">
+          <div className="rounded-2xl border border-line bg-elevated p-5 sm:p-6 lg:col-span-5 dark:border-white/10 dark:bg-[#1a2420]">
             {offer.category ? (
-              <Link
-                href={`/?category=${offer.category.slug}`}
-                className="text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase hover:text-ink"
-              >
+              <Link href={`/?category=${offer.category.slug}`} className={`${kicker} hover:text-ink`}>
                 {offer.category.name}
               </Link>
             ) : null}
-            <h1 className="m-0 mt-3 text-[clamp(2.2rem,5vw,3.4rem)] leading-[0.98] font-extrabold tracking-[-0.045em]">
+            <h1 className={`m-0 mt-3 text-[clamp(2.2rem,4vw,3.4rem)] ${display}`}>
               {offer.name}
             </h1>
             <div className="mt-5">
+              <PriceLine
+                sale={offer.discounted_price}
+                original={offer.original_price}
+                size="xl"
+              />
+            </div>
+            {saved > 0 ? (
+              <p className="mt-3 mb-0 text-sm font-semibold">
+                Kurse {formatEurFromCents(saved)}
+              </p>
+            ) : null}
+            <p className="mt-3 mb-0 text-sm text-muted">
+              Deri më {formatDateSq(offer.expires_at)}
+            </p>
+            <div className="mt-6 border-t border-line pt-5">
               <ShopLink
                 name={shop}
                 logoUrl={offer.business?.logo_url}
                 href={offer.business ? `/biznese/${offer.business.id}` : undefined}
                 size="md"
               />
-            </div>
-            <p className="m-0 mt-8 flex flex-wrap items-end gap-x-4 gap-y-2">
-              <span className="text-[clamp(2.4rem,5vw,3.4rem)] leading-none font-extrabold tracking-[-0.04em] text-ink tabular-nums dark:text-accent">
-                {formatEurFromCents(offer.discounted_price)}
-              </span>
-              <span className="mb-1 text-xl text-muted line-through tabular-nums">
-                {formatEurFromCents(offer.original_price)}
-              </span>
-            </p>
-            {saved > 0 ? (
-              <p className="mt-3 mb-0 text-sm font-semibold">
-                Kurse {formatEurFromCents(saved)}
-                {offer.discount_percent > 0
-                  ? ` · ${formatDiscountPercent(offer.discount_percent)}`
-                  : ""}
-              </p>
-            ) : null}
-            <p className="mt-6 mb-0 text-base text-muted">
-              Deri më {formatDateSq(offer.expires_at)}
-            </p>
-            {offer.bundle ? (
-              <p className="mt-6 mb-0">
+              {offer.bundle ? (
                 <Link
                   href={`/dosje/${offer.bundle.id}`}
-                  className="text-sm font-extrabold tracking-tight underline-offset-4 hover:underline"
+                  className="mt-4 block text-sm font-extrabold tracking-tight underline-offset-4 hover:underline"
                 >
                   Nga fletushka {offer.bundle.title}
                 </Link>
-              </p>
-            ) : null}
+              ) : null}
+            </div>
           </div>
         </div>
       </Frame>

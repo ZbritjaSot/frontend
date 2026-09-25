@@ -75,6 +75,36 @@ export function BizLoginScreen() {
             <li>
               <code>meridian@demo.zbritjasot.com</code>
             </li>
+            <li>
+              <code>albi@demo.zbritjasot.com</code>
+            </li>
+            <li>
+              <code>emona@demo.zbritjasot.com</code>
+            </li>
+            <li>
+              <code>elkos@demo.zbritjasot.com</code>
+            </li>
+            <li>
+              <code>extra@demo.zbritjasot.com</code>
+            </li>
+            <li>
+              <code>abi@demo.zbritjasot.com</code>
+            </li>
+            <li>
+              <code>samir@demo.zbritjasot.com</code>
+            </li>
+            <li>
+              <code>benaf@demo.zbritjasot.com</code>
+            </li>
+            <li>
+              <code>labi@demo.zbritjasot.com</code>
+            </li>
+            <li>
+              <code>bamir@demo.zbritjasot.com</code>
+            </li>
+            <li>
+              <code>tropikal@demo.zbritjasot.com</code>
+            </li>
           </ul>
         </div>
 

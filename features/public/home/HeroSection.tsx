@@ -1,72 +1,93 @@
 import Link from "next/link";
-import { DiscoverForm } from "@/features/public/DiscoverForm";
+import { DiscountBadge, PriceLine } from "@/features/public/price";
 import { Frame } from "@/features/public/Frame";
-import { ProductVisual } from "@/features/public/visuals";
-import { formatDiscountPercent, formatEurFromCents } from "@/lib/format";
-import type { CategorySummary, PublicOffer } from "@/types";
+import { ProductVisual, ShopLogo } from "@/features/public/visuals";
+import { formatDateSq, formatDiscountPercent } from "@/lib/format";
+import type { PublicOffer } from "@/types";
 
-export function HeroSection({
-  categories,
-  hero,
-}: {
-  categories: CategorySummary[];
-  hero: PublicOffer | null;
-}) {
+export function HeroSection({ hero }: { hero: PublicOffer | null }) {
   return (
-    <Frame className="pt-10 pb-6 sm:pt-14">
-      <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.82fr)] lg:gap-20">
-        <div className="lg:pt-8">
-          <p className="m-0 text-sm font-semibold text-muted">Kosovë</p>
-          <h1 className="m-0 mt-3 max-w-xl text-[clamp(2.7rem,7vw,4.75rem)] leading-[0.9] font-extrabold tracking-[-0.05em]">
-            Zbritjet e ditës, pranë teje.
-          </h1>
-          <p className="mt-5 mb-0 max-w-md text-base leading-relaxed text-muted sm:text-lg">
-            Shfleto fletushkat, krahaso çmimet dhe zgjidh para se të mbarojë afati.
-          </p>
-          <div className="mt-8">
-            <DiscoverForm categories={categories} />
+    <section className="bg-forest text-ivory dark:bg-[#121816] dark:text-ink">
+      <Frame className="py-8 sm:py-10">
+        <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-12">
+          <div className="min-w-0">
+            <p className="m-0 text-[0.68rem] font-bold tracking-[0.2em] text-accent uppercase">
+              Zbritje e fortë
+            </p>
+            <h1 className="m-0 mt-3 max-w-xl text-[clamp(2.2rem,4.6vw,3.6rem)] leading-[0.94] font-extrabold tracking-[-0.045em] text-ivory dark:text-ink">
+              Zbritjet e ditës.
+            </h1>
+            {hero ? (
+              <DealCopy offer={hero} />
+            ) : (
+              <p className="mt-4 mb-0 max-w-md text-base leading-relaxed text-ivory/75 dark:text-muted">
+                Momentalisht nuk ka zbritje publike. Ofertat e skaduara hiqen vetë nga lista.
+              </p>
+            )}
           </div>
+          {hero ? (
+            <Link
+              href={`/offers/${hero.id}`}
+              className="relative block overflow-hidden rounded-[1.35rem] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+            >
+              <ProductVisual
+                name={hero.name}
+                imageUrl={hero.image?.detail_url}
+                priority
+                sizes="(max-width: 1024px) 100vw, 640px"
+                className="aspect-[4/3] w-full"
+              />
+              {hero.discount_percent > 0 ? (
+                <span className="absolute top-3 left-3 z-10">
+                  <DiscountBadge percent={hero.discount_percent} />
+                </span>
+              ) : null}
+            </Link>
+          ) : null}
         </div>
-        {hero ? <HeroOffer offer={hero} /> : null}
-      </div>
-    </Frame>
+      </Frame>
+    </section>
   );
 }
 
-function HeroOffer({ offer }: { offer: PublicOffer }) {
+function DealCopy({ offer }: { offer: PublicOffer }) {
   const shop = offer.business?.name;
 
   return (
-    <Link href={`/offers/${offer.id}`} className="group block">
-      <span className="block overflow-hidden rounded-[1.6rem]">
-        <ProductVisual
-          name={offer.name}
-          imageUrl={offer.image?.detail_url}
-          priority
-          className="aspect-[5/4] w-full transition duration-700 ease-out group-hover:scale-105 sm:aspect-[4/5]"
-        />
-      </span>
-      <span className="mt-4 flex items-baseline justify-between gap-4">
-        {offer.discount_percent > 0 ? (
-          <span className="text-4xl leading-none font-extrabold tracking-[-0.04em] text-ink">
-            {formatDiscountPercent(offer.discount_percent)}
-          </span>
-        ) : (
-          <span />
-        )}
-        {shop ? <span className="truncate text-sm text-muted">{shop}</span> : null}
-      </span>
-      <span className="mt-2 block text-2xl leading-tight font-extrabold tracking-[-0.03em] underline-offset-4 group-hover:underline group-hover:decoration-accent">
+    <div className="mt-6 max-w-md">
+      {offer.discount_percent > 0 ? (
+        <p className="m-0 text-5xl leading-none font-extrabold tracking-[-0.05em] text-accent">
+          {formatDiscountPercent(offer.discount_percent)}
+        </p>
+      ) : null}
+      <p className="m-0 mt-3 line-clamp-2 text-2xl leading-tight font-extrabold tracking-[-0.03em]">
         {offer.name}
-      </span>
-      <span className="mt-2 flex items-baseline gap-3">
-        <span className="text-xl font-extrabold tabular-nums dark:text-accent">
-          {formatEurFromCents(offer.discounted_price)}
+      </p>
+      {shop ? (
+        <span className="mt-3 flex min-w-0 items-center gap-2">
+          <ShopLogo name={shop} logoUrl={offer.business?.logo_url} size="sm" />
+          <span className="truncate text-sm font-semibold text-ivory/85 dark:text-ink">
+            {shop}
+          </span>
         </span>
-        <span className="text-sm text-muted line-through tabular-nums">
-          {formatEurFromCents(offer.original_price)}
-        </span>
-      </span>
-    </Link>
+      ) : null}
+      <div className="mt-4">
+        <PriceLine
+          sale={offer.discounted_price}
+          original={offer.original_price}
+          size="lg"
+          tone="inverse"
+        />
+      </div>
+      <p className="mt-2 mb-0 text-sm text-ivory/70 dark:text-muted">
+        Deri më {formatDateSq(offer.expires_at)}
+      </p>
+      <Link
+        href={`/offers/${offer.id}`}
+        className="mt-5 inline-flex min-h-11 items-center rounded-full bg-accent px-5 text-sm font-extrabold text-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+      >
+        Hap ofertën
+      </Link>
+    </div>
   );
 }

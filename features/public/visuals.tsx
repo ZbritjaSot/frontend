@@ -72,6 +72,7 @@ export function ProductVisual({
   fill = false,
   priority = false,
   eager = false,
+  sizes = "(max-width: 768px) 100vw, 640px",
 }: {
   name: string;
   imageUrl?: string | null;
@@ -82,6 +83,7 @@ export function ProductVisual({
   priority?: boolean;
   /** Other photos already on the first screen. Loads immediately. */
   eager?: boolean;
+  sizes?: string;
 }) {
   const frame = `${fill ? "absolute inset-0" : "relative"} block overflow-hidden ${className ?? ""}`;
 
@@ -95,8 +97,8 @@ export function ProductVisual({
           unoptimized
           priority={priority}
           loading={priority || eager ? "eager" : "lazy"}
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, 640px"
+          className="object-cover motion-safe:transition motion-safe:duration-700 motion-safe:ease-out motion-safe:group-hover:scale-[1.04]"
+          sizes={sizes}
         />
       </span>
     );
