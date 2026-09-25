@@ -24,7 +24,6 @@ export function SiteHeader() {
     !(params.get("q") ?? "").trim() &&
     !params.get("category") &&
     (params.get("page") ?? "1") === "1";
-  const searchHref = browsingHome ? "/#kerko" : "/?katalog=oferta#kerko";
 
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-chrome text-chrome-text backdrop-blur-md dark:border-white/8 dark:bg-chrome/90">
@@ -69,12 +68,6 @@ export function SiteHeader() {
           })}
         </nav>
 
-        <Link
-          href={searchHref}
-          className="inline-flex min-h-11 shrink-0 items-center text-sm font-extrabold tracking-tight text-chrome-text focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
-        >
-          Kërko
-        </Link>
         <ThemeToggle />
       </div>
     </header>

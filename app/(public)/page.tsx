@@ -5,12 +5,13 @@ import { ResultsView } from "@/features/public/ResultsView";
 import {
   ApiError,
   fetchPublicCategories,
+  fetchPublicCities,
   fetchPublicFolders,
   fetchPublicHome,
   fetchPublicOffers,
   type PublicHome,
 } from "@/features/offers/api";
-import { readKatalog } from "@/lib/browse";
+import { readKatalog, readSort } from "@/lib/browse";
 import type { CategorySummary, PublicFolder, PublicOffer } from "@/types";
 
 export const metadata: Metadata = {
@@ -23,6 +24,8 @@ type HomePageProps = {
     category?: string;
     page?: string;
     katalog?: string;
+    city?: string;
+    sort?: string;
   }>;
 };
 
@@ -30,8 +33,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
   const category = params.category?.trim() || undefined;
-  const page = Math.max(1, Number(params.page) || 1);
   const katalog = readKatalog(params.katalog);
+  const catalogue = katalog === "oferta" || katalog === "fletushka";
+  const city = catalogue ? params.city?.trim() || undefined : undefined;
+  const sort = catalogue ? readSort(params.sort) : "newest";
+  const page = catalogue ? 1 : Math.max(1, Number(params.page) || 1);
   const browsing = q === "" && !category && page === 1 && !katalog;
 
   let folders: PublicFolder[] = [];
@@ -41,6 +47,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   let folderTotal = 0;
   let offerTotal = 0;
   let categories: CategorySummary[] = [];
+  let cities: string[] = [];
   let home: PublicHome | null = null;
   let errorMessage: string | null = null;
 
@@ -48,11 +55,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const loadOffers = katalog !== "fletushka";
 
   try {
-    const [folderResult, offerResult, categoryList, homeResult] = await Promise.all([
+    const [folderResult, offerResult, categoryList, cityList, homeResult] = await Promise.all([
       !browsing && loadFolders
         ? fetchPublicFolders({
             q: q || undefined,
             category,
+            city,
+            sort,
             page,
             perPage: katalog === "fletushka" ? 12 : 8,
           })
@@ -61,11 +70,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         ? fetchPublicOffers({
             q: q || undefined,
             category,
+            city,
+            sort,
             page,
             perPage: 16,
           })
         : Promise.resolve(null),
       browsing ? Promise.resolve([]) : fetchPublicCategories().catch(() => []),
+      catalogue ? fetchPublicCities().catch(() => []) : Promise.resolve([]),
       browsing ? fetchPublicHome() : Promise.resolve(null),
     ]);
     folders = folderResult?.data ?? [];
@@ -75,6 +87,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     folderTotal = folderResult?.meta?.total ?? folders.length;
     offerTotal = offerResult?.meta?.total ?? offers.length;
     categories = categoryList;
+    cities = cityList;
     home = homeResult;
   } catch (error) {
     errorMessage =
@@ -100,6 +113,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         q={q}
         category={category}
         katalog={katalog}
+        city={city}
+        sort={sort}
+        cities={cities}
         page={page}
         offerLastPage={offerLastPage}
         folderLastPage={folderLastPage}
