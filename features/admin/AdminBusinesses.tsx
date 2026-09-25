@@ -4,7 +4,8 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { AdminGallery } from "@/features/gallery/AdminGallery";
 import { deleteAdminLogo, uploadAdminLogo } from "@/features/gallery/api";
 import { LogoField } from "@/features/gallery/LogoField";
@@ -13,11 +14,16 @@ import { adminBusinessKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
-import { ADMIN_BUSINESSES_PAGE_SIZE } from "@/features/admin/businessesApi";
+import {
+  ADMIN_BUSINESSES_PAGE_SIZE,
+  fetchAdminBusiness,
+} from "@/features/admin/businessesApi";
 import {
   adminBusinessesQueryKey,
   useAdminBusinesses,
+  useApproveBusinessLocation,
   useCreateBusiness,
+  useRejectBusinessLocation,
   useUpdateBusiness,
 } from "@/hooks/useAdminBusinesses";
 import { validationMessage } from "@/lib/api";
@@ -50,18 +56,22 @@ const checkLabelClass =
 
 const checkTextClass = "min-w-0 flex-1 pt-px leading-[1.4]";
 
-export function AdminBusinesses() {
+export function AdminBusinesses({ addressId }: { addressId?: string }) {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error, refetch } = useAdminBusinesses(page);
   const createMutation = useCreateBusiness();
   const updateMutation = useUpdateBusiness();
+  const approveLocation = useApproveBusinessLocation();
+  const rejectLocation = useRejectBusinessLocation();
 
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Business | null>(null);
   const [form, setForm] = useState<BusinessFormInput>(emptyForm);
   const [editName, setEditName] = useState("");
   const [editActive, setEditActive] = useState(true);
+  const [rejectNote, setRejectNote] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [createdAccount, setCreatedAccount] = useState<{
     name: string;
@@ -74,10 +84,51 @@ export function AdminBusinesses() {
     setCreating(true);
   }
 
+  useEffect(() => {
+    if (!addressId) {
+      return;
+    }
+    let ignore = false;
+    void fetchAdminBusiness(addressId)
+      .then((business) => {
+        if (ignore) {
+          return;
+        }
+        setEditing(business);
+        setEditName(business.name);
+        setEditActive(business.is_active);
+        setRejectNote("");
+        setFormError(null);
+      })
+      .catch(() => {
+        if (!ignore) {
+          setFormError("Nuk e gjetëm këtë biznes.");
+        }
+      });
+    return () => {
+      ignore = true;
+    };
+  }, [addressId]);
+
+  function closeEdit() {
+    if (
+      updateMutation.isPending ||
+      approveLocation.isPending ||
+      rejectLocation.isPending
+    ) {
+      return;
+    }
+    setEditing(null);
+    if (addressId) {
+      router.replace("/admin/businesses");
+    }
+  }
+
   function openEdit(business: Business) {
     setEditing(business);
     setEditName(business.name);
     setEditActive(business.is_active);
+    setRejectNote("");
     setFormError(null);
   }
 
@@ -122,6 +173,9 @@ export function AdminBusinesses() {
         is_active: editActive,
       });
       setEditing(null);
+      if (addressId) {
+        router.replace("/admin/businesses");
+      }
     } catch (submitError) {
       setFormError(
         validationMessage(submitError, "Nuk mundëm ta ruajmë biznesin."),
@@ -198,14 +252,21 @@ export function AdminBusinesses() {
                   key={business.id}
                   className="col-span-4 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
                 >
-                  <p className="m-0 flex min-w-0 items-center gap-3 truncate text-base font-semibold">
-                    <ShopLogo
-                      name={business.name}
-                      logoUrl={business.logo_url}
-                      size="sm"
-                    />
-                    <span className="truncate">{business.name}</span>
-                  </p>
+                  <div className="min-w-0">
+                    <p className="m-0 flex min-w-0 items-center gap-3 truncate text-base font-semibold">
+                      <ShopLogo
+                        name={business.name}
+                        logoUrl={business.logo_url}
+                        size="sm"
+                      />
+                      <span className="truncate">{business.name}</span>
+                    </p>
+                    {business.location_status === "pending" ? (
+                      <span className={`${offerStatusClass("pending")} mt-2`}>
+                        Adresë në pritje
+                      </span>
+                    ) : null}
+                  </div>
                   <div className="min-w-0">
                     <p className="m-0 truncate text-base font-semibold">
                       {business.owner?.name ?? "Pa pronar"}
@@ -399,18 +460,14 @@ export function AdminBusinesses() {
       <Modal
         open={editing !== null}
         title="Ndrysho biznesin"
-        onClose={() => {
-          if (!updateMutation.isPending) {
-            setEditing(null);
-          }
-        }}
+        onClose={closeEdit}
         footer={
           <>
             <button
               className={btnGhost}
               type="button"
               disabled={updateMutation.isPending}
-              onClick={() => setEditing(null)}
+              onClick={closeEdit}
             >
               Anulo
             </button>
@@ -460,6 +517,79 @@ export function AdminBusinesses() {
               />
               <AdminGallery businessId={editing.id} />
             </>
+          ) : null}
+          {editing?.location_status === "pending" ? (
+            <div className="grid gap-3 rounded-xl border border-line bg-sunken p-4">
+              <p className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
+                Adresë në pritje
+              </p>
+              <p className="m-0 font-semibold">
+                {editing.pending_address ?? "Heqje e adresës"}
+              </p>
+              <label className={fieldLabel}>
+                <span>Arsyeja, nëse e refuzon</span>
+                <input
+                  className={inputClass}
+                  value={rejectNote}
+                  maxLength={500}
+                  onChange={(event) => setRejectNote(event.target.value)}
+                />
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  className={btnPrimary}
+                  type="button"
+                  disabled={approveLocation.isPending || rejectLocation.isPending}
+                  onClick={() => {
+                    void approveLocation
+                      .mutateAsync(editing.id)
+                      .then((updated) => {
+                        setEditing(updated);
+                        setFormError(null);
+                      })
+                      .catch((submitError: unknown) => {
+                        setFormError(
+                          validationMessage(
+                            submitError,
+                            "Nuk mundëm ta aprovojmë adresën.",
+                          ),
+                        );
+                      });
+                  }}
+                >
+                  {approveLocation.isPending ? "Duke aprovuar…" : "Aprovo"}
+                </button>
+                <button
+                  className={btnGhost}
+                  type="button"
+                  disabled={approveLocation.isPending || rejectLocation.isPending}
+                  onClick={() => {
+                    const note = rejectNote.trim();
+                    if (note === "") {
+                      setFormError("Shkruaj arsyen e refuzimit.");
+                      return;
+                    }
+                    void rejectLocation
+                      .mutateAsync({ id: editing.id, note })
+                      .then((updated) => {
+                        setEditing(updated);
+                        setRejectNote("");
+                        setFormError(null);
+                      })
+                      .catch((submitError: unknown) => {
+                        setFormError(
+                          validationMessage(
+                            submitError,
+                            "Nuk mundëm ta refuzojmë adresën.",
+                          ),
+                        );
+                      });
+                  }}
+                >
+                  {rejectLocation.isPending ? "Duke refuzuar…" : "Refuzo"}
+                </button>
+              </div>
+            </div>
           ) : null}
           <label className={fieldLabel}>
             <span>Emri i biznesit</span>
