@@ -83,7 +83,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
               <li key={shop.id}>
                 <Link
                   href={`/biznese/${shop.id}`}
-                  className="flex min-h-12 items-center gap-3 rounded-xl border border-line bg-elevated px-3 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-safe:transition-colors dark:border-white/10 dark:bg-[#1a2420]"
+                  className="flex min-h-36 items-center gap-3 rounded-xl border border-line bg-elevated px-3 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-safe:transition-colors dark:border-white/10 dark:bg-[#1a2420]"
                 >
                   <ShopLogo name={shop.name} logoUrl={shop.logo_url} size="md" />
                   <span className="min-w-0">
