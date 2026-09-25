@@ -36,24 +36,42 @@ export function Band({
 export function SectionHeading({
   kicker,
   title,
+  note,
   action,
 }: {
-  kicker: string;
+  kicker?: string;
   title: string;
+  note?: string;
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-8 flex items-end justify-between gap-4">
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
       <div className="min-w-0">
-        <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
-          {kicker}
-        </p>
-        <h2 className="m-0 mt-2 text-[clamp(1.65rem,3vw,2.35rem)] leading-none font-extrabold tracking-[-0.04em]">
+        {kicker ? (
+          <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
+            {kicker}
+          </p>
+        ) : null}
+        <h2 className="m-0 mt-2 text-[clamp(1.65rem,3vw,2.35rem)] leading-[0.95] font-extrabold tracking-[-0.04em]">
           {title}
         </h2>
+        {note ? (
+          <p className="mt-3 mb-0 max-w-xl text-sm leading-relaxed text-muted">{note}</p>
+        ) : null}
       </div>
       {action}
     </div>
+  );
+}
+
+export function SeeAll({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex min-h-11 shrink-0 items-center text-sm font-extrabold tracking-tight text-ink underline-offset-4 hover:underline hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -74,11 +92,19 @@ export function Rail({
   );
 }
 
-export function BackLink({ href, children }: { href: string; children: ReactNode }) {
+export function BackLink({
+  href,
+  children,
+  className,
+}: {
+  href: string;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <Link
       href={href}
-      className="text-sm font-semibold text-muted hover:text-ink"
+      className={`text-sm font-semibold ${className ?? "text-muted hover:text-ink"}`}
     >
       {children}
     </Link>
@@ -104,7 +130,10 @@ export function Pager({
       aria-label="Faqet"
     >
       {page > 1 ? (
-        <Link href={hrefFor(page - 1)} className="text-ink underline-offset-4 hover:underline">
+        <Link
+          href={hrefFor(page - 1)}
+          className="inline-flex min-h-11 items-center rounded-full px-4 text-ink ring-1 ring-line hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
           Prapa
         </Link>
       ) : (
@@ -114,7 +143,10 @@ export function Pager({
         {page} / {lastPage}
       </span>
       {page < lastPage ? (
-        <Link href={hrefFor(page + 1)} className="text-ink underline-offset-4 hover:underline">
+        <Link
+          href={hrefFor(page + 1)}
+          className="inline-flex min-h-11 items-center rounded-full bg-accent px-4 text-charcoal hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+        >
           Tjetra
         </Link>
       ) : (

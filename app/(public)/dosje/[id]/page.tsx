@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { leadProduct, productWord, withCampaign } from "@/features/public/compose";
+import { display } from "@/features/public/tone";
 import { BackLink, Band, EmptyNote, Frame } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { fetchPublicFolder, isNotFound } from "@/features/offers/api";
 import { formatDateSq, formatDiscountPercent, formatEurFromCents } from "@/lib/format";
 import { SITE_NAME } from "@/lib/site";
-import type { PublicFolder } from "@/types";
+import type { PublicFolder, PublicOffer } from "@/types";
 
 type FolderPageProps = {
   params: Promise<{ id: string }>;
@@ -55,35 +56,44 @@ export default async function FolderPage({ params }: FolderPageProps) {
 
   const shop = folder.business?.name ?? "Dyqan";
   const count = folder.items.length;
-  const lead = leadProduct(folder);
+  const lead =
+    folder.items.find((item) => item.id === folder.cover?.id) ??
+    leadProduct(folder);
   const backHref = folder.business ? `/biznese/${folder.business.id}` : "/";
 
   return (
     <article>
-      <section className="bg-sunken dark:bg-[#101614]">
-        <Frame className="py-10 sm:py-16">
-          <BackLink href={backHref}>
+      <section className="bg-forest text-ivory dark:bg-[#101614] dark:text-ink">
+        <Frame className="py-10 sm:py-14">
+          <BackLink
+            href={backHref}
+            className="text-ivory/75 hover:text-ivory dark:text-muted dark:hover:text-ink"
+          >
             {folder.business ? "Kthehu te dyqani" : "Kreu"}
           </BackLink>
           <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.7fr)]">
             <div>
-              <p className="m-0 flex items-center gap-3 text-sm font-semibold">
-                <ShopLogo name={shop} size="sm" />
+              <p className="m-0 flex min-w-0 items-center gap-3 text-sm font-semibold">
+                <ShopLogo
+                  name={shop}
+                  logoUrl={folder.business?.logo_url}
+                  size="sm"
+                />
                 {folder.business ? (
                   <Link
                     href={`/biznese/${folder.business.id}`}
-                    className="underline-offset-4 hover:underline"
+                    className="min-w-0 truncate underline-offset-4 hover:underline"
                   >
                     {shop}
                   </Link>
                 ) : (
-                  shop
+                  <span className="min-w-0 truncate">{shop}</span>
                 )}
               </p>
-              <h1 className="m-0 mt-5 max-w-3xl text-[clamp(2.8rem,8vw,5.2rem)] leading-[0.9] font-extrabold tracking-[-0.055em]">
+              <h1 className={`m-0 mt-5 max-w-3xl text-[clamp(3rem,8vw,5.8rem)] ${display}`}>
                 {folder.title}
               </h1>
-              <p className="mt-5 mb-0 max-w-xl text-lg leading-relaxed text-muted">
+              <p className="mt-5 mb-0 max-w-xl text-lg leading-relaxed text-ivory/75 dark:text-muted">
                 {count} {productWord(count)} nga {shop}. Nga{" "}
                 {formatDateSq(folder.starts_at)} deri më{" "}
                 {formatDateSq(folder.expires_at)}.
@@ -94,14 +104,16 @@ export default async function FolderPage({ params }: FolderPageProps) {
                 <span className="relative block overflow-hidden rounded-[1.6rem]">
                   <ProductVisual
                     name={lead.name}
-                    className="aspect-[4/5] w-full transition duration-700 group-hover:scale-[1.03]"
+                    imageUrl={lead.image?.thumb_url}
+                    eager
+                    className="aspect-[4/5] w-full"
                   />
                 </span>
-                <span className="mt-3 block font-extrabold tracking-tight">
+                <span className="mt-3 line-clamp-2 block font-extrabold tracking-tight text-ivory dark:text-ink">
                   {lead.name}
                 </span>
-                <span className="mt-1 flex items-baseline gap-3">
-                  <span className="text-lg font-extrabold tabular-nums dark:text-accent">
+                <span className="mt-1 flex min-w-0 items-baseline gap-3">
+                  <span className="text-lg font-extrabold text-accent tabular-nums">
                     {formatEurFromCents(lead.discounted_price)}
                   </span>
                   {lead.discount_percent > 0 ? (
@@ -121,7 +133,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
           Produktet
         </h2>
         {count > 0 ? (
-          <ProductGrid offers={withCampaign(folder)} />
+          <FlyerProducts items={withCampaign(folder)} />
         ) : (
           <EmptyNote
             title="Kjo fletushkë është bosh"
@@ -130,5 +142,36 @@ export default async function FolderPage({ params }: FolderPageProps) {
         )}
       </Band>
     </article>
+  );
+}
+
+function FlyerProducts({ items }: { items: PublicOffer[] }) {
+  const groups = new Map<string, { name: string; items: PublicOffer[] }>();
+  for (const item of items) {
+    const key = item.category?.id ?? "other";
+    const group = groups.get(key) ?? {
+      name: item.category?.name ?? "Të tjera",
+      items: [],
+    };
+    group.items.push(item);
+    groups.set(key, group);
+  }
+  const grouped = [...groups.values()];
+
+  if (grouped.length < 2) {
+    return <ProductGrid offers={items} dense={items.length > 9} />;
+  }
+
+  return (
+    <div className="grid gap-14">
+      {grouped.map((group) => (
+        <section key={group.name}>
+          <h3 className="m-0 mb-6 text-sm font-bold tracking-[0.16em] text-muted uppercase">
+            {group.name}
+          </h3>
+          <ProductGrid offers={group.items} dense={items.length > 9} />
+        </section>
+      ))}
+    </div>
   );
 }

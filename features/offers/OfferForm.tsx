@@ -2,8 +2,8 @@
 
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import { useMemo, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from "react";
+import { ItemPhoto } from "@/features/gallery/ItemPhoto";
 import { useRouter } from "next/navigation";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { PosMoneyField } from "@/components/ui/PosMoneyField";
@@ -33,6 +33,8 @@ type ItemDraft = {
   /** Integer cents (POS). */
   discounted_price: number;
   discount_percent: string;
+  gallery_image_id: string | null;
+  thumb_url: string | null;
   rejection_note?: string | null;
 };
 
@@ -49,6 +51,8 @@ function emptyItem(key: string): ItemDraft {
     original_price: 0,
     discounted_price: 0,
     discount_percent: "",
+    gallery_image_id: null,
+    thumb_url: null,
     rejection_note: null,
   };
 }
@@ -137,10 +141,21 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
         original_price: item.original_price,
         discounted_price: item.discounted_price,
         discount_percent: String(item.discount_percent),
+        gallery_image_id: item.image?.id ?? null,
+        thumb_url: item.image?.thumb_url ?? null,
         rejection_note: item.rejection_note ?? null,
       }));
     }
     return [emptyItem("item-0")];
+  });
+  const [coverKey, setCoverKey] = useState<string | null>(() => {
+    const imageId = offer?.cover_gallery_image_id;
+    if (!imageId) {
+      return null;
+    }
+    return (
+      offer.items?.find((item) => item.image?.id === imageId)?.id ?? null
+    );
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -238,6 +253,7 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
   }
 
   function removeItem(key: string) {
+    setCoverKey((current) => (current === key ? null : current));
     setItems((prev) =>
       prev.length <= 1 ? prev : prev.filter((i) => i.key !== key),
     );
@@ -263,13 +279,22 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
       starts_at: startsAt,
       expires_at: expiresAt,
       items: items.map(
-        ({ category_id, name, original_price, discounted_price }) => ({
+        ({
           category_id,
           name,
           original_price,
           discounted_price,
+          gallery_image_id,
+        }) => ({
+          category_id,
+          name,
+          original_price,
+          discounted_price,
+          gallery_image_id,
         }),
       ),
+      cover_gallery_image_id:
+        items.find((item) => item.key === coverKey)?.gallery_image_id ?? null,
     });
 
     if (!parsed.success) {
@@ -371,15 +396,27 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
                 }`}
               >
                 <div className="flex items-stretch gap-4">
-                  <div
-                    className="flex w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-line bg-sunken text-muted sm:w-28"
-                    aria-hidden
-                  >
-                    <ImageOutlinedIcon fontSize="small" />
-                    <span className="text-[0.6875rem] font-semibold tracking-[0.08em] uppercase">
-                      Foto
-                    </span>
-                  </div>
+                  <ItemPhoto
+                    name={item.name}
+                    thumbUrl={item.thumb_url}
+                    disabled={pending}
+                    onPick={(image) => {
+                      patchItem(item.key, {
+                        gallery_image_id: image.id,
+                        thumb_url: image.thumb_url,
+                      });
+                      setCoverKey((current) => current ?? item.key);
+                    }}
+                    onClear={() => {
+                      patchItem(item.key, {
+                        gallery_image_id: null,
+                        thumb_url: null,
+                      });
+                      setCoverKey((current) =>
+                        current === item.key ? null : current,
+                      );
+                    }}
+                  />
 
                   <div className="grid min-w-0 flex-1 gap-3">
                     <div className="flex items-start gap-3">
@@ -488,6 +525,22 @@ export function OfferForm({ mode, offer }: OfferFormProps) {
                         </div>
                       </label>
                     </div>
+                    {item.thumb_url ? (
+                      <button
+                        type="button"
+                        disabled={pending}
+                        className={`w-fit text-left text-sm font-bold ${
+                          coverKey === item.key
+                            ? "text-ink"
+                            : "text-muted hover:text-ink"
+                        }`}
+                        onClick={() => setCoverKey(item.key)}
+                      >
+                        {coverKey === item.key
+                          ? "Foto e fletushkës"
+                          : "Vendose në fletushkë"}
+                      </button>
+                    ) : null}
                   </div>
                 </div>
 

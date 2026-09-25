@@ -19,6 +19,7 @@ const offerItemSchema = z
     original_price: centsPrice,
     /** Integer cents (POS entry). */
     discounted_price: centsPrice,
+    gallery_image_id: z.string().uuid().nullable().optional(),
   })
   .refine((data) => data.discounted_price < data.original_price, {
     message: "Çmimi me zbritje duhet të jetë më i ulët se çmimi origjinal.",
@@ -48,6 +49,7 @@ export const offerBundleFormSchema = z
     starts_at: z.string().min(1, "Data e fillimit është e detyrueshme."),
     expires_at: z.string().min(1, "Data e skadimit është e detyrueshme."),
     items: z.array(offerItemSchema).min(1, "Shto të paktën një produkt."),
+    cover_gallery_image_id: z.string().uuid().nullable().optional(),
   })
   .refine((data) => new Date(data.expires_at) > new Date(data.starts_at), {
     message: "Skadimi duhet të jetë pas fillimit.",

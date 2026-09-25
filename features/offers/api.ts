@@ -19,6 +19,40 @@ export type PublicOfferQuery = {
   page?: number;
 };
 
+export type PublicHome = {
+  hero: PublicOffer | null;
+  featured: PublicOffer[];
+  fresh: PublicOffer[];
+  ending_soon: PublicOffer[];
+  flyers: PublicFolder[];
+  shops: PublicBusiness[];
+  categories: CategorySummary[];
+};
+
+export async function fetchPublicHome(): Promise<PublicHome> {
+  const payload = await apiFetch<{ data: PublicHome }>("/home", {
+    ...PUBLIC_FETCH,
+  });
+  return payload.data;
+}
+
+export async function fetchPublicBusinesses(
+  query: { q?: string; page?: number; perPage?: number } = {},
+): Promise<Paginated<PublicBusiness>> {
+  const params = new URLSearchParams();
+  params.set("per_page", String(query.perPage ?? 24));
+  if (query.q) {
+    params.set("q", query.q);
+  }
+  if (query.page && query.page > 1) {
+    params.set("page", String(query.page));
+  }
+
+  return apiFetch<Paginated<PublicBusiness>>(`/businesses?${params.toString()}`, {
+    ...PUBLIC_FETCH,
+  });
+}
+
 export async function fetchPublicOffers(
   query: PublicOfferQuery = {},
 ): Promise<Paginated<PublicOffer>> {

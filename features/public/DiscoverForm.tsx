@@ -1,33 +1,41 @@
 import Link from "next/link";
-import { browsePath } from "@/lib/browse";
+import { browsePath, type Katalog } from "@/lib/browse";
 import type { CategorySummary } from "@/types";
 
 type DiscoverFormProps = {
   basePath?: string;
   q?: string;
   category?: string;
+  katalog?: Katalog;
   categories: CategorySummary[];
+  /** Home uses a separate category band, so the field can stand alone. */
+  showCategories?: boolean;
+  placeholder?: string;
 };
 
 const chip =
-  "shrink-0 border-b-2 border-transparent pb-1 text-[0.95rem] font-semibold whitespace-nowrap no-underline";
+  "inline-flex min-h-11 shrink-0 items-center rounded-full px-3.5 text-sm font-semibold whitespace-nowrap no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 export function DiscoverForm({
   basePath = "/",
   q = "",
   category,
+  katalog,
   categories,
+  showCategories = true,
+  placeholder = "Kërko produkt, fletushkë ose dyqan",
 }: DiscoverFormProps) {
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-5" id="kerko">
       <form
         action={basePath}
         method="get"
-        className="flex items-center rounded-full bg-mist ring-1 ring-line dark:bg-[#141c18] dark:ring-white/10"
+        className="flex items-center rounded-full border border-line bg-elevated focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/50 dark:border-white/10 dark:bg-[#141c18]"
       >
         {category ? (
           <input type="hidden" name="category" value={category} />
         ) : null}
+        {katalog ? <input type="hidden" name="katalog" value={katalog} /> : null}
         <label className="relative min-w-0 flex-1">
           <span className="sr-only">Kërko</span>
           <svg
@@ -48,29 +56,29 @@ export function DiscoverForm({
             name="q"
             defaultValue={q}
             maxLength={100}
-            placeholder="Kërko produkt, fletushkë ose dyqan"
+            placeholder={placeholder}
             className="h-14 w-full border-0 bg-transparent pr-3 pl-12 text-base text-ink outline-none placeholder:text-muted"
           />
         </label>
-        <button
+          <button
           type="submit"
-          className="m-1.5 shrink-0 cursor-pointer appearance-none rounded-full border-0 bg-accent px-5 py-2.5 text-sm font-extrabold text-charcoal"
+          className="m-1.5 inline-flex min-h-11 shrink-0 cursor-pointer appearance-none items-center rounded-full border-0 bg-accent px-5 text-sm font-extrabold text-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
         >
           Kërko
         </button>
       </form>
 
-      {categories.length > 0 ? (
+      {showCategories && categories.length > 0 ? (
         <nav
           className="-mx-5 flex gap-x-5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
           aria-label="Kategoritë"
         >
           <Link
-            href={browsePath(basePath, { q })}
+            href={browsePath(basePath, { q, katalog })}
             className={
               category
-                ? `${chip} text-muted hover:text-ink`
-                : `${chip} border-accent text-ink`
+                ? `${chip} text-muted ring-1 ring-line hover:text-ink`
+                : `${chip} bg-accent text-charcoal`
             }
           >
             Të gjitha
@@ -82,12 +90,13 @@ export function DiscoverForm({
                 key={item.id}
                 href={browsePath(basePath, {
                   q,
+                  katalog,
                   category: active ? null : item.slug,
                 })}
                 className={
                   active
-                    ? `${chip} border-accent text-ink`
-                    : `${chip} text-muted hover:text-ink`
+                    ? `${chip} bg-accent text-charcoal`
+                    : `${chip} text-ink ring-1 ring-line hover:bg-hover`
                 }
               >
                 {item.name}

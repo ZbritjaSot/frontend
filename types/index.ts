@@ -32,6 +32,7 @@ export type BusinessSummary = {
   latitude?: number | null;
   longitude?: number | null;
   is_active?: boolean;
+  logo_url?: string | null;
 };
 
 /** Admin business payload (matches BusinessResource). */
@@ -45,6 +46,7 @@ export type Business = {
   latitude?: number | null;
   longitude?: number | null;
   is_active: boolean;
+  logo_url?: string | null;
   owner?: User | null;
   created_at?: string;
   updated_at?: string;
@@ -86,10 +88,18 @@ export type OfferBundleSummary = {
   expires_at: string;
 };
 
+/** Public photo variants. The original file is never returned. */
+export type OfferImage = {
+  id: string;
+  thumb_url: string;
+  detail_url: string;
+};
+
 /** Product line inside a folder (biz/admin). */
 export type OfferItem = {
   id: string;
   name: string;
+  image?: OfferImage | null;
   /** Integer cents. */
   original_price: number;
   /** Integer cents. */
@@ -111,6 +121,9 @@ export type PublicBusiness = {
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  logo_url?: string | null;
+  flyers_count?: number;
+  offers_count?: number;
 };
 
 /** Public offer folder: one shop, one title, its products. */
@@ -124,12 +137,20 @@ export type PublicFolder = {
   items_count?: number;
   /** Strongest discount in the folder. Set on the list so the page does not need every product. */
   lead_discount_percent?: number | null;
+  /** Photo the shop chose for the flyer card. */
+  cover?: {
+    id: string;
+    name: string;
+    thumb_url: string;
+    detail_url: string;
+  } | null;
   items: PublicOffer[];
 };
 
 export type PublicOffer = {
   id: string;
   name: string;
+  image?: OfferImage | null;
   /** Integer cents. */
   original_price: number;
   /** Integer cents. */
@@ -150,6 +171,7 @@ export type OfferBundle = {
   expires_at: string;
   status: OfferStatus;
   rejection_reason: string | null;
+  cover_gallery_image_id?: string | null;
   items_count?: number;
   items?: OfferItem[];
   business?: BusinessSummary;

@@ -14,11 +14,13 @@ function toApiBody(input: OfferBundleFormInput) {
     title: input.title,
     starts_at: fromDateTimeLocalValue(input.starts_at),
     expires_at: fromDateTimeLocalValue(input.expires_at),
+    cover_gallery_image_id: input.cover_gallery_image_id ?? null,
     items: input.items.map((item) => ({
       category_id: item.category_id,
       name: item.name,
       original_price: item.original_price,
       discounted_price: item.discounted_price,
+      gallery_image_id: item.gallery_image_id ?? null,
     })),
   };
 }

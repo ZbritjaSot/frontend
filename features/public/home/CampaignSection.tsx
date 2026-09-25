@@ -1,5 +1,5 @@
-import { CampaignRail } from "@/features/public/CampaignPoster";
-import { Frame } from "@/features/public/Frame";
+import { CampaignPoster } from "@/features/public/CampaignPoster";
+import { Frame, SeeAll } from "@/features/public/Frame";
 import type { PublicFolder } from "@/types";
 
 export function CampaignSection({ folders }: { folders: PublicFolder[] }) {
@@ -8,13 +8,23 @@ export function CampaignSection({ folders }: { folders: PublicFolder[] }) {
   }
 
   return (
-    <Frame className="pt-16 pb-4 sm:pt-20">
-      <h2 className="m-0 text-[clamp(1.7rem,3vw,2.3rem)] leading-none font-extrabold tracking-[-0.04em]">
-        Fletushkat
-      </h2>
-      <div className="mt-8">
-        <CampaignRail folders={folders} />
+    <Frame className="pt-10 sm:pt-12">
+      <div className="mb-4 flex items-end justify-between gap-3">
+        <h2 className="m-0 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
+          Fletushkat
+        </h2>
+        <SeeAll href="/?katalog=fletushka">Shiko të gjitha</SeeAll>
       </div>
+      <CampaignPoster folder={folders[0]} layout="editorial" eager />
+      {folders.length > 1 ? (
+        <ul className="m-0 mt-3 grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
+          {folders.slice(1).map((folder) => (
+            <li key={folder.id} className="min-w-0">
+              <CampaignPoster folder={folder} layout="shelf" />
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </Frame>
   );
 }

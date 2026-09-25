@@ -1,38 +1,53 @@
 import Link from "next/link";
-import { campaignWord, type ShopPresence } from "@/features/public/compose";
-import { Frame } from "@/features/public/Frame";
+import { campaignWord } from "@/features/public/compose";
+import { Frame, SeeAll } from "@/features/public/Frame";
+import { kicker } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
+import type { PublicBusiness } from "@/types";
 
-export function ShopDirectory({ shops }: { shops: ShopPresence[] }) {
+export function ShopDirectory({ shops }: { shops: PublicBusiness[] }) {
   if (shops.length === 0) {
     return null;
   }
 
   return (
-    <Frame className="pt-12 pb-16 sm:pt-16">
-      <h2 className="m-0 border-t border-line pt-8 text-sm font-semibold text-muted">
-        Dyqanet
-      </h2>
-      <ul className="m-0 mt-2 grid list-none p-0 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-10">
-        {shops.map((shop) => (
-          <li key={shop.business.id} className="border-b border-line">
-            <Link
-              href={`/biznese/${shop.business.id}`}
-              className="group -mx-2 flex items-center gap-4 rounded-lg px-2 py-4 hover:bg-hover"
-            >
-              <ShopLogo name={shop.business.name} size="sm" />
-              <span className="min-w-0">
-                <span className="block truncate text-lg leading-tight font-extrabold tracking-tight">
-                  {shop.business.name}
+    <Frame className="pt-10 pb-14 sm:pt-12">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className={kicker}>Dyqane</p>
+          <h2 className="m-0 mt-1 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
+            Dyqanet
+          </h2>
+          <p className="mt-2 mb-0 max-w-xl text-sm leading-relaxed text-muted">
+            Një përzgjedhje e dyqaneve me fletushka aktive. Lista e plotë është te Dyqanet.
+          </p>
+        </div>
+        <SeeAll href="/biznese">Shiko të gjitha</SeeAll>
+      </div>
+      <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2">
+        {shops.map((shop) => {
+          const place = shop.city ?? shop.village;
+          const flyers = shop.flyers_count ?? 0;
+          return (
+            <li key={shop.id}>
+              <Link
+                href={`/biznese/${shop.id}`}
+                className="flex min-h-12 min-w-0 items-center gap-3 border-b border-line px-1 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-safe:transition-colors"
+              >
+                <ShopLogo name={shop.name} logoUrl={shop.logo_url} size="sm" />
+                <span className="min-w-0">
+                  <span className="block truncate text-base font-extrabold tracking-tight">
+                    {shop.name}
+                  </span>
+                  <span className="block truncate text-xs text-muted">
+                    {place ? `${place} · ` : ""}
+                    {flyers} {campaignWord(flyers)}
+                  </span>
                 </span>
-                <span className="mt-0.5 block truncate text-sm text-muted">
-                  {shop.business.city ??
-                    `${shop.campaigns} ${campaignWord(shop.campaigns)}`}
-                </span>
-              </span>
-            </Link>
-          </li>
-        ))}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </Frame>
   );

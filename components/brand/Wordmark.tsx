@@ -1,8 +1,8 @@
 type WordmarkProps = {
   as?: "h1" | "p" | "span";
   className?: string;
-  /** Header chrome uses light text; pages use the theme ink color. */
-  tone?: "ink" | "chrome";
+  /** Header uses chrome text. Inverse is for a forest surface. */
+  tone?: "ink" | "chrome" | "inverse";
 };
 
 export function Wordmark({
@@ -19,10 +19,16 @@ export function Wordmark({
         .filter(Boolean)
         .join(" ")}
     >
-      <span className={tone === "chrome" ? "text-chrome-text" : "text-ink"}>
+      <span
+        className={
+          tone === "inverse" ? "text-ivory" : tone === "chrome" ? "text-chrome-text" : "text-ink"
+        }
+      >
         Zbritja
       </span>
-      <span className="text-accent">Sot</span>
+      <span className={tone === "inverse" ? "text-accent" : "text-forest dark:text-accent"}>
+        Sot
+      </span>
     </Tag>
   );
 }

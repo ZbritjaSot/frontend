@@ -1,5 +1,10 @@
-import { Frame } from "@/features/public/Frame";
-import { OfferRow, ProductPoster } from "@/features/public/ProductPoster";
+import Link from "next/link";
+import { Frame, SeeAll } from "@/features/public/Frame";
+import { ProductGrid } from "@/features/public/ProductPoster";
+import { DiscountBadge, PriceLine } from "@/features/public/price";
+import { kicker } from "@/features/public/tone";
+import { ProductVisual } from "@/features/public/visuals";
+import { formatDateShortSq } from "@/lib/format";
 import type { PublicOffer } from "@/types";
 
 export function CatalogSection({
@@ -14,43 +19,74 @@ export function CatalogSection({
   }
 
   return (
-    <Frame className="pt-16 pb-8 sm:pt-24">
-      <div
-        className={
-          soon.length > 0
-            ? "grid items-start gap-14 lg:grid-cols-[minmax(0,1.45fr)_minmax(220px,0.55fr)] lg:gap-16"
-            : ""
-        }
-      >
-        {latest.length > 0 ? (
-          <div>
-            <h2 className="m-0 text-[clamp(1.7rem,3vw,2.3rem)] leading-none font-extrabold tracking-[-0.04em]">
-              Sapo u shtuan
-            </h2>
-            <ul className="m-0 mt-8 grid list-none grid-cols-2 gap-x-4 gap-y-10 p-0 sm:gap-x-6">
-              {latest.map((offer) => (
-                <li key={offer.id}>
-                  <ProductPoster offer={offer} />
-                </li>
-              ))}
-            </ul>
+    <>
+      {latest.length > 0 ? (
+        <Frame className="pt-10 sm:pt-12">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className={kicker}>Të reja</p>
+              <h2 className="m-0 mt-1 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
+                Sapo u shtuan
+              </h2>
+            </div>
+            <SeeAll href="/?katalog=oferta">Shiko të gjitha</SeeAll>
           </div>
-        ) : null}
-        {soon.length > 0 ? (
-          <div>
-            <h2 className="m-0 text-sm font-semibold text-muted">
+          <ProductGrid offers={latest} />
+        </Frame>
+      ) : null}
+
+      {soon.length > 0 ? (
+        <section className="mt-10 bg-mist sm:mt-12 dark:bg-transparent">
+          <Frame className="py-8 sm:py-10">
+            <p className={kicker}>Afati</p>
+            <h2 className="m-0 mt-1 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
               Mbaron së shpejti
             </h2>
             <ul className="m-0 mt-4 list-none p-0">
               {soon.map((offer) => (
                 <li key={offer.id} className="border-t border-line">
-                  <OfferRow offer={offer} />
+                  <UrgentRow offer={offer} />
                 </li>
               ))}
             </ul>
-          </div>
-        ) : null}
-      </div>
-    </Frame>
+          </Frame>
+        </section>
+      ) : null}
+    </>
+  );
+}
+
+function UrgentRow({ offer }: { offer: PublicOffer }) {
+  return (
+    <Link
+      href={`/offers/${offer.id}`}
+      className="flex min-h-11 items-center gap-3 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    >
+      <ProductVisual
+        name={offer.name}
+        imageUrl={offer.image?.thumb_url}
+        sizes="56px"
+        className="size-14 shrink-0 rounded-xl"
+      />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-extrabold">{offer.name}</span>
+        <span className="mt-1 flex min-w-0 items-center gap-2">
+          {offer.discount_percent > 0 ? (
+            <span className="shrink-0">
+              <DiscountBadge percent={offer.discount_percent} />
+            </span>
+          ) : null}
+          <span className="min-w-0 truncate text-xs text-muted">
+            {offer.business?.name ?? "\u00a0"}
+          </span>
+        </span>
+      </span>
+      <span className="w-28 shrink-0 text-right">
+        <span className="block truncate text-xs font-bold text-muted tabular-nums">
+          {formatDateShortSq(offer.expires_at)}
+        </span>
+        <PriceLine sale={offer.discounted_price} original={offer.original_price} size="sm" />
+      </span>
+    </Link>
   );
 }

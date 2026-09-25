@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { shopInitials } from "@/features/public/initials";
 
 const WASHES = [
@@ -33,38 +34,76 @@ const LOGO_SIZE = {
   xl: "size-24 rounded-[1.6rem] text-3xl",
 } as const;
 
-/** Initials tile. Swap the contents for an img when logos exist. */
+/** Shop mark. Initials until the shop has a logo. The name sits beside it, so the image stays decorative. */
 export function ShopLogo({
   name,
+  logoUrl,
   size = "md",
 }: {
   name: string;
+  logoUrl?: string | null;
   size?: keyof typeof LOGO_SIZE;
 }) {
+  const frame = `inline-grid shrink-0 place-items-center overflow-hidden bg-charcoal font-extrabold tracking-tight text-accent ring-1 ring-white/10 dark:bg-[#18211c] dark:ring-accent/25 ${LOGO_SIZE[size]}`;
+
+  if (logoUrl) {
+    return (
+      <span aria-hidden className={`relative ${frame}`}>
+        <Image src={logoUrl} alt="" fill unoptimized className="object-cover" sizes="96px" />
+      </span>
+    );
+  }
+
   return (
-    <span
-      aria-hidden
-      className={`inline-grid shrink-0 place-items-center bg-charcoal font-extrabold tracking-tight text-accent ring-1 ring-white/10 dark:bg-[#18211c] dark:ring-accent/25 ${LOGO_SIZE[size]}`}
-    >
+    <span aria-hidden className={frame}>
       {shopInitials(name)}
     </span>
   );
 }
 
 /**
- * Single product image slot. The wash is the placeholder.
- * Replace the inner wash with one img later; keep the aspect ratio on the parent.
+ * Single product image slot. A real photo uses the product name as alt text.
+ * Without a photo, the wash stays decorative.
  */
 export function ProductVisual({
   name,
+  imageUrl,
   className,
   fill = false,
+  priority = false,
+  eager = false,
+  sizes = "(max-width: 768px) 100vw, 640px",
 }: {
   name: string;
+  imageUrl?: string | null;
   className?: string;
   /** Cover a relative parent. Use when the slot should not set its own height. */
   fill?: boolean;
+  /** The one largest photo. Preloads. */
+  priority?: boolean;
+  /** Other photos already on the first screen. Loads immediately. */
+  eager?: boolean;
+  sizes?: string;
 }) {
+  const frame = `${fill ? "absolute inset-0" : "relative"} block overflow-hidden ${className ?? ""}`;
+
+  if (imageUrl) {
+    return (
+      <span className={frame}>
+        <Image
+          src={imageUrl}
+          alt={name}
+          fill
+          unoptimized
+          priority={priority}
+          loading={priority || eager ? "eager" : "lazy"}
+          className="object-cover motion-safe:transition motion-safe:duration-700 motion-safe:ease-out motion-safe:group-hover:scale-[1.04]"
+          sizes={sizes}
+        />
+      </span>
+    );
+  }
+
   const tone = washIndex(name);
   const mark = shopInitials(name);
 

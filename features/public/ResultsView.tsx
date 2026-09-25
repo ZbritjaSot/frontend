@@ -1,8 +1,9 @@
-import { CampaignRail } from "@/features/public/CampaignPoster";
+import { CampaignGrid, CampaignPoster, CampaignRail } from "@/features/public/CampaignPoster";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
-import { Band, EmptyNote, Pager } from "@/features/public/Frame";
+import { Band, EmptyNote, Pager, SectionHeading } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
-import { browsePath } from "@/lib/browse";
+import { display, kicker as kickerClass } from "@/features/public/tone";
+import { browsePath, type Katalog } from "@/lib/browse";
 import type { CategorySummary, PublicFolder, PublicOffer } from "@/types";
 
 type ResultsViewProps = {
@@ -11,9 +12,12 @@ type ResultsViewProps = {
   categories: CategorySummary[];
   q: string;
   category?: string;
+  katalog?: Katalog;
   page: number;
   offerLastPage: number;
   folderLastPage: number;
+  offerTotal?: number;
+  folderTotal?: number;
   basePath?: string;
 };
 
@@ -23,48 +27,76 @@ export function ResultsView({
   categories,
   q,
   category,
+  katalog,
   page,
   offerLastPage,
   folderLastPage,
+  offerTotal = offers.length,
+  folderTotal = folders.length,
   basePath = "/",
 }: ResultsViewProps) {
   const categoryName = categories.find((item) => item.slug === category)?.name;
   const title = q
     ? `«${q}»`
-    : (categoryName ?? (page > 1 ? "Më shumë oferta" : "Ofertat"));
-  const kicker = q && categoryName ? categoryName : "Kërkimi";
-  const showCampaigns = page === 1 && folders.length > 0;
-  const lastPage = offers.length > 0 || offerLastPage > 1 ? offerLastPage : folderLastPage;
-  const empty = offers.length === 0 && !showCampaigns;
+    : katalog === "fletushka"
+      ? "Fletushkat"
+      : (categoryName ?? "Zbritjet");
+  const kicker = katalog === "fletushka" ? "Katalogu" : q ? "Kërkimi" : "Katalogu";
+  const flyerCatalogue = katalog === "fletushka";
+  const showFlyerGrid = flyerCatalogue;
+  const showFlyerRail = !flyerCatalogue && page === 1 && folders.length > 0;
+  const showOffers = !flyerCatalogue && offers.length > 0;
+  const empty = !showFlyerGrid && !showFlyerRail && !showOffers
+    ? true
+    : flyerCatalogue && folders.length === 0;
+  const lastPage = flyerCatalogue
+    ? folderLastPage
+    : offers.length > 0 || offerLastPage > 1
+      ? offerLastPage
+      : folderLastPage;
 
   return (
     <Band className="pt-8">
-      <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
-        {kicker}
-      </p>
-      <h1 className="m-0 mt-3 max-w-3xl text-[clamp(2.2rem,6vw,3.6rem)] leading-[0.95] font-extrabold tracking-[-0.045em]">
+      <p className={kickerClass}>{kicker}</p>
+      <h1 className={`m-0 mt-2 max-w-4xl text-[clamp(2.4rem,6vw,4rem)] ${display}`}>
         {title}
       </h1>
+      <p className="mt-4 mb-0 max-w-xl text-sm leading-relaxed text-muted">
+        {flyerCatalogue
+          ? `${folderTotal} fletushka aktive. Renditur sipas datës së fillimit.`
+          : q
+            ? `${offerTotal} produkte · ${folderTotal} fletushka`
+            : `${offerTotal} produkte aktive${categoryName ? ` te ${categoryName}` : ""}.`}
+      </p>
       <div className="mt-8 max-w-xl">
         <DiscoverForm
           basePath={basePath}
           q={q}
           category={category}
+          katalog={katalog}
           categories={categories}
         />
       </div>
 
-      {showCampaigns ? (
+      {showFlyerRail ? (
         <div className="mt-12">
-          <h2 className="m-0 mb-5 text-sm font-bold tracking-[0.16em] text-muted uppercase">
-            Fletushkat
-          </h2>
-          <CampaignRail folders={folders} />
+          <SectionHeading kicker="Fushata" title="Fletushkat" />
+          <CampaignRail folders={folders} eager={page === 1} />
         </div>
       ) : null}
 
-      {offers.length > 0 ? (
+      {showFlyerGrid && folders.length > 0 ? (
+        <div className="mt-12 grid gap-4">
+          <CampaignPoster folder={folders[0]} layout="feature" eager={page === 1} />
+          <CampaignGrid folders={folders.slice(1)} />
+        </div>
+      ) : null}
+
+      {showOffers ? (
         <div className="mt-12">
+          {showFlyerRail ? (
+            <SectionHeading kicker="Produkte" title="Zbritjet" />
+          ) : null}
           <ProductGrid offers={offers} />
         </div>
       ) : null}
@@ -79,7 +111,7 @@ export function ResultsView({
       <Pager
         page={page}
         lastPage={lastPage}
-        hrefFor={(next) => browsePath(basePath, { q, category, page: next })}
+        hrefFor={(next) => browsePath(basePath, { q, category, katalog, page: next })}
       />
     </Band>
   );
