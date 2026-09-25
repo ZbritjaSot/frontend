@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import {
   fetchPublicFolder,
   fetchPublicOffer,
   isNotFound,
+  recordPublicOfferView,
 } from "@/features/offers/api";
 import { withCampaign } from "@/features/public/compose";
 import { EmptyNote, Frame } from "@/features/public/Frame";
@@ -70,6 +72,18 @@ export default async function OfferPage({ params }: OfferPageProps) {
 
   if (!offer) {
     notFound();
+  }
+
+  const requestHeaders = await headers();
+  const prefetched =
+    requestHeaders.get("next-router-prefetch") === "1" ||
+    requestHeaders.get("purpose") === "prefetch";
+  if (!prefetched) {
+    try {
+      await recordPublicOfferView(offer.id);
+    } catch {
+      // The product is already loaded. A missed count does not replace the page.
+    }
   }
 
   return <OfferDetail offer={offer} related={related} />;

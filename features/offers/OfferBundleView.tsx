@@ -13,6 +13,8 @@ type OfferBundleViewProps = {
   showBusiness?: boolean;
   /** Hide the title block when the screen already shows it. */
   showHeading?: boolean;
+  /** Shop flyer screen. Each product shows how many times it was opened. */
+  showViews?: boolean;
   /** Product ids marked as having a problem. */
   selectedIds?: string[];
   onToggleItem?: (id: string) => void;
@@ -23,6 +25,7 @@ export function OfferBundleView({
   bundle,
   showBusiness = false,
   showHeading = true,
+  showViews = false,
   selectedIds = [],
   onToggleItem,
   selectionDisabled = false,
@@ -30,9 +33,19 @@ export function OfferBundleView({
   const items = bundle.items ?? [];
   const selectable = onToggleItem !== undefined;
   const columnClass = selectable
-    ? "md:grid-cols-[2.25rem_minmax(0,1.4fr)_minmax(0,0.8fr)_auto_auto]"
-    : "md:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_auto_auto]";
-  const spanClass = selectable ? "col-span-5" : "col-span-4";
+    ? showViews
+      ? "md:grid-cols-[2.25rem_minmax(0,1.4fr)_minmax(0,0.8fr)_auto_auto_auto]"
+      : "md:grid-cols-[2.25rem_minmax(0,1.4fr)_minmax(0,0.8fr)_auto_auto]"
+    : showViews
+      ? "md:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_auto_auto_auto]"
+      : "md:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_auto_auto]";
+  const spanClass = selectable
+    ? showViews
+      ? "col-span-6"
+      : "col-span-5"
+    : showViews
+      ? "col-span-5"
+      : "col-span-4";
   const flaggedCount = items.filter((item) => item.rejection_note).length;
 
   return (
@@ -96,6 +109,9 @@ export function OfferBundleView({
               <span className="whitespace-nowrap">Kategoria</span>
               <span className="whitespace-nowrap md:pl-6">Zbritja</span>
               <span className="whitespace-nowrap md:pl-6">Çmimi</span>
+              {showViews ? (
+                <span className="whitespace-nowrap md:pl-6">Hapje</span>
+              ) : null}
             </div>
             <ul className={`${spanClass} m-0 list-none p-0 md:grid md:grid-cols-subgrid`}>
               {items.map((item) => {
@@ -158,6 +174,11 @@ export function OfferBundleView({
                         <p className="m-0 text-sm text-muted">—</p>
                       )}
                     </div>
+                    {showViews ? (
+                      <p className="m-0 text-sm font-semibold tabular-nums md:pl-6">
+                        {item.view_count}
+                      </p>
+                    ) : null}
                   </li>
                 );
               })}

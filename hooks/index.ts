@@ -37,6 +37,7 @@ export {
   useBizOffer,
   useBizOffers,
   useBizOffersByStatus,
+  useBizOfferViews,
   useCreateBizOffer,
   useDeleteBizOffer,
   useSubmitBizOffer,

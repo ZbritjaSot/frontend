@@ -1,6 +1,12 @@
 import { apiFetch } from "@/lib/api";
 import type { OfferBundleFormInput } from "@/schemas/offer";
-import type { CategorySummary, OfferBundle, Paginated } from "@/types";
+import type {
+  CategorySummary,
+  OfferBundle,
+  OfferViewRange,
+  OfferViewSummary,
+  Paginated,
+} from "@/types";
 import { fromDateTimeLocalValue } from "@/lib/datetime";
 
 type CategoryListPayload = {
@@ -45,6 +51,21 @@ export async function fetchBizOfferBundles(
     `/biz/offer-bundles?${params.toString()}`,
     { auth: true },
   );
+}
+
+export async function fetchBizOfferViews(
+  days: OfferViewRange = 14,
+  offerId?: string,
+): Promise<OfferViewSummary> {
+  const params = new URLSearchParams({ days: String(days) });
+  if (offerId) {
+    params.set("offer", offerId);
+  }
+  const payload = await apiFetch<{ data: OfferViewSummary }>(
+    `/biz/offer-views?${params.toString()}`,
+    { auth: true },
+  );
+  return payload.data;
 }
 
 export async function fetchBizOfferBundle(id: string): Promise<OfferBundle> {
