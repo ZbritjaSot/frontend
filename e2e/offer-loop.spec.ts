@@ -10,7 +10,7 @@ async function login(page: Page, path: string, email: string, home: RegExp) {
     await page.goto(path);
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Fjalëkalimi").fill(password);
-    await page.getByRole("button", { name: "Hyr" }).click();
+    await page.getByRole("button", { name: "Hyr" }).click({ timeout: 15_000 });
 
     const outcome = await Promise.race([
       page.waitForURL(home).then(() => "ok" as const),
@@ -80,6 +80,17 @@ async function createAndSubmit(
   return id as string;
 }
 
+async function logout(page: Page) {
+  const button = page.getByRole("button", { name: "Dil" });
+  if ((await button.count()) === 0) {
+    await page.goto("/admin");
+  }
+
+  await button.waitFor();
+  await button.click();
+  await page.waitForURL(/\/(admin|biz)\/login/);
+}
+
 async function deleteFolder(page: Page, id: string) {
   await page.request.get(`${apiUrl}/sanctum/csrf-cookie`);
   const cookies = await page.context().cookies(apiUrl);
@@ -135,6 +146,7 @@ test("a shop offer appears in public after approval, and an expired one stays hi
     await expect(page.getByRole("link", { name: expiredProduct })).toHaveCount(0);
   } finally {
     if (created.length > 0) {
+      await logout(page);
       await login(page, "/biz/login", bizEmail, /\/biz$/);
       for (const id of created) {
         await deleteFolder(page, id);
