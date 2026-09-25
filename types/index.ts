@@ -45,6 +45,14 @@ export type Business = {
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  pending_street?: string | null;
+  pending_village?: string | null;
+  pending_city?: string | null;
+  pending_address?: string | null;
+  pending_latitude?: number | null;
+  pending_longitude?: number | null;
+  location_status?: "pending" | "rejected" | null;
+  location_rejection_note?: string | null;
   is_active: boolean;
   logo_url?: string | null;
   owner?: User | null;

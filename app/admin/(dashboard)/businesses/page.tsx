@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function AdminBusinessesPage() {
-  return <AdminBusinesses />;
+export default async function AdminBusinessesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ adrese?: string }>;
+}) {
+  const params = await searchParams;
+  return <AdminBusinesses addressId={params.adrese} />;
 }

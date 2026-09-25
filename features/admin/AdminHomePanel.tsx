@@ -3,6 +3,7 @@
 import CategoryIcon from "@mui/icons-material/Category";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import StoreIcon from "@mui/icons-material/Store";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Link from "next/link";
@@ -10,6 +11,7 @@ import { adminHomeKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { IndicatorLink } from "@/components/ui/IndicatorLink";
 import { Spinner } from "@/components/ui/Spinner";
 import { latestExpiredSubscriptions } from "@/features/admin/expiredSubscriptions";
+import { usePendingBusinessLocations } from "@/hooks/useAdminBusinesses";
 import { usePendingOffers } from "@/hooks/useAdminOffers";
 import { useAdminSubscriptions } from "@/hooks/useAdminSubscriptions";
 import { formatDateShortSq } from "@/lib/format";
@@ -23,9 +25,10 @@ const seeAll =
 
 export function AdminHomePanel() {
   const pending = usePendingOffers(1);
+  const addresses = usePendingBusinessLocations(1, PREVIEW);
   const subscriptions = useAdminSubscriptions();
 
-  if (pending.isLoading || subscriptions.isLoading) {
+  if (pending.isLoading || addresses.isLoading || subscriptions.isLoading) {
     return (
       <div>
         <h1 className={pageTitle}>Paneli</h1>
@@ -36,12 +39,14 @@ export function AdminHomePanel() {
 
   const pendingBundles = pending.data?.data ?? [];
   const pendingTotal = pending.data?.meta?.total ?? pendingBundles.length;
+  const waitingAddresses = addresses.data?.data ?? [];
+  const addressTotal = addresses.data?.meta?.total ?? waitingAddresses.length;
   const expired = latestExpiredSubscriptions(subscriptions.data?.data ?? []);
 
   return (
     <div>
       <h1 className={pageTitle}>Paneli</h1>
-      <IndicatorKey items={adminHomeKey(pendingTotal, expired.length)} />
+      <IndicatorKey items={adminHomeKey(pendingTotal, addressTotal, expired.length)} />
       <div className="mb-6 grid items-stretch gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <IndicatorLink
           href="/admin/offers"
@@ -51,6 +56,18 @@ export function AdminHomePanel() {
           tone={pendingTotal > 0 ? "pending" : "ink"}
           badgeLabel={
             pendingTotal === 1 ? "1 në pritje" : `${pendingTotal} në pritje`
+          }
+        />
+        <IndicatorLink
+          href="/admin/businesses"
+          icon={<PlaceOutlinedIcon fontSize="small" />}
+          label="Adresa"
+          value={addressTotal > 99 ? "99+" : addressTotal}
+          tone={addressTotal > 0 ? "pending" : "ink"}
+          badgeLabel={
+            addressTotal === 1
+              ? "1 adresë në pritje"
+              : `${addressTotal} adresa në pritje`
           }
         />
         <IndicatorLink
@@ -155,6 +172,44 @@ export function AdminHomePanel() {
                     </span>
                     <span className="truncate text-sm text-muted">
                       Skadoi {formatDateShortSq(sub.ends_at)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="overflow-hidden rounded-2xl border border-line lg:col-span-2">
+          <div className="flex items-center justify-between gap-3 px-5 py-4">
+            <h2 className="m-0 text-base font-bold text-ink">Adresa në pritje</h2>
+            <Link href="/admin/businesses" className={seeAll}>
+              Bizneset
+              <ChevronRightIcon fontSize="small" />
+            </Link>
+          </div>
+          {addresses.isError ? (
+            <p className={`${panelLead} px-5 pb-5`}>
+              {validationMessage(
+                addresses.error,
+                "Nuk mundëm t’i ngarkojmë adresat.",
+              )}
+            </p>
+          ) : waitingAddresses.length === 0 ? (
+            <p className="m-0 px-5 pb-5 text-sm text-muted">
+              Nuk ka adresa në pritje.
+            </p>
+          ) : (
+            <ul className="m-0 list-none p-0">
+              {waitingAddresses.map((business) => (
+                <li key={business.id} className="border-t border-line">
+                  <Link
+                    href={`/admin/businesses?adrese=${business.id}`}
+                    className="grid min-w-0 px-5 py-3 text-inherit no-underline hover:bg-sunken"
+                  >
+                    <span className="truncate font-semibold">{business.name}</span>
+                    <span className="truncate text-sm text-muted">
+                      {business.pending_address ?? "Heqje e adresës"}
                     </span>
                   </Link>
                 </li>

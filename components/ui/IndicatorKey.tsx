@@ -223,20 +223,26 @@ export const bizProfileKey: IndicatorItem[] = [
 
 export function adminHomeKey(
   pendingCount: number,
+  addressCount: number,
   expiredCount: number,
 ): IndicatorItem[] {
   return [
-  {
-    mark: "count-pending",
-    count: pendingCount,
-    text: "Dosje që presin aprovim. I njëjti numër te Ofertat.",
-  },
-  {
-    mark: "count-danger",
-    count: expiredCount,
-    text: "Abonime të skaduara. I njëjti numër te Abonimet.",
-  },
-];
+    {
+      mark: "count-pending",
+      count: pendingCount,
+      text: "Dosje që presin aprovim. I njëjti numër te Ofertat.",
+    },
+    {
+      mark: "count-pending",
+      count: addressCount,
+      text: "Adresa që presin aprovim. Hap biznesin te Bizneset.",
+    },
+    {
+      mark: "count-danger",
+      count: expiredCount,
+      text: "Abonime të skaduara. I njëjti numër te Abonimet.",
+    },
+  ];
 }
 
 export const adminOfferKey: IndicatorItem[] = [

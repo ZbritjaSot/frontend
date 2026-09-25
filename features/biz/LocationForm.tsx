@@ -19,19 +19,28 @@ function composedAddress(street: string, village: string, city: string): string 
     .join(", ");
 }
 
+function locationSeed(business: Business) {
+  const pending = business.location_status === "pending";
+
+  return {
+    street: (pending ? business.pending_street : business.street) ?? "",
+    village: (pending ? business.pending_village : business.village) ?? "",
+    city: (pending ? business.pending_city : business.city) ?? "",
+    latitude: (pending ? business.pending_latitude : business.latitude) ?? null,
+    longitude: (pending ? business.pending_longitude : business.longitude) ?? null,
+  };
+}
+
 export function LocationForm({ business }: { business: Business }) {
   const wide = useWideScreen();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [street, setStreet] = useState(business.street ?? "");
-  const [village, setVillage] = useState(business.village ?? "");
-  const [city, setCity] = useState(business.city ?? "");
-  const [latitude, setLatitude] = useState<number | null>(
-    business.latitude ?? null,
-  );
-  const [longitude, setLongitude] = useState<number | null>(
-    business.longitude ?? null,
-  );
+  const seed = locationSeed(business);
+  const [street, setStreet] = useState(seed.street);
+  const [village, setVillage] = useState(seed.village);
+  const [city, setCity] = useState(seed.city);
+  const [latitude, setLatitude] = useState<number | null>(seed.latitude);
+  const [longitude, setLongitude] = useState<number | null>(seed.longitude);
   const [notice, setNotice] = useState<string | null>(null);
   const [findError, setFindError] = useState<string | null>(null);
 
@@ -64,7 +73,7 @@ export function LocationForm({ business }: { business: Business }) {
     onSuccess: (point) => {
       setLatitude(point.latitude);
       setLongitude(point.longitude);
-      setNotice("Pika u gjet. Mund ta lëvizësh në hartë, pastaj ruaje.");
+      setNotice("Pika u gjet. Mund ta lëvizësh në hartë, pastaj dërgoje për aprovim.");
     },
     onError: () => setNotice(null),
   });
@@ -182,7 +191,7 @@ export function LocationForm({ business }: { business: Business }) {
                 onPick={(nextLat, nextLng) => {
                   setLatitude(nextLat);
                   setLongitude(nextLng);
-                  setNotice("Pika u zhvendos. Ruaje që të mbetet.");
+                  setNotice("Pika u zhvendos. Dërgoje që të shkojë për aprovim.");
                 }}
               />
             </div>
@@ -219,6 +228,22 @@ export function LocationForm({ business }: { business: Business }) {
         ) : null}
       </section>
 
+      {business.location_status === "pending" ? (
+        <p className="m-0 text-sm font-semibold text-muted">
+          Kjo adresë është në pritje. Ajo publike mbetet siç është derisa
+          administrata ta aprovojë.
+        </p>
+      ) : null}
+      {business.location_status === "rejected" ? (
+        <p className="m-0 text-sm font-semibold text-danger" role="status">
+          U refuzua
+          {business.location_rejection_note
+            ? `. ${business.location_rejection_note}`
+            : "."}{" "}
+          Adresa publike nuk ndryshoi.
+        </p>
+      ) : null}
+
       {save.isError ? (
         <p className={fieldError} role="alert">
           {validationMessage(save.error, "Nuk mundëm ta ruajmë adresën.")}
@@ -239,7 +264,7 @@ export function LocationForm({ business }: { business: Business }) {
           <span />
         )}
         <button className={btnPrimary} type="submit" disabled={save.isPending}>
-          {save.isPending ? "Duke ruajtur…" : "Ruaj adresën"}
+          {save.isPending ? "Duke dërguar…" : "Dërgo për aprovim"}
         </button>
       </div>
     </form>

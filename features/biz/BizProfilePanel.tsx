@@ -44,6 +44,20 @@ function AddressLink({ business }: { business: Business }) {
         ) : (
           <span className="font-bold">Shto adresën</span>
         )}
+        {business.location_status === "pending" ? (
+          <span className="truncate text-sm font-semibold text-muted">
+            Në pritje
+            {business.pending_address ? ` · ${business.pending_address}` : " · heqje e adresës"}
+          </span>
+        ) : null}
+        {business.location_status === "rejected" ? (
+          <span className="truncate text-sm font-semibold text-danger">
+            U refuzua
+            {business.location_rejection_note
+              ? ` · ${business.location_rejection_note}`
+              : ""}
+          </span>
+        ) : null}
       </span>
       <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-line bg-sunken text-ink">
         <EditOutlinedIcon fontSize="small" />
