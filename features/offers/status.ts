@@ -4,23 +4,18 @@ export const OFFER_STATUS_LABEL: Record<OfferStatus, string> = {
   draft: "Draft",
   pending: "Në pritje",
   approved: "Aprovuar",
-  rejected: "Refuzuar",
+  taken_down: "Hequr",
   expired: "Skaduar",
 };
 
 export function canEditOffer(status: OfferStatus): boolean {
-  return status === "draft" || status === "rejected";
+  return status === "draft";
 }
 
 export function canSubmitOffer(status: OfferStatus): boolean {
-  return status === "draft" || status === "rejected";
+  return status === "draft";
 }
 
 export function canDeleteOffer(status: OfferStatus): boolean {
-  return (
-    status === "draft" ||
-    status === "pending" ||
-    status === "approved" ||
-    status === "rejected"
-  );
+  return status !== "expired";
 }

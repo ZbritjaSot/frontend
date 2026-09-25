@@ -1,4 +1,6 @@
+import { toApiBody } from "@/features/offers/bizApi";
 import { apiFetch } from "@/lib/api";
+import type { OfferBundleFormInput } from "@/schemas/offer";
 import type { OfferBundle, Paginated } from "@/types";
 
 type BundlePayload = { data: OfferBundle };
@@ -52,22 +54,16 @@ export async function fetchApprovedOffers(
   );
 }
 
-export async function rejectOffer(
+export async function updateAdminOfferBundle(
   id: string,
-  payload: { reason?: string; item_ids: string[] },
+  input: OfferBundleFormInput,
 ): Promise<OfferBundle> {
-  const body = await apiFetch<BundlePayload>(
-    `/admin/offer-bundles/${id}/reject`,
-    {
-      method: "POST",
-      auth: true,
-      body: JSON.stringify({
-        reason: payload.reason || null,
-        item_ids: payload.item_ids,
-      }),
-    },
-  );
-  return body.data;
+  const payload = await apiFetch<BundlePayload>(`/admin/offer-bundles/${id}`, {
+    method: "PUT",
+    auth: true,
+    body: JSON.stringify(toApiBody(input)),
+  });
+  return payload.data;
 }
 
 export async function takeDownOffer(

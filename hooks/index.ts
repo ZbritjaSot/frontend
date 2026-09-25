@@ -13,8 +13,8 @@ export {
   useApprovedOffers,
   useApproveOffer,
   usePendingOffers,
-  useRejectOffer,
   useTakeDownOffer,
+  useUpdateAdminOffer,
 } from "./useAdminOffers";
 export {
   adminBusinessesQueryKey,

@@ -37,7 +37,7 @@ export function HeroSection({ hero }: { hero: PublicOffer | null }) {
                 sizes="(max-width: 1024px) 100vw, 640px"
                 className="aspect-[4/3] w-full"
               />
-              {hero.discount_percent > 0 ? (
+              {hero.discount_percent != null && hero.discount_percent > 0 ? (
                 <span className="absolute top-3 left-3 z-10">
                   <DiscountBadge percent={hero.discount_percent} />
                 </span>
@@ -71,14 +71,16 @@ function DealCopy({ offer }: { offer: PublicOffer }) {
           </span>
         </span>
       ) : null}
-      <div className="mt-4">
-        <PriceLine
-          sale={offer.discounted_price}
-          original={offer.original_price}
-          size="lg"
-          tone="inverse"
-        />
-      </div>
+      {offer.discounted_price != null ? (
+        <div className="mt-4">
+          <PriceLine
+            sale={offer.discounted_price}
+            original={offer.original_price ?? 0}
+            size="lg"
+            tone="inverse"
+          />
+        </div>
+      ) : null}
       <p className="mt-2 mb-0 text-sm text-ivory/70 dark:text-muted">
         Deri më {formatDateSq(offer.expires_at)}
       </p>

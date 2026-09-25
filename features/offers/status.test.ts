@@ -10,16 +10,15 @@ const statuses: OfferStatus[] = [
   "draft",
   "pending",
   "approved",
-  "rejected",
+  "taken_down",
   "expired",
 ];
 
 describe("offer status rules", () => {
-  it("allows edits and submission only for a draft or a rejected folder", () => {
+  it("allows edits and submission only for a draft", () => {
     for (const status of statuses) {
-      const allowed = status === "draft" || status === "rejected";
-      expect(canEditOffer(status)).toBe(allowed);
-      expect(canSubmitOffer(status)).toBe(allowed);
+      expect(canEditOffer(status)).toBe(status === "draft");
+      expect(canSubmitOffer(status)).toBe(status === "draft");
     }
   });
 

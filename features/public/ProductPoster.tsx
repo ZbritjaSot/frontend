@@ -34,7 +34,7 @@ export function ProductPoster({
           sizes="(max-width: 640px) 50vw, 280px"
           className="aspect-square w-full"
         />
-        {offer.discount_percent > 0 ? (
+        {offer.discount_percent != null && offer.discount_percent > 0 ? (
           <span className="absolute top-2 left-2 z-10">
             <DiscountBadge percent={offer.discount_percent} />
           </span>
@@ -51,11 +51,15 @@ export function ProductPoster({
         >
           {offer.name}
         </span>
-        <PriceLine
-          sale={offer.discounted_price}
-          original={offer.original_price}
-          size="sm"
-        />
+        {offer.discounted_price != null ? (
+          <PriceLine
+            sale={offer.discounted_price}
+            original={offer.original_price ?? 0}
+            size="sm"
+          />
+        ) : (
+          <span className="block h-5" />
+        )}
         <span className="block h-4 truncate text-xs text-muted">
           Deri më {formatDateShortSq(offer.expires_at)}
         </span>
@@ -109,7 +113,14 @@ export function OfferRow({ offer }: { offer: PublicOffer }) {
         </span>
       </span>
       <span className="shrink-0 text-right">
-        <PriceLine sale={offer.discounted_price} original={offer.original_price} />
+        {offer.discounted_price != null ? (
+          <PriceLine
+            sale={offer.discounted_price}
+            original={offer.original_price ?? 0}
+          />
+        ) : offer.discount_percent != null ? (
+          <DiscountBadge percent={offer.discount_percent} />
+        ) : null}
       </span>
     </Link>
   );

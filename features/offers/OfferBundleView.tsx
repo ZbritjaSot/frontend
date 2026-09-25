@@ -76,9 +76,9 @@ export function OfferBundleView({
         </>
       ) : null}
 
-      {bundle.status === "rejected" && bundle.rejection_reason ? (
+      {bundle.status === "taken_down" && bundle.rejection_reason ? (
         <p className="m-0 mb-8 text-[0.9375rem] text-danger" role="status">
-          Arsye refuzimi: {bundle.rejection_reason}
+          Arsyeja: {bundle.rejection_reason}
         </p>
       ) : null}
 
@@ -135,16 +135,28 @@ export function OfferBundleView({
                     <p className="m-0 truncate text-sm font-semibold">
                       {item.category?.name ?? "Kategori"}
                     </p>
-                    <span className="inline-flex w-fit items-center justify-center rounded-md bg-accent px-2 py-1 text-sm leading-none font-bold text-on-accent md:ml-6">
-                      {formatDiscountPercent(item.discount_percent)}
-                    </span>
+                    {item.discount_percent != null ? (
+                      <span className="inline-flex w-fit items-center justify-center rounded-md bg-accent px-2 py-1 text-sm leading-none font-bold text-on-accent md:ml-6">
+                        {formatDiscountPercent(item.discount_percent)}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-muted md:ml-6">—</span>
+                    )}
                     <div className="md:pl-6">
-                      <p className="m-0 text-sm font-bold tabular-nums">
-                        {formatEurFromCents(item.discounted_price)}
-                      </p>
-                      <p className="m-0 text-sm text-muted line-through tabular-nums">
-                        {formatEurFromCents(item.original_price)}
-                      </p>
+                      {item.discounted_price != null ? (
+                        <>
+                          <p className="m-0 text-sm font-bold tabular-nums">
+                            {formatEurFromCents(item.discounted_price)}
+                          </p>
+                          {item.original_price != null ? (
+                            <p className="m-0 text-sm text-muted line-through tabular-nums">
+                              {formatEurFromCents(item.original_price)}
+                            </p>
+                          ) : null}
+                        </>
+                      ) : (
+                        <p className="m-0 text-sm text-muted">—</p>
+                      )}
                     </div>
                   </li>
                 );

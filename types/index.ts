@@ -2,7 +2,7 @@ export type OfferStatus =
   | "draft"
   | "pending"
   | "approved"
-  | "rejected"
+  | "taken_down"
   | "expired";
 
 export type CategorySummary = {
@@ -100,12 +100,12 @@ export type OfferItem = {
   id: string;
   name: string;
   image?: OfferImage | null;
-  /** Integer cents. */
-  original_price: number;
-  /** Integer cents. */
-  discounted_price: number;
-  discount_percent: number;
-  /** Set when admin flagged this product on reject. */
+  /** Integer cents. Empty when the line is percent only. */
+  original_price: number | null;
+  /** Integer cents. Empty when the line is percent only. */
+  discounted_price: number | null;
+  discount_percent: number | null;
+  /** Set when admin takes the flyer down. */
   rejection_note?: string | null;
   category?: CategorySummary;
 };
@@ -151,11 +151,11 @@ export type PublicOffer = {
   id: string;
   name: string;
   image?: OfferImage | null;
-  /** Integer cents. */
-  original_price: number;
-  /** Integer cents. */
-  discounted_price: number;
-  discount_percent: number;
+  /** Integer cents. Empty when the line is percent only. */
+  original_price: number | null;
+  /** Integer cents. Empty when the line is percent only. */
+  discounted_price: number | null;
+  discount_percent: number | null;
   starts_at: string;
   expires_at: string;
   bundle?: OfferBundleSummary | null;

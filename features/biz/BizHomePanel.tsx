@@ -38,7 +38,7 @@ function subscriptionView(sub: BizSubscription): {
 export function BizHomePanel() {
   const businessQuery = useBizBusiness();
   const subscriptionQuery = useBizSubscription();
-  const rejected = useBizOffersByStatus("rejected");
+  const waiting = useBizOffersByStatus("pending");
 
   if (
     businessQuery.isLoading ||
@@ -75,19 +75,17 @@ export function BizHomePanel() {
         </Link>
       </div>
 
-      <IndicatorKey items={bizHomeKey(rejectedTotal)} />
+      <IndicatorKey items={bizHomeKey(waitingTotal)} />
 
       <div className="mb-6 grid items-stretch gap-3 sm:grid-cols-2">
         <IndicatorLink
           href="/biz/offers"
           icon={<LocalOfferIcon fontSize="small" />}
-          label="Të refuzuara"
-          value={rejectedTotal > 99 ? "99+" : rejectedTotal}
-          tone={rejectedTotal > 0 ? "danger" : "ink"}
+          label="Në pritje"
+          value={waitingTotal > 99 ? "99+" : waitingTotal}
+          tone={waitingTotal > 0 ? "pending" : "ink"}
           badgeLabel={
-            rejectedTotal === 1
-              ? "1 e refuzuar"
-              : `${rejectedTotal} të refuzuara`
+            waitingTotal === 1 ? "1 në pritje" : `${waitingTotal} në pritje`
           }
         />
         <IndicatorLink
@@ -116,22 +114,22 @@ export function BizHomePanel() {
 
       <section className="overflow-hidden rounded-2xl border border-line">
         <div className="flex items-center justify-between gap-3 px-5 py-4">
-          <h2 className="m-0 text-base font-bold text-ink">Të refuzuara</h2>
+          <h2 className="m-0 text-base font-bold text-ink">Në pritje</h2>
           <Link href="/biz/offers" className={seeAll}>
             Ofertat
             <ChevronRightIcon fontSize="small" />
           </Link>
         </div>
-        {rejected.isError ? (
+        {waiting.isError ? (
             <p className={`${panelLead} px-5 pb-5`}>
               {validationMessage(
-                rejected.error,
+                waiting.error,
                 "Nuk mundëm t’i ngarkojmë ofertat.",
               )}
             </p>
           ) : bundles.length === 0 ? (
             <p className="m-0 px-5 pb-5 text-sm text-muted">
-              Asnjë ofertë e refuzuar.
+              Asnjë ofertë në pritje.
             </p>
           ) : (
             <ul className="m-0 list-none p-0">
@@ -145,8 +143,7 @@ export function BizHomePanel() {
                       {bundle.title}
                     </span>
                     <span className="truncate text-sm text-muted">
-                      {bundle.rejection_reason?.trim() ||
-                        `Skadon ${formatDateShortSq(bundle.expires_at)}`}
+                      Skadon {formatDateShortSq(bundle.expires_at)}
                     </span>
                   </Link>
                 </li>

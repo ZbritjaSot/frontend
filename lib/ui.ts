@@ -30,6 +30,7 @@ const statusTone: Record<string, string> = {
   pending: "bg-pending",
   approved: "bg-accent",
   rejected: "bg-danger-soft",
+  taken_down: "bg-danger-soft",
   expired: "bg-danger-soft shadow-[inset_0_0_0_1px_var(--color-danger)]",
 };
 

@@ -12,7 +12,6 @@ import { OfferBundleView } from "@/features/offers/OfferBundleView";
 import {
   useAdminOfferBundle,
   useApproveOffer,
-  useRejectOffer,
   useTakeDownOffer,
 } from "@/hooks/useAdminOffers";
 import { validationMessage } from "@/lib/api";
@@ -38,15 +37,11 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
   const router = useRouter();
   const { data: bundle, isLoading, isError, error } = useAdminOfferBundle(id);
   const approveMutation = useApproveOffer();
-  const rejectMutation = useRejectOffer();
   const takeDownMutation = useTakeDownOffer();
   const [actionError, setActionError] = useState<string | null>(null);
   const [confirmApprove, setConfirmApprove] = useState(false);
-  const [confirmReject, setConfirmReject] = useState(false);
   const [confirmTakeDown, setConfirmTakeDown] = useState(false);
-  const [reason, setReason] = useState("");
   const [takeDownReason, setTakeDownReason] = useState("");
-  const [problemIds, setProblemIds] = useState<string[]>([]);
 
   if (isLoading) {
     return <Spinner label="Duke ngarkuar dosjen" />;
@@ -83,32 +78,6 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
     }
   }
 
-  function toggleProblem(itemId: string) {
-    setActionError(null);
-    setProblemIds((current) =>
-      current.includes(itemId)
-        ? current.filter((id) => id !== itemId)
-        : [...current, itemId],
-    );
-  }
-
-  function openReject() {
-    if (problemIds.length < 1) {
-      setActionError("Zgjidh të paktën një produkt që ka problem.");
-      return;
-    }
-    setActionError(null);
-    setConfirmReject(true);
-  }
-
-  function closeReject() {
-    if (rejectMutation.isPending) {
-      return;
-    }
-    setConfirmReject(false);
-    setReason("");
-  }
-
   function closeTakeDown() {
     if (takeDownMutation.isPending) {
       return;
@@ -135,24 +104,6 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
     } catch (err) {
       setActionError(validationMessage(err, "Nuk mundëm ta heqim dosjen."));
       setConfirmTakeDown(false);
-    }
-  }
-
-  async function onReject() {
-    setActionError(null);
-    try {
-      const note = reason.trim();
-      await rejectMutation.mutateAsync({
-        id: bundle!.id,
-        item_ids: problemIds,
-        ...(note ? { reason: note } : {}),
-      });
-      setConfirmReject(false);
-      setReason("");
-      router.replace("/admin/offers");
-    } catch (err) {
-      setActionError(validationMessage(err, "Nuk mundëm ta refuzojmë dosjen."));
-      setConfirmReject(false);
     }
   }
 
@@ -189,27 +140,16 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
         </div>
         {isPending ? (
           <div className="flex flex-wrap gap-2">
+            <Link href={`/admin/offers/${bundle.id}/edit`} className={btnGhost}>
+              Ndrysho
+            </Link>
             <button
               type="button"
               className={btnPrimary}
-              disabled={approveMutation.isPending || rejectMutation.isPending}
+              disabled={approveMutation.isPending}
               onClick={() => setConfirmApprove(true)}
             >
               Aprovo
-            </button>
-            <button
-              type="button"
-              className={`${btnDanger} ${
-                problemIds.length < 1 ? "disabled:cursor-not-allowed!" : ""
-              }`}
-              disabled={
-                problemIds.length < 1 ||
-                approveMutation.isPending ||
-                rejectMutation.isPending
-              }
-              onClick={openReject}
-            >
-              Refuzo
             </button>
           </div>
         ) : null}
@@ -236,13 +176,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
         </p>
       ) : null}
 
-      <OfferBundleView
-        bundle={bundle}
-        showHeading={false}
-        selectedIds={isPending ? problemIds : undefined}
-        onToggleItem={isPending ? toggleProblem : undefined}
-        selectionDisabled={rejectMutation.isPending}
-      />
+      <OfferBundleView bundle={bundle} showHeading={false} />
 
       <ConfirmModal
         open={confirmApprove}
@@ -258,50 +192,6 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
           }
         }}
       />
-
-      <Modal
-        open={confirmReject}
-        title="Refuzo dosjen"
-        onClose={closeReject}
-        footer={
-          <>
-            <button
-              type="button"
-              className={btnGhost}
-              disabled={rejectMutation.isPending}
-              onClick={closeReject}
-            >
-              Anulo
-            </button>
-            <button
-              type="button"
-              className={btnDanger}
-              disabled={rejectMutation.isPending}
-              onClick={onReject}
-            >
-              {rejectMutation.isPending ? "Duke u refuzuar…" : "Refuzo"}
-            </button>
-          </>
-        }
-      >
-        <div className="flex flex-col gap-4">
-          <p className="m-0 text-sm leading-relaxed text-muted">
-            Refuzo “{bundle.title}”? Produktet e shënuara kthehen për rregullim.
-          </p>
-          <label className={fieldLabel}>
-            <span>Arsye</span>
-            <textarea
-              className={`${inputClass} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`}
-              rows={4}
-              value={reason}
-              maxLength={1000}
-              disabled={rejectMutation.isPending}
-              placeholder="Çfarë duhet rregulluar…"
-              onChange={(event) => setReason(event.target.value)}
-            />
-          </label>
-        </div>
-      </Modal>
 
       <Modal
         open={confirmTakeDown}
