@@ -123,6 +123,13 @@ export async function fetchPublicFolder(id: string): Promise<PublicFolder> {
   return payload.data;
 }
 
+export async function recordPublicOfferView(id: string): Promise<void> {
+  await apiFetch<void>(`/offers/${id}/view`, {
+    method: "POST",
+    cache: "no-store",
+  });
+}
+
 export async function fetchPublicOffer(id: string): Promise<PublicOffer> {
   const payload = await apiFetch<{ data: PublicOffer }>(`/offers/${id}`, {
     ...PUBLIC_FETCH,

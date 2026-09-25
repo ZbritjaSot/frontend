@@ -105,6 +105,8 @@ export type OfferItem = {
   /** Integer cents. Empty when the line is percent only. */
   discounted_price: number | null;
   discount_percent: number | null;
+  /** Public opens of this product. Shop panel only. */
+  view_count: number;
   /** Set when admin takes the flyer down. */
   rejection_note?: string | null;
   category?: CategorySummary;
@@ -177,6 +179,23 @@ export type OfferBundle = {
   business?: BusinessSummary;
   created_at?: string;
   updated_at?: string;
+};
+
+export type OfferViewDay = {
+  date: string;
+  views: number;
+};
+
+export type OfferViewRange = 7 | 14 | 30;
+
+export type OfferViewSummary = {
+  total: number;
+  top: Array<{
+    id: string;
+    name: string;
+    view_count: number;
+  }>;
+  days: OfferViewDay[];
 };
 
 /** @deprecated Prefer OfferBundle — kept for transitional imports. */

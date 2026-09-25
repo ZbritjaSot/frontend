@@ -117,7 +117,7 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
         </p>
       ) : null}
 
-      <OfferBundleView bundle={bundle} showHeading={false} />
+      <OfferBundleView bundle={bundle} showHeading={false} showViews />
     </>
   );
 }

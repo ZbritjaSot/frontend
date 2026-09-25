@@ -7,10 +7,12 @@ import {
   fetchActiveCategories,
   fetchBizOfferBundle,
   fetchBizOfferBundles,
+  fetchBizOfferViews,
   submitBizOfferBundle,
   updateBizOfferBundle,
 } from "@/features/offers/bizApi";
 import type { OfferBundleFormInput } from "@/schemas/offer";
+import type { OfferViewRange } from "@/types";
 
 export const bizOffersQueryKey = ["biz", "offer-bundles"] as const;
 export const categoriesQueryKey = ["categories", "active"] as const;
@@ -35,6 +37,14 @@ export function useBizOffersByStatus(status: string, perPage = 4) {
   return useQuery({
     queryKey: [...bizOffersQueryKey, "by-status", status, perPage],
     queryFn: () => fetchBizOfferBundles(1, perPage, status),
+  });
+}
+
+export function useBizOfferViews(days: OfferViewRange = 14, offerId?: string) {
+  return useQuery({
+    queryKey: [...bizOffersQueryKey, "views", days, offerId ?? ""],
+    queryFn: () => fetchBizOfferViews(days, offerId),
+    placeholderData: (previous) => previous,
   });
 }
 
