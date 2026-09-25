@@ -32,7 +32,7 @@ export async function fetchMe(): Promise<User> {
 }
 
 export async function changePassword(input: {
-  current_password: string;
+  current_password?: string;
   password: string;
   password_confirmation: string;
 }): Promise<User> {

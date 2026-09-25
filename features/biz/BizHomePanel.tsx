@@ -43,7 +43,7 @@ export function BizHomePanel() {
   if (
     businessQuery.isLoading ||
     subscriptionQuery.isLoading ||
-    rejected.isLoading
+    waiting.isLoading
   ) {
     return (
       <div>
@@ -56,8 +56,8 @@ export function BizHomePanel() {
   const business = businessQuery.data;
   const subscription = subscriptionQuery.data ?? null;
   const status = subscription ? subscriptionView(subscription) : null;
-  const bundles = rejected.data?.data ?? [];
-  const rejectedTotal = rejected.data?.meta?.total ?? bundles.length;
+  const bundles = waiting.data?.data ?? [];
+  const waitingTotal = waiting.data?.meta?.total ?? bundles.length;
 
   return (
     <div>
