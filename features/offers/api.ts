@@ -15,6 +15,8 @@ export type PublicOfferQuery = {
   q?: string;
   category?: string;
   business?: string;
+  city?: string;
+  sort?: "newest" | "cheapest" | "discount";
   perPage?: number;
   page?: number;
 };
@@ -67,6 +69,12 @@ export async function fetchPublicOffers(
   if (query.business) {
     params.set("business", query.business);
   }
+  if (query.city) {
+    params.set("city", query.city);
+  }
+  if (query.sort && query.sort !== "newest") {
+    params.set("sort", query.sort);
+  }
   if (query.page && query.page > 1) {
     params.set("page", String(query.page));
   }
@@ -74,6 +82,13 @@ export async function fetchPublicOffers(
   return apiFetch<Paginated<PublicOffer>>(`/offers?${params.toString()}`, {
     ...PUBLIC_FETCH,
   });
+}
+
+export async function fetchPublicCities(): Promise<string[]> {
+  const payload = await apiFetch<{ data: string[] }>("/cities", {
+    ...PUBLIC_FETCH,
+  });
+  return payload.data;
 }
 
 export async function fetchPublicCategories(): Promise<CategorySummary[]> {
@@ -107,6 +122,12 @@ export async function fetchPublicFolders(
   }
   if (query.business) {
     params.set("business", query.business);
+  }
+  if (query.city) {
+    params.set("city", query.city);
+  }
+  if (query.sort && query.sort !== "newest") {
+    params.set("sort", query.sort);
   }
 
   return apiFetch<Paginated<PublicFolder>>(

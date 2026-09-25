@@ -1,9 +1,11 @@
+import { CatalogFilters } from "@/features/public/CatalogFilters";
+import { CatalogStream } from "@/features/public/CatalogStream";
 import { CampaignGrid, CampaignPoster, CampaignRail } from "@/features/public/CampaignPoster";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
 import { Band, EmptyNote, Pager, SectionHeading } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import { display, kicker as kickerClass } from "@/features/public/tone";
-import { browsePath, type Katalog } from "@/lib/browse";
+import { browsePath, type CatalogSort, type Katalog } from "@/lib/browse";
 import type { CategorySummary, PublicFolder, PublicOffer } from "@/types";
 
 type ResultsViewProps = {
@@ -13,6 +15,9 @@ type ResultsViewProps = {
   q: string;
   category?: string;
   katalog?: Katalog;
+  city?: string;
+  sort?: CatalogSort;
+  cities?: string[];
   page: number;
   offerLastPage: number;
   folderLastPage: number;
@@ -28,6 +33,9 @@ export function ResultsView({
   q,
   category,
   katalog,
+  city,
+  sort = "newest",
+  cities = [],
   page,
   offerLastPage,
   folderLastPage,
@@ -40,9 +48,12 @@ export function ResultsView({
     ? `«${q}»`
     : katalog === "fletushka"
       ? "Fletushkat"
-      : (categoryName ?? "Zbritjet");
+      : katalog === "oferta"
+        ? (categoryName ?? "Ofertat")
+        : (categoryName ?? "Zbritjet");
   const kicker = katalog === "fletushka" ? "Katalogu" : q ? "Kërkimi" : "Katalogu";
   const flyerCatalogue = katalog === "fletushka";
+  const catalogue = katalog === "oferta" || katalog === "fletushka";
   const showFlyerGrid = flyerCatalogue;
   const showFlyerRail = !flyerCatalogue && page === 1 && folders.length > 0;
   const showOffers = !flyerCatalogue && offers.length > 0;
@@ -63,20 +74,60 @@ export function ResultsView({
       </h1>
       <p className="mt-4 mb-0 max-w-xl text-sm leading-relaxed text-muted">
         {flyerCatalogue
-          ? `${folderTotal} fletushka aktive. Renditur sipas datës së fillimit.`
+          ? `${folderTotal} fletushka aktive.`
           : q
             ? `${offerTotal} produkte · ${folderTotal} fletushka`
             : `${offerTotal} produkte aktive${categoryName ? ` te ${categoryName}` : ""}.`}
       </p>
-      <div className="mt-8 max-w-xl">
-        <DiscoverForm
-          basePath={basePath}
-          q={q}
-          category={category}
+      {catalogue ? (
+        <div className="mt-5 flex flex-col gap-3">
+          <DiscoverForm
+            basePath={basePath}
+            q={q}
+            category={category}
+            katalog={katalog}
+            city={city}
+            sort={sort}
+            categories={categories}
+            catalog
+          />
+          <CatalogFilters
+            basePath={basePath}
+            q={q}
+            category={category}
+            katalog={katalog}
+            city={city}
+            sort={sort}
+            cities={cities}
+          />
+        </div>
+      ) : (
+        <div className="mt-8 max-w-xl">
+          <DiscoverForm
+            basePath={basePath}
+            q={q}
+            category={category}
+            katalog={katalog}
+            city={city}
+            sort={sort}
+            categories={categories}
+          />
+        </div>
+      )}
+
+      {catalogue && katalog && !empty ? (
+        <CatalogStream
+          key={`${q}|${category ?? ""}|${city ?? ""}|${sort}`}
           katalog={katalog}
-          categories={categories}
+          offers={offers}
+          folders={folders}
+          lastPage={lastPage}
+          q={q || undefined}
+          category={category}
+          city={city}
+          sort={sort}
         />
-      </div>
+      ) : null}
 
       {showFlyerRail ? (
         <div className="mt-12">
@@ -85,14 +136,14 @@ export function ResultsView({
         </div>
       ) : null}
 
-      {showFlyerGrid && folders.length > 0 ? (
+      {!catalogue && showFlyerGrid && folders.length > 0 ? (
         <div className="mt-12 grid gap-4">
           <CampaignPoster folder={folders[0]} layout="feature" eager={page === 1} />
           <CampaignGrid folders={folders.slice(1)} />
         </div>
       ) : null}
 
-      {showOffers ? (
+      {!catalogue && showOffers ? (
         <div className="mt-12">
           {showFlyerRail ? (
             <SectionHeading kicker="Produkte" title="Zbritjet" />
@@ -108,11 +159,13 @@ export function ResultsView({
         />
       ) : null}
 
-      <Pager
-        page={page}
-        lastPage={lastPage}
-        hrefFor={(next) => browsePath(basePath, { q, category, katalog, page: next })}
-      />
+      {catalogue ? null : (
+        <Pager
+          page={page}
+          lastPage={lastPage}
+          hrefFor={(next) => browsePath(basePath, { q, category, katalog, page: next })}
+        />
+      )}
     </Band>
   );
 }
