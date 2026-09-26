@@ -1,9 +1,11 @@
 "use client";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { changePassword } from "@/features/auth/api";
+import { useRouter } from "next/navigation";
+import { changePassword, hasRole } from "@/features/auth/api";
+import { useMe } from "@/hooks/useAuth";
 import { validationMessage } from "@/lib/api";
 import {
   btnPrimary,
@@ -27,12 +29,25 @@ function passwordError(error: unknown): string {
 }
 
 export function BizPasswordScreen() {
+  const router = useRouter();
+  const { data: user } = useMe();
+  const manager = !!user && hasRole(user, "manager");
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    if (manager) {
+      router.replace("/biz");
+    }
+  }, [manager, router]);
+
+  if (manager) {
+    return null;
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

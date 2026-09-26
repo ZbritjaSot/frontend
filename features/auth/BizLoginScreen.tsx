@@ -52,7 +52,7 @@ export function BizLoginScreen() {
         </p>
 
         <LoginForm
-          requiredRole="business"
+          requiredRole={["business", "manager"]}
           nextPath="/biz"
           wrongRoleMessage="Kjo llogari nuk është llogari biznesi."
           forgotHref="/biz/forgot-password"

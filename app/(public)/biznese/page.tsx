@@ -4,7 +4,7 @@ import { DiscoverForm } from "@/features/public/DiscoverForm";
 import { Band, EmptyNote, Frame, Pager } from "@/features/public/Frame";
 import { display, kicker } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
-import { campaignWord, productWord } from "@/features/public/compose";
+import { campaignWord, locationLabel, productWord } from "@/features/public/compose";
 import { ApiError, fetchPublicBusinesses } from "@/features/offers/api";
 import { browsePath } from "@/lib/browse";
 import type { PublicBusiness } from "@/types";
@@ -76,7 +76,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
       ) : (
         <ul className="m-0 mt-8 grid list-none gap-2 p-0 sm:grid-cols-2 lg:grid-cols-3">
           {shops.map((shop) => {
-            const place = shop.city ?? shop.village;
+            const place = locationLabel(shop.locations_count, shop.city ?? shop.village);
             const flyers = shop.flyers_count ?? 0;
             const offers = shop.offers_count ?? 0;
             return (

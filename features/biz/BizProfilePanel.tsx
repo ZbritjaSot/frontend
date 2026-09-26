@@ -6,6 +6,9 @@ import Link from "next/link";
 import { bizProfileKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Spinner } from "@/components/ui/Spinner";
 import { useQueryClient } from "@tanstack/react-query";
+import { hasRole } from "@/features/auth/api";
+import { ManagerShops } from "@/features/biz/ManagerShops";
+import { BranchPanel } from "@/features/branches/BranchPanel";
 import { LogoField } from "@/features/gallery/LogoField";
 import { deleteBizLogo, uploadBizLogo } from "@/features/gallery/api";
 import { useMe } from "@/hooks/useAuth";
@@ -109,9 +112,14 @@ function subscriptionStatus(sub: BizSubscription): {
 
 export function BizProfilePanel() {
   const queryClient = useQueryClient();
-  const businessQuery = useBizBusiness();
-  const subscriptionQuery = useBizSubscription();
   const { data: user } = useMe();
+  const manager = !!user && hasRole(user, "manager");
+  const businessQuery = useBizBusiness(!manager);
+  const subscriptionQuery = useBizSubscription(!manager);
+
+  if (manager) {
+    return <ManagerShops />;
+  }
 
   if (businessQuery.isLoading || subscriptionQuery.isLoading) {
     return <Spinner label="Duke ngarkuar profilin" />;
@@ -242,6 +250,7 @@ export function BizProfilePanel() {
           </span>
         </Link>
       </section>
+      {business ? <BranchPanel mode="biz" business={business} /> : null}
     </div>
   );
 }

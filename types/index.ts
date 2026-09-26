@@ -38,6 +38,8 @@ export type BusinessSummary = {
 /** Admin business payload (matches BusinessResource). */
 export type Business = {
   id: string;
+  parent_id?: string | null;
+  parent?: { id: string; name: string } | null;
   name: string;
   street?: string | null;
   village?: string | null;
@@ -134,6 +136,10 @@ export type PublicBusiness = {
   logo_url?: string | null;
   flyers_count?: number;
   offers_count?: number;
+  /** Public locations in this company. Set on the directory for the main shop. */
+  locations_count?: number;
+  /** Main shop first, then public branches. Shop page only. */
+  locations?: CompanyShop[];
 };
 
 /** Public offer folder: one shop, one title, its products. */
@@ -155,6 +161,8 @@ export type PublicFolder = {
     detail_url: string;
   } | null;
   items: PublicOffer[];
+  /** Other public branches that carry this flyer. Detail only. */
+  also_at?: BusinessSummary[];
 };
 
 export type PublicOffer = {
@@ -171,6 +179,8 @@ export type PublicOffer = {
   bundle?: OfferBundleSummary | null;
   category?: CategorySummary;
   business?: BusinessSummary;
+  /** Other public branches that carry this product. Detail only. */
+  also_at?: BusinessSummary[];
 };
 
 /** Biz / admin offer folder (matches OfferBundleResource). */
@@ -185,6 +195,7 @@ export type OfferBundle = {
   items_count?: number;
   items?: OfferItem[];
   business?: BusinessSummary;
+  branches?: Array<{ id: string; name: string; city?: string | null }>;
   created_at?: string;
   updated_at?: string;
 };
@@ -208,6 +219,34 @@ export type OfferViewSummary = {
 
 /** @deprecated Prefer OfferBundle — kept for transitional imports. */
 export type Offer = OfferBundle;
+
+export type CompanyShop = {
+  id: string;
+  name: string;
+  street?: string | null;
+  city?: string | null;
+  village?: string | null;
+  address?: string | null;
+  parent_id?: string | null;
+  is_active?: boolean;
+  logo_url?: string | null;
+  subscribed?: boolean;
+  pending_offers_count?: number;
+};
+
+export type ManagerPendingOffer = {
+  id: string;
+  title: string;
+  business_name?: string | null;
+};
+
+export type ManagerAccount = {
+  id: string;
+  name: string;
+  email: string;
+  shops: Array<{ id: string; name: string; city?: string | null }>;
+  pending_offers?: ManagerPendingOffer[];
+};
 
 export type User = {
   id: string;

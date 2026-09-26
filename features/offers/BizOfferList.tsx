@@ -11,7 +11,9 @@ import { bizOfferKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
+import { hasRole } from "@/features/auth/api";
 import { BIZ_OFFERS_PAGE_SIZE } from "@/features/offers/bizApi";
+import { useMe } from "@/hooks/useAuth";
 import {
   canDeleteOffer,
   canEditOffer,
@@ -42,7 +44,9 @@ export function BizOfferList() {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [q, setQ] = useState("");
-  const { data, isLoading, isError, error, refetch } = useBizOffers(page, q);
+  const { data: user } = useMe();
+  const manager = !!user && hasRole(user, "manager");
+  const { data, isLoading, isError, error, refetch } = useBizOffers(page, q, !manager);
   const submitMutation = useSubmitBizOffer();
   const deleteMutation = useDeleteBizOffer();
   const [actionError, setActionError] = useState<string | null>(null);
@@ -60,6 +64,21 @@ export function BizOfferList() {
     }, 300);
     return () => window.clearTimeout(timer);
   }, [query]);
+
+  if (manager) {
+    return (
+      <div>
+        <h1 className={pageTitle}>Ofertat</h1>
+        <p className={panelLead}>
+          Fletushkat që presin aprovim janë te radha jote. Emailin dhe fjalëkalimin
+          e dyqanit i ndryshon administrata.
+        </p>
+        <Link href="/biz" className={btnPrimary}>
+          Në pritje
+        </Link>
+      </div>
+    );
+  }
 
   const bundles = data?.data ?? [];
   const lastPage = data?.meta?.last_page;

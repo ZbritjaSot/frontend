@@ -17,19 +17,21 @@ import type { OfferViewRange } from "@/types";
 export const bizOffersQueryKey = ["biz", "offer-bundles"] as const;
 export const categoriesQueryKey = ["categories", "active"] as const;
 
-export function useBizOffers(page = 1, q = "") {
+export function useBizOffers(page = 1, q = "", enabled = true) {
   return useQuery({
     queryKey: [...bizOffersQueryKey, page, q],
     queryFn: () => fetchBizOfferBundles(page, undefined, undefined, q),
     placeholderData: (previous) => previous,
+    enabled,
   });
 }
 
-export function usePendingOfferCount() {
+export function usePendingOfferCount(enabled = true) {
   return useQuery({
     queryKey: [...bizOffersQueryKey, "by-status", "pending", 4],
     queryFn: () => fetchBizOfferBundles(1, 4, "pending"),
     select: (page) => page.meta?.total ?? page.data.length,
+    enabled,
   });
 }
 

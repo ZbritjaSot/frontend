@@ -67,6 +67,14 @@ export function productWord(count: number): string {
   return count === 1 ? "produkt" : "produkte";
 }
 
+export function locationLabel(count: number | undefined, place?: string | null): string {
+  if ((count ?? 1) > 1) {
+    return `${count} lokacione`;
+  }
+
+  return place ?? "";
+}
+
 export function campaignWord(count: number): string {
   return count === 1 ? "fletushkë" : "fletushka";
 }

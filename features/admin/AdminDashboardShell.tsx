@@ -1,5 +1,6 @@
 "use client";
 
+import AccountTreeOutlinedIcon from "@mui/icons-material/AccountTreeOutlined";
 import CategoryIcon from "@mui/icons-material/Category";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import MailOutlinedIcon from "@mui/icons-material/MailOutlined";
@@ -36,6 +37,11 @@ const baseNav: DashboardNavItem[] = [
     href: "/admin/categories",
     label: "Kategoritë",
     icon: <CategoryIcon fontSize="small" />,
+  },
+  {
+    href: "/admin/managers",
+    label: "Menaxherët",
+    icon: <AccountTreeOutlinedIcon fontSize="small" />,
   },
   {
     href: "/admin/newsletter",

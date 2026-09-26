@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { leadProduct, productWord, withCampaign } from "@/features/public/compose";
 import { display } from "@/features/public/tone";
+import { BranchPlaces } from "@/features/public/BranchPlaces";
 import { BackLink, Band, EmptyNote, Frame } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
@@ -142,6 +143,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
             body="Nuk ka produkte aktive brenda kësaj fletushke."
           />
         )}
+        <BranchPlaces places={folder.also_at} />
       </Band>
     </article>
   );
