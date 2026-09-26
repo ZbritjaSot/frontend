@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";
+import { adminCurationKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Spinner } from "@/components/ui/Spinner";
 import { AdminHome } from "@/features/admin/AdminHome";
 import { DragList } from "@/features/admin/DragList";
@@ -78,6 +79,7 @@ export function AdminExclusive() {
         Dy punë të ndara. Lista është përmbajtja e {EXCLUSIVE_LABEL}. Kryefaqja
         vendos seksionet, heron, dyqanet dhe fletushkat. Tërhiqi për t’i renditur.
       </p>
+      <IndicatorKey items={adminCurationKey} />
       <div className="mt-5 flex flex-wrap gap-x-8 gap-y-4">
         <DashboardKpi label="Në faqe" value={picks.length} detail="Të zgjedhura, më së shumti 40" />
         <DashboardKpi

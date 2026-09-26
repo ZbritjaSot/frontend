@@ -3,6 +3,7 @@
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -29,6 +30,7 @@ export type IndicatorMark =
   | "unlock"
   | "drag"
   | "star"
+  | "branches"
   | "history"
   | "count-danger"
   | "count-pending"
@@ -137,6 +139,12 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
       return (
         <span className={iconBox}>
           <StarIcon fontSize="small" className="text-accent!" />
+        </span>
+      );
+    case "branches":
+      return (
+        <span className={iconBox}>
+          <ExpandMoreIcon fontSize="small" />
         </span>
       );
     case "history":
@@ -262,6 +270,11 @@ export const adminOfferKey: IndicatorItem[] = [
   { mark: "view", text: "Hap dosjen." },
 ];
 
+export const adminOfferBoardKey: IndicatorItem[] = [
+  ...adminOfferKey,
+  { mark: "star", text: "Dyqani është ekskluziv." },
+];
+
 export const adminInspectKey: IndicatorItem[] = [
   { mark: "pending", text: "Pret vendimin tënd." },
   { mark: "approved", text: "Është në faqen publike, nëse abonimi është aktiv." },
@@ -274,10 +287,26 @@ export const adminInspectKey: IndicatorItem[] = [
 export const adminBusinessKey: IndicatorItem[] = [
   { mark: "active", text: "Biznesi mund të ketë oferta publike." },
   { mark: "inactive", text: "Ofertat e tij nuk shfaqen." },
+  { mark: "pending", text: "Adresa e re pret aprovim." },
+  { mark: "branches", text: "Hap degët e kompanisë." },
+  { mark: "star", text: "Bëje ekskluzive." },
   { mark: "edit", text: "Ndrysho të dhënat." },
   { mark: "lock", text: "Çaktivizo biznesin." },
   { mark: "unlock", text: "Aktivizo biznesin." },
-  { mark: "star", text: "Bëje ekskluzive." },
+];
+
+export const adminManagerKey: IndicatorItem[] = [
+  { mark: "pending", text: "Fletushka që pret aprovimin tënd." },
+  { mark: "edit", text: "Ndrysho dyqanet e menaxherit." },
+  { mark: "delete", text: "Fshi llogarinë. Jo kur ka fletushka në pritje." },
+];
+
+export const adminNewsletterKey: IndicatorItem[] = [
+  { mark: "delete", text: "Hiq adresën nga lista." },
+];
+
+export const adminCurationKey: IndicatorItem[] = [
+  { mark: "drag", text: "Tërhiq për ta renditur." },
 ];
 
 export const adminCategoryKey: IndicatorItem[] = [

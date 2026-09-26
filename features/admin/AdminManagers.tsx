@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { adminManagerKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
@@ -128,6 +129,7 @@ export function AdminManagers() {
         Çdo dyqan i caktohet një menaxheri. Fletushkat në pritje shfaqen këtu, jo te
         lista jote. Aprovoji ose ndryshoji para se ta fshish llogarinë.
       </p>
+      <IndicatorKey items={adminManagerKey} />
 
       {!managers.isLoading && !managers.isError ? (
         <div className="mb-5 flex flex-wrap gap-x-8 gap-y-4">

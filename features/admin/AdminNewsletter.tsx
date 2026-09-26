@@ -3,6 +3,7 @@
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useEffect, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { adminNewsletterKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
@@ -228,6 +229,7 @@ export function AdminNewsletter() {
       <p className={`${panelLead} mb-6 max-w-xl`}>
         Zgjidh ofertat, fletushkat dhe dyqanet. Çdo adresë merr email-in e vet.
       </p>
+      <IndicatorKey items={adminNewsletterKey} />
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
         <form

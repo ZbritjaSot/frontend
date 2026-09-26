@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AdminLiveOffers } from "@/features/admin/AdminLiveOffers";
 import { AdminPendingOffers } from "@/features/admin/AdminPendingOffers";
-import { adminOfferKey, IndicatorKey } from "@/components/ui/IndicatorKey";
+import { adminOfferBoardKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import {
   OfferStatusFilters,
   type OfferListStatus,
@@ -56,7 +56,7 @@ export function AdminOffersBoard() {
     <>
       <h1 className={pageTitle}>Ofertat</h1>
       <OfferStatusFilters value={view} onChange={setView} />
-      <IndicatorKey items={adminOfferKey} />
+      <IndicatorKey items={adminOfferBoardKey} />
       {view === "pending" ? (
         <AdminPendingOffers
           query={query}
