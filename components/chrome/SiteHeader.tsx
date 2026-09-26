@@ -8,7 +8,6 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { readKatalog } from "@/lib/browse";
 
 const links = [
-  { href: "/", label: "Kreu", match: "home" },
   { href: "/?katalog=oferta", label: "Ofertat", match: "oferta" },
   { href: "/?katalog=fletushka", label: "Fletushkat", match: "fletushka" },
   { href: "/biznese", label: "Dyqanet", match: "dyqane" },
@@ -18,12 +17,6 @@ export function SiteHeader() {
   const pathname = usePathname();
   const params = useSearchParams();
   const katalog = readKatalog(params.get("katalog") ?? undefined);
-  const browsingHome =
-    pathname === "/" &&
-    !katalog &&
-    !(params.get("q") ?? "").trim() &&
-    !params.get("category") &&
-    (params.get("page") ?? "1") === "1";
 
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-chrome text-chrome-text backdrop-blur-md dark:border-white/8 dark:bg-chrome/90">
@@ -43,13 +36,11 @@ export function SiteHeader() {
         >
           {links.map((link) => {
             const active =
-              link.match === "home"
-                ? browsingHome
-                : link.match === "oferta"
-                  ? katalog === "oferta" || pathname.startsWith("/offers")
-                  : link.match === "dyqane"
-                    ? pathname === "/biznese"
-                    : katalog === "fletushka" || pathname.startsWith("/dosje");
+              link.match === "oferta"
+                ? katalog === "oferta" || pathname.startsWith("/offers")
+                : link.match === "dyqane"
+                  ? pathname === "/biznese"
+                  : katalog === "fletushka" || pathname.startsWith("/dosje");
 
             return (
               <Link

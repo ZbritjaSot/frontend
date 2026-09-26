@@ -17,9 +17,6 @@ export function SiteFooter() {
             </p>
           </div>
           <nav aria-label="Fundi i faqes" className="flex flex-wrap gap-x-5 gap-y-2">
-            <Link href="/" className={link}>
-              Kreu
-            </Link>
             <Link href="/?katalog=oferta" className={link}>
               Ofertat
             </Link>
