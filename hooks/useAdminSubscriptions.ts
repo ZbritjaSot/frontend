@@ -15,10 +15,10 @@ export const adminSubscriptionsQueryKey = [
 ] as const;
 export const adminBusinessesQueryKey = ["admin", "businesses"] as const;
 
-export function useAdminSubscriptions() {
+export function useAdminSubscriptions(q = "") {
   return useQuery({
-    queryKey: adminSubscriptionsQueryKey,
-    queryFn: () => fetchAdminSubscriptions(),
+    queryKey: [...adminSubscriptionsQueryKey, q],
+    queryFn: () => fetchAdminSubscriptions({ q }),
   });
 }
 

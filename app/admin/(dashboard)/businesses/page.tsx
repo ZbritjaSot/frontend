@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { AdminBusinesses } from "@/features/admin/AdminBusinesses";
 
 export const metadata: Metadata = {
@@ -12,5 +13,8 @@ export default async function AdminBusinessesPage({
   searchParams: Promise<{ adrese?: string }>;
 }) {
   const params = await searchParams;
-  return <AdminBusinesses addressId={params.adrese} />;
+  if (params.adrese) {
+    redirect(`/admin/businesses/${params.adrese}`);
+  }
+  return <AdminBusinesses />;
 }

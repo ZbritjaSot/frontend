@@ -17,10 +17,10 @@ import type { OfferViewRange } from "@/types";
 export const bizOffersQueryKey = ["biz", "offer-bundles"] as const;
 export const categoriesQueryKey = ["categories", "active"] as const;
 
-export function useBizOffers(page = 1) {
+export function useBizOffers(page = 1, q = "") {
   return useQuery({
-    queryKey: [...bizOffersQueryKey, page],
-    queryFn: () => fetchBizOfferBundles(page),
+    queryKey: [...bizOffersQueryKey, page, q],
+    queryFn: () => fetchBizOfferBundles(page, undefined, undefined, q),
     placeholderData: (previous) => previous,
   });
 }

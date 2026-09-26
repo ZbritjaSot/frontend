@@ -3,27 +3,18 @@
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { AdminGallery } from "@/features/gallery/AdminGallery";
-import { deleteAdminLogo, uploadAdminLogo } from "@/features/gallery/api";
-import { LogoField } from "@/features/gallery/LogoField";
-import { ShopLogo } from "@/features/public/visuals";
 import { adminBusinessKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
+import { TableSearch } from "@/components/ui/TableSearch";
+import { ShopLogo } from "@/features/public/visuals";
+import { ADMIN_BUSINESSES_PAGE_SIZE } from "@/features/admin/businessesApi";
 import {
-  ADMIN_BUSINESSES_PAGE_SIZE,
-  fetchAdminBusiness,
-} from "@/features/admin/businessesApi";
-import {
-  adminBusinessesQueryKey,
   useAdminBusinesses,
-  useApproveBusinessLocation,
   useCreateBusiness,
-  useRejectBusinessLocation,
   useUpdateBusiness,
 } from "@/hooks/useAdminBusinesses";
 import { validationMessage } from "@/lib/api";
@@ -39,7 +30,6 @@ import {
   panelLead,
 } from "@/lib/ui";
 import { businessFormSchema, type BusinessFormInput } from "@/schemas/business";
-import type { Business } from "@/types";
 
 const emptyForm: BusinessFormInput = {
   name: "",
@@ -56,80 +46,39 @@ const checkLabelClass =
 
 const checkTextClass = "min-w-0 flex-1 pt-px leading-[1.4]";
 
-export function AdminBusinesses({ addressId }: { addressId?: string }) {
-  const queryClient = useQueryClient();
-  const router = useRouter();
+export function AdminBusinesses() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError, error, refetch } = useAdminBusinesses(page);
+  const [query, setQuery] = useState("");
+  const [q, setQ] = useState("");
+  const { data, isLoading, isError, error, refetch } = useAdminBusinesses(page, q);
   const createMutation = useCreateBusiness();
   const updateMutation = useUpdateBusiness();
-  const approveLocation = useApproveBusinessLocation();
-  const rejectLocation = useRejectBusinessLocation();
 
   const [creating, setCreating] = useState(false);
-  const [editing, setEditing] = useState<Business | null>(null);
   const [form, setForm] = useState<BusinessFormInput>(emptyForm);
-  const [editName, setEditName] = useState("");
-  const [editActive, setEditActive] = useState(true);
-  const [rejectNote, setRejectNote] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [createdAccount, setCreatedAccount] = useState<{
     name: string;
     email: string;
   } | null>(null);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const next = query.trim();
+      setQ((current) => {
+        if (current !== next) {
+          setPage(1);
+        }
+        return next;
+      });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
   function openCreate() {
     setForm(emptyForm);
     setFormError(null);
     setCreating(true);
-  }
-
-  useEffect(() => {
-    if (!addressId) {
-      return;
-    }
-    let ignore = false;
-    void fetchAdminBusiness(addressId)
-      .then((business) => {
-        if (ignore) {
-          return;
-        }
-        setEditing(business);
-        setEditName(business.name);
-        setEditActive(business.is_active);
-        setRejectNote("");
-        setFormError(null);
-      })
-      .catch(() => {
-        if (!ignore) {
-          setFormError("Nuk e gjetëm këtë biznes.");
-        }
-      });
-    return () => {
-      ignore = true;
-    };
-  }, [addressId]);
-
-  function closeEdit() {
-    if (
-      updateMutation.isPending ||
-      approveLocation.isPending ||
-      rejectLocation.isPending
-    ) {
-      return;
-    }
-    setEditing(null);
-    if (addressId) {
-      router.replace("/admin/businesses");
-    }
-  }
-
-  function openEdit(business: Business) {
-    setEditing(business);
-    setEditName(business.name);
-    setEditActive(business.is_active);
-    setRejectNote("");
-    setFormError(null);
   }
 
   async function onCreate(event: FormEvent) {
@@ -151,34 +100,6 @@ export function AdminBusinesses({ addressId }: { addressId?: string }) {
     } catch (submitError) {
       setFormError(
         validationMessage(submitError, "Nuk mundëm ta krijojmë biznesin."),
-      );
-    }
-  }
-
-  async function onEdit(event: FormEvent) {
-    event.preventDefault();
-    if (!editing) {
-      return;
-    }
-    const name = editName.trim();
-    if (name === "") {
-      setFormError("Emri i biznesit është i detyrueshëm.");
-      return;
-    }
-    setFormError(null);
-    try {
-      await updateMutation.mutateAsync({
-        id: editing.id,
-        name,
-        is_active: editActive,
-      });
-      setEditing(null);
-      if (addressId) {
-        router.replace("/admin/businesses");
-      }
-    } catch (submitError) {
-      setFormError(
-        validationMessage(submitError, "Nuk mundëm ta ruajmë biznesin."),
       );
     }
   }
@@ -231,12 +152,17 @@ export function AdminBusinesses({ addressId }: { addressId?: string }) {
     <div>
       {header}
 
-      {businesses.length === 0 ? (
-        <div className="max-w-[40rem]">
-          <p className={panelLead}>Nuk ka biznese ende.</p>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-2xl border border-line">
+      <div className="overflow-hidden rounded-2xl border border-line">
+        <TableSearch
+          value={query}
+          onChange={setQuery}
+          label="Kërko biznesin"
+        />
+        {businesses.length === 0 ? (
+          <p className="m-0 px-4 py-6 text-sm leading-relaxed text-muted">
+            {q === "" ? "Nuk ka biznese ende." : "Nuk u gjet asnjë biznes."}
+          </p>
+        ) : (
           <div className="overflow-x-auto md:grid md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_auto_auto] md:gap-x-4">
             <div className="col-span-4 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
               <span className="whitespace-nowrap">Biznesi</span>
@@ -285,14 +211,13 @@ export function AdminBusinesses({ addressId }: { addressId?: string }) {
                     {business.is_active ? "Aktive" : "Joaktive"}
                   </span>
                   <div className="flex items-center gap-1.5 border-l border-line pl-4">
-                    <button
-                      className={rowButton}
-                      type="button"
+                    <Link
+                      className={`${rowButton} no-underline`}
+                      href={`/admin/businesses/${business.id}`}
                       aria-label={`Ndrysho ${business.name}`}
-                      onClick={() => openEdit(business)}
                     >
                       <EditOutlinedIcon fontSize="small" />
-                    </button>
+                    </Link>
                     <button
                       className={rowButton}
                       type="button"
@@ -323,6 +248,8 @@ export function AdminBusinesses({ addressId }: { addressId?: string }) {
               ))}
             </ul>
           </div>
+        )}
+        {businesses.length > 0 ? (
           <Pagination
             page={page}
             lastPage={lastPage ?? 1}
@@ -330,8 +257,8 @@ export function AdminBusinesses({ addressId }: { addressId?: string }) {
             perPage={ADMIN_BUSINESSES_PAGE_SIZE}
             onPageChange={setPage}
           />
-        </div>
-      )}
+        ) : null}
+      </div>
 
       <Modal
         open={createdAccount !== null}
@@ -412,7 +339,7 @@ export function AdminBusinesses({ addressId }: { addressId?: string }) {
             />
           </label>
           <label className={fieldLabel}>
-            <span>Emri i pronarit</span>
+            <span>Emri i pronarit (opsional)</span>
             <input
               className={inputClass}
               value={form.owner_name}
@@ -451,161 +378,6 @@ export function AdminBusinesses({ addressId }: { addressId?: string }) {
                   is_active: event.target.checked,
                 }))
               }
-            />
-            <span className={checkTextClass}>Llogaria aktive</span>
-          </label>
-        </form>
-      </Modal>
-
-      <Modal
-        open={editing !== null}
-        title="Ndrysho biznesin"
-        onClose={closeEdit}
-        footer={
-          <>
-            <button
-              className={btnGhost}
-              type="button"
-              disabled={updateMutation.isPending}
-              onClick={closeEdit}
-            >
-              Anulo
-            </button>
-            <button
-              className={btnPrimary}
-              type="submit"
-              form="admin-business-edit"
-              disabled={updateMutation.isPending}
-            >
-              {updateMutation.isPending ? "Duke u ruajtur…" : "Ruaj"}
-            </button>
-          </>
-        }
-      >
-        <form
-          id="admin-business-edit"
-          className="flex max-w-[40rem] flex-col gap-5"
-          onSubmit={onEdit}
-          noValidate
-        >
-          {formError ? (
-            <p className={fieldError} role="alert">
-              {formError}
-            </p>
-          ) : null}
-          {editing ? (
-            <>
-              <LogoField
-                name={editName || editing.name}
-                logoUrl={editing.logo_url}
-                onUpload={async (file) => {
-                  const updated = await uploadAdminLogo(editing.id, file);
-                  setEditing(updated);
-                  await queryClient.invalidateQueries({
-                    queryKey: adminBusinessesQueryKey,
-                  });
-                }}
-                onRemove={async () => {
-                  await deleteAdminLogo(editing.id);
-                  setEditing((current) =>
-                    current ? { ...current, logo_url: null } : current,
-                  );
-                  await queryClient.invalidateQueries({
-                    queryKey: adminBusinessesQueryKey,
-                  });
-                }}
-              />
-              <AdminGallery businessId={editing.id} />
-            </>
-          ) : null}
-          {editing?.location_status === "pending" ? (
-            <div className="grid gap-3 rounded-xl border border-line bg-sunken p-4">
-              <p className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
-                Adresë në pritje
-              </p>
-              <p className="m-0 font-semibold">
-                {editing.pending_address ?? "Heqje e adresës"}
-              </p>
-              <label className={fieldLabel}>
-                <span>Arsyeja, nëse e refuzon</span>
-                <input
-                  className={inputClass}
-                  value={rejectNote}
-                  maxLength={500}
-                  onChange={(event) => setRejectNote(event.target.value)}
-                />
-              </label>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  className={btnPrimary}
-                  type="button"
-                  disabled={approveLocation.isPending || rejectLocation.isPending}
-                  onClick={() => {
-                    void approveLocation
-                      .mutateAsync(editing.id)
-                      .then((updated) => {
-                        setEditing(updated);
-                        setFormError(null);
-                      })
-                      .catch((submitError: unknown) => {
-                        setFormError(
-                          validationMessage(
-                            submitError,
-                            "Nuk mundëm ta aprovojmë adresën.",
-                          ),
-                        );
-                      });
-                  }}
-                >
-                  {approveLocation.isPending ? "Duke aprovuar…" : "Aprovo"}
-                </button>
-                <button
-                  className={btnGhost}
-                  type="button"
-                  disabled={approveLocation.isPending || rejectLocation.isPending}
-                  onClick={() => {
-                    const note = rejectNote.trim();
-                    if (note === "") {
-                      setFormError("Shkruaj arsyen e refuzimit.");
-                      return;
-                    }
-                    void rejectLocation
-                      .mutateAsync({ id: editing.id, note })
-                      .then((updated) => {
-                        setEditing(updated);
-                        setRejectNote("");
-                        setFormError(null);
-                      })
-                      .catch((submitError: unknown) => {
-                        setFormError(
-                          validationMessage(
-                            submitError,
-                            "Nuk mundëm ta refuzojmë adresën.",
-                          ),
-                        );
-                      });
-                  }}
-                >
-                  {rejectLocation.isPending ? "Duke refuzuar…" : "Refuzo"}
-                </button>
-              </div>
-            </div>
-          ) : null}
-          <label className={fieldLabel}>
-            <span>Emri i biznesit</span>
-            <input
-              className={inputClass}
-              value={editName}
-              maxLength={255}
-              onChange={(event) => setEditName(event.target.value)}
-            />
-          </label>
-          <label className={checkLabelClass}>
-            <input
-              className={checkInput}
-              type="checkbox"
-              checked={editActive}
-              onChange={(event) => setEditActive(event.target.checked)}
             />
             <span className={checkTextClass}>Llogaria aktive</span>
           </label>

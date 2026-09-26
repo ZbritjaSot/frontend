@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   approveBusinessLocation,
   createBusiness,
+  fetchAdminBusiness,
   fetchAdminBusinesses,
   fetchPendingBusinessLocations,
   rejectBusinessLocation,
@@ -13,11 +14,18 @@ import type { BusinessFormInput } from "@/schemas/business";
 
 export const adminBusinessesQueryKey = ["admin", "businesses"] as const;
 
-export function useAdminBusinesses(page: number) {
+export function useAdminBusinesses(page: number, q = "") {
   return useQuery({
-    queryKey: [...adminBusinessesQueryKey, page],
-    queryFn: () => fetchAdminBusinesses(page),
+    queryKey: [...adminBusinessesQueryKey, page, q],
+    queryFn: () => fetchAdminBusinesses(page, undefined, q),
     placeholderData: (previous) => previous,
+  });
+}
+
+export function useAdminBusiness(id: string) {
+  return useQuery({
+    queryKey: [...adminBusinessesQueryKey, id],
+    queryFn: () => fetchAdminBusiness(id),
   });
 }
 
@@ -51,6 +59,13 @@ export function useUpdateBusiness() {
       id: string;
       name?: string;
       is_active?: boolean;
+      street?: string | null;
+      village?: string | null;
+      city?: string | null;
+      latitude?: number | null;
+      longitude?: number | null;
+      owner_name?: string;
+      owner_email?: string;
     }) => updateBusiness(id, data),
     onSuccess: async () => {
       await queryClient.invalidateQueries({

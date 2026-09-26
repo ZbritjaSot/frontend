@@ -1,7 +1,7 @@
 "use client";
 
 import { Modal } from "@/components/ui/Modal";
-import { btnDanger, btnGhost, btnPrimary } from "@/lib/ui";
+import { btn, btnGhost, btnPrimary } from "@/lib/ui";
 
 type ConfirmModalProps = {
   open: boolean;
@@ -31,12 +31,17 @@ export function ConfirmModal({
     <Modal
       open={open}
       title={title}
+      danger={danger}
       onClose={pending ? () => undefined : onClose}
       footer={
         <>
           <button
             type="button"
-            className={btnGhost}
+            className={
+              danger
+                ? `${btn} border border-white/45 bg-transparent text-white hover:bg-white/10`
+                : btnGhost
+            }
             onClick={onClose}
             disabled={pending}
           >
@@ -44,7 +49,11 @@ export function ConfirmModal({
           </button>
           <button
             type="button"
-            className={danger ? btnDanger : btnPrimary}
+            className={
+              danger
+                ? `${btn} bg-[#ff5252] text-white hover:brightness-110`
+                : btnPrimary
+            }
             onClick={onConfirm}
             disabled={pending}
           >
@@ -53,7 +62,9 @@ export function ConfirmModal({
         </>
       }
     >
-      <p className="m-0 leading-relaxed text-muted">{message}</p>
+      <p className={`m-0 leading-relaxed ${danger ? "text-white" : "text-muted"}`}>
+        {message}
+      </p>
     </Modal>
   );
 }

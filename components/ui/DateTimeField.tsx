@@ -175,7 +175,10 @@ export function DateTimeField({
   }
 
   return (
-    <div className="@container relative w-full" ref={rootRef}>
+    <div
+      className={`@container relative w-full ${open ? "z-30" : ""}`}
+      ref={rootRef}
+    >
       <div className="flex flex-col gap-[0.45rem] @min-[17rem]:flex-row @min-[17rem]:items-center">
         <button
           type="button"

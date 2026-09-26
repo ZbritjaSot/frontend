@@ -17,9 +17,24 @@ function toApiBody(input: SubscriptionFormInput) {
   };
 }
 
-export async function fetchAdminSubscriptions(perPage = 50) {
+export async function fetchAdminSubscriptions(options?: {
+  perPage?: number;
+  q?: string;
+  businessId?: string;
+}) {
+  const params = new URLSearchParams({
+    per_page: String(options?.perPage ?? 50),
+  });
+  const search = options?.q?.trim() ?? "";
+  if (search !== "") {
+    params.set("q", search);
+  }
+  if (options?.businessId) {
+    params.set("business_id", options.businessId);
+  }
+
   return apiFetch<Paginated<Subscription>>(
-    `/admin/subscriptions?per_page=${perPage}`,
+    `/admin/subscriptions?${params.toString()}`,
     { auth: true },
   );
 }

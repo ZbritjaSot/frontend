@@ -3,7 +3,7 @@
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { adminSubscriptionKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { DateTimeField } from "@/components/ui/DateTimeField";
@@ -12,6 +12,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { PosMoneyField } from "@/components/ui/PosMoneyField";
 import { SelectField } from "@/components/ui/SelectField";
 import { Spinner } from "@/components/ui/Spinner";
+import { TableSearch } from "@/components/ui/TableSearch";
 import {
   useAdminBusinesses,
   useAdminSubscriptions,
@@ -127,13 +128,16 @@ function resetFormDefaults() {
 }
 
 export function AdminSubscriptions() {
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("");
+  const [q, setQ] = useState("");
   const {
     data,
     isLoading,
     isError,
     error,
     refetch,
-  } = useAdminSubscriptions();
+  } = useAdminSubscriptions(q);
   const { data: businessesData, isLoading: businessesLoading } =
     useAdminBusinesses();
   const createMutation = useCreateSubscription();
@@ -152,7 +156,19 @@ export function AdminSubscriptions() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [toToggle, setToToggle] = useState<Subscription | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const next = query.trim();
+      setQ((current) => {
+        if (current !== next) {
+          setPage(1);
+        }
+        return next;
+      });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [query]);
 
   const groups = useMemo(
     () => groupByBusiness(data?.data ?? []),
@@ -201,24 +217,24 @@ export function AdminSubscriptions() {
 
   const header = (
     <>
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-      <h1 className={`${pageTitle} mb-0!`}>Abonimet</h1>
-      <div className="flex flex-wrap items-center gap-4">
-        {expiredCount > 0 ? (
-          <p className="m-0 text-sm font-semibold text-muted">
-            {expiredCount}{" "}
-            {expiredCount === 1 ? "abonim i skaduar" : "abonime të skaduara"}
-          </p>
-        ) : null}
-        <button
-          type="button"
-          className={btnPrimary}
-          onClick={() => setCreateOpen(true)}
-        >
-          Regjistro pagesë
-        </button>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+        <h1 className={`${pageTitle} mb-0!`}>Abonimet</h1>
+        <div className="flex flex-wrap items-center gap-4">
+          {expiredCount > 0 ? (
+            <p className="m-0 text-sm font-semibold text-muted">
+              {expiredCount}{" "}
+              {expiredCount === 1 ? "abonim i skaduar" : "abonime të skaduara"}
+            </p>
+          ) : null}
+          <button
+            type="button"
+            className={btnPrimary}
+            onClick={() => setCreateOpen(true)}
+          >
+            Regjistro pagesë
+          </button>
+        </div>
       </div>
-    </div>
       <IndicatorKey items={adminSubscriptionKey} />
     </>
   );
@@ -308,12 +324,20 @@ export function AdminSubscriptions() {
         </p>
       ) : null}
 
-      {groups.length === 0 ? (
-        <div className="max-w-[40rem]">
-          <p className={panelLead}>Nuk ka abonime të regjistruara.</p>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-2xl border border-line">
+      <div className="overflow-hidden rounded-2xl border border-line">
+        <TableSearch
+          value={query}
+          onChange={setQuery}
+          label="Kërko biznesin"
+        />
+        {groups.length === 0 ? (
+          <p className="m-0 px-4 py-6 text-sm leading-relaxed text-muted">
+            {q === ""
+              ? "Nuk ka abonime të regjistruara."
+              : "Nuk u gjet asnjë biznes."}
+          </p>
+        ) : (
+          <>
           <div className={`overflow-x-auto ${tableGrid}`}>
             <div className="col-span-6 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
               <span className="whitespace-nowrap">Biznesi</span>
@@ -445,8 +469,9 @@ export function AdminSubscriptions() {
             perPage={SUBSCRIPTIONS_PAGE_SIZE}
             onPageChange={setPage}
           />
-        </div>
-      )}
+          </>
+        )}
+      </div>
 
       <Modal
         open={createOpen}

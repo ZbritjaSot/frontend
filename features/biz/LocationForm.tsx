@@ -19,8 +19,8 @@ function composedAddress(street: string, village: string, city: string): string 
     .join(", ");
 }
 
-function locationSeed(business: Business) {
-  const pending = business.location_status === "pending";
+function locationSeed(business: Business, liveOnly: boolean) {
+  const pending = !liveOnly && business.location_status === "pending";
 
   return {
     street: (pending ? business.pending_street : business.street) ?? "",
@@ -31,11 +31,34 @@ function locationSeed(business: Business) {
   };
 }
 
-export function LocationForm({ business }: { business: Business }) {
+type LocationInput = {
+  street: string | null;
+  village: string | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
+};
+
+type LocationFormProps = {
+  business: Business;
+  /** Admin writes the public address now. The shop sends it for approval. */
+  applyNow?: boolean;
+  onSave?: (input: LocationInput) => Promise<void>;
+  onFind?: (address: string) => Promise<{ latitude: number; longitude: number }>;
+  onDone?: () => void | Promise<void>;
+};
+
+export function LocationForm({
+  business,
+  applyNow = false,
+  onSave,
+  onFind,
+  onDone,
+}: LocationFormProps) {
   const wide = useWideScreen();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const seed = locationSeed(business);
+  const seed = locationSeed(business, applyNow);
   const [street, setStreet] = useState(seed.street);
   const [village, setVillage] = useState(seed.village);
   const [city, setCity] = useState(seed.city);
@@ -53,15 +76,25 @@ export function LocationForm({ business }: { business: Business }) {
   const hasSavedAddress = Boolean(business.address || business.street);
 
   const save = useMutation({
-    mutationFn: (clear: boolean) =>
-      updateBizLocation({
+    mutationFn: async (clear: boolean) => {
+      const input: LocationInput = {
         street: clear ? null : street.trim(),
         village: clear ? null : village.trim() === "" ? null : village.trim(),
         city: clear ? null : city.trim(),
         latitude: clear || address === "" ? null : latitude,
         longitude: clear || address === "" ? null : longitude,
-      }),
+      };
+      if (onSave) {
+        await onSave(input);
+        return;
+      }
+      await updateBizLocation(input);
+    },
     onSuccess: async () => {
+      if (onDone) {
+        await onDone();
+        return;
+      }
       await queryClient.invalidateQueries({ queryKey: bizBusinessQueryKey });
       router.push("/biz/profile");
     },
@@ -69,11 +102,15 @@ export function LocationForm({ business }: { business: Business }) {
   });
 
   const find = useMutation({
-    mutationFn: () => geocodeBizAddress(address),
+    mutationFn: () => (onFind ? onFind(address) : geocodeBizAddress(address)),
     onSuccess: (point) => {
       setLatitude(point.latitude);
       setLongitude(point.longitude);
-      setNotice("Pika u gjet. Mund ta lëvizësh në hartë, pastaj dërgoje për aprovim.");
+      setNotice(
+        applyNow
+          ? "Pika u gjet. Mund ta lëvizësh në hartë, pastaj ruaje."
+          : "Pika u gjet. Mund ta lëvizësh në hartë, pastaj dërgoje për aprovim.",
+      );
     },
     onError: () => setNotice(null),
   });
@@ -191,7 +228,11 @@ export function LocationForm({ business }: { business: Business }) {
                 onPick={(nextLat, nextLng) => {
                   setLatitude(nextLat);
                   setLongitude(nextLng);
-                  setNotice("Pika u zhvendos. Dërgoje që të shkojë për aprovim.");
+                  setNotice(
+                    applyNow
+                      ? "Pika u zhvendos. Ruaje që të hyjë në fuqi."
+                      : "Pika u zhvendos. Dërgoje që të shkojë për aprovim.",
+                  );
                 }}
               />
             </div>
@@ -228,13 +269,18 @@ export function LocationForm({ business }: { business: Business }) {
         ) : null}
       </section>
 
-      {business.location_status === "pending" ? (
+      {applyNow && business.location_status === "pending" ? (
+        <p className="m-0 text-sm font-semibold text-muted">
+          Ruajtja zëvendëson adresën publike dhe heq kërkesën në pritje.
+        </p>
+      ) : null}
+      {!applyNow && business.location_status === "pending" ? (
         <p className="m-0 text-sm font-semibold text-muted">
           Kjo adresë është në pritje. Ajo publike mbetet siç është derisa
           administrata ta aprovojë.
         </p>
       ) : null}
-      {business.location_status === "rejected" ? (
+      {!applyNow && business.location_status === "rejected" ? (
         <p className="m-0 text-sm font-semibold text-danger" role="status">
           U refuzua
           {business.location_rejection_note
@@ -264,7 +310,13 @@ export function LocationForm({ business }: { business: Business }) {
           <span />
         )}
         <button className={btnPrimary} type="submit" disabled={save.isPending}>
-          {save.isPending ? "Duke dërguar…" : "Dërgo për aprovim"}
+          {save.isPending
+            ? applyNow
+              ? "Duke u ruajtur…"
+              : "Duke dërguar…"
+            : applyNow
+              ? "Ruaj"
+              : "Dërgo për aprovim"}
         </button>
       </div>
     </form>

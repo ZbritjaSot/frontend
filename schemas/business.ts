@@ -6,11 +6,7 @@ export const businessFormSchema = z.object({
     .trim()
     .min(1, "Emri i biznesit është i detyrueshëm.")
     .max(255, "Emri është shumë i gjatë."),
-  owner_name: z
-    .string()
-    .trim()
-    .min(1, "Emri i pronarit është i detyrueshëm.")
-    .max(255, "Emri është shumë i gjatë."),
+  owner_name: z.string().trim().max(255, "Emri është shumë i gjatë."),
   owner_email: z
     .string()
     .trim()
