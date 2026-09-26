@@ -1,7 +1,7 @@
 "use client";
 
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import CloseIcon from "@mui/icons-material/Close";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import Image from "next/image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
@@ -46,7 +46,7 @@ export function AdminGallery({ businessId }: { businessId: string }) {
           {validationMessage(gallery.error, "Galeria nuk u ngarkua.")}
         </p>
       ) : null}
-      <ul className="m-0 grid list-none grid-cols-4 gap-2 p-0">
+      <ul className="m-0 grid list-none grid-cols-5 gap-2 p-0 sm:grid-cols-8">
         <li>
           <button
             type="button"
@@ -74,7 +74,7 @@ export function AdminGallery({ businessId }: { businessId: string }) {
               type="button"
               disabled={busy}
               aria-label="Hiq foton"
-              className="absolute -top-1.5 -right-1.5 grid size-6 place-items-center rounded-full bg-charcoal text-white ring-2 ring-elevated"
+              className="absolute -top-1.5 -right-1.5 grid size-6 place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated"
               onClick={async () => {
                 setError(null);
                 setBusy(true);
@@ -88,7 +88,7 @@ export function AdminGallery({ businessId }: { businessId: string }) {
                 }
               }}
             >
-              <CloseIcon sx={{ fontSize: 14 }} />
+              <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
             </button>
           </li>
         ))}

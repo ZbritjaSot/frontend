@@ -5,6 +5,7 @@ import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { DashboardKpi } from "@/components/ui/DashboardKpi";
 import { adminSubscriptionKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Modal } from "@/components/ui/Modal";
@@ -19,8 +20,19 @@ import {
   useCreateSubscription,
   useUpdateSubscription,
 } from "@/hooks/useAdminSubscriptions";
-import { defaultSubscriptionWindow } from "@/lib/datetime";
-import { formatDateShortSq, formatDateTimeShortSq, formatEurFromCents } from "@/lib/format";
+import {
+  addLocalMonths,
+  defaultSubscriptionWindow,
+  SUBSCRIPTION_LENGTHS,
+  subscriptionLengthLabel,
+  type SubscriptionLength,
+} from "@/lib/datetime";
+import {
+  formatCalendarDateSq,
+  formatDateShortSq,
+  formatDateTimeShortSq,
+  formatEurFromCents,
+} from "@/lib/format";
 import { validationMessage } from "@/lib/api";
 import {
   btnGhost,
@@ -127,6 +139,14 @@ function resetFormDefaults() {
   return defaultSubscriptionWindow();
 }
 
+function periodLabel(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
+  if (!match) {
+    return "—";
+  }
+  return `${formatCalendarDateSq(Number(match[1]), Number(match[2]), Number(match[3]))} · ${match[4]}:${match[5]}`;
+}
+
 export function AdminSubscriptions() {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
@@ -148,6 +168,7 @@ export function AdminSubscriptions() {
   const [businessId, setBusinessId] = useState("");
   const [startsAt, setStartsAt] = useState(defaults.starts_at);
   const [endsAt, setEndsAt] = useState(defaults.ends_at);
+  const [lengthMonths, setLengthMonths] = useState<SubscriptionLength | null>(1);
   const [isActive, setIsActive] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
   const [priceCents, setPriceCents] = useState(0);
@@ -156,6 +177,7 @@ export function AdminSubscriptions() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [toToggle, setToToggle] = useState<Subscription | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState("");
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -174,24 +196,27 @@ export function AdminSubscriptions() {
     () => groupByBusiness(data?.data ?? []),
     [data?.data],
   );
-  const expiredCount = groups.filter(
-    (group) => statusLabel(group.latest) === "Skaduar",
-  ).length;
-  const lastPage = Math.max(1, Math.ceil(groups.length / SUBSCRIPTIONS_PAGE_SIZE));
+  const filteredGroups = statusFilter
+    ? groups.filter((group) => statusLabel(group.latest) === statusFilter)
+    : groups;
+  const loadedNote = (data?.meta?.last_page ?? 1) > 1 ? "Nga të ngarkuarat" : "Gjendja e fundit";
+  const lastPage = Math.max(1, Math.ceil(filteredGroups.length / SUBSCRIPTIONS_PAGE_SIZE));
   if (page > lastPage) {
     setPage(lastPage);
   }
-  const visibleGroups = groups.slice(
+  const visibleGroups = filteredGroups.slice(
     (page - 1) * SUBSCRIPTIONS_PAGE_SIZE,
     page * SUBSCRIPTIONS_PAGE_SIZE,
   );
 
   const businessOptions = useMemo(
     () =>
-      (businessesData?.data ?? []).map((b) => ({
-        value: b.id,
-        label: b.is_active ? b.name : `${b.name} (joaktiv)`,
-      })),
+      (businessesData?.data ?? [])
+        .filter((b) => !b.parent_id)
+        .map((b) => ({
+          value: b.id,
+          label: b.is_active ? b.name : `${b.name} (joaktiv)`,
+        })),
     [businessesData?.data],
   );
 
@@ -200,6 +225,7 @@ export function AdminSubscriptions() {
     setBusinessId("");
     setStartsAt(next.starts_at);
     setEndsAt(next.ends_at);
+    setLengthMonths(1);
     setIsActive(true);
     setPaymentMethod("cash");
     setPriceCents(0);
@@ -220,12 +246,6 @@ export function AdminSubscriptions() {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h1 className={`${pageTitle} mb-0!`}>Abonimet</h1>
         <div className="flex flex-wrap items-center gap-4">
-          {expiredCount > 0 ? (
-            <p className="m-0 text-sm font-semibold text-muted">
-              {expiredCount}{" "}
-              {expiredCount === 1 ? "abonim i skaduar" : "abonime të skaduara"}
-            </p>
-          ) : null}
           <button
             type="button"
             className={btnPrimary}
@@ -236,6 +256,29 @@ export function AdminSubscriptions() {
         </div>
       </div>
       <IndicatorKey items={adminSubscriptionKey} />
+      <div className="mb-5 flex flex-wrap gap-x-8 gap-y-4">
+        {(
+          [
+            ["Aktive", "accent"],
+            ["Në pritje", "pending"],
+            ["Skaduar", "danger"],
+            ["Çaktivizuar", "ink"],
+          ] as const
+        ).map(([label, tone]) => (
+          <DashboardKpi
+            key={label}
+            label={label}
+            value={groups.filter((group) => statusLabel(group.latest) === label).length}
+            detail={loadedNote}
+            tone={tone}
+            active={statusFilter === label}
+            onClick={() => {
+              setStatusFilter((current) => (current === label ? "" : label));
+              setPage(1);
+            }}
+          />
+        ))}
+      </div>
     </>
   );
 
@@ -476,7 +519,7 @@ export function AdminSubscriptions() {
       <Modal
         open={createOpen}
         title="Regjistro pagesë"
-        size="md"
+        size="lg"
         onClose={closeCreateModal}
         footer={
           <>
@@ -505,10 +548,34 @@ export function AdminSubscriptions() {
           onSubmit={onCreate}
           noValidate
         >
-          <p className="m-0 text-[0.8125rem] text-muted">
-            Çmimi, metoda dhe shënimet e pagesës nuk shfaqen te biznesi apo
-            publiku.
+          <p className="m-0 text-sm leading-relaxed text-muted">
+            Kjo regjistron një pagesë të marrë. Çmimi, metoda dhe shënimi nuk
+            shfaqen te dyqani apo te faqja publike.
           </p>
+          <dl className="m-0 grid gap-2 rounded-xl border border-line bg-sunken px-4 py-3 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted">Dyqani</dt>
+              <dd className="m-0 truncate font-semibold">
+                {businessOptions.find((option) => option.value === businessId)?.label ?? "Ende pa zgjedhur"}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted">Periudha</dt>
+              <dd className="m-0 text-right font-semibold">
+                {periodLabel(startsAt)} → {periodLabel(endsAt)}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted">Pagesa</dt>
+              <dd className="m-0 font-semibold">
+                {paymentMethodLabel(paymentMethod)} · {formatEurFromCents(priceCents)}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted">Statusi</dt>
+              <dd className="m-0 font-semibold">{isActive ? "Aktiv" : "Çaktivizuar"}</dd>
+            </div>
+          </dl>
 
           {formError ? (
             <p className={fieldError} role="alert">
@@ -516,86 +583,159 @@ export function AdminSubscriptions() {
             </p>
           ) : null}
 
-          <label className={fieldLabel}>
-            <span>Biznesi</span>
-            <SelectField
-              value={businessId}
-              onChange={setBusinessId}
-              options={businessOptions}
-              placeholder="Zgjidh biznesin"
-              disabled={createMutation.isPending || businessesLoading}
-              aria-label="Biznesi"
-            />
-          </label>
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <section className="grid gap-3">
+            <h3 className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
+              Dyqani
+            </h3>
             <label className={fieldLabel}>
-              <span>Fillon</span>
-              <DateTimeField
-                value={startsAt}
-                onChange={setStartsAt}
-                disabled={createMutation.isPending}
-                aria-label="Fillon"
-              />
-            </label>
-            <label className={fieldLabel}>
-              <span>Mbaron</span>
-              <DateTimeField
-                value={endsAt}
-                onChange={setEndsAt}
-                disabled={createMutation.isPending}
-                aria-label="Mbaron"
-              />
-            </label>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <label className={fieldLabel}>
-              <span>Metoda e pagesës</span>
+              <span>Për cilin biznes</span>
               <SelectField
-                value={paymentMethod}
-                onChange={(value) =>
-                  setPaymentMethod(value as PaymentMethod)
-                }
-                options={[...PAYMENT_METHOD_OPTIONS]}
-                disabled={createMutation.isPending}
-                aria-label="Metoda e pagesës"
+                value={businessId}
+                onChange={setBusinessId}
+                options={businessOptions}
+                searchable
+                placeholder="Zgjidh biznesin"
+                disabled={createMutation.isPending || businessesLoading}
+                aria-label="Biznesi"
               />
             </label>
+          </section>
+
+          <section className="grid gap-3 border-t border-line pt-4">
+            <h3 className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
+              Periudha
+            </h3>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Kohëzgjatja">
+              {SUBSCRIPTION_LENGTHS.map((months) => (
+                <button
+                  key={months}
+                  type="button"
+                  className={`min-h-9 cursor-pointer rounded-lg border-0 px-3 text-sm font-bold ${
+                    lengthMonths === months
+                      ? "bg-accent text-charcoal"
+                      : "bg-sunken text-muted hover:text-ink"
+                  }`}
+                  disabled={createMutation.isPending}
+                  onClick={() => {
+                    setLengthMonths(months);
+                    setEndsAt(addLocalMonths(startsAt, months));
+                  }}
+                >
+                  {subscriptionLengthLabel(months)}
+                </button>
+              ))}
+              <button
+                type="button"
+                className={`min-h-9 cursor-pointer rounded-lg border-0 px-3 text-sm font-bold ${
+                  lengthMonths === null
+                    ? "bg-accent text-charcoal"
+                    : "bg-sunken text-muted hover:text-ink"
+                }`}
+                disabled={createMutation.isPending}
+                onClick={() => setLengthMonths(null)}
+              >
+                Tjetër
+              </button>
+            </div>
+            <p className="m-0 text-sm text-muted">
+              Zgjidh një kohë, ose vendos datat vetë për një periudhë më të gjatë.
+            </p>
+            <div className="grid items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+              <DateTimeField
+                variant="card"
+                caption="Fillon"
+                value={startsAt}
+                onChange={(value) => {
+                  setStartsAt(value);
+                  if (lengthMonths !== null) {
+                    setEndsAt(addLocalMonths(value, lengthMonths));
+                  }
+                }}
+                disabled={createMutation.isPending}
+              />
+              <span className="hidden self-center px-1 text-lg text-muted sm:block" aria-hidden>
+                →
+              </span>
+              <DateTimeField
+                variant="card"
+                caption="Mbaron"
+                value={endsAt}
+                onChange={(value) => {
+                  setEndsAt(value);
+                  setLengthMonths(null);
+                }}
+                disabled={createMutation.isPending}
+              />
+            </div>
+          </section>
+
+          <section className="grid gap-3 border-t border-line pt-4">
+            <h3 className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
+              Pagesa
+            </h3>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <label className={fieldLabel}>
+                <span>Metoda e pagesës</span>
+                <SelectField
+                  value={paymentMethod}
+                  onChange={(value) =>
+                    setPaymentMethod(value as PaymentMethod)
+                  }
+                  options={[...PAYMENT_METHOD_OPTIONS]}
+                  disabled={createMutation.isPending}
+                  aria-label="Metoda e pagesës"
+                />
+              </label>
+              <label className={fieldLabel}>
+                <span>Çmimi (EUR)</span>
+                <PosMoneyField
+                  valueCents={priceCents}
+                  onChangeCents={setPriceCents}
+                  disabled={createMutation.isPending}
+                  aria-label="Çmimi në euro"
+                />
+              </label>
+            </div>
+          </section>
+
+          <section className="grid gap-3 border-t border-line pt-4">
+            <h3 className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
+              Statusi
+            </h3>
+            <label className="flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none">
+              <input
+                className={checkInput}
+                type="checkbox"
+                checked={isActive}
+                onChange={(e) => setIsActive(e.target.checked)}
+                disabled={createMutation.isPending}
+              />
+              <span className="min-w-0 flex-1 pt-px leading-[1.4]">
+                Aktiv
+                <span className="mt-0.5 block text-sm font-normal text-muted">
+                  I çaktivizuar fsheh ofertat e dyqanit nga faqja publike.
+                </span>
+              </span>
+            </label>
+          </section>
+
+          <section className="grid gap-3 border-t border-line pt-4">
+            <h3 className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
+              Shënim i brendshëm
+            </h3>
             <label className={fieldLabel}>
-              <span>Çmimi (EUR)</span>
-              <PosMoneyField
-                valueCents={priceCents}
-                onChangeCents={setPriceCents}
+              <span>Shënim pagese, nëse do</span>
+              <textarea
+                className={textAreaClass}
+                rows={4}
+                value={paymentNote}
+                onChange={(e) => setPaymentNote(e.target.value)}
                 disabled={createMutation.isPending}
-                aria-label="Çmimi në euro"
+                maxLength={2000}
+                placeholder="p.sh. Pranuar në zyrë më…"
               />
             </label>
-          </div>
-
-          <label className="flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none">
-            <input
-              className={checkInput}
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              disabled={createMutation.isPending}
-            />
-            <span className="min-w-0 flex-1 pt-px leading-[1.4]">Aktiv</span>
-          </label>
-
-          <label className={fieldLabel}>
-            <span>Shënim pagese (opsionale)</span>
-            <textarea
-              className={textAreaClass}
-              rows={4}
-              value={paymentNote}
-              onChange={(e) => setPaymentNote(e.target.value)}
-              disabled={createMutation.isPending}
-              maxLength={2000}
-              placeholder="p.sh. Pranuar në zyrë më…"
-            />
-          </label>
+          </section>
         </form>
       </Modal>
 

@@ -1,13 +1,52 @@
+"use client";
+
 import Link from "next/link";
+import { useState, useSyncExternalStore } from "react";
 import { DiscountBadge, PriceLine } from "@/features/public/price";
 import { Frame } from "@/features/public/Frame";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateSq, formatDiscountPercent } from "@/lib/format";
 import type { PublicOffer } from "@/types";
 
-export function HeroSection({ hero }: { hero: PublicOffer | null }) {
+const SLIDE_MS = 5000;
+
+function useSlideTick(enabled: boolean): number {
+  return useSyncExternalStore(
+    (notify) => {
+      if (!enabled || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return () => {};
+      }
+      const id = window.setInterval(notify, SLIDE_MS);
+      return () => window.clearInterval(id);
+    },
+    () => Math.floor(Date.now() / SLIDE_MS),
+    () => 0,
+  );
+}
+
+export function HeroSection({ offers }: { offers: PublicOffer[] }) {
+  const count = offers.length;
+  const tick = useSlideTick(count > 1);
+  const [shift, setShift] = useState(0);
+  const [frozen, setFrozen] = useState<number | null>(null);
+  const index = count === 0 ? 0 : (frozen ?? (tick + shift) % count);
+  const hero = offers[index] ?? null;
+
+  function show(next: number) {
+    if (count === 0) {
+      return;
+    }
+    const normalized = (next + count) % count;
+    setShift((normalized - (tick % count) + count) % count);
+    setFrozen(null);
+  }
+
   return (
-    <section className="bg-forest text-ivory dark:bg-[#121816] dark:text-ink">
+    <section
+      className="bg-forest text-ivory dark:bg-[#121816] dark:text-ink"
+      onMouseEnter={() => setFrozen(index)}
+      onMouseLeave={() => setFrozen(null)}
+    >
       <Frame className="py-8 sm:py-10">
         <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-12">
           <div className="min-w-0">
@@ -18,7 +57,7 @@ export function HeroSection({ hero }: { hero: PublicOffer | null }) {
               Zbritjet e ditës.
             </h1>
             {hero ? (
-              <DealCopy offer={hero} />
+              <DealCopy key={hero.id} offer={hero} />
             ) : (
               <p className="mt-4 mb-0 max-w-md text-base leading-relaxed text-ivory/75 dark:text-muted">
                 Momentalisht nuk ka zbritje publike. Ofertat e skaduara hiqen vetë nga lista.
@@ -27,13 +66,14 @@ export function HeroSection({ hero }: { hero: PublicOffer | null }) {
           </div>
           {hero ? (
             <Link
+              key={hero.id}
               href={`/offers/${hero.id}`}
-              className="relative block overflow-hidden rounded-[1.35rem] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+              className="relative block overflow-hidden rounded-[1.75rem] ring-1 ring-white/10"
             >
               <ProductVisual
                 name={hero.name}
-                imageUrl={hero.image?.detail_url}
-                priority
+                imageUrl={hero.image?.detail_url ?? hero.image?.thumb_url}
+                eager
                 sizes="(max-width: 1024px) 100vw, 640px"
                 className="aspect-[4/3] w-full"
               />
@@ -43,6 +83,22 @@ export function HeroSection({ hero }: { hero: PublicOffer | null }) {
                 </span>
               ) : null}
             </Link>
+          ) : null}
+          {count > 1 ? (
+            <div className="flex items-center gap-2 lg:col-span-2">
+              {offers.map((offer, dot) => (
+                <button
+                  key={offer.id}
+                  type="button"
+                  aria-label={`Oferta ${dot + 1}`}
+                  aria-current={dot === index ? "true" : undefined}
+                  className={`h-2.5 cursor-pointer rounded-full border-0 p-0 ${
+                    dot === index ? "w-8 bg-accent" : "w-2.5 bg-ivory/40 dark:bg-ink/30"
+                  }`}
+                  onClick={() => show(dot)}
+                />
+              ))}
+            </div>
           ) : null}
         </div>
       </Frame>

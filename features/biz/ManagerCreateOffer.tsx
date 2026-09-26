@@ -52,6 +52,7 @@ export function ManagerCreateOffer() {
               <SelectField
                 value={shopId}
                 onChange={setShopId}
+                searchable
                 placeholder="Zgjidh dyqanin"
                 aria-label="Dyqani"
                 options={rows.map((shop) => ({
@@ -68,7 +69,7 @@ export function ManagerCreateOffer() {
             </label>
             <p className="m-0 mt-3 text-sm leading-relaxed text-muted">
               Shkruaj produktet siç të vijnë nga dyqani. Pas ruajtjes fletushka
-              bie te radha në pritje, ku mund ta aprovosh.
+              del te lista në pritje, ku mund ta aprovosh.
             </p>
           </section>
           {selected ? (

@@ -10,9 +10,13 @@ import type { PublicOffer } from "@/types";
 export function CatalogSection({
   latest,
   soon,
+  freshTitle = "Sapo u shtuan",
+  endingTitle = "Mbaron së shpejti",
 }: {
   latest: PublicOffer[];
   soon: PublicOffer[];
+  freshTitle?: string;
+  endingTitle?: string;
 }) {
   if (latest.length === 0 && soon.length === 0) {
     return null;
@@ -26,7 +30,7 @@ export function CatalogSection({
             <div>
               <p className={kicker}>Të reja</p>
               <h2 className="m-0 mt-1 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
-                Sapo u shtuan
+                {freshTitle}
               </h2>
             </div>
             <SeeAll href="/?katalog=oferta">Shiko të gjitha</SeeAll>
@@ -40,7 +44,7 @@ export function CatalogSection({
           <Frame className="py-8 sm:py-10">
             <p className={kicker}>Afati</p>
             <h2 className="m-0 mt-1 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
-              Mbaron së shpejti
+              {endingTitle}
             </h2>
             <ul className="m-0 mt-4 list-none p-0">
               {soon.map((offer) => (

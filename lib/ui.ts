@@ -17,6 +17,9 @@ export const btnGhost = `${btn} border border-line bg-transparent text-muted hov
 
 export const btnDanger = `${btn} bg-danger-soft text-[#1a0505] hover:brightness-105`;
 
+export const iconButton =
+  "inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/55 disabled:cursor-wait disabled:opacity-65";
+
 export const btnSm = "min-h-10 px-3.5 py-2 text-[0.8125rem]";
 
 export const checkInput =

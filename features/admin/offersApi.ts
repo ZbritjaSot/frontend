@@ -10,11 +10,15 @@ export const PENDING_OFFERS_PAGE_SIZE = 15;
 export async function fetchPendingOffers(
   page = 1,
   perPage = PENDING_OFFERS_PAGE_SIZE,
+  q = "",
 ): Promise<Paginated<OfferBundle>> {
   const params = new URLSearchParams({
     page: String(page),
     per_page: String(perPage),
   });
+  if (q.trim() !== "") {
+    params.set("q", q.trim());
+  }
 
   return apiFetch<Paginated<OfferBundle>>(
     `/admin/offer-bundles/pending?${params.toString()}`,
@@ -41,12 +45,19 @@ export async function approveOffer(id: string): Promise<OfferBundle> {
 export async function fetchApprovedOffers(
   page = 1,
   perPage = PENDING_OFFERS_PAGE_SIZE,
+  q = "",
+  status: "approved" | "all" = "approved",
 ): Promise<Paginated<OfferBundle>> {
   const params = new URLSearchParams({
     page: String(page),
     per_page: String(perPage),
-    status: "approved",
   });
+  if (status === "approved") {
+    params.set("status", "approved");
+  }
+  if (q.trim() !== "") {
+    params.set("q", q.trim());
+  }
 
   return apiFetch<Paginated<OfferBundle>>(
     `/admin/offer-bundles?${params.toString()}`,

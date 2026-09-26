@@ -63,7 +63,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
 
   const isPending = bundle.status === "pending";
   const isApproved = bundle.status === "approved";
-  const backHref = isApproved ? "/admin/offers?view=aktive" : "/admin/offers";
+  const backHref = isApproved ? "/admin/offers?status=approved" : "/admin/offers";
   const backLabel = isApproved ? "Aktive" : "Në pritje";
 
   async function onApprove() {
@@ -100,7 +100,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
       });
       setConfirmTakeDown(false);
       setTakeDownReason("");
-      router.replace("/admin/offers?view=aktive");
+      router.replace("/admin/offers?status=approved");
     } catch (err) {
       setActionError(validationMessage(err, "Nuk mundëm ta heqim dosjen."));
       setConfirmTakeDown(false);

@@ -16,6 +16,13 @@ export async function fetchBizGallery(): Promise<OfferImage[]> {
   return payload.data;
 }
 
+export async function deleteBizGallery(imageId: string): Promise<void> {
+  await apiFetch<void>(`/biz/gallery/${imageId}`, {
+    method: "DELETE",
+    auth: true,
+  });
+}
+
 export async function uploadBizGallery(file: File): Promise<OfferImage> {
   const payload = await apiFetch<ImagePayload>("/biz/gallery", {
     method: "POST",

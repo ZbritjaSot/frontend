@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   formatDateSq,
   formatDiscountPercent,
@@ -95,10 +96,19 @@ export function OfferBundleView({
         </p>
       ) : null}
 
+      {bundle.branches && bundle.branches.length > 0 ? (
+        <p className="m-0 mb-6 text-sm text-muted">
+          Edhe te{" "}
+          {bundle.branches
+            .map((shop) => [shop.name, shop.city].filter(Boolean).join(" · "))
+            .join(", ")}
+        </p>
+      ) : null}
+
       <h2 className="sr-only">Produktet</h2>
       {items.length === 0 ? (
         <p className={panelLead}>Nuk ka produkte në këtë dosje.</p>
-      ) : (
+      ) : selectable ? (
         <div className="overflow-hidden rounded-2xl border border-line">
           <div className={`overflow-x-auto md:grid ${columnClass} md:gap-x-4`}>
             <div className={`${spanClass} hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid`}>
@@ -138,7 +148,9 @@ export function OfferBundleView({
                         />
                       </label>
                     ) : null}
-                    <div className="min-w-0">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <ProductThumb name={item.name} url={item.image?.thumb_url} />
+                      <div className="min-w-0">
                       <p className="m-0 truncate text-base font-semibold">
                         {item.name}
                       </p>
@@ -147,6 +159,7 @@ export function OfferBundleView({
                           {item.rejection_note}
                         </p>
                       ) : null}
+                      </div>
                     </div>
                     <p className="m-0 truncate text-sm font-semibold">
                       {item.category?.name ?? "Kategori"}
@@ -185,7 +198,64 @@ export function OfferBundleView({
             </ul>
           </div>
         </div>
+      ) : (
+        <ul className="m-0 grid list-none gap-4 p-0">
+          {items.map((item) => (
+            <li key={item.id} className="grid gap-4 border-b border-line py-4 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
+              <ProductThumb name={item.name} url={item.image?.detail_url ?? item.image?.thumb_url} large />
+              <div className="min-w-0">
+                <p className="m-0 text-lg font-bold tracking-[-0.02em]">{item.name}</p>
+                <p className="m-0 mt-1 text-sm text-muted">{item.category?.name ?? "Pa kategori"}</p>
+                <div className="mt-3 flex flex-wrap items-end gap-3">
+                  {item.discount_percent != null ? (
+                    <span className="inline-flex items-center rounded-md bg-accent px-2 py-1 text-sm font-bold text-on-accent">
+                      {formatDiscountPercent(item.discount_percent)}
+                    </span>
+                  ) : null}
+                  {item.discounted_price != null ? (
+                    <span className="text-lg font-bold tabular-nums">
+                      {formatEurFromCents(item.discounted_price)}
+                    </span>
+                  ) : null}
+                  {item.original_price != null ? (
+                    <span className="text-sm text-muted line-through tabular-nums">
+                      {formatEurFromCents(item.original_price)}
+                    </span>
+                  ) : null}
+                  {showViews ? (
+                    <span className="text-sm text-muted">{item.view_count} hapje</span>
+                  ) : null}
+                </div>
+                {item.rejection_note ? (
+                  <p className="m-0 mt-2 text-sm font-semibold text-danger">{item.rejection_note}</p>
+                ) : null}
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </article>
+  );
+}
+
+function ProductThumb({
+  name,
+  url,
+  large = false,
+}: {
+  name: string;
+  url?: string | null;
+  large?: boolean;
+}) {
+  return (
+    <div className={`relative shrink-0 overflow-hidden rounded-xl bg-sunken ${large ? "aspect-square w-full sm:size-32" : "size-14"}`}>
+      {url ? (
+        <Image src={url} alt="" fill unoptimized className="object-cover" sizes={large ? "136px" : "56px"} />
+      ) : (
+        <span className="flex size-full items-center justify-center px-2 text-center text-xs text-muted">
+          {large ? name : ""}
+        </span>
+      )}
+    </div>
   );
 }

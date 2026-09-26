@@ -5,8 +5,10 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { OfferStatusFilters } from "@/components/ui/OfferStatusFilters";
 import { bizOfferKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
@@ -40,13 +42,18 @@ import type { OfferBundle } from "@/types";
 const rowButton =
   "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
 
+
 export function BizOfferList() {
+  const router = useRouter();
+  const params = useSearchParams();
+  const requested = params.get("status");
+  const status = requested === "pending" || requested === "approved" ? requested : "";
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [q, setQ] = useState("");
   const { data: user } = useMe();
   const manager = !!user && hasRole(user, "manager");
-  const { data, isLoading, isError, error, refetch } = useBizOffers(page, q, !manager);
+  const { data, isLoading, isError, error, refetch } = useBizOffers(page, q, !manager, status);
   const submitMutation = useSubmitBizOffer();
   const deleteMutation = useDeleteBizOffer();
   const [actionError, setActionError] = useState<string | null>(null);
@@ -70,7 +77,7 @@ export function BizOfferList() {
       <div>
         <h1 className={pageTitle}>Ofertat</h1>
         <p className={panelLead}>
-          Fletushkat që presin aprovim janë te radha jote. Emailin dhe fjalëkalimin
+          Fletushkat që presin aprovim janë te lista jote. Emailin dhe fjalëkalimin
           e dyqanit i ndryshon administrata.
         </p>
         <Link href="/biz" className={btnPrimary}>
@@ -88,12 +95,21 @@ export function BizOfferList() {
   }
 
   const header = (
+    <>
     <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
       <h1 className={`${pageTitle} mb-0!`}>Ofertat</h1>
       <Link href="/biz/offers/new" className={btnPrimary}>
         Dosje e re
       </Link>
     </div>
+    <OfferStatusFilters
+      value={status}
+      onChange={(value) => {
+        setPage(1);
+        router.replace(value === "" ? "/biz/offers" : `/biz/offers?status=${value}`);
+      }}
+    />
+    </>
   );
 
   if (isLoading) {

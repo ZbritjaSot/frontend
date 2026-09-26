@@ -6,6 +6,7 @@ import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { readKatalog } from "@/lib/browse";
+import { EXCLUSIVE_HREF, EXCLUSIVE_LABEL } from "@/lib/exclusive";
 
 const links = [
   { href: "/?katalog=oferta", label: "Ofertat", match: "oferta" },
@@ -13,7 +14,7 @@ const links = [
   { href: "/biznese", label: "Dyqanet", match: "dyqane" },
 ] as const;
 
-export function SiteHeader() {
+export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }) {
   const pathname = usePathname();
   const params = useSearchParams();
   const katalog = readKatalog(params.get("katalog") ?? undefined);
@@ -57,6 +58,17 @@ export function SiteHeader() {
               </Link>
             );
           })}
+          {showExclusive ? (
+            <Link
+              href={EXCLUSIVE_HREF}
+              aria-current={pathname === EXCLUSIVE_HREF ? "page" : undefined}
+              className={`inline-flex min-h-9 shrink-0 items-center rounded-full bg-accent px-3.5 text-sm font-extrabold tracking-tight text-charcoal focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent ${
+                pathname === EXCLUSIVE_HREF ? "ring-2 ring-chrome-text/50" : "hover:brightness-105"
+              }`}
+            >
+              {EXCLUSIVE_LABEL}
+            </Link>
+          ) : null}
         </nav>
 
         <ThemeToggle />

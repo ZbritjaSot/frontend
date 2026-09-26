@@ -5,7 +5,13 @@ import { kicker } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
 import type { PublicBusiness } from "@/types";
 
-export function ShopDirectory({ shops }: { shops: PublicBusiness[] }) {
+export function ShopDirectory({
+  shops,
+  title = "Dyqanet",
+}: {
+  shops: PublicBusiness[];
+  title?: string;
+}) {
   if (shops.length === 0) {
     return null;
   }
@@ -16,7 +22,7 @@ export function ShopDirectory({ shops }: { shops: PublicBusiness[] }) {
         <div>
           <p className={kicker}>Dyqane</p>
           <h2 className="m-0 mt-1 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
-            Dyqanet
+            {title}
           </h2>
           <p className="mt-2 mb-0 max-w-xl text-sm leading-relaxed text-muted">
             Një përzgjedhje e dyqaneve me fletushka aktive. Lista e plotë është te Dyqanet.

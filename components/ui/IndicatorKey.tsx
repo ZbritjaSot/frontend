@@ -1,12 +1,17 @@
 "use client";
 
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
+import StarIcon from "@mui/icons-material/Star";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { offerStatusClass } from "@/lib/ui";
 
@@ -23,10 +28,15 @@ export type IndicatorMark =
   | "view"
   | "edit"
   | "send"
+  | "add"
   | "delete"
+  | "approve"
+  | "main"
   | "lock"
   | "unlock"
   | "drag"
+  | "star"
+  | "branches"
   | "history"
   | "count-danger"
   | "count-pending"
@@ -107,10 +117,28 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
           <SendOutlinedIcon fontSize="small" className="text-accent!" />
         </span>
       );
+    case "add":
+      return (
+        <span className={iconBox}>
+          <AddOutlinedIcon fontSize="small" className="text-accent!" />
+        </span>
+      );
     case "delete":
       return (
         <span className={iconBox}>
           <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
+        </span>
+      );
+    case "approve":
+      return (
+        <span className={iconBox}>
+          <CheckOutlinedIcon fontSize="small" className="text-accent!" />
+        </span>
+      );
+    case "main":
+      return (
+        <span className={iconBox}>
+          <HomeOutlinedIcon fontSize="small" />
         </span>
       );
     case "lock":
@@ -129,6 +157,18 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
       return (
         <span className={iconBox}>
           <DragIndicatorIcon fontSize="small" />
+        </span>
+      );
+    case "star":
+      return (
+        <span className={iconBox}>
+          <StarIcon fontSize="small" className="text-accent!" />
+        </span>
+      );
+    case "branches":
+      return (
+        <span className={iconBox}>
+          <ExpandMoreIcon fontSize="small" />
         </span>
       );
     case "history":
@@ -246,9 +286,17 @@ export function adminHomeKey(
 }
 
 export const adminOfferKey: IndicatorItem[] = [
+  { mark: "draft", text: "Biznesi ende s’e ka dërguar." },
   { mark: "pending", text: "Ende s’është vendosur." },
   { mark: "approved", text: "E aprovuar. Mund të dalë publike." },
+  { mark: "taken_down", text: "Është hequr nga faqja publike." },
+  { mark: "expired", text: "Data ka kaluar." },
   { mark: "view", text: "Hap dosjen." },
+];
+
+export const adminOfferBoardKey: IndicatorItem[] = [
+  ...adminOfferKey,
+  { mark: "star", text: "Dyqani është ekskluziv." },
 ];
 
 export const adminInspectKey: IndicatorItem[] = [
@@ -263,9 +311,47 @@ export const adminInspectKey: IndicatorItem[] = [
 export const adminBusinessKey: IndicatorItem[] = [
   { mark: "active", text: "Biznesi mund të ketë oferta publike." },
   { mark: "inactive", text: "Ofertat e tij nuk shfaqen." },
+  { mark: "pending", text: "Adresa e re pret aprovim." },
+  { mark: "pending", text: "Degë që pret aprovim." },
+  { mark: "branches", text: "Hap degët e kompanisë." },
+  { mark: "star", text: "Bëje ekskluzive." },
   { mark: "edit", text: "Ndrysho të dhënat." },
   { mark: "lock", text: "Çaktivizo biznesin." },
   { mark: "unlock", text: "Aktivizo biznesin." },
+];
+
+export const adminManagerKey: IndicatorItem[] = [
+  { mark: "pending", text: "Fletushka që pret aprovimin tënd." },
+  { mark: "edit", text: "Ndrysho dyqanet e menaxherit." },
+  { mark: "delete", text: "Fshi llogarinë. Jo kur ka fletushka në pritje." },
+];
+
+export const adminNewsletterKey: IndicatorItem[] = [
+  { mark: "delete", text: "Hiq adresën nga lista." },
+  { mark: "delete", text: "Hiq një zgjedhje nga emaili." },
+];
+
+export const adminCurationKey: IndicatorItem[] = [
+  { mark: "drag", text: "Tërhiq për ta renditur." },
+  { mark: "add", text: "Shto në listë." },
+  { mark: "delete", text: "Hiq nga lista." },
+];
+
+export const adminBranchKey: IndicatorItem[] = [
+  { mark: "active", text: "Degë e aprovuar." },
+  { mark: "inactive", text: "E ndalur. Nuk del publike." },
+  { mark: "pending", text: "Pret aprovimin e administratës." },
+  { mark: "approve", text: "Aprovo degën." },
+  { mark: "main", text: "Bëje këtë lokacion kryesor." },
+  { mark: "delete", text: "Fshi vetëm këtë degë." },
+  { mark: "add", text: "Shto një degë." },
+];
+
+export const bizBranchKey: IndicatorItem[] = [
+  { mark: "active", text: "Degë e aprovuar." },
+  { mark: "inactive", text: "E ndalur. Nuk del publike." },
+  { mark: "pending", text: "Pret aprovimin e administratës." },
+  { mark: "add", text: "Shto një degë. Ajo pret aprovimin." },
 ];
 
 export const adminCategoryKey: IndicatorItem[] = [

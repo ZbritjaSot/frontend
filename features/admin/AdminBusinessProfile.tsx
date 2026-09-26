@@ -2,6 +2,7 @@
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import StarIcon from "@mui/icons-material/Star";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useMemo, useState, type FormEvent } from "react";
@@ -9,6 +10,7 @@ import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Spinner } from "@/components/ui/Spinner";
 import { BranchPanel } from "@/features/branches/BranchPanel";
+import { ManagerNote } from "@/features/biz/ManagerNote";
 import { AdminGallery } from "@/features/gallery/AdminGallery";
 import { deleteAdminLogo, uploadAdminLogo } from "@/features/gallery/api";
 import { LogoField } from "@/features/gallery/LogoField";
@@ -26,6 +28,7 @@ import {
   useUpdateSubscription,
 } from "@/hooks/useAdminSubscriptions";
 import { accountEmailMessage, validationMessage } from "@/lib/api";
+import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { toDateTimeLocalValue } from "@/lib/datetime";
 import { formatDateSq } from "@/lib/format";
 import {
@@ -149,9 +152,11 @@ function AddressLink({ business }: { business: Business }) {
 export function AdminBusinessProfile({ id }: { id: string }) {
   const queryClient = useQueryClient();
   const businessQuery = useAdminBusiness(id);
+  const payerId = businessQuery.data?.parent_id ?? id;
   const subscriptionsQuery = useQuery({
-    queryKey: [...adminSubscriptionsQueryKey, "business", id],
-    queryFn: () => fetchAdminSubscriptions({ businessId: id, perPage: 20 }),
+    queryKey: [...adminSubscriptionsQueryKey, "business", payerId],
+    queryFn: () => fetchAdminSubscriptions({ businessId: payerId, perPage: 20 }),
+    enabled: businessQuery.isSuccess,
   });
   const updateBusiness = useUpdateBusiness();
   const updateSubscription = useUpdateSubscription();
@@ -165,6 +170,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
   );
 
   const [name, setName] = useState("");
+  const [section, setSection] = useState<"biznesi" | "abonimi" | "llogaria" | "galeria" | "deget">("biznesi");
   const [active, setActive] = useState(true);
   const [ownerName, setOwnerName] = useState("");
   const [ownerEmail, setOwnerEmail] = useState("");
@@ -227,9 +233,29 @@ export function AdminBusinessProfile({ id }: { id: string }) {
         <ArrowBackIcon fontSize="small" />
         <span>Bizneset</span>
       </Link>
-      <h1 className={`${pageTitle} col-start-2 mt-3 mb-0!`}>
-        {business?.name ?? "Profili"}
-      </h1>
+      <div className="col-start-2 mt-3 flex flex-wrap items-center gap-3">
+        <h1 className={`${pageTitle} mb-0!`}>
+          {business?.name ?? "Profili"}
+        </h1>
+        {business?.extra_placement ? (
+          <StarIcon fontSize="small" className="shrink-0 text-accent!" aria-label={EXCLUSIVE_LABEL} />
+        ) : null}
+        {business ? (
+          <Link
+            href={`/biznese/${business.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-semibold text-muted no-underline hover:text-ink"
+          >
+            Faqja publike
+          </Link>
+        ) : null}
+      </div>
+      {business ? (
+        <div className="col-start-2">
+          <ManagerNote business={business} />
+        </div>
+      ) : null}
     </div>
   );
 
@@ -341,13 +367,37 @@ export function AdminBusinessProfile({ id }: { id: string }) {
   return (
     <div>
       {heading}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <nav className="mb-6 flex flex-wrap gap-x-5 gap-y-2 border-b border-line" aria-label="Seksionet e profilit">
+        {(
+          [
+            ["biznesi", "Biznesi"],
+            ["abonimi", "Abonimi"],
+            ["llogaria", "Llogaria"],
+            ["galeria", "Galeria"],
+            ["deget", "Degët"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            className={`cursor-pointer border-0 border-b-2 bg-transparent px-0 py-3 text-sm font-bold ${
+              section === id ? "border-accent text-ink" : "border-transparent text-muted"
+            }`}
+            onClick={() => setSection(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+      <div>
+        <section className={section === "biznesi" ? "overflow-hidden" : "hidden"}>
         <section className="overflow-hidden rounded-2xl border border-line">
           <form className="grid gap-4 p-5" onSubmit={onBusiness} noValidate>
             <div className="flex items-start justify-between gap-4">
               <div className="flex min-w-0 items-center gap-4">
                 <LogoField
                   name={name || business.name}
+                  readOnly={Boolean(business.parent_id)}
                   logoUrl={business.logo_url}
                   onUpload={async (file) => {
                     await uploadAdminLogo(business.id, file);
@@ -468,7 +518,8 @@ export function AdminBusinessProfile({ id }: { id: string }) {
             </div>
           ) : null}
         </section>
-
+        </section>
+        <section className={section === "abonimi" ? "" : "hidden"}>
         <section className="rounded-2xl border border-line">
           <div className="flex items-start justify-between gap-4 p-5">
             <div className="min-w-0">
@@ -506,12 +557,30 @@ export function AdminBusinessProfile({ id }: { id: string }) {
                 "Nuk mundëm ta ngarkojmë abonimin.",
               )}
             </p>
+          ) : business.parent_id ? (
+            <div className="border-t border-line px-5 py-4">
+              {subscription === null ? (
+                <p className="m-0 text-lg font-semibold text-ink">Nuk ka abonim</p>
+              ) : null}
+              <p className="m-0 mt-2 text-sm leading-relaxed text-muted">
+                Pagesa regjistrohet te dyqani kryesor. Ky lokacion përdor të njëjtin abonim.
+              </p>
+              <Link
+                href={`/admin/businesses/${business.parent_id}`}
+                className="mt-3 inline-block text-sm font-semibold text-ink no-underline hover:text-accent"
+              >
+                {business.parent?.name ?? "Dyqani kryesor"}
+              </Link>
+            </div>
           ) : subscription === null ? (
             <div className="border-t border-line px-5 py-4">
               <p className="m-0 text-lg font-semibold text-ink">Nuk ka abonim</p>
               <p className="m-0 mt-2 text-sm leading-relaxed text-muted">
-                Regjistro një pagesë te Abonimet. Pa abonim aktiv, ofertat nuk
-                shfaqen publike.
+                Regjistro një pagesë te{" "}
+                <Link href="/admin/subscriptions" className="font-semibold text-ink">
+                  Abonimet
+                </Link>
+                . Pa abonim aktiv, ofertat nuk shfaqen publike.
               </p>
             </div>
           ) : (
@@ -520,26 +589,29 @@ export function AdminBusinessProfile({ id }: { id: string }) {
               onSubmit={onSubscription}
               noValidate
             >
-              <label className={fieldLabel}>
-                <span>Fillon</span>
+              <div className="grid items-stretch gap-2 sm:grid-cols-2">
                 <DateTimeField
+                  variant="card"
+                  caption="Fillon"
                   value={startsAt}
                   onChange={setStartsAt}
                   disabled={updateSubscription.isPending}
-                  aria-label="Fillon"
                 />
-              </label>
-              <label className={fieldLabel}>
-                <span>Mbaron</span>
                 <DateTimeField
+                  variant="card"
+                  caption="Mbaron"
                   value={endsAt}
                   onChange={setEndsAt}
                   disabled={updateSubscription.isPending}
-                  aria-label="Mbaron"
                 />
-              </label>
+              </div>
               <p className="m-0 text-sm leading-relaxed text-muted">
-                Zgjatja e datave nuk regjistron një pagesë të re.
+                Zgjatja e datave nuk regjistron një pagesë të re. Pagesa e re
+                regjistrohet te{" "}
+                <Link href="/admin/subscriptions" className="font-semibold text-ink">
+                  Abonimet
+                </Link>
+                .
               </p>
               {subscriptionError ? (
                 <p className={fieldError} role="alert">
@@ -558,8 +630,8 @@ export function AdminBusinessProfile({ id }: { id: string }) {
             </form>
           )}
         </section>
-
-        <section className="rounded-2xl border border-line p-5 lg:col-span-2">
+        </section>
+        <section className={section === "llogaria" ? "grid max-w-xl gap-8" : "hidden"}>
           <form className="grid max-w-xl gap-4" onSubmit={onAccount} noValidate>
             <p className={`m-0 ${micro}`}>Llogaria</p>
             {accountError ? (
@@ -646,13 +718,17 @@ export function AdminBusinessProfile({ id }: { id: string }) {
           </form>
         </section>
 
-        <section className="rounded-2xl border border-line p-5 lg:col-span-2">
-          <p className={`m-0 ${micro}`}>Galeria</p>
-          <div className="mt-4">
-            <AdminGallery businessId={business.id} />
-          </div>
+        <section className={section === "galeria" ? "py-2" : "hidden"}>
+          <section className="rounded-2xl border border-line p-5 lg:col-span-2">
+            <p className={`m-0 ${micro}`}>Galeria</p>
+            <div className="mt-4">
+              <AdminGallery businessId={business.id} />
+            </div>
+          </section>
         </section>
-        <BranchPanel mode="admin" business={business} />
+        <div className={section === "deget" ? "" : "hidden"}>
+          <BranchPanel mode="admin" business={business} />
+        </div>
       </div>
       <ConfirmModal
         open={emailConfirmOpen}

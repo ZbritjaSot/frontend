@@ -17,11 +17,18 @@ export async function fetchBizBranches(): Promise<Business[]> {
   return payload.data;
 }
 
-export async function createBizBranch(input: {
+export type BranchInput = {
   name: string;
   owner_name?: string;
   owner_email: string;
-}): Promise<Business> {
+  street: string;
+  village?: string | null;
+  city: string;
+  latitude: number;
+  longitude: number;
+};
+
+export async function createBizBranch(input: BranchInput): Promise<Business> {
   const payload = await apiFetch<{ data: Business }>("/biz/branches", {
     method: "POST",
     auth: true,
@@ -47,7 +54,7 @@ export async function fetchAdminBranches(businessId: string): Promise<Business[]
 
 export async function createAdminBranch(
   businessId: string,
-  input: { name: string; owner_name?: string; owner_email: string },
+  input: BranchInput,
 ): Promise<Business> {
   const payload = await apiFetch<{ data: Business }>(
     `/admin/businesses/${businessId}/branches`,
@@ -58,6 +65,29 @@ export async function createAdminBranch(
     },
   );
   return payload.data;
+}
+
+export async function approveAdminBranch(businessId: string): Promise<Business> {
+  const payload = await apiFetch<{ data: Business }>(
+    `/admin/businesses/${businessId}/approve`,
+    { method: "POST", auth: true },
+  );
+  return payload.data;
+}
+
+export async function makeAdminBranchMain(businessId: string): Promise<Business> {
+  const payload = await apiFetch<{ data: Business }>(
+    `/admin/businesses/${businessId}/make-main`,
+    { method: "POST", auth: true },
+  );
+  return payload.data;
+}
+
+export async function deleteAdminBranch(businessId: string): Promise<void> {
+  await apiFetch<void>(`/admin/businesses/${businessId}`, {
+    method: "DELETE",
+    auth: true,
+  });
 }
 
 export async function fetchAdminCompanyShops(businessId: string): Promise<CompanyShop[]> {

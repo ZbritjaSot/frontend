@@ -36,7 +36,13 @@ function previewsFrom(home: PublicHome): Preview[] {
   ];
 }
 
-export function InboxBand({ home }: { home: PublicHome }) {
+export function InboxBand({
+  home,
+  title = "Mos i humb zbritjet më të mira.",
+}: {
+  home: PublicHome;
+  title?: string;
+}) {
   const previews = previewsFrom(home);
 
   return (
@@ -61,7 +67,7 @@ export function InboxBand({ home }: { home: PublicHome }) {
               ZbritjaSot në inbox
             </p>
             <h2 className="m-0 mt-3 max-w-lg text-[clamp(2rem,4vw,3.25rem)] leading-[0.94] font-extrabold tracking-[-0.045em]">
-              Mos i humb zbritjet më të mira.
+              {title}
             </h2>
             <p className="mt-4 mb-6 max-w-md text-base leading-relaxed text-ivory/75 dark:text-muted">
               Merr oferta, ulje dhe zbulime të reja direkt në email.

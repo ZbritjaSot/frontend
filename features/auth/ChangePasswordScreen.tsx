@@ -66,7 +66,7 @@ export function ChangePasswordScreen() {
         <h1 className="m-0 text-xl font-semibold">Ndrysho fjalëkalimin</h1>
         <p className="m-0 text-sm leading-relaxed text-muted">
           Fjalëkalimi nga email-i duhet ndërruar para se të hapet paneli. Nëse
-          del tani, hyrja e radhës të kthen te kjo faqe.
+          del tani, hyrja tjetër të kthen te kjo faqe.
         </p>
         {error ? (
           <p className={fieldError} role="alert">

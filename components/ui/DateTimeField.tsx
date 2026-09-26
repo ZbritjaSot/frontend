@@ -31,6 +31,9 @@ type DateTimeFieldProps = {
   disabled?: boolean;
   id?: string;
   "aria-label"?: string;
+  /** `card` shows the date, with the clock inside the calendar. */
+  variant?: "row" | "card";
+  caption?: string;
 };
 
 function parseLocal(value: string): {
@@ -80,6 +83,8 @@ export function DateTimeField({
   disabled = false,
   id,
   "aria-label": ariaLabel,
+  variant = "row",
+  caption,
 }: DateTimeFieldProps) {
   const parsed = parseLocal(value);
   const panelId = useId();
@@ -174,62 +179,93 @@ export function DateTimeField({
     cells.push({ day, key: `d-${day}` });
   }
 
+  function toggle() {
+    setOpen((v) => {
+      if (v) {
+        setCursor(null);
+      }
+      return !v;
+    });
+  }
+
+  const timeRow = (
+    <div
+      className="grid w-full max-w-[9.5rem] shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-1.5 @min-[17rem]:w-[9.5rem] [&_ul]:min-w-[4.5rem]"
+      aria-label="Ora"
+    >
+      <SelectField
+        value={hour}
+        onChange={(h) => commitTime(h, minute)}
+        options={HOUR_OPTIONS}
+        disabled={disabled}
+        aria-label="Ora"
+        className="justify-center! px-2! tabular-nums"
+      />
+      <span className="font-bold text-muted" aria-hidden>
+        :
+      </span>
+      <SelectField
+        value={minute}
+        onChange={(m) => commitTime(hour, m)}
+        options={MINUTE_OPTIONS}
+        disabled={disabled}
+        aria-label="Minutat"
+        className="justify-center! px-2! tabular-nums"
+      />
+    </div>
+  );
+
   return (
     <div
       className={`@container relative w-full ${open ? "z-30" : ""}`}
       ref={rootRef}
     >
-      <div className="flex flex-col gap-[0.45rem] @min-[17rem]:flex-row @min-[17rem]:items-center">
+      {variant === "card" ? (
         <button
           type="button"
           id={id}
-          className={`${triggerClass} @min-[17rem]:w-auto @min-[17rem]:min-w-0 @min-[17rem]:flex-1`}
+          className={`flex w-full cursor-pointer flex-col items-start gap-0.5 rounded-xl border bg-elevated px-4 py-3 text-left outline-2 outline-offset-1 hover:border-accent/40 focus-visible:outline-accent/55 disabled:cursor-not-allowed disabled:opacity-55 ${
+            open ? "border-accent/60" : "border-line"
+          }`}
           aria-haspopup="dialog"
           aria-expanded={open}
           aria-controls={panelId}
-          aria-label={ariaLabel}
+          aria-label={ariaLabel ?? caption}
           disabled={disabled}
-          onClick={() => {
-            setOpen((v) => {
-              if (v) {
-                setCursor(null);
-              }
-              return !v;
-            });
-          }}
+          onClick={toggle}
         >
-          <span>{label}</span>
-          <KeyboardArrowDownIcon
-            fontSize="small"
-            className={`shrink-0 text-muted transition-transform ${open ? "rotate-180" : ""}`}
-          />
-        </button>
-
-        <div
-          className="grid w-full max-w-[9.5rem] shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-1.5 @min-[17rem]:w-[9.5rem] [&_ul]:min-w-[4.5rem]"
-          aria-label="Ora"
-        >
-          <SelectField
-            value={hour}
-            onChange={(h) => commitTime(h, minute)}
-            options={HOUR_OPTIONS}
-            disabled={disabled}
-            aria-label="Ora"
-            className="justify-center! px-2! tabular-nums"
-          />
-          <span className="font-bold text-muted" aria-hidden>
-            :
+          {caption ? (
+            <span className="text-xs font-bold tracking-[0.08em] text-muted uppercase">
+              {caption}
+            </span>
+          ) : null}
+          <span className="text-base font-semibold text-ink">{label}</span>
+          <span className="text-sm font-semibold text-muted tabular-nums">
+            {hour}:{minute}
           </span>
-          <SelectField
-            value={minute}
-            onChange={(m) => commitTime(hour, m)}
-            options={MINUTE_OPTIONS}
+        </button>
+      ) : (
+        <div className="flex flex-col gap-[0.45rem] @min-[17rem]:flex-row @min-[17rem]:items-center">
+          <button
+            type="button"
+            id={id}
+            className={`${triggerClass} @min-[17rem]:w-auto @min-[17rem]:min-w-0 @min-[17rem]:flex-1`}
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            aria-controls={panelId}
+            aria-label={ariaLabel}
             disabled={disabled}
-            aria-label="Minutat"
-            className="justify-center! px-2! tabular-nums"
-          />
+            onClick={toggle}
+          >
+            <span>{label}</span>
+            <KeyboardArrowDownIcon
+              fontSize="small"
+              className={`shrink-0 text-muted transition-transform ${open ? "rotate-180" : ""}`}
+            />
+          </button>
+          {timeRow}
         </div>
-      </div>
+      )}
 
       {open ? (
         <div
@@ -303,6 +339,11 @@ export function DateTimeField({
               );
             })}
           </div>
+          {variant === "card" ? (
+            <div className="mt-3 flex justify-center border-t border-line pt-3">
+              {timeRow}
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>

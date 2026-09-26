@@ -1,11 +1,14 @@
 "use client";
 
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { adminManagerKey, IndicatorKey } from "@/components/ui/IndicatorKey";
+import { DashboardKpi } from "@/components/ui/DashboardKpi";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
@@ -115,6 +118,7 @@ export function AdminManagers() {
     <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
       <h1 className={`${pageTitle} mb-0!`}>Menaxherët</h1>
       <button className={btnPrimary} type="button" onClick={() => setCreating(true)}>
+        <AddOutlinedIcon fontSize="small" />
         Shto menaxher
       </button>
     </div>
@@ -125,9 +129,26 @@ export function AdminManagers() {
       {header}
       <p className={`${panelLead} -mt-2 mb-4`}>
         Çdo dyqan i caktohet një menaxheri. Fletushkat në pritje shfaqen këtu, jo te
-        radha jote. Aprovoji ose ndryshoji para se ta fshish llogarinë.
+        lista jote. Aprovoji ose ndryshoji para se ta fshish llogarinë.
       </p>
+      <IndicatorKey items={adminManagerKey} />
 
+      {!managers.isLoading && !managers.isError ? (
+        <div className="mb-5 flex flex-wrap gap-x-8 gap-y-4">
+          <DashboardKpi label="Menaxherë" value={total} detail="Llogari" />
+          <DashboardKpi
+            label="Dyqane"
+            value={rows.reduce((sum, manager) => sum + manager.shops.length, 0)}
+            detail={(lastPage ?? 1) > 1 ? "Në këtë faqe" : "Të mbuluara"}
+          />
+          <DashboardKpi
+            label="Në pritje"
+            value={rows.reduce((sum, manager) => sum + (manager.pending_offers?.length ?? 0), 0)}
+            detail={(lastPage ?? 1) > 1 ? "Në këtë faqe" : "Fletushka që presin"}
+            tone="pending"
+          />
+        </div>
+      ) : null}
       {managers.isLoading ? (
         <Spinner label="Duke ngarkuar menaxherët" />
       ) : managers.isError ? (

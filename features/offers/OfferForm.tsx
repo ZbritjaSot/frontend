@@ -3,15 +3,17 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from "react";
+import { useMemo, useState, type ClipboardEvent, type KeyboardEvent } from "react";
 import {
   fetchAdminCompanyShops,
   fetchBizCompanyShops,
 } from "@/features/branches/api";
 import { fetchManagerCompanyShops } from "@/features/biz/managerApi";
 import { ItemPhoto } from "@/features/gallery/ItemPhoto";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { DateTimeField } from "@/components/ui/DateTimeField";
+import { Modal } from "@/components/ui/Modal";
 import { PosMoneyField } from "@/components/ui/PosMoneyField";
 import { SelectField } from "@/components/ui/SelectField";
 import { useUpdateAdminOffer } from "@/hooks/useAdminOffers";
@@ -19,14 +21,15 @@ import { useCreateManagerBundle, useUpdateManagerBundle } from "@/hooks/useManag
 import {
   useActiveCategories,
   useCreateBizOffer,
+  useSubmitBizOffer,
   useUpdateBizOffer,
 } from "@/hooks/useBizOffers";
 import { defaultOfferWindow, toDateTimeLocalValue } from "@/lib/datetime";
+import { formatDateShortSq, formatEurFromCents } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
 import {
   btnGhost,
   btnPrimary,
-  checkInput,
   fieldError,
   inputClass,
 } from "@/lib/ui";
@@ -134,6 +137,8 @@ export function OfferForm({
       : audience === "manager"
         ? updateManagerMutation
         : updateBizMutation;
+  const submitBiz = useSubmitBizOffer();
+  const [reviewOpen, setReviewOpen] = useState(false);
   const leaveHref =
     audience === "admin" && offer
       ? `/admin/offers/${offer.id}`
@@ -199,7 +204,14 @@ export function OfferForm({
   });
   const [error, setError] = useState<string | null>(null);
 
-  const pending = createMutation.isPending || updateMutation.isPending;
+  const pending =
+    createMutation.isPending || updateMutation.isPending || submitBiz.isPending;
+  const sendsForApproval = audience === "biz" || (audience === "manager" && mode === "create");
+  const primaryLabel = audience === "manager" && mode === "create"
+    ? "Dërgo në pritje"
+    : audience === "biz"
+      ? "Dërgo për aprovim"
+      : "Përditëso";
 
   const categoryOptions = useMemo(
     () =>
@@ -239,9 +251,9 @@ export function OfferForm({
     );
   }
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function save(thenSubmit: boolean) {
     setError(null);
+    setReviewOpen(false);
 
     for (const item of items) {
       const percent = Number(item.discount_percent);
@@ -291,9 +303,15 @@ export function OfferForm({
     try {
       if (mode === "create") {
         const created = await createMutation.mutateAsync(parsed.data);
+        if (thenSubmit && audience === "biz") {
+          await submitBiz.mutateAsync(created.id);
+        }
         router.replace(audience === "manager" ? `/biz/review/${created.id}` : "/biz/offers");
       } else if (offer) {
         await updateMutation.mutateAsync(parsed.data);
+        if (thenSubmit && audience === "biz") {
+          await submitBiz.mutateAsync(offer.id);
+        }
         router.replace(leaveHref);
       }
     } catch (err) {
@@ -303,16 +321,52 @@ export function OfferForm({
 
   const micro =
     "text-xs font-bold tracking-[0.08em] text-muted uppercase";
+  const locationNames =
+    companyShops.data
+      ?.filter((shop) => branchIds.includes(shop.id))
+      .map((shop) => shop.name) ?? [];
   const iconButton =
     "inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
 
   return (
-    <form className="flex flex-col gap-8" onSubmit={onSubmit} noValidate>
-      <section className="rounded-2xl border border-line px-5 py-5">
-        <label className="flex flex-col gap-2">
-          <span className={micro}>Titulli i kampanjës</span>
+    <form
+      className="flex flex-col gap-10"
+      noValidate
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (sendsForApproval) {
+          setReviewOpen(true);
+          return;
+        }
+        void save(false);
+      }}
+    >
+      <div className="sticky top-0 z-20 -mx-5 flex flex-wrap items-center justify-between gap-3 border-b border-line bg-canvas px-5 py-3 sm:-mx-8 sm:px-8">
+        <div className="min-w-0">
+          <p className={`${micro} m-0`}>Fletushkë</p>
+          <p className="m-0 truncate text-lg font-bold">{title.trim() || "Dosje e re"}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button className={btnGhost} type="button" disabled={pending} onClick={() => router.push(leaveHref)}>
+            Anulo
+          </button>
+          {audience === "biz" ? (
+            <button className={btnGhost} type="button" disabled={pending} onClick={() => void save(false)}>
+              {pending ? "Duke u ruajtur…" : "Ruaj draft"}
+            </button>
+          ) : null}
+          <button className={btnPrimary} type="submit" disabled={pending}>
+            {pending ? "Duke u ruajtur…" : primaryLabel}
+          </button>
+        </div>
+      </div>
+      <section>
+        <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Fletushka</h2>
+        <p className="m-0 mt-1 text-sm text-muted">Titulli dhe periudha e kampanjës.</p>
+        <label className="mt-5 flex flex-col gap-2">
+          <span className={micro}>Titulli i fletushkës</span>
           <input
-            className={`${inputClass} text-lg! font-semibold`}
+            className={`${inputClass} text-2xl! font-bold tracking-[-0.03em]`}
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -320,10 +374,11 @@ export function OfferForm({
             required
             maxLength={255}
             placeholder="p.sh. Nëntor 2026"
-            aria-label="Titulli i kampanjës"
+            aria-label="Titulli i fletushkës"
           />
         </label>
-        <div className="mt-5 grid gap-5 border-t border-line pt-5 md:grid-cols-2 md:gap-8">
+        <p className={`${micro} mt-6 mb-3`}>Periudha</p>
+        <div className="grid gap-5 md:grid-cols-2 md:gap-8">
           <label className="flex flex-col gap-2">
             <span className={micro}>Fillon</span>
             <DateTimeField
@@ -346,50 +401,118 @@ export function OfferForm({
       </section>
 
       {(companyShops.data?.length ?? 0) > 0 ? (
-        <section className="rounded-2xl border border-line px-5 py-5">
-          <h2 className={`${micro} m-0`}>Ku tjetër shfaqet</h2>
-          <p className="m-0 mt-2 text-sm leading-relaxed text-muted">
-            Zgjidh dyqanet e kompanisë ku shfaqet kjo fletushkë. Nuk u shtohet vetë.
-          </p>
-          <ul className="m-0 mt-4 grid list-none gap-2 p-0">
-            {companyShops.data?.map((shop) => (
-              <li key={shop.id}>
-                <label className="flex items-center gap-3 text-sm font-semibold">
-                  <input
-                    className={checkInput}
-                    type="checkbox"
-                    checked={branchIds.includes(shop.id)}
-                    onChange={() =>
+        <section>
+          <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Ku shfaqet</h2>
+          <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
+            <p className="m-0 text-sm text-muted">
+              Zgjidh lokacionet e kompanisë. Nuk u shtohet vetë.
+            </p>
+            <button
+              type="button"
+              disabled={pending}
+              className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-ink hover:text-accent"
+              onClick={() => {
+                const ids = companyShops.data?.map((shop) => shop.id) ?? [];
+                const allOn = ids.every((id) => branchIds.includes(id));
+                setBranchIds(allOn ? [] : ids);
+              }}
+            >
+              {companyShops.data?.every((shop) => branchIds.includes(shop.id))
+                ? "Hiqi të gjitha"
+                : "Zgjidhi të gjitha"}
+            </button>
+          </div>
+          <ul className="m-0 mt-4 grid list-none gap-2 p-0 sm:grid-cols-2">
+            {companyShops.data?.map((shop) => {
+              const selected = branchIds.includes(shop.id);
+              const place = [shop.street, shop.city].filter(Boolean).join(", ");
+              return (
+                <li key={shop.id}>
+                  <button
+                    type="button"
+                    aria-pressed={selected}
+                    disabled={pending}
+                    className={`flex w-full cursor-pointer flex-col gap-1 rounded-xl border px-4 py-3 text-left ${
+                      selected ? "border-accent bg-accent/10" : "border-line bg-transparent hover:bg-sunken"
+                    }`}
+                    onClick={() =>
                       setBranchIds((current) =>
                         current.includes(shop.id)
                           ? current.filter((id) => id !== shop.id)
                           : [...current, shop.id],
                       )
                     }
-                    disabled={pending}
-                  />
-                  <span>
-                    {shop.name}
-                    {shop.city ? (
-                      <span className="ml-2 font-medium text-muted">{shop.city}</span>
-                    ) : null}
-                  </span>
-                </label>
-              </li>
-            ))}
+                  >
+                    <span className="text-xs font-bold tracking-[0.08em] text-muted uppercase">
+                      {shop.parent_id ? "Degë" : "Dyqan"}
+                    </span>
+                    <span className="font-semibold">{shop.name}</span>
+                    <span className="text-sm text-muted">{place || "Pa adresë"}</span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </section>
       ) : null}
 
       <section>
         <div className="mb-3 flex items-baseline justify-between gap-3">
-          <h2 className={`${micro} m-0`}>Produktet</h2>
+          <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Produktet</h2>
           <p className="m-0 text-sm font-semibold text-muted tabular-nums">
             {items.length} {items.length === 1 ? "produkt" : "produkte"}
           </p>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-line">
+        <div className="mb-4 rounded-2xl border border-line p-4">
+          <p className="m-0 text-sm font-semibold">Foto e fletushkës</p>
+          <p className="m-0 mt-1 text-sm text-muted">
+            Opsionale. Zgjidh foton e një produkti. Pa të, fletushka del pa foto.
+          </p>
+          {items.some((item) => item.thumb_url) ? (
+            <ul className="m-0 mt-3 flex list-none flex-wrap gap-3 p-0">
+              {items.map((item) =>
+                item.thumb_url ? (
+                  <li key={item.key}>
+                    <button
+                      type="button"
+                      aria-pressed={coverKey === item.key}
+                      disabled={pending}
+                      className={`flex w-28 cursor-pointer flex-col gap-2 rounded-xl border p-2 text-left ${
+                        coverKey === item.key
+                          ? "border-accent bg-accent/10"
+                          : "border-line bg-transparent hover:bg-sunken"
+                      }`}
+                      onClick={() =>
+                        setCoverKey((current) => (current === item.key ? null : item.key))
+                      }
+                    >
+                      <span className="relative block aspect-square overflow-hidden rounded-lg">
+                        <Image
+                          src={item.thumb_url}
+                          alt=""
+                          fill
+                          unoptimized
+                          className="object-cover"
+                          sizes="112px"
+                        />
+                      </span>
+                      <span className="truncate text-xs font-bold">
+                        {coverKey === item.key ? "E zgjedhur" : item.name || "Produkt"}
+                      </span>
+                    </button>
+                  </li>
+                ) : null,
+              )}
+            </ul>
+          ) : (
+            <p className="m-0 mt-3 text-sm text-muted">
+              Shto një foto te një produkt më poshtë, pastaj zgjidhe këtu.
+            </p>
+          )}
+        </div>
+
+        <div className="grid gap-3">
           {items.map((item, index) => {
             const percent = Number(item.discount_percent);
             const hasDeal =
@@ -403,7 +526,9 @@ export function OfferForm({
             return (
               <div
                 key={item.key}
-                className="border-b border-line px-4 py-4"
+                className={`rounded-2xl border px-4 py-4 ${
+                  coverKey === item.key ? "border-accent" : "border-line"
+                }`}
               >
                 <div className="flex items-stretch gap-4">
                   <ItemPhoto
@@ -454,6 +579,7 @@ export function OfferForm({
                             patchItem(item.key, { category_id: value })
                           }
                           options={categoryOptions}
+                          searchable
                           placeholder="Kategoria"
                           disabled={pending || categoriesLoading}
                           aria-label={`Kategoria e produktit ${index + 1}`}
@@ -475,9 +601,9 @@ export function OfferForm({
                       ) : null}
                     </div>
 
-                    <div className="flex flex-wrap items-end gap-3">
-                      <label className="flex min-w-36 flex-1 flex-col gap-1.5">
-                        <span className={micro}>Origjinali</span>
+                    <div className="grid items-end gap-3 sm:grid-cols-3">
+                      <label className="flex min-w-0 flex-col gap-1.5">
+                        <span className={micro}>Çmimi i vjetër</span>
                         <PosMoneyField
                           valueCents={item.original_price}
                           onChangeCents={(cents) =>
@@ -487,8 +613,8 @@ export function OfferForm({
                           aria-label={`Çmimi origjinal i produktit ${index + 1}`}
                         />
                       </label>
-                      <label className="flex w-24 shrink-0 flex-col gap-1.5">
-                        <span className={micro}>Zbritja</span>
+                      <label className="flex min-w-0 flex-col gap-1.5">
+                        <span className={micro}>Zbritja %</span>
                         <div className="relative">
                           <input
                             className={`${inputClass} pr-8 text-right tabular-nums`}
@@ -516,18 +642,14 @@ export function OfferForm({
                             placeholder="0"
                             aria-label={`Zbritja në përqindje e produktit ${index + 1}`}
                           />
-                          <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm font-bold text-muted">
+                          <span aria-hidden="true" className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm font-bold text-muted">
                             %
                           </span>
                         </div>
                       </label>
-                      <label className="flex w-32 shrink-0 flex-col gap-1.5">
-                        <span className={micro}>Çmimi</span>
-                        <div
-                          className={
-                            hasDeal ? "[&_input]:text-accent!" : undefined
-                          }
-                        >
+                      <label className="flex min-w-0 flex-col gap-1.5">
+                        <span className={micro}>Çmimi i ri</span>
+                        <div className={hasDeal ? "[&_input]:text-accent!" : ""}>
                           <PosMoneyField
                             valueCents={item.discounted_price}
                             onChangeCents={(cents) =>
@@ -539,21 +661,10 @@ export function OfferForm({
                         </div>
                       </label>
                     </div>
-                    {item.thumb_url ? (
-                      <button
-                        type="button"
-                        disabled={pending}
-                        className={`w-fit text-left text-sm font-bold ${
-                          coverKey === item.key
-                            ? "text-ink"
-                            : "text-muted hover:text-ink"
-                        }`}
-                        onClick={() => setCoverKey(item.key)}
-                      >
-                        {coverKey === item.key
-                          ? "Foto e fletushkës"
-                          : "Vendose në fletushkë"}
-                      </button>
+                    {hasDeal ? (
+                      <p className="m-0 text-sm font-semibold text-accent">
+                        {formatEurFromCents(item.original_price)} − {percent}% = {formatEurFromCents(item.discounted_price)}
+                      </p>
                     ) : null}
                   </div>
                 </div>
@@ -564,7 +675,7 @@ export function OfferForm({
 
           <button
             type="button"
-            className="flex w-full cursor-pointer items-center gap-2 bg-transparent px-4 py-3 text-sm font-semibold text-muted hover:bg-sunken hover:text-ink disabled:cursor-wait disabled:opacity-65"
+            className="flex w-full cursor-pointer items-center gap-2 rounded-2xl border border-dashed border-line bg-transparent px-4 py-3 text-sm font-semibold text-muted hover:bg-sunken hover:text-ink disabled:cursor-wait disabled:opacity-65"
             disabled={pending}
             onClick={addItem}
           >
@@ -580,23 +691,54 @@ export function OfferForm({
         </p>
       ) : null}
 
-      <div className="sticky bottom-0 z-20 -mx-5 flex items-center justify-end gap-2 border-t border-line bg-canvas px-5 py-3 sm:-mx-8 sm:px-8">
-        <button
-          className={btnGhost}
-          type="button"
-          disabled={pending}
-          onClick={() => router.push(leaveHref)}
-        >
-          Anulo
-        </button>
-        <button className={btnPrimary} type="submit" disabled={pending}>
-          {pending
-            ? "Duke u ruajtur…"
-            : mode === "create"
-              ? "Ruaj draft"
-              : "Përditëso"}
-        </button>
-      </div>
+      <Modal
+        open={reviewOpen}
+        title={title.trim() || "Fletushka"}
+        size="lg"
+        onClose={() => {
+          if (!pending) {
+            setReviewOpen(false);
+          }
+        }}
+        footer={
+          <>
+            <button className={btnGhost} type="button" disabled={pending} onClick={() => setReviewOpen(false)}>
+              Kthehu dhe ndrysho
+            </button>
+            <button
+              className={btnPrimary}
+              type="button"
+              disabled={pending}
+              onClick={() => void save(audience === "biz")}
+            >
+              {pending ? "Duke u ruajtur…" : primaryLabel}
+            </button>
+          </>
+        }
+      >
+        <p className="m-0 text-sm text-muted">
+          {formatDateShortSq(startsAt)} → {formatDateShortSq(expiresAt)}
+          {locationNames.length > 0 ? ` · ${locationNames.join(", ")}` : ""}
+        </p>
+        <ul className="m-0 mt-4 list-none p-0">
+          {items.map((item) => (
+            <li key={item.key} className="flex items-center gap-3 border-t border-line py-3">
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-semibold">{item.name || "Pa emër"}</span>
+                <span className="block text-sm text-muted">
+                  {item.discount_percent ? `${item.discount_percent}%` : "Pa përqindje"}
+                  {item.discounted_price > 0 ? ` · ${formatEurFromCents(item.discounted_price)}` : ""}
+                </span>
+              </span>
+              {item.original_price > 0 ? (
+                <span className="text-sm text-muted line-through tabular-nums">
+                  {formatEurFromCents(item.original_price)}
+                </span>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </Modal>
     </form>
   );
 }

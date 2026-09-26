@@ -5,11 +5,21 @@ import type { CompanyShop, OfferBundle, OfferImage, Paginated } from "@/types";
 
 type BundlePayload = { data: OfferBundle };
 
-export async function fetchManagerReview(page = 1): Promise<Paginated<OfferBundle>> {
+export async function fetchManagerReview(
+  page = 1,
+  status: "pending" | "approved" | "all" = "pending",
+  q = "",
+): Promise<Paginated<OfferBundle>> {
   const params = new URLSearchParams({
     page: String(page),
     per_page: "15",
   });
+  if (status !== "pending") {
+    params.set("status", status);
+  }
+  if (q.trim() !== "") {
+    params.set("q", q.trim());
+  }
   return apiFetch<Paginated<OfferBundle>>(`/biz/review?${params.toString()}`, {
     auth: true,
   });

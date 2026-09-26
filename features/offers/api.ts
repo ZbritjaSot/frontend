@@ -1,4 +1,5 @@
 import { apiFetch, ApiError } from "@/lib/api";
+import type { HomeSection } from "@/lib/homeSections";
 import type {
   CategorySummary,
   Paginated,
@@ -23,13 +24,27 @@ export type PublicOfferQuery = {
 
 export type PublicHome = {
   hero: PublicOffer | null;
+  heroes: PublicOffer[];
   featured: PublicOffer[];
   fresh: PublicOffer[];
   ending_soon: PublicOffer[];
   flyers: PublicFolder[];
   shops: PublicBusiness[];
   categories: CategorySummary[];
+  exclusive: ExclusiveItem[];
+  sections: HomeSection[];
 };
+
+export type ExclusiveItem =
+  | { kind: "offer"; offer: PublicOffer }
+  | { kind: "flyer"; flyer: PublicFolder };
+
+export async function fetchPublicSections(): Promise<HomeSection[]> {
+  const payload = await apiFetch<{ data: HomeSection[] }>("/sections", {
+    ...PUBLIC_FETCH,
+  });
+  return payload.data;
+}
 
 export async function fetchPublicHome(): Promise<PublicHome> {
   const payload = await apiFetch<{ data: PublicHome }>("/home", {
@@ -51,6 +66,20 @@ export async function fetchPublicBusinesses(
   }
 
   return apiFetch<Paginated<PublicBusiness>>(`/businesses?${params.toString()}`, {
+    ...PUBLIC_FETCH,
+  });
+}
+
+export async function fetchPublicPlacement(
+  query: { page?: number; perPage?: number } = {},
+): Promise<Paginated<ExclusiveItem>> {
+  const params = new URLSearchParams();
+  params.set("per_page", String(query.perPage ?? 12));
+  if (query.page && query.page > 1) {
+    params.set("page", String(query.page));
+  }
+
+  return apiFetch<Paginated<ExclusiveItem>>(`/placement?${params.toString()}`, {
     ...PUBLIC_FETCH,
   });
 }

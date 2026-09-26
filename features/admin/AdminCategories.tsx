@@ -1,17 +1,19 @@
 "use client";
 
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { adminCategoryKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
+import { TableSearch } from "@/components/ui/TableSearch";
 import {
   ADMIN_CATEGORIES_PAGE_SIZE,
   fetchAdminCategories,
@@ -51,7 +53,22 @@ const rowButton =
 export function AdminCategories() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError, error, refetch } = useAdminCategories(page);
+  const [query, setQuery] = useState("");
+  const [q, setQ] = useState("");
+  const { data, isLoading, isError, error, refetch } = useAdminCategories(page, q);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const next = query.trim();
+      setQ((current) => {
+        if (current !== next) {
+          setPage(1);
+        }
+        return next;
+      });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [query]);
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
@@ -146,6 +163,7 @@ export function AdminCategories() {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h1 className={`${pageTitle} mb-0!`}>Kategoritë</h1>
         <button className={btnPrimary} type="button" onClick={openCreate}>
+          <AddOutlinedIcon fontSize="small" />
           Shto kategori
         </button>
       </div>
@@ -190,12 +208,19 @@ export function AdminCategories() {
         </p>
       ) : null}
 
+      <div className="overflow-hidden rounded-2xl border border-line">
+        <TableSearch value={query} onChange={setQuery} label="Kërko kategorinë" />
+        {q !== "" ? (
+          <p className="m-0 border-b border-line px-4 py-2 text-sm text-muted">
+            Renditja fiket gjatë kërkimit.
+          </p>
+        ) : null}
       {categories.length === 0 ? (
-        <div className="max-w-[40rem]">
-          <p className={panelLead}>Nuk ka kategori ende.</p>
-        </div>
+          <p className="m-0 px-4 py-6 text-sm leading-relaxed text-muted">
+            {q === "" ? "Nuk ka kategori ende." : "Nuk u gjet asnjë kategori."}
+          </p>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-line">
+        <div>
           <div className="overflow-x-auto md:grid md:grid-cols-[2.25rem_minmax(12rem,1fr)_auto_auto] md:gap-x-4">
           <div className="col-span-4 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
             <span aria-hidden />
@@ -231,7 +256,8 @@ export function AdminCategories() {
                   type="button"
                   className="inline-flex size-9 cursor-grab items-center justify-center rounded-lg text-muted hover:bg-sunken hover:text-ink active:cursor-grabbing"
                   aria-label={`Rendit ${category.name}`}
-                  draggable={!reorderMutation.isPending}
+                  draggable={q === "" && !reorderMutation.isPending}
+                  hidden={q !== ""}
                   onDragStart={(event) => {
                     event.dataTransfer.effectAllowed = "move";
                     event.dataTransfer.setData("text/plain", category.id);
@@ -317,6 +343,7 @@ export function AdminCategories() {
           />
         </div>
       )}
+      </div>
 
       <Modal
         open={editor !== null}

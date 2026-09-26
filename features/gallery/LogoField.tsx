@@ -1,6 +1,6 @@
 "use client";
 
-import CloseIcon from "@mui/icons-material/Close";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined";
 import { useRef, useState } from "react";
 import { ShopLogo } from "@/features/public/visuals";
@@ -10,21 +10,27 @@ import { fieldError } from "@/lib/ui";
 export function LogoField({
   name,
   logoUrl,
+  readOnly = false,
   onUpload,
   onRemove,
 }: {
   name: string;
   logoUrl?: string | null;
   pending?: boolean;
-  onUpload: (file: File) => Promise<void>;
-  onRemove: () => Promise<void>;
+  readOnly?: boolean;
+  onUpload?: (file: File) => Promise<void>;
+  onRemove?: () => Promise<void>;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  if (readOnly) {
+    return <ShopLogo name={name} logoUrl={logoUrl} size="xl" />;
+  }
+
   async function onFile(file: File | undefined) {
-    if (!file) {
+    if (!file || !onUpload) {
       return;
     }
     setError(null);
@@ -48,7 +54,7 @@ export function LogoField({
           className="rounded-[1.25rem] disabled:opacity-60"
           onClick={() => inputRef.current?.click()}
         >
-          <ShopLogo name={name} logoUrl={logoUrl} size="lg" />
+          <ShopLogo name={name} logoUrl={logoUrl} size="xl" />
           <span className="absolute -right-1 -bottom-1 grid size-7 place-items-center rounded-full bg-charcoal text-accent ring-2 ring-elevated">
             <PhotoCameraOutlinedIcon sx={{ fontSize: 16 }} />
           </span>
@@ -58,12 +64,12 @@ export function LogoField({
             type="button"
             disabled={busy}
             aria-label="Hiq logon"
-            className="absolute -top-1 -left-1 grid size-6 place-items-center rounded-full bg-charcoal text-white ring-2 ring-elevated"
+            className="absolute -top-1 -left-1 grid size-6 place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated"
             onClick={async () => {
               setError(null);
               setBusy(true);
               try {
-                await onRemove();
+                await onRemove?.();
               } catch (caught) {
                 setError(validationMessage(caught, "Logoja nuk u hoq."));
               } finally {
@@ -71,7 +77,7 @@ export function LogoField({
               }
             }}
           >
-            <CloseIcon sx={{ fontSize: 14 }} />
+            <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
           </button>
         ) : null}
       </div>

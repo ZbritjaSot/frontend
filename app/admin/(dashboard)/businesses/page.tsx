@@ -10,11 +10,11 @@ export const metadata: Metadata = {
 export default async function AdminBusinessesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ adrese?: string }>;
+  searchParams: Promise<{ adrese?: string; scope?: string }>;
 }) {
   const params = await searchParams;
   if (params.adrese) {
     redirect(`/admin/businesses/${params.adrese}`);
   }
-  return <AdminBusinesses />;
+  return <AdminBusinesses initialScope={params.scope ?? ""} />;
 }

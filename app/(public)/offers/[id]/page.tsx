@@ -4,12 +4,15 @@ import { headers } from "next/headers";
 import {
   fetchPublicFolder,
   fetchPublicOffer,
+  fetchPublicPlacement,
+  fetchPublicSections,
   isNotFound,
   recordPublicOfferView,
 } from "@/features/offers/api";
 import { withCampaign } from "@/features/public/compose";
 import { EmptyNote, Frame } from "@/features/public/Frame";
 import { OfferDetail } from "@/features/offers/OfferDetail";
+import type { ExclusiveItem } from "@/features/offers/api";
 import type { PublicOffer } from "@/types";
 import { SITE_NAME } from "@/lib/site";
 
@@ -38,6 +41,7 @@ export default async function OfferPage({ params }: OfferPageProps) {
 
   let offer: PublicOffer | null = null;
   let related: PublicOffer[] = [];
+  let exclusive: ExclusiveItem[] = [];
   let failed = false;
 
   try {
@@ -50,6 +54,22 @@ export default async function OfferPage({ params }: OfferPageProps) {
           .slice(0, 4);
       } catch {
         related = [];
+      }
+    }
+    let showExclusive = true;
+    try {
+      const sections = await fetchPublicSections();
+      showExclusive = sections.some((section) => section.key === "exclusive");
+    } catch {
+      showExclusive = true;
+    }
+    if (showExclusive) {
+      try {
+        exclusive = (await fetchPublicPlacement({ perPage: 40 })).data.filter(
+          (item) => item.kind === "flyer" || item.offer.id !== offer?.id,
+        );
+      } catch {
+        exclusive = [];
       }
     }
   } catch (error) {
@@ -86,5 +106,5 @@ export default async function OfferPage({ params }: OfferPageProps) {
     }
   }
 
-  return <OfferDetail offer={offer} related={related} />;
+  return <OfferDetail offer={offer} related={related} exclusive={exclusive} />;
 }

@@ -16,10 +16,15 @@ export function managerBundleKey(id: string) {
   return ["biz", "review", id] as const;
 }
 
-export function useManagerReview(page = 1, enabled = true) {
+export function useManagerReview(
+  page = 1,
+  enabled = true,
+  status: "pending" | "approved" | "all" = "pending",
+  q = "",
+) {
   return useQuery({
-    queryKey: [...managerReviewKey, page],
-    queryFn: () => fetchManagerReview(page),
+    queryKey: [...managerReviewKey, status, page, q],
+    queryFn: () => fetchManagerReview(page, status, q),
     placeholderData: (previous) => previous,
     enabled,
   });
