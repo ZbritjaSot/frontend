@@ -53,7 +53,7 @@ npm run test:e2e
 
 | Login | Email | Password |
 | --- | --- | --- |
-| `/biz/login` | `viva@demo.zbritjasot.com` | `password` |
-| `/admin/login` | `admin@zbritjasot.com` | `password` |
+| `/biz/login` | `viva@test.com` | `password` |
+| `/admin/login` | `admin@test.com` | `password` |
 
 Expired / past-window offers never appear on `/`. Expiry job (every minute): `php artisan offers:expire`.

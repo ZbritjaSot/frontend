@@ -7,15 +7,33 @@ import { ShopLogo } from "@/features/public/visuals";
 import { campaignWord, locationLabel, productWord } from "@/features/public/compose";
 import { ApiError, fetchPublicBusinesses } from "@/features/offers/api";
 import { browsePath } from "@/lib/browse";
+import { publicPageMetadata } from "@/lib/metadata";
 import type { PublicBusiness } from "@/types";
-
-export const metadata: Metadata = {
-  title: "Dyqanet",
-};
 
 type DirectoryPageProps = {
   searchParams: Promise<{ q?: string; page?: string }>;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: DirectoryPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const q = params.q?.trim() ?? "";
+  if (q || params.page) {
+    return publicPageMetadata({
+      title: q ? `Dyqanet: ${q}` : "Dyqanet",
+      description: "Dyqanet lokale me fletushka aktive në Kosovë.",
+      path: "/biznese",
+      index: false,
+    });
+  }
+
+  return publicPageMetadata({
+    title: "Dyqanet",
+    description: "Dyqanet lokale me fletushka aktive në Kosovë.",
+    path: "/biznese",
+  });
+}
 
 export default async function BusinessDirectoryPage({ searchParams }: DirectoryPageProps) {
   const params = await searchParams;

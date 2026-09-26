@@ -57,10 +57,6 @@ export function AdminLoginScreen() {
           wrongRoleMessage="Kjo llogari nuk është llogari admini."
         />
 
-        <p className="m-0 mt-8 text-[0.8125rem] leading-normal text-muted [&_code]:font-mono [&_code]:text-xs [&_code]:text-accent">
-          Demo: <code>admin@zbritjasot.com</code> / <code>password</code>
-        </p>
-
         <Link
           href="/"
           className="mt-8 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-accent"

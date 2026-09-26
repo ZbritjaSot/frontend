@@ -113,14 +113,14 @@ function FeaturedFlyer({ item }: { item: Extract<ExclusiveItem, { kind: "flyer" 
 function Collection({ items }: { items: ExclusiveItem[] }) {
   return (
     <ul className="m-0 grid list-none grid-cols-2 gap-x-4 gap-y-10 p-0 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-7 lg:gap-y-14">
-      {items.map((item) =>
+      {items.map((item, index) =>
         item.kind === "flyer" ? (
           <li key={`flyer:${item.flyer.id}`} className="col-span-2 min-w-0">
-            <FlyerTile item={item} />
+            <FlyerTile item={item} eager={index < 2} />
           </li>
         ) : (
           <li key={`offer:${item.offer.id}`} className="min-w-0">
-            <OfferTile item={item} />
+            <OfferTile item={item} eager={index < 4} />
           </li>
         ),
       )}
@@ -128,7 +128,13 @@ function Collection({ items }: { items: ExclusiveItem[] }) {
   );
 }
 
-function OfferTile({ item }: { item: Extract<ExclusiveItem, { kind: "offer" }> }) {
+function OfferTile({
+  item,
+  eager = false,
+}: {
+  item: Extract<ExclusiveItem, { kind: "offer" }>;
+  eager?: boolean;
+}) {
   const offer = item.offer;
   const shop = offer.business?.name;
 
@@ -138,7 +144,7 @@ function OfferTile({ item }: { item: Extract<ExclusiveItem, { kind: "offer" }> }
         <ProductVisual
           name={offer.name}
           imageUrl={offer.image?.thumb_url}
-          eager
+          eager={eager}
           sizes="(max-width: 640px) 50vw, 320px"
           className="aspect-[3/4] w-full"
         />
@@ -157,7 +163,13 @@ function OfferTile({ item }: { item: Extract<ExclusiveItem, { kind: "offer" }> }
   );
 }
 
-function FlyerTile({ item }: { item: Extract<ExclusiveItem, { kind: "flyer" }> }) {
+function FlyerTile({
+  item,
+  eager = false,
+}: {
+  item: Extract<ExclusiveItem, { kind: "flyer" }>;
+  eager?: boolean;
+}) {
   const folder = item.flyer;
   const shop = folder.business?.name;
   const coverName = folder.cover?.name ?? folder.title;
@@ -168,7 +180,7 @@ function FlyerTile({ item }: { item: Extract<ExclusiveItem, { kind: "flyer" }> }
         <ProductVisual
           name={coverName}
           imageUrl={folder.cover?.thumb_url}
-          eager
+          eager={eager}
           sizes="(max-width: 1024px) 100vw, 640px"
           className="aspect-[16/10] w-full"
         />

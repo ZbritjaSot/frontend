@@ -5,6 +5,7 @@ export const revalidate = 3600;
 
 type SitemapIds = {
   offers: string[];
+  folders: string[];
   businesses: string[];
 };
 
@@ -15,20 +16,21 @@ async function fetchSitemapIds(): Promise<SitemapIds> {
       next: { revalidate: 3600 },
     });
     if (!response.ok) {
-      return { offers: [], businesses: [] };
+      return { offers: [], folders: [], businesses: [] };
     }
     const body = (await response.json()) as Partial<SitemapIds>;
     return {
       offers: Array.isArray(body.offers) ? body.offers : [],
+      folders: Array.isArray(body.folders) ? body.folders : [],
       businesses: Array.isArray(body.businesses) ? body.businesses : [],
     };
   } catch {
-    return { offers: [], businesses: [] };
+    return { offers: [], folders: [], businesses: [] };
   }
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { offers, businesses } = await fetchSitemapIds();
+  const { offers, folders, businesses } = await fetchSitemapIds();
   const now = new Date();
 
   return [
@@ -56,8 +58,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.8,
     },
+    {
+      url: `${SITE_URL}/ekskluzive`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: `${SITE_URL}/?katalog=oferta`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/?katalog=fletushka`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
     ...offers.map((id) => ({
       url: `${SITE_URL}/offers/${id}`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.7,
+    })),
+    ...folders.map((id) => ({
+      url: `${SITE_URL}/dosje/${id}`,
       lastModified: now,
       changeFrequency: "daily" as const,
       priority: 0.7,

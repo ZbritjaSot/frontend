@@ -74,6 +74,7 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
                 name={hero.name}
                 imageUrl={hero.image?.detail_url ?? hero.image?.thumb_url}
                 eager
+                priority
                 sizes="(max-width: 1024px) 100vw, 640px"
                 className="aspect-[4/3] w-full"
               />
@@ -85,18 +86,22 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
             </Link>
           ) : null}
           {count > 1 ? (
-            <div className="flex items-center gap-2 lg:col-span-2">
+            <div className="flex items-center gap-1 lg:col-span-2">
               {offers.map((offer, dot) => (
                 <button
                   key={offer.id}
                   type="button"
                   aria-label={`Oferta ${dot + 1}`}
                   aria-current={dot === index ? "true" : undefined}
-                  className={`h-2.5 cursor-pointer rounded-full border-0 p-0 ${
-                    dot === index ? "w-8 bg-accent" : "w-2.5 bg-ivory/40 dark:bg-ink/30"
-                  }`}
+                  className="inline-flex h-6 min-w-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0"
                   onClick={() => show(dot)}
-                />
+                >
+                  <span
+                    className={`block h-2.5 rounded-full ${
+                      dot === index ? "w-8 bg-accent" : "w-2.5 bg-ivory/40 dark:bg-ink/30"
+                    }`}
+                  />
+                </button>
               ))}
             </div>
           ) : null}

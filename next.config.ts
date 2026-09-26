@@ -23,7 +23,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  distDir: process.env.E2E_NEXT === "1" ? ".next-e2e" : ".next",
+  // Keep production and Playwright builds out of the folder `npm run dev` uses.
+  distDir:
+    process.env.NEXT_DIST_DIR ||
+    (process.env.E2E_NEXT === "1" ? ".next-e2e" : ".next"),
   async headers() {
     return [
       {

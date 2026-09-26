@@ -18,6 +18,7 @@ import {
   isNotFound,
 } from "@/features/offers/api";
 import { browsePath } from "@/lib/browse";
+import { publicPageMetadata } from "@/lib/metadata";
 import { SITE_NAME } from "@/lib/site";
 import type { CategorySummary, PublicBusiness, PublicFolder, PublicOffer } from "@/types";
 
@@ -28,17 +29,26 @@ type BusinessPageProps = {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: BusinessPageProps): Promise<Metadata> {
   const { id } = await params;
+  const query = await searchParams;
+  const filtered = Boolean(query.q || query.category || query.page || query.fp);
 
   try {
     const business = await fetchPublicBusiness(id);
-    return {
+    const place = [business.city, business.village].filter(Boolean).join(", ");
+    return publicPageMetadata({
       title: business.name,
-      description: `${business.name} — ${SITE_NAME}`,
-    };
+      description: place
+        ? `${business.name} në ${place}. ${SITE_NAME}`
+        : `${business.name}. ${SITE_NAME}`,
+      path: `/biznese/${business.id}`,
+      image: business.logo_url,
+      index: !filtered,
+    });
   } catch {
-    return { title: "Dyqani" };
+    return { title: "Dyqani", robots: { index: false, follow: false } };
   }
 }
 

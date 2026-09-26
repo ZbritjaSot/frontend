@@ -717,6 +717,17 @@ export function AdminBusinessProfile({ id }: { id: string }) {
               </button>
             </div>
           </form>
+          <div className="border-t border-line pt-6">
+            <MailResends
+              businessId={business.id}
+              templates={[
+                "welcome",
+                "password_changed",
+                "password_reset",
+                "subscription_recorded",
+              ]}
+            />
+          </div>
         </section>
 
         <section className={section === "galeria" ? "py-2" : "hidden"}>

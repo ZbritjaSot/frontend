@@ -3,6 +3,7 @@ import { UnsubscribeNewsletter } from "@/features/public/UnsubscribeNewsletter";
 
 export const metadata: Metadata = {
   title: "Çregjistrohu",
+  description: "Ndalo njoftimet e buletinit të ZbritjaSot.",
   robots: { index: false, follow: false },
 };
 

@@ -58,7 +58,7 @@ export const offerBundleFormSchema = z
     title: z
       .string()
       .trim()
-      .min(1, "Titulli i kampanjës është i detyrueshëm.")
+      .min(1, "Titulli i fletushkës është i detyrueshëm.")
       .max(255, "Titulli është shumë i gjatë."),
     starts_at: z.string().min(1, "Data e fillimit është e detyrueshme."),
     expires_at: z.string().min(1, "Data e skadimit është e detyrueshme."),

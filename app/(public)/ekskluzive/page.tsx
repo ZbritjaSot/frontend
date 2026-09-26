@@ -3,13 +3,25 @@ import { notFound } from "next/navigation";
 import { fetchPublicPlacement, fetchPublicSections } from "@/features/offers/api";
 import { EmptyNote, Frame } from "@/features/public/Frame";
 import { ExclusiveStream } from "@/features/public/ExclusiveStream";
+import { publicPageMetadata } from "@/lib/metadata";
 import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { SITE_NAME } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: EXCLUSIVE_LABEL,
-  description: `${EXCLUSIVE_LABEL} — ${SITE_NAME}`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  let title = EXCLUSIVE_LABEL;
+  try {
+    const sections = await fetchPublicSections();
+    title = sections.find((section) => section.key === "exclusive")?.title || title;
+  } catch {
+    title = EXCLUSIVE_LABEL;
+  }
+
+  return publicPageMetadata({
+    title,
+    description: `${title}. Oferta të zgjedhura nga dyqanet në ${SITE_NAME}.`,
+    path: "/ekskluzive",
+  });
+}
 
 export default async function ExclusivePage() {
   let title = EXCLUSIVE_LABEL;

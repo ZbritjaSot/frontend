@@ -1,8 +1,8 @@
 import { expect, type Page, test } from "@playwright/test";
 
 const password = process.env.E2E_PASSWORD ?? "password";
-const bizEmail = process.env.E2E_BIZ_EMAIL ?? "viva@demo.zbritjasot.com";
-const adminEmail = process.env.E2E_ADMIN_EMAIL ?? "admin@zbritjasot.com";
+const bizEmail = process.env.E2E_BIZ_EMAIL ?? "viva@test.com";
+const adminEmail = process.env.E2E_ADMIN_EMAIL ?? "admin@test.com";
 const apiUrl = process.env.E2E_API_URL ?? "http://localhost:8001";
 
 async function login(page: Page, path: string, email: string, home: RegExp) {
@@ -41,7 +41,7 @@ async function createAndSubmit(
   window: "live" | "expired",
 ) {
   await page.goto("/biz/offers/new");
-  await page.getByLabel("Titulli i kampanjës").fill(title);
+  await page.getByLabel("Titulli i fletushkës").fill(title);
 
   if (window === "expired") {
     await page.getByRole("button", { name: "Fillon" }).click();

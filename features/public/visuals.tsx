@@ -96,7 +96,7 @@ export function ProductVisual({
           fill
           unoptimized
           priority={priority}
-          loading={priority || eager ? "eager" : "lazy"}
+          {...(priority ? {} : { loading: eager ? "eager" as const : "lazy" as const })}
           className="object-cover motion-safe:transition motion-safe:duration-700 motion-safe:ease-out motion-safe:group-hover:scale-[1.04]"
           sizes={sizes}
         />

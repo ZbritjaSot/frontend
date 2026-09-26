@@ -13,11 +13,9 @@ import {
   type PublicHome,
 } from "@/features/offers/api";
 import { readKatalog, readSort } from "@/lib/browse";
+import { publicPageMetadata } from "@/lib/metadata";
+import { SITE_DESCRIPTION } from "@/lib/site";
 import type { CategorySummary, PublicBusiness, PublicFolder, PublicOffer } from "@/types";
-
-export const metadata: Metadata = {
-  title: "Zbritjet e ditës",
-};
 
 type HomePageProps = {
   searchParams: Promise<{
@@ -29,6 +27,44 @@ type HomePageProps = {
     sort?: string;
   }>;
 };
+
+export async function generateMetadata({ searchParams }: HomePageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const q = params.q?.trim() ?? "";
+  const katalog = readKatalog(params.katalog);
+  const filtered = Boolean(q || params.category || params.city || params.sort || params.page);
+
+  if (katalog === "oferta" && !filtered) {
+    return publicPageMetadata({
+      title: "Ofertat",
+      description: "Zbritjet aktive nga dyqanet lokale në Kosovë.",
+      path: "/?katalog=oferta",
+    });
+  }
+
+  if (katalog === "fletushka" && !filtered) {
+    return publicPageMetadata({
+      title: "Fletushkat",
+      description: "Fletushkat e dyqaneve lokale në Kosovë.",
+      path: "/?katalog=fletushka",
+    });
+  }
+
+  if (filtered || katalog) {
+    return publicPageMetadata({
+      title: q ? `Kërko: ${q}` : "Zbritjet",
+      description: SITE_DESCRIPTION,
+      path: "/",
+      index: false,
+    });
+  }
+
+  return publicPageMetadata({
+    title: "Zbritjet e ditës",
+    description: SITE_DESCRIPTION,
+    path: "/",
+  });
+}
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;

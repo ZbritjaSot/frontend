@@ -14,7 +14,8 @@ import { EmptyNote, Frame } from "@/features/public/Frame";
 import { OfferDetail } from "@/features/offers/OfferDetail";
 import type { ExclusiveItem } from "@/features/offers/api";
 import type { PublicOffer } from "@/types";
-import { SITE_NAME } from "@/lib/site";
+import { publicPageMetadata } from "@/lib/metadata";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 type OfferPageProps = {
   params: Promise<{ id: string }>;
@@ -27,12 +28,18 @@ export async function generateMetadata({
 
   try {
     const offer = await fetchPublicOffer(id);
-    return {
+    const shop = offer.business?.name;
+    const description = shop
+      ? `${offer.name} nga ${shop}. ${SITE_NAME}`
+      : `${offer.name}. ${SITE_NAME}`;
+    return publicPageMetadata({
       title: offer.name,
-      description: `${offer.name} — ${SITE_NAME}`,
-    };
+      description,
+      path: `/offers/${offer.id}`,
+      image: offer.image?.detail_url ?? offer.image?.thumb_url,
+    });
   } catch {
-    return { title: "Oferta" };
+    return { title: "Oferta", robots: { index: false, follow: false } };
   }
 }
 
@@ -106,5 +113,36 @@ export default async function OfferPage({ params }: OfferPageProps) {
     }
   }
 
-  return <OfferDetail offer={offer} related={related} exclusive={exclusive} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd(offer)).replace(/</g, "\\u003c") }}
+      />
+      <OfferDetail offer={offer} related={related} exclusive={exclusive} />
+    </>
+  );
+}
+
+function productJsonLd(offer: PublicOffer) {
+  const price = offer.discounted_price;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: offer.name,
+    image: offer.image?.detail_url ?? offer.image?.thumb_url ?? undefined,
+    brand: offer.business?.name
+      ? { "@type": "Brand", name: offer.business.name }
+      : undefined,
+    offers:
+      price == null
+        ? undefined
+        : {
+            "@type": "Offer",
+            priceCurrency: "EUR",
+            price: (price / 100).toFixed(2),
+            availability: "https://schema.org/InStock",
+            url: `${SITE_URL}/offers/${offer.id}`,
+          },
+  };
 }

@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Binary assets are not class sources. A production build folder is ignored the same way `.next` is. */
+@source not "../public";
+@source not "../.next-lighthouse";
+
 @custom-variant light (&:where(html[data-theme="light"] *));
 @custom-variant dark (&:where(html[data-theme="dark"] *));
 

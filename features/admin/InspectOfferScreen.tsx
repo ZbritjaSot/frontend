@@ -179,6 +179,15 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
 
       <OfferBundleView bundle={bundle} showHeading={false} />
 
+      {bundle.status === "approved" || bundle.status === "taken_down" ? (
+        <div className="mt-8 max-w-xl">
+          <MailResends
+            offerBundleId={bundle.id}
+            templates={bundle.status === "approved" ? ["approved"] : ["taken_down"]}
+          />
+        </div>
+      ) : null}
+
       <ConfirmModal
         open={confirmApprove}
         title="Aprovo dosjen"

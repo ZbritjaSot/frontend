@@ -16,10 +16,11 @@ export function LogoMark({
   return (
     <Image
       className={className}
-      src="/media/logo-price-tag.png"
+      src="/media/logo-mark.png"
       alt=""
-      width={1024}
-      height={1024}
+      width={128}
+      height={128}
+      unoptimized
       style={{ width: size, height: size }}
       priority={priority}
     />

@@ -112,7 +112,9 @@ export function CatalogStream({
           <CampaignGrid folders={flyerItems.slice(1)} />
         </div>
       ) : null}
-      {!flyers && items.length > 0 ? <ProductGrid offers={items} /> : null}
+      {!flyers && items.length > 0 ? (
+        <ProductGrid offers={items} priorityFirst />
+      ) : null}
       <div ref={sentinel} className="h-8" />
       {loading ? (
         <p className="m-0 text-center text-sm font-semibold text-muted">

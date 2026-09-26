@@ -67,7 +67,7 @@ describe("offer form validation", () => {
 
   it("requires a campaign title, a product, and an end date after the start", () => {
     expect(messages(folder({ title: "  " }))).toContain(
-      "Titulli i kampanjës është i detyrueshëm.",
+      "Titulli i fletushkës është i detyrueshëm.",
     );
     expect(messages(folder({ items: [] }))).toContain(
       "Shto të paktën një produkt.",

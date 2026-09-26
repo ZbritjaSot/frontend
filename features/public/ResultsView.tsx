@@ -149,7 +149,7 @@ export function ResultsView({
 
       {catalogue && katalog && !empty ? (
         <CatalogStream
-          key={`${q}|${category ?? ""}|${city ?? ""}|${sort}`}
+          key={`${katalog}|${q}|${category ?? ""}|${city ?? ""}|${sort}`}
           katalog={katalog}
           offers={offers}
           folders={folders}
@@ -180,7 +180,10 @@ export function ResultsView({
           {showFlyerRail ? (
             <SectionHeading kicker="Produkte" title="Zbritjet" />
           ) : null}
-          <ProductGrid offers={offers} />
+          <ProductGrid
+            offers={offers}
+            priorityFirst={!showFlyerRail && !showFlyerGrid}
+          />
         </div>
       ) : null}
 

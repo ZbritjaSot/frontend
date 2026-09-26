@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { NewsletterSignup } from "@/features/public/NewsletterSignup";
-import { SITE_TAGLINE } from "@/lib/site";
+import { SITE_EMAIL, SITE_TAGLINE } from "@/lib/site";
 
 const link =
   "text-sm font-semibold text-ivory/90 underline-offset-4 hover:text-ivory hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent dark:text-ink dark:hover:text-ink";
@@ -16,6 +16,9 @@ export function SiteFooter() {
             <p className="mt-3 mb-0 max-w-xs text-sm leading-relaxed text-ivory/70 dark:text-muted">
               {SITE_TAGLINE}
             </p>
+            <a href={`mailto:${SITE_EMAIL}`} className={`${link} mt-3 inline-flex`}>
+              {SITE_EMAIL}
+            </a>
           </div>
           <nav aria-label="Fundi i faqes" className="flex flex-wrap gap-x-5 gap-y-2">
             <Link href="/?katalog=oferta" className={link}>

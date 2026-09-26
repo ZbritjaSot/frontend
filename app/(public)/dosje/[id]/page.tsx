@@ -9,6 +9,7 @@ import { ProductGrid } from "@/features/public/ProductPoster";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { fetchPublicFolder, isNotFound } from "@/features/offers/api";
 import { formatDateSq, formatDiscountPercent, formatEurFromCents } from "@/lib/format";
+import { publicPageMetadata } from "@/lib/metadata";
 import { SITE_NAME } from "@/lib/site";
 import type { PublicFolder, PublicOffer } from "@/types";
 
@@ -24,14 +25,16 @@ export async function generateMetadata({
   try {
     const folder = await fetchPublicFolder(id);
     const shop = folder.business?.name;
-    return {
+    return publicPageMetadata({
       title: shop ? `${folder.title} · ${shop}` : folder.title,
       description: shop
-        ? `${folder.title} nga ${shop} — ${SITE_NAME}`
-        : `${folder.title} — ${SITE_NAME}`,
-    };
+        ? `${folder.title} nga ${shop}. ${SITE_NAME}`
+        : `${folder.title}. ${SITE_NAME}`,
+      path: `/dosje/${folder.id}`,
+      image: folder.cover?.detail_url ?? folder.cover?.thumb_url,
+    });
   } catch {
-    return { title: "Fletushka" };
+    return { title: "Fletushka", robots: { index: false, follow: false } };
   }
 }
 

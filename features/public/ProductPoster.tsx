@@ -14,11 +14,13 @@ export function ProductPoster({
   offer,
   emphasis = false,
   eager = false,
+  priority = false,
   tone = "standard",
 }: {
   offer: PublicOffer;
   emphasis?: boolean;
   eager?: boolean;
+  priority?: boolean;
   tone?: PosterTone;
 }) {
   const shop = offer.business?.name;
@@ -31,6 +33,7 @@ export function ProductPoster({
           name={offer.name}
           imageUrl={offer.image?.thumb_url}
           eager={eager}
+          priority={priority}
           sizes="(max-width: 640px) 50vw, 280px"
           className="aspect-square w-full"
         />
@@ -71,16 +74,23 @@ export function ProductPoster({
 export function ProductGrid({
   offers,
   eager = false,
+  priorityFirst = false,
 }: {
   offers: PublicOffer[];
   dense?: boolean;
   eager?: boolean;
+  /** The first card is the page's large photo. Later cards in the first row load immediately. */
+  priorityFirst?: boolean;
 }) {
   return (
     <ul className="m-0 grid list-none grid-cols-2 gap-x-3 gap-y-5 p-0 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-4">
-      {offers.map((offer) => (
+      {offers.map((offer, index) => (
         <li key={offer.id} className="min-w-0">
-          <ProductPoster offer={offer} eager={eager} />
+          <ProductPoster
+            offer={offer}
+            eager={eager || (priorityFirst && index < 4)}
+            priority={priorityFirst && index === 0}
+          />
         </li>
       ))}
     </ul>
