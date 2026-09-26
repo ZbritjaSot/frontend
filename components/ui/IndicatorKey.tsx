@@ -354,6 +354,10 @@ export const bizBranchKey: IndicatorItem[] = [
   { mark: "add", text: "Shto një degë. Ajo pret aprovimin." },
 ];
 
+export const mailResendKey: IndicatorItem[] = [
+  { mark: "send", text: "Ridërgo këtë email." },
+];
+
 export const adminCategoryKey: IndicatorItem[] = [
   { mark: "active", text: "Kategoria duket te bizneset." },
   { mark: "inactive", text: "Kategoria është e fshehur." },
