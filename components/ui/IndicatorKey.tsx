@@ -254,8 +254,11 @@ export function adminHomeKey(
 }
 
 export const adminOfferKey: IndicatorItem[] = [
+  { mark: "draft", text: "Biznesi ende s’e ka dërguar." },
   { mark: "pending", text: "Ende s’është vendosur." },
   { mark: "approved", text: "E aprovuar. Mund të dalë publike." },
+  { mark: "taken_down", text: "Është hequr nga faqja publike." },
+  { mark: "expired", text: "Data ka kaluar." },
   { mark: "view", text: "Hap dosjen." },
 ];
 

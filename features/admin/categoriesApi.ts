@@ -18,11 +18,15 @@ export const ADMIN_CATEGORIES_PAGE_SIZE = 15;
 export async function fetchAdminCategories(
   page = 1,
   perPage = ADMIN_CATEGORIES_PAGE_SIZE,
+  q = "",
 ) {
   const params = new URLSearchParams({
     page: String(page),
     per_page: String(perPage),
   });
+  if (q.trim() !== "") {
+    params.set("q", q.trim());
+  }
 
   return apiFetch<Paginated<Category>>(
     `/admin/categories?${params.toString()}`,

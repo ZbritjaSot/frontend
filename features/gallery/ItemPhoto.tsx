@@ -2,7 +2,6 @@
 
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import CloseIcon from "@mui/icons-material/Close";
-import CollectionsOutlinedIcon from "@mui/icons-material/CollectionsOutlined";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import Image from "next/image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -45,7 +44,6 @@ export function ItemPhoto({
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
-  const [picking, setPicking] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const galleryKey =
@@ -65,12 +63,11 @@ export function ItemPhoto({
       }
       return fetchBizGallery();
     },
-    enabled: open && picking,
+    enabled: open,
   });
 
   function close() {
     setOpen(false);
-    setPicking(false);
     setError(null);
   }
 
@@ -136,7 +133,8 @@ export function ItemPhoto({
       />
       <Modal
         open={open}
-        title={picking ? "Galeria e dyqanit" : "Foto e produktit"}
+        title="Foto e produktit"
+        size="md"
         onClose={close}
       >
         {error ? (
@@ -144,59 +142,48 @@ export function ItemPhoto({
             {error}
           </p>
         ) : null}
-        {picking ? (
-          photos.isError ? (
-            <p className={fieldError} role="alert">
-              {validationMessage(photos.error, "Galeria nuk u ngarkua.")}
-            </p>
-          ) : photos.data && photos.data.length > 0 ? (
-            <ul className="m-0 grid list-none grid-cols-3 gap-2 p-0">
-              {photos.data.map((image) => (
-                <li key={image.id}>
-                  <button
-                    type="button"
-                    className="relative block aspect-square w-full overflow-hidden rounded-xl"
-                    onClick={() => {
-                      onPick(image);
-                      close();
-                    }}
-                  >
-                    <Image
-                      src={image.thumb_url}
-                      alt=""
-                      fill
-                      unoptimized
-                      className="object-cover"
-                      sizes="120px"
-                    />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="m-0 text-sm text-muted">Nuk ka foto ende.</p>
-          )
+        <button
+          type="button"
+          disabled={busy}
+          className="mb-4 flex min-h-12 w-full items-center gap-3 rounded-xl border border-dashed border-line px-3 text-left font-semibold text-ink hover:bg-sunken disabled:opacity-60"
+          onClick={() => inputRef.current?.click()}
+        >
+          <AddPhotoAlternateOutlinedIcon fontSize="small" />
+          Ngarko foto
+        </button>
+        <p className="m-0 mb-2 text-xs font-bold tracking-[0.08em] text-muted uppercase">
+          Galeria
+        </p>
+        {photos.isError ? (
+          <p className={fieldError} role="alert">
+            {validationMessage(photos.error, "Galeria nuk u ngarkua.")}
+          </p>
+        ) : photos.data && photos.data.length > 0 ? (
+          <ul className="m-0 grid list-none grid-cols-3 gap-2 p-0">
+            {photos.data.map((image) => (
+              <li key={image.id}>
+                <button
+                  type="button"
+                  className="relative block aspect-square w-full overflow-hidden rounded-xl"
+                  onClick={() => {
+                    onPick(image);
+                    close();
+                  }}
+                >
+                  <Image
+                    src={image.thumb_url}
+                    alt=""
+                    fill
+                    unoptimized
+                    className="object-cover"
+                    sizes="120px"
+                  />
+                </button>
+              </li>
+            ))}
+          </ul>
         ) : (
-          <div className="grid gap-2">
-            <button
-              type="button"
-              disabled={busy}
-              className="flex min-h-12 items-center gap-3 rounded-xl border border-line px-3 text-left font-semibold text-ink hover:bg-sunken disabled:opacity-60"
-              onClick={() => inputRef.current?.click()}
-            >
-              <AddPhotoAlternateOutlinedIcon fontSize="small" />
-              Ngarko nga pajisja
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              className="flex min-h-12 items-center gap-3 rounded-xl border border-line px-3 text-left font-semibold text-ink hover:bg-sunken disabled:opacity-60"
-              onClick={() => setPicking(true)}
-            >
-              <CollectionsOutlinedIcon fontSize="small" />
-              Zgjidh nga galeria
-            </button>
-          </div>
+          <p className="m-0 text-sm text-muted">Nuk ka foto ende. Ngarko të parën.</p>
         )}
       </Modal>
     </div>

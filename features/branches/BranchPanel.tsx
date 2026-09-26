@@ -3,14 +3,18 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { PlaceMap } from "@/components/place/PlaceMap";
+import { geocodeAdminAddress } from "@/features/admin/businessesApi";
 import {
   createAdminBranch,
   createBizBranch,
   fetchAdminBranches,
   fetchBizBranches,
 } from "@/features/branches/api";
-import { accountEmailMessage } from "@/lib/api";
-import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
+import { geocodeBizAddress } from "@/features/biz/api";
+import { accountEmailMessage, validationMessage } from "@/lib/api";
+import { btnGhost, btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
+import { useWideScreen } from "@/lib/useWideScreen";
 import type { Business } from "@/types";
 
 type BranchPanelProps = {
@@ -26,37 +30,80 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
     queryFn: () =>
       mode === "admin" ? fetchAdminBranches(business.id) : fetchBizBranches(),
   });
-  const [name, setName] = useState("");
+  const wide = useWideScreen();
   const [ownerName, setOwnerName] = useState("");
   const [email, setEmail] = useState("");
+  const [street, setStreet] = useState("");
+  const [village, setVillage] = useState("");
+  const [city, setCity] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const canCreate = !business.parent_id;
+  const address = [street, village, city].map((part) => part.trim()).filter(Boolean).join(", ");
+
+  async function pointForAddress(): Promise<{ latitude: number; longitude: number } | null> {
+    if (latitude != null && longitude != null) {
+      return { latitude, longitude };
+    }
+    if (street.trim() === "" || city.trim() === "") {
+      setError("Shkruaj rrugën dhe qytetin.");
+      return null;
+    }
+    try {
+      const point = mode === "admin"
+        ? await geocodeAdminAddress(address)
+        : await geocodeBizAddress(address);
+      setLatitude(point.latitude);
+      setLongitude(point.longitude);
+      return point;
+    } catch (err) {
+      setError(validationMessage(err, "Nuk e gjetëm këtë adresë."));
+      return null;
+    }
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    const trimmed = name.trim();
-    if (!trimmed || !email.trim()) {
-      setError("Shkruaj emrin e degës dhe emailin.");
+    if (!email.trim()) {
+      setError("Shkruaj emailin e degës.");
+      return;
+    }
+    if (street.trim() === "" || city.trim() === "") {
+      setError("Shkruaj rrugën dhe qytetin.");
       return;
     }
 
     setPending(true);
     try {
+      const point = await pointForAddress();
+      if (!point) {
+        return;
+      }
       const input = {
-        name: trimmed,
+        name: business.name,
         owner_name: ownerName.trim() || undefined,
         owner_email: email.trim(),
+        street: street.trim(),
+        village: village.trim() || null,
+        city: city.trim(),
+        latitude: point.latitude,
+        longitude: point.longitude,
       };
       if (mode === "admin") {
         await createAdminBranch(business.id, input);
       } else {
         await createBizBranch(input);
       }
-      setName("");
       setOwnerName("");
       setEmail("");
+      setStreet("");
+      setVillage("");
+      setCity("");
+      setLatitude(null);
+      setLongitude(null);
       await queryClient.invalidateQueries({ queryKey });
     } catch (err) {
       setError(accountEmailMessage(err, "Nuk mundëm ta shtojmë degën."));
@@ -66,7 +113,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
   }
 
   return (
-    <section className="rounded-2xl border border-line p-5 lg:col-span-2">
+    <section className="mt-8 rounded-2xl border border-line p-5 lg:col-span-2">
       <p className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
         Degët
       </p>
@@ -105,13 +152,20 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
                     className="font-semibold text-ink underline-offset-4 hover:underline"
                   >
                     {branch.name}
+                    {branch.city ? (
+                      <span className="font-medium text-muted"> · {branch.city}</span>
+                    ) : null}
                   </Link>
                 ) : (
-                  <span className="font-semibold text-ink">{branch.name}</span>
+                  <span className="font-semibold text-ink">
+                    {branch.name}
+                    {branch.city ? (
+                      <span className="font-medium text-muted"> · {branch.city}</span>
+                    ) : null}
+                  </span>
                 )}
                 <span className="mt-0.5 block truncate text-sm text-muted">
-                  {branch.owner?.email}
-                  {branch.city ? ` · ${branch.city}` : ""}
+                  {[branch.street, branch.owner?.email].filter(Boolean).join(" · ")}
                 </span>
               </span>
               <span className="shrink-0 text-sm text-muted">
@@ -127,17 +181,10 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
       {canCreate ? (
         <form className="mt-5 grid gap-4 border-t border-line pt-5" onSubmit={onSubmit}>
           <p className="m-0 text-sm font-semibold">Shto degë</p>
-          <div className="grid gap-4 md:grid-cols-3">
-            <label className={fieldLabel}>
-              <span>Emri</span>
-              <input
-                className={inputClass}
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                disabled={pending}
-                required
-              />
-            </label>
+          <p className="m-0 text-sm text-muted">
+            Emri mbetet {business.name}. Adresa hyen menjëherë, bashkë me degën.
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
             <label className={fieldLabel}>
               <span>Emri i llogarisë</span>
               <input
@@ -159,6 +206,82 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
               />
             </label>
           </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className={fieldLabel}>
+              <span>Rruga</span>
+              <input
+                className={inputClass}
+                value={street}
+                maxLength={255}
+                placeholder="Rr. Garibaldi"
+                disabled={pending}
+                required
+                onChange={(event) => {
+                  setStreet(event.target.value);
+                  setLatitude(null);
+                  setLongitude(null);
+                }}
+              />
+            </label>
+            <label className={fieldLabel}>
+              <span>Qyteti</span>
+              <input
+                className={inputClass}
+                value={city}
+                maxLength={255}
+                placeholder="Prishtinë"
+                disabled={pending}
+                required
+                onChange={(event) => {
+                  setCity(event.target.value);
+                  setLatitude(null);
+                  setLongitude(null);
+                }}
+              />
+            </label>
+          </div>
+          <label className={fieldLabel}>
+            <span>Fshati</span>
+            <input
+              className={inputClass}
+              value={village}
+              maxLength={255}
+              placeholder="Opsional"
+              disabled={pending}
+              onChange={(event) => {
+                setVillage(event.target.value);
+                setLatitude(null);
+                setLongitude(null);
+              }}
+            />
+          </label>
+          <div className="flex justify-end">
+            <button
+              className={btnGhost}
+              type="button"
+              disabled={pending}
+              onClick={() => {
+                setError(null);
+                void pointForAddress();
+              }}
+            >
+              Gjej në hartë
+            </button>
+          </div>
+          {wide && latitude != null && longitude != null ? (
+            <div className="h-64 overflow-hidden rounded-xl border border-line">
+              <PlaceMap
+                latitude={latitude}
+                longitude={longitude}
+                label={business.name}
+                interactive
+                onPick={(nextLat, nextLng) => {
+                  setLatitude(nextLat);
+                  setLongitude(nextLng);
+                }}
+              />
+            </div>
+          ) : null}
           {error ? (
             <p className={fieldError} role="alert">
               {error}

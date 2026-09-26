@@ -1,48 +1,80 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AdminLiveOffers } from "@/features/admin/AdminLiveOffers";
 import { AdminPendingOffers } from "@/features/admin/AdminPendingOffers";
 import { adminOfferKey, IndicatorKey } from "@/components/ui/IndicatorKey";
+import {
+  OfferStatusFilters,
+  type OfferListStatus,
+} from "@/components/ui/OfferStatusFilters";
 import { pageTitle } from "@/lib/ui";
-
-const tabClass =
-  "min-h-10 cursor-pointer rounded-lg border-0 px-3 text-sm font-bold";
 
 export function AdminOffersBoard() {
   const router = useRouter();
   const params = useSearchParams();
-  const view = params.get("view") === "aktive" ? "approved" : "pending";
+  const requested = params.get("status");
+  const view: OfferListStatus =
+    requested === "all"
+      ? ""
+      : requested === "approved" || params.get("view") === "aktive"
+        ? "approved"
+        : "pending";
 
-  function setView(next: "pending" | "approved") {
-    router.replace(next === "approved" ? "/admin/offers?view=aktive" : "/admin/offers");
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("");
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const next = query.trim();
+      setQ((current) => {
+        if (current !== next) {
+          setPage(1);
+        }
+        return next;
+      });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
+  function setView(next: OfferListStatus) {
+    setPage(1);
+    setQuery("");
+    setQ("");
+    router.replace(
+      next === ""
+        ? "/admin/offers?status=all"
+        : next === "approved"
+          ? "/admin/offers?status=approved"
+          : "/admin/offers",
+    );
   }
 
   return (
     <>
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <h1 className={`${pageTitle} mb-0!`}>
-          {view === "pending" ? "Në pritje" : "Aktive"}
-        </h1>
-        <div className="flex gap-1">
-          <button
-            type="button"
-            className={`${tabClass} ${view === "pending" ? "bg-accent text-charcoal" : "bg-transparent text-muted hover:text-ink"}`}
-            onClick={() => setView("pending")}
-          >
-            Në pritje
-          </button>
-          <button
-            type="button"
-            className={`${tabClass} ${view === "approved" ? "bg-accent text-charcoal" : "bg-transparent text-muted hover:text-ink"}`}
-            onClick={() => setView("approved")}
-          >
-            Aktive
-          </button>
-        </div>
-      </div>
+      <h1 className={pageTitle}>Ofertat</h1>
+      <OfferStatusFilters value={view} onChange={setView} />
       <IndicatorKey items={adminOfferKey} />
-      {view === "pending" ? <AdminPendingOffers /> : <AdminLiveOffers />}
+      {view === "pending" ? (
+        <AdminPendingOffers
+          query={query}
+          onQueryChange={setQuery}
+          q={q}
+          page={page}
+          onPageChange={setPage}
+        />
+      ) : (
+        <AdminLiveOffers
+          query={query}
+          onQueryChange={setQuery}
+          q={q}
+          page={page}
+          onPageChange={setPage}
+          scope={view === "approved" ? "approved" : "all"}
+        />
+      )}
     </>
   );
 }

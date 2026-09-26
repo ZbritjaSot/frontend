@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next";
-import { EXCLUSIVE_HREF } from "@/lib/exclusive";
 import { getApiUrl, SITE_URL } from "@/lib/site";
 
 export const revalidate = 3600;

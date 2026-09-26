@@ -3,12 +3,13 @@
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Link from "next/link";
-import { bizProfileKey, IndicatorKey } from "@/components/ui/IndicatorKey";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/Spinner";
 import { useQueryClient } from "@tanstack/react-query";
 import { hasRole } from "@/features/auth/api";
 import { ManagerShops } from "@/features/biz/ManagerShops";
 import { BranchPanel } from "@/features/branches/BranchPanel";
+import { BizGallery } from "@/features/gallery/BizGallery";
 import { LogoField } from "@/features/gallery/LogoField";
 import { deleteBizLogo, uploadBizLogo } from "@/features/gallery/api";
 import { useMe } from "@/hooks/useAuth";
@@ -116,6 +117,16 @@ export function BizProfilePanel() {
   const manager = !!user && hasRole(user, "manager");
   const businessQuery = useBizBusiness(!manager);
   const subscriptionQuery = useBizSubscription(!manager);
+  const router = useRouter();
+  const params = useSearchParams();
+  const requested = params.get("tab");
+  const section = requested === "abonimi" || requested === "llogaria" || requested === "galeria" || requested === "deget"
+    ? requested
+    : "biznesi";
+
+  function setSection(next: "biznesi" | "abonimi" | "llogaria" | "galeria" | "deget") {
+    router.replace(next === "biznesi" ? "/biz/profile" : `/biz/profile?tab=${next}`);
+  }
 
   if (manager) {
     return <ManagerShops />;
@@ -148,19 +159,24 @@ export function BizProfilePanel() {
   const business = businessQuery.data;
   const subscription = subscriptionQuery.data ?? null;
   const status = subscription ? subscriptionStatus(subscription) : null;
+  const tabs = [
+    ["biznesi", "Biznesi"],
+    ["abonimi", "Abonimi"],
+    ["llogaria", "Llogaria"],
+    ["galeria", "Galeria"],
+    ["deget", "Degët"],
+  ] as const;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <div className="lg:col-span-2">
-        <IndicatorKey items={bizProfileKey} />
-      </div>
-      <section className="overflow-hidden rounded-2xl border border-line">
+    <div>
+      <section className="border-b border-line pb-5">
         <div className="flex items-start justify-between gap-4 p-5">
           <div className="flex min-w-0 items-center gap-4">
             {business ? (
               <LogoField
                 name={business.name}
                 logoUrl={business.logo_url}
+                readOnly={Boolean(business.parent_id)}
                 onUpload={async (file) => {
                   await uploadBizLogo(file);
                   await queryClient.invalidateQueries({
@@ -190,10 +206,24 @@ export function BizProfilePanel() {
             </span>
           ) : null}
         </div>
-        {business ? <AddressLink business={business} /> : null}
       </section>
-
-      <section className="rounded-2xl border border-line p-5">
+      <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-b border-line" aria-label="Seksionet e profilit">
+        {tabs.map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            className={`cursor-pointer border-0 border-b-2 bg-transparent px-0 py-3 text-sm font-bold ${
+              section === id ? "border-accent text-ink" : "border-transparent text-muted"
+            }`}
+            onClick={() => setSection(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+      {section === "biznesi" && business ? <AddressLink business={business} /> : null}
+      {section === "abonimi" ? (
+      <section className="py-5">
         <div className="flex items-center justify-between gap-4">
           <h2 className="m-0 text-lg font-bold text-ink">Abonimi</h2>
           {subscription && status ? (
@@ -227,12 +257,17 @@ export function BizProfilePanel() {
             </p>
             <p className="m-0 mt-2 text-sm leading-relaxed text-muted">
               {status?.note}
+              {business?.parent_id
+                ? " Pagesa regjistrohet te dyqani kryesor. Ky lokacion përdor të njëjtin abonim."
+                : ""}
             </p>
           </>
         )}
       </section>
+      ) : null}
 
-      <section className="overflow-hidden rounded-2xl border border-line lg:col-span-2">
+      {section === "llogaria" ? (
+      <section>
         <div className="p-5">
           <p className={`m-0 ${micro}`}>Llogaria</p>
           <h2 className="m-0 mt-1 text-xl font-bold tracking-[-0.02em] text-ink">
@@ -250,7 +285,17 @@ export function BizProfilePanel() {
           </span>
         </Link>
       </section>
-      {business ? <BranchPanel mode="biz" business={business} /> : null}
+      ) : null}
+      {section === "galeria" ? (
+      <section className="py-5">
+        <p className={`m-0 ${micro}`}>Galeria</p>
+        <p className="m-0 mt-2 mb-4 text-sm leading-relaxed text-muted">
+          Fotot që mund të zgjidhen te produktet e një fletushke.
+        </p>
+        <BizGallery />
+      </section>
+      ) : null}
+      {section === "deget" && business ? <BranchPanel mode="biz" business={business} /> : null}
     </div>
   );
 }

@@ -4,6 +4,8 @@ export type HomeOfferPick = {
   id: string;
   name: string;
   business_name?: string | null;
+  bundle_title?: string | null;
+  thumb_url?: string | null;
   public: boolean;
 };
 
@@ -13,6 +15,7 @@ export type HomeOfferCandidate = {
   business_name?: string | null;
   bundle_title?: string | null;
   city?: string | null;
+  thumb_url?: string | null;
 };
 
 export type HomeShopPick = {

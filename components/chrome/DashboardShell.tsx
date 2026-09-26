@@ -180,6 +180,8 @@ export function DashboardShell({
           {showLogout ? <LogoutButton redirectTo={logoutTo} /> : null}
           <Link
             href="/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-muted hover:text-accent"
             onClick={() => setMenuOpen(false)}
           >

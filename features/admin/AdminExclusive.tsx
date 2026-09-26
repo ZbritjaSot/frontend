@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { DashboardKpi } from "@/components/ui/DashboardKpi";
 import { Spinner } from "@/components/ui/Spinner";
 import { AdminHome } from "@/features/admin/AdminHome";
 import { DragList } from "@/features/admin/DragList";
@@ -74,10 +75,25 @@ export function AdminExclusive() {
     <div>
       <h1 className={pageTitle}>{EXCLUSIVE_LABEL}</h1>
       <p className={`${panelLead} max-w-2xl`}>
-        Zgjidh produkte ose fletushka nga dyqanet me shfaqje shtesë. Deri në 8 dalin
-        nën kërkimin në kryefaqe. Tërhiqi për t’i renditur.
+        Dy punë të ndara. Lista është përmbajtja e {EXCLUSIVE_LABEL}. Kryefaqja
+        vendos seksionet, heron, dyqanet dhe fletushkat. Tërhiqi për t’i renditur.
       </p>
-      <div className="mt-4 flex gap-2">
+      <div className="mt-5 flex flex-wrap gap-x-8 gap-y-4">
+        <DashboardKpi label="Në faqe" value={picks.length} detail="Të zgjedhura, më së shumti 40" />
+        <DashboardKpi
+          label="Publike"
+          value={picks.filter((item) => item.public).length}
+          detail="Dukshme për vizitorët"
+          tone="accent"
+        />
+        <DashboardKpi
+          label="Biznese"
+          value={new Set(picks.map((item) => item.business_name).filter(Boolean)).size}
+          detail="Dyqane në këtë listë"
+        />
+        <DashboardKpi label="Gati" value={candidates.length} detail="Produkte dhe fletushka të lira" />
+      </div>
+      <div className="mt-6 flex gap-2">
         <button
           type="button"
           className={tab === "list" ? `${btnPrimary} ${btnSm}` : `${btnGhost} ${btnSm}`}

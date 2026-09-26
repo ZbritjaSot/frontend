@@ -13,10 +13,10 @@ import type { Category, Paginated } from "@/types";
 
 export const adminCategoriesQueryKey = ["admin", "categories"] as const;
 
-export function useAdminCategories(page: number) {
+export function useAdminCategories(page: number, q = "") {
   return useQuery({
-    queryKey: [...adminCategoriesQueryKey, page],
-    queryFn: () => fetchAdminCategories(page),
+    queryKey: [...adminCategoriesQueryKey, page, q],
+    queryFn: () => fetchAdminCategories(page, undefined, q),
     placeholderData: (previous) => previous,
   });
 }

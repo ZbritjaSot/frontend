@@ -46,7 +46,7 @@ export function AdminGallery({ businessId }: { businessId: string }) {
           {validationMessage(gallery.error, "Galeria nuk u ngarkua.")}
         </p>
       ) : null}
-      <ul className="m-0 grid list-none grid-cols-4 gap-2 p-0">
+      <ul className="m-0 grid list-none grid-cols-5 gap-2 p-0 sm:grid-cols-8">
         <li>
           <button
             type="button"

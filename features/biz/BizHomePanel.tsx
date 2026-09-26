@@ -1,28 +1,19 @@
 "use client";
 
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import StoreIcon from "@mui/icons-material/Store";
 import Link from "next/link";
 import { useState } from "react";
-import { bizHomeKey, IndicatorKey } from "@/components/ui/IndicatorKey";
-import { IndicatorLink } from "@/components/ui/IndicatorLink";
+import { DashboardKpi } from "@/components/ui/DashboardKpi";
 import { Spinner } from "@/components/ui/Spinner";
 import { ViewsChart } from "@/features/biz/ViewsChart";
 import { useBizOfferViews, useBizOffersByStatus } from "@/hooks/useBizOffers";
 import { useBizBusiness, useBizSubscription } from "@/hooks/useBizProfile";
-import { formatDateShortSq, formatDateSq } from "@/lib/format";
+import { formatDateSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
 import { btnPrimary, pageTitle, panelLead } from "@/lib/ui";
 import type { BizSubscription, OfferViewRange } from "@/types";
 
 const VIEW_RANGES: OfferViewRange[] = [7, 14, 30];
-
-const PREVIEW = 4;
-
-const seeAll =
-  "inline-flex items-center gap-0.5 text-sm font-semibold text-muted no-underline hover:text-accent";
 
 function subscriptionView(sub: BizSubscription): {
   label: string;
@@ -44,6 +35,7 @@ export function BizHomePanel() {
   const businessQuery = useBizBusiness();
   const subscriptionQuery = useBizSubscription();
   const waiting = useBizOffersByStatus("pending");
+  const live = useBizOffersByStatus("approved");
   const [viewRange, setViewRange] = useState<OfferViewRange>(14);
   const [moreViewsOpen, setMoreViewsOpen] = useState(false);
   const views = useBizOfferViews(viewRange);
@@ -65,8 +57,7 @@ export function BizHomePanel() {
   const business = businessQuery.data;
   const subscription = subscriptionQuery.data ?? null;
   const status = subscription ? subscriptionView(subscription) : null;
-  const bundles = waiting.data?.data ?? [];
-  const waitingTotal = waiting.data?.meta?.total ?? bundles.length;
+  const waitingTotal = waiting.data?.meta?.total ?? waiting.data?.data?.length ?? 0;
   const viewTotal = views.data?.total ?? 0;
   const topViews = views.data?.top ?? [];
   const leadView = topViews[0];
@@ -75,7 +66,7 @@ export function BizHomePanel() {
   const periodViews = viewDays.reduce((sum, day) => sum + day.views, 0);
 
   return (
-    <div>
+    <div className="flex flex-col">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
           <h1 className={`${pageTitle} mb-0!`}>Paneli</h1>
@@ -90,84 +81,15 @@ export function BizHomePanel() {
         </Link>
       </div>
 
-      <IndicatorKey items={bizHomeKey(waitingTotal)} />
-
-      <div className="mb-6 grid items-stretch gap-3 sm:grid-cols-2">
-        <IndicatorLink
-          href="/biz/offers"
-          icon={<LocalOfferIcon fontSize="small" />}
-          label="Në pritje"
-          value={waitingTotal > 99 ? "99+" : waitingTotal}
-          tone={waitingTotal > 0 ? "pending" : "ink"}
-          badgeLabel={
-            waitingTotal === 1 ? "1 në pritje" : `${waitingTotal} në pritje`
-          }
-        />
-        <IndicatorLink
-          href="/biz/profile"
-          icon={<StoreIcon fontSize="small" />}
-          label="Profili"
-          value={
-            subscriptionQuery.isError ? "—" : (status?.label ?? "Pa abonim")
-          }
-          hint={
-            subscriptionQuery.isError
-              ? validationMessage(
-                  subscriptionQuery.error,
-                  "Nuk mundëm ta ngarkojmë abonimin.",
-                )
-              : subscription
-                ? `${formatDateSq(subscription.starts_at)} → ${formatDateSq(subscription.ends_at)}`
-                : "Kontaktoni administratën për pagesë cash."
-          }
-          tone={
-            subscriptionQuery.isError ? "danger" : (status?.tone ?? "ink")
-          }
-          badgeLabel={status ? `Abonimi: ${status.label}` : "Profili"}
-        />
+      <div className="mb-8 flex flex-wrap gap-x-8 gap-y-4 border-b border-line pb-5">
+        <DashboardKpi label="Hapje gjithsej" value={viewTotal} detail="Të gjitha ofertat" />
+        <DashboardKpi label={`${viewRange} ditët`} value={periodViews} detail="Hapje në këtë periudhë" />
+        <DashboardKpi href="/biz/offers?status=pending" label="Në pritje" value={waitingTotal} detail="Fletushka që presin" tone={waitingTotal > 0 ? "pending" : "ink"} />
+        <DashboardKpi href="/biz/offers?status=approved" label="Aktive" value={live.data?.meta?.total ?? "—"} detail="Të publikuara" tone="accent" />
+        <DashboardKpi href="/biz/profile?tab=abonimi" label="Abonimi" value={status?.label ?? "Pa abonim"} detail={subscription ? `${formatDateSq(subscription.starts_at)} → ${formatDateSq(subscription.ends_at)}` : "Pa periudhë"} tone={status?.tone === "danger" ? "danger" : "ink"} />
       </div>
 
-      <section className="overflow-hidden rounded-2xl border border-line">
-        <div className="flex items-center justify-between gap-3 px-5 py-4">
-          <h2 className="m-0 text-base font-bold text-ink">Në pritje</h2>
-          <Link href="/biz/offers" className={seeAll}>
-            Ofertat
-            <ChevronRightIcon fontSize="small" />
-          </Link>
-        </div>
-        {waiting.isError ? (
-            <p className={`${panelLead} px-5 pb-5`}>
-              {validationMessage(
-                waiting.error,
-                "Nuk mundëm t’i ngarkojmë ofertat.",
-              )}
-            </p>
-          ) : bundles.length === 0 ? (
-            <p className="m-0 px-5 pb-5 text-sm text-muted">
-              Asnjë ofertë në pritje.
-            </p>
-          ) : (
-            <ul className="m-0 list-none p-0">
-              {bundles.slice(0, PREVIEW).map((bundle) => (
-                <li key={bundle.id} className="border-t border-line">
-                  <Link
-                    href={`/biz/offers/${bundle.id}`}
-                    className="grid min-w-0 px-5 py-3 text-inherit no-underline hover:bg-sunken"
-                  >
-                    <span className="truncate font-semibold">
-                      {bundle.title}
-                    </span>
-                    <span className="truncate text-sm text-muted">
-                      Skadon {formatDateShortSq(bundle.expires_at)}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-        )}
-      </section>
-
-      <section className="relative mt-6 rounded-2xl border border-line">
+      <section className="relative rounded-2xl border border-line">
         <div className="flex items-end justify-between gap-3 px-5 py-4">
           <div>
             <h2 className="m-0 text-base font-bold text-ink">Hapje gjithsej</h2>

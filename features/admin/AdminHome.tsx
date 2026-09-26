@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Spinner } from "@/components/ui/Spinner";
@@ -32,6 +33,7 @@ function homeError(error: unknown): string {
 
 export function AdminHome() {
   const queryClient = useQueryClient();
+  const [pane, setPane] = useState<"hero" | "shops" | "flyers">("hero");
   const [heroSearch, setHeroSearch] = useState("");
   const [heroQuery, setHeroQuery] = useState("");
   const home = useQuery({
@@ -87,14 +89,36 @@ export function AdminHome() {
           {validationMessage(home.error, "Nuk mundëm ta ngarkojmë kryefaqen.")}
         </p>
       ) : (
-        <div className="mt-6 grid gap-6">
-          <section className="overflow-hidden rounded-2xl border border-line">
+        <div>
+        <nav className="mt-6 flex flex-wrap gap-x-5 border-b border-line" aria-label="Pjesët e kryefaqes">
+          {(
+            [
+              ["hero", "Hero", heroes.length],
+              ["shops", "Dyqanet", shops.length],
+              ["flyers", "Fletushkat", flyers.length],
+            ] as const
+          ).map(([id, label, count]) => (
+            <button
+              key={id}
+              type="button"
+              className={`cursor-pointer border-0 border-b-2 bg-transparent px-0 py-3 text-sm font-bold ${
+                pane === id ? "border-accent text-ink" : "border-transparent text-muted"
+              }`}
+              onClick={() => setPane(id)}
+            >
+              {label}
+              <span className="ml-2 tabular-nums text-muted">{count}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="mt-4">
+          <section hidden={pane !== "hero"}>
             <div className="border-b border-line px-4 py-3">
-              <h2 className="m-0 text-sm font-bold tracking-[0.08em] text-muted uppercase">
+              <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">
                 Pjesa e parë
               </h2>
               <p className="m-0 mt-1 text-sm text-muted">
-                Sa të duash. Ndërrohen vetë. Kërko për të shtuar.
+                Vetëm produkte nga dyqanet ekskluzive. Sa të duash.
               </p>
             </div>
             {saveHero.isError ? (
@@ -126,13 +150,29 @@ export function AdminHome() {
                 )}
               >
                 {(offer) => (
-                  <>
-                    <p className="m-0 truncate font-semibold">{offer.name}</p>
-                    <p className="m-0 truncate text-sm text-muted">
-                      {offer.business_name}
-                      {offer.public ? "" : " · nuk shfaqet ende"}
-                    </p>
-                  </>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-sunken">
+                      {offer.thumb_url ? (
+                        <Image
+                          src={offer.thumb_url}
+                          alt=""
+                          fill
+                          unoptimized
+                          className="object-cover"
+                          sizes="48px"
+                        />
+                      ) : null}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-semibold">{offer.name}</span>
+                      <span className="block truncate text-sm text-muted">
+                        {[offer.bundle_title, offer.business_name]
+                          .filter(Boolean)
+                          .join(" · ")}
+                        {offer.public ? "" : " · nuk shfaqet ende"}
+                      </span>
+                    </span>
+                  </div>
                 )}
               </DragList>
             )}
@@ -140,14 +180,16 @@ export function AdminHome() {
               <input
                 className={inputClass}
                 value={heroSearch}
-                placeholder="Kërko ofertën ose dyqanin"
-                aria-label="Kërko ofertën ose dyqanin"
+                placeholder="Kërko te ekskluzivet"
+                aria-label="Kërko te ekskluzivet"
                 onChange={(event) => setHeroSearch(event.target.value)}
               />
-              {heroSearch.trim() === "" ? (
-                <p className="m-0 text-sm text-muted">Shkruaj emrin e produktit ose të fletushkës.</p>
-              ) : heroCandidates.length === 0 ? (
-                <p className="m-0 text-sm text-muted">Nuk u gjet asnjë produkt.</p>
+              {heroCandidates.length === 0 ? (
+                <p className="m-0 text-sm text-muted">
+                  {heroSearch.trim() === ""
+                    ? "Nuk ka produkt publik nga një dyqan ekskluziv."
+                    : "Nuk u gjet asnjë produkt ekskluziv."}
+                </p>
               ) : (
                 <ul className="m-0 list-none p-0">
                   {heroCandidates.map((offer) => (
@@ -177,9 +219,9 @@ export function AdminHome() {
             </div>
           </section>
 
-          <section className="overflow-hidden rounded-2xl border border-line">
+          <section hidden={pane !== "shops"}>
             <div className="border-b border-line px-4 py-3">
-              <h2 className="m-0 text-sm font-bold tracking-[0.08em] text-muted uppercase">
+              <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">
                 Dyqanet
               </h2>
                 <p className="m-0 mt-1 text-sm text-muted">
@@ -212,9 +254,9 @@ export function AdminHome() {
             )}
           </section>
 
-          <section className="overflow-hidden rounded-2xl border border-line">
+          <section hidden={pane !== "flyers"}>
             <div className="border-b border-line px-4 py-3">
-              <h2 className="m-0 text-sm font-bold tracking-[0.08em] text-muted uppercase">
+              <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">
                 Fletushkat
               </h2>
               <p className="m-0 mt-1 text-sm text-muted">
@@ -246,6 +288,7 @@ export function AdminHome() {
               </DragList>
             )}
           </section>
+        </div>
         </div>
       )}
     </div>

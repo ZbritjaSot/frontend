@@ -1,12 +1,14 @@
 "use client";
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import StarIcon from "@mui/icons-material/Star";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
+import { DashboardKpi } from "@/components/ui/DashboardKpi";
 import { adminBusinessKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
@@ -33,6 +35,7 @@ import {
   panelLead,
 } from "@/lib/ui";
 import { businessFormSchema, type BusinessFormInput } from "@/schemas/business";
+import type { Business } from "@/types";
 
 const emptyForm: BusinessFormInput = {
   name: "",
@@ -49,14 +52,147 @@ const checkLabelClass =
 
 const checkTextClass = "min-w-0 flex-1 pt-px leading-[1.4]";
 
-export function AdminBusinesses() {
+function ShopLine({
+  business,
+  branch = false,
+  open = false,
+  branchCount = 0,
+  onToggle,
+  pending,
+  onExclusive,
+  onActive,
+  className = "",
+}: {
+  business: Business;
+  branch?: boolean;
+  open?: boolean;
+  branchCount?: number;
+  onToggle?: () => void;
+  pending: boolean;
+  onExclusive?: () => void;
+  onActive: () => void;
+  className?: string;
+}) {
+  const place = [business.street, business.city].filter(Boolean).join(", ");
+
+  return (
+    <li
+      className={`col-span-4 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4${className ? ` ${className}` : ""}`}
+    >
+      <div className="min-w-0">
+        <p className="m-0 flex min-w-0 items-center gap-3 text-base font-semibold">
+          <ShopLogo name={business.name} logoUrl={business.logo_url} size="sm" />
+          <span className="min-w-0">
+            <span className="block truncate">{business.name}</span>
+            {branch && place ? (
+              <span className="block truncate text-sm font-medium text-muted">{place}</span>
+            ) : null}
+          </span>
+          {branch ? (
+            <span className="shrink-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
+              Degë
+            </span>
+          ) : branchCount > 0 ? (
+            <span className="shrink-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
+              {branchCount} degë
+            </span>
+          ) : null}
+        </p>
+        {business.location_status === "pending" ? (
+          <span className={`${offerStatusClass("pending")} mt-2`}>
+            Adresë në pritje
+          </span>
+        ) : null}
+      </div>
+      <div className="min-w-0">
+        <p className="m-0 truncate text-base font-semibold">
+          {business.owner?.name ?? "Pa pronar"}
+        </p>
+        {business.owner?.email ? (
+          <p className="m-0 truncate text-sm text-muted">{business.owner.email}</p>
+        ) : null}
+      </div>
+      <span
+        className={`${offerStatusClass(business.is_active ? "approved" : "rejected")} mt-0! w-fit self-center! md:ml-6`}
+      >
+        {business.is_active ? "Aktive" : "Joaktive"}
+      </span>
+      <div className="grid grid-cols-4 gap-1.5 border-l border-line pl-4">
+        {branchCount > 0 ? (
+          <button
+            type="button"
+            className={`${rowButton}${open ? " border-accent/60" : ""}`}
+            aria-expanded={open}
+            aria-label={open ? `Mbyll degët e ${business.name}` : `Hap degët e ${business.name}`}
+            onClick={onToggle}
+          >
+            <ExpandMoreIcon
+              fontSize="small"
+              className={open ? "rotate-180 text-accent!" : ""}
+            />
+          </button>
+        ) : (
+          <span className="size-9" aria-hidden />
+        )}
+        {branch ? (
+          <span className="size-9" aria-hidden />
+        ) : (
+          <button
+            className={rowButton}
+            type="button"
+            aria-pressed={business.extra_placement === true}
+            aria-label={
+              business.extra_placement
+                ? `Hiq ${business.name} nga ${EXCLUSIVE_LABEL}`
+                : `Shto ${business.name} te ${EXCLUSIVE_LABEL}`
+            }
+            disabled={pending}
+            onClick={onExclusive}
+          >
+            {business.extra_placement ? (
+              <StarIcon fontSize="small" className="text-accent!" />
+            ) : (
+              <StarBorderIcon fontSize="small" />
+            )}
+          </button>
+        )}
+        <Link
+          className={`${rowButton} no-underline`}
+          href={`/admin/businesses/${business.id}`}
+          aria-label={`Ndrysho ${business.name}`}
+        >
+          <EditOutlinedIcon fontSize="small" />
+        </Link>
+        <button
+          className={rowButton}
+          type="button"
+          aria-label={
+            business.is_active ? `Çaktivizo ${business.name}` : `Aktivizo ${business.name}`
+          }
+          disabled={pending}
+          onClick={onActive}
+        >
+          {business.is_active ? (
+            <LockOutlinedIcon fontSize="small" />
+          ) : (
+            <LockOpenOutlinedIcon fontSize="small" className="text-accent!" />
+          )}
+        </button>
+      </div>
+    </li>
+  );
+}
+
+export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }) {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [q, setQ] = useState("");
-  const { data, isLoading, isError, error, refetch } = useAdminBusinesses(page, q);
+  const [scope, setScope] = useState(initialScope);
+  const { data, isLoading, isError, error, refetch } = useAdminBusinesses(page, q, scope);
   const createMutation = useCreateBusiness();
   const updateMutation = useUpdateBusiness();
 
+  const [openIds, setOpenIds] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<BusinessFormInput>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
@@ -151,9 +287,51 @@ export function AdminBusinesses() {
     );
   }
 
+  const counts = data?.counts;
+
+  function chooseScope(next: string) {
+    setScope((current) => (current === next ? "" : next));
+    setPage(1);
+  }
+
   return (
     <div>
       {header}
+      {counts ? (
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <DashboardKpi
+            value={counts.active}
+            label="Aktive"
+            detail="Dyqane që mund të dalin publik"
+            tone="accent"
+            active={scope === "active"}
+            onClick={() => chooseScope("active")}
+          />
+          <DashboardKpi
+            value={counts.inactive}
+            label="Joaktive"
+            detail="Të fshehura nga faqja"
+            active={scope === "inactive"}
+            onClick={() => chooseScope("inactive")}
+          />
+          <DashboardKpi
+            value={counts.exclusive}
+            label="Ekskluzive"
+            detail="Kompani me yll"
+            tone="accent"
+            active={scope === "exclusive"}
+            onClick={() => chooseScope("exclusive")}
+          />
+          <DashboardKpi
+            value={counts.address}
+            label="Adresa në pritje"
+            detail="Presin aprovim"
+            tone={counts.address > 0 ? "pending" : "ink"}
+            active={scope === "address"}
+            onClick={() => chooseScope("address")}
+          />
+        </div>
+      ) : null}
 
       <div className="overflow-hidden rounded-2xl border border-line">
         <TableSearch
@@ -166,118 +344,69 @@ export function AdminBusinesses() {
             {q === "" ? "Nuk ka biznese ende." : "Nuk u gjet asnjë biznes."}
           </p>
         ) : (
-          <div className="overflow-x-auto md:grid md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_auto_auto_auto] md:gap-x-4">
-            <div className="col-span-5 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
+          <div className="overflow-x-auto md:grid md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_auto_auto] md:gap-x-4">
+            <div className="col-span-4 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
               <span className="whitespace-nowrap">Biznesi</span>
               <span className="whitespace-nowrap">Pronari</span>
-              <span className="whitespace-nowrap">Statusi</span>
-              <span className="sr-only">Ekskluzive</span>
+              <span className="whitespace-nowrap md:pl-6">Statusi</span>
               <span className="border-l border-line pl-4 whitespace-nowrap">
                 Veprimet
               </span>
             </div>
-            <ul className="col-span-5 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
-              {businesses.map((business) => (
-                <li
-                  key={business.id}
-                  className="col-span-5 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
-                >
-                  <div className="min-w-0">
-                    <p className="m-0 flex min-w-0 items-center gap-3 truncate text-base font-semibold">
-                      <ShopLogo
-                        name={business.name}
-                        logoUrl={business.logo_url}
-                        size="sm"
-                      />
-                      <span className="truncate">{business.name}</span>
-                      {business.parent_id ? (
-                        <span className="shrink-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
-                          Degë
-                        </span>
-                      ) : null}
-                    </p>
-                    {business.location_status === "pending" ? (
-                      <span className={`${offerStatusClass("pending")} mt-2`}>
-                        Adresë në pritje
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="m-0 truncate text-base font-semibold">
-                      {business.owner?.name ?? "Pa pronar"}
-                    </p>
-                    {business.owner?.email ? (
-                      <p className="m-0 truncate text-sm text-muted">
-                        {business.owner.email}
-                      </p>
-                    ) : null}
-                  </div>
-                  <span
-                    className={`${offerStatusClass(
-                      business.is_active ? "approved" : "rejected",
-                    )} mt-0! w-fit self-center!`}
-                  >
-                    {business.is_active ? "Aktive" : "Joaktive"}
-                  </span>
-                  <button
-                    className={rowButton}
-                    type="button"
-                    aria-pressed={business.extra_placement === true}
-                    aria-label={
-                      business.extra_placement
-                        ? `Hiq ${business.name} nga ${EXCLUSIVE_LABEL}`
-                        : `Shto ${business.name} te ${EXCLUSIVE_LABEL}`
+            <ul className="col-span-4 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
+              {businesses.flatMap((business) => {
+                const branches = business.branches ?? [];
+                const open =
+                  q !== "" || scope === "address" || openIds.includes(business.id);
+                const rows = [
+                  <ShopLine
+                    key={business.id}
+                    business={business}
+                    open={open}
+                    branchCount={branches.length}
+                    pending={updateMutation.isPending}
+                    onToggle={() =>
+                      setOpenIds((current) =>
+                        current.includes(business.id)
+                          ? current.filter((id) => id !== business.id)
+                          : [...current, business.id],
+                      )
                     }
-                    disabled={updateMutation.isPending}
-                    onClick={() =>
+                    onExclusive={() =>
                       updateMutation.mutate({
                         id: business.id,
                         extra_placement: business.extra_placement !== true,
                       })
                     }
-                  >
-                    {business.extra_placement ? (
-                      <StarIcon fontSize="small" className="text-accent!" />
-                    ) : (
-                      <StarBorderIcon fontSize="small" />
-                    )}
-                  </button>
-                  <div className="flex items-center gap-1.5 border-l border-line pl-4">
-                    <Link
-                      className={`${rowButton} no-underline`}
-                      href={`/admin/businesses/${business.id}`}
-                      aria-label={`Ndrysho ${business.name}`}
-                    >
-                      <EditOutlinedIcon fontSize="small" />
-                    </Link>
-                    <button
-                      className={rowButton}
-                      type="button"
-                      aria-label={
-                        business.is_active
-                          ? `Çaktivizo ${business.name}`
-                          : `Aktivizo ${business.name}`
-                      }
-                      disabled={updateMutation.isPending}
-                      onClick={() =>
-                        updateMutation.mutate({
-                          id: business.id,
-                          is_active: !business.is_active,
-                        })
-                      }
-                    >
-                      {business.is_active ? (
-                        <LockOutlinedIcon fontSize="small" />
-                      ) : (
-                        <LockOpenOutlinedIcon
-                          fontSize="small"
-                          className="text-accent!"
-                        />
-                      )}
-                    </button>
-                  </div>
-                </li>
-              ))}
+                    onActive={() =>
+                      updateMutation.mutate({
+                        id: business.id,
+                        is_active: !business.is_active,
+                      })
+                    }
+                  />,
+                ];
+                if (open) {
+                  for (const branch of branches) {
+                    rows.push(
+                      <ShopLine
+                        key={branch.id}
+                        business={branch}
+                        branch
+                        className="bg-sunken/50"
+                        pending={updateMutation.isPending}
+                        onActive={() =>
+                          updateMutation.mutate({
+                            id: branch.id,
+                            is_active: !branch.is_active,
+                          })
+                        }
+                      />,
+                    );
+                  }
+                }
+                return rows;
+              })}
             </ul>
           </div>
         )}

@@ -231,12 +231,13 @@ export function AdminNewsletter() {
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
         <form
-          className="grid gap-6 rounded-2xl border border-line bg-elevated p-5 sm:p-6"
+          id="newsletter-campaign"
+          className="grid gap-6"
           onSubmit={onSend}
           noValidate
         >
           <div className="flex items-baseline justify-between gap-3">
-            <h2 className="m-0 text-lg font-extrabold tracking-[-0.03em]">Dërgo email</h2>
+            <h2 className="m-0 text-lg font-extrabold tracking-[-0.03em]">Fushata</h2>
             <p className="m-0 text-sm text-muted">
               {activeCount} {activeCount === 1 ? "adresë" : "adresa"}
             </p>
@@ -276,7 +277,7 @@ export function AdminNewsletter() {
 
           <div className="grid gap-3 border-t border-line pt-5">
             <div className="flex items-baseline justify-between gap-3">
-              <p className="m-0 text-sm font-semibold text-ink">Çfarë shkon në email</p>
+              <p className="m-0 text-sm font-semibold text-ink">Përmbajtja</p>
               <p className="m-0 text-xs text-muted">Deri në 12 për lloj</p>
             </div>
             <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Lloji i përmbajtjes">
@@ -359,19 +360,27 @@ export function AdminNewsletter() {
             )}
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="m-0 text-sm text-muted">
-              {summary !== "" ? summary : "Asgjë e zgjedhur ende"}
-              {" · "}
-              {activeCount} {activeCount === 1 ? "adresë" : "adresa"}
-            </p>
-            <button className={btnPrimary} type="submit" disabled={sendNewsletter.isPending}>
-              Dërgo email
-            </button>
-          </div>
         </form>
 
-        <section className="overflow-hidden rounded-2xl border border-line bg-elevated xl:sticky xl:top-4">
+        <div className="grid gap-4 xl:sticky xl:top-4">
+          <section className="border-b border-line pb-4">
+            <p className="m-0 text-xs font-bold tracking-[0.14em] text-muted uppercase">Fushata</p>
+            <p className="m-0 mt-2 text-xl font-bold tracking-[-0.03em]">{subject.trim() || "Pa subjekt"}</p>
+            <p className="m-0 mt-2 text-sm leading-relaxed text-muted">{intro.trim() || "Pa hyrje"}</p>
+            <p className="m-0 mt-3 text-sm font-semibold">{summary || "Asgjë e zgjedhur"}</p>
+            <p className="m-0 mt-1 text-sm text-muted">
+              {activeCount} {activeCount === 1 ? "adresë" : "adresa"}
+            </p>
+            <button
+              className={`${btnPrimary} mt-4`}
+              type="submit"
+              form="newsletter-campaign"
+              disabled={sendNewsletter.isPending}
+            >
+              Dërgo newsletter
+            </button>
+          </section>
+        <section className="overflow-hidden">
           <div className="flex items-end justify-between gap-3 px-4 pt-4 pb-3">
             <div>
               <h2 className="m-0 text-[0.65rem] font-bold tracking-[0.14em] text-muted uppercase">
@@ -434,13 +443,14 @@ export function AdminNewsletter() {
             </>
           )}
         </section>
+        </div>
       </div>
 
       <ConfirmModal
         open={confirmSend}
-        title="Dërgo email-in?"
-        message={`Ky email shkon te ${activeCount} ${activeCount === 1 ? "adresë" : "adresa"}${summary !== "" ? `, me ${summary}` : ""}. Çdo email ka edhe një link për t’u çregjistruar.`}
-        confirmLabel="Dërgo"
+        title="Dërgo newsletter?"
+        message={`“${subject.trim()}” shkon te ${activeCount} ${activeCount === 1 ? "adresë" : "adresa"}${summary !== "" ? `, me ${summary}` : ""}. Çdo email ka edhe një link për t’u çregjistruar.`}
+        confirmLabel="Dërgo newsletter"
         pending={sendNewsletter.isPending}
         onConfirm={confirm}
         onClose={() => setConfirmSend(false)}

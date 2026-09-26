@@ -1,6 +1,7 @@
 "use client";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import Image from "next/image";
 import Link from "next/link";
 import { bizOfferDetailKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Spinner } from "@/components/ui/Spinner";
@@ -63,6 +64,10 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
   }
 
   const count = bundle.items?.length ?? bundle.items_count ?? 0;
+  const cover =
+    bundle.items?.find((item) => item.image?.id === bundle.cover_gallery_image_id)?.image ??
+    bundle.items?.find((item) => item.image)?.image ??
+    null;
 
   return (
     <>
@@ -115,6 +120,19 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
         <p className={fieldError} role="alert">
           {actionError}
         </p>
+      ) : null}
+
+      {cover ? (
+        <div className="relative mb-8 aspect-[16/7] overflow-hidden rounded-2xl bg-sunken">
+          <Image
+            src={cover.detail_url}
+            alt=""
+            fill
+            unoptimized
+            className="object-cover"
+            sizes="(min-width: 768px) 48rem, 100vw"
+          />
+        </div>
       ) : null}
 
       <OfferBundleView bundle={bundle} showHeading={false} showViews />

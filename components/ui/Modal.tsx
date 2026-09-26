@@ -18,7 +18,7 @@ type ModalProps = {
   /** Optional footer actions (buttons). */
   footer?: ReactNode;
   /** Wider dialog for forms. */
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
   /** Red shell for a change that is hard to undo. */
   danger?: boolean;
 };
@@ -89,8 +89,12 @@ export function Modal({
     >
       <div
         ref={dialogRef}
-        className={`flex max-h-[min(90dvh,40rem)] w-full flex-col overflow-hidden rounded-lg border shadow-[0_24px_64px_var(--color-shadow)] outline-none ${
-          size === "md" ? "max-w-lg" : "max-w-sm"
+        className={`flex w-full flex-col overflow-hidden rounded-lg border shadow-[0_24px_64px_var(--color-shadow)] outline-none ${
+          size === "lg"
+            ? "max-h-[min(92dvh,52rem)] max-w-2xl"
+            : size === "md"
+              ? "max-h-[min(90dvh,40rem)] max-w-lg"
+              : "max-h-[min(90dvh,40rem)] max-w-sm"
         } ${
           danger
             ? "border-2 border-[#e53935] bg-[#4a1212] text-white"

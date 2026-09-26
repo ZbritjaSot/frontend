@@ -32,6 +32,7 @@ export type BusinessSummary = {
   latitude?: number | null;
   longitude?: number | null;
   is_active?: boolean;
+  extra_placement?: boolean;
   logo_url?: string | null;
 };
 
@@ -59,6 +60,7 @@ export type Business = {
   extra_placement?: boolean;
   logo_url?: string | null;
   owner?: User | null;
+  branches?: Business[];
   created_at?: string;
   updated_at?: string;
 };

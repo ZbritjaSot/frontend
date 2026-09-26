@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { DashboardKpi } from "@/components/ui/DashboardKpi";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
@@ -128,6 +129,22 @@ export function AdminManagers() {
         lista jote. Aprovoji ose ndryshoji para se ta fshish llogarinë.
       </p>
 
+      {!managers.isLoading && !managers.isError ? (
+        <div className="mb-5 flex flex-wrap gap-x-8 gap-y-4">
+          <DashboardKpi label="Menaxherë" value={total} detail="Llogari" />
+          <DashboardKpi
+            label="Dyqane"
+            value={rows.reduce((sum, manager) => sum + manager.shops.length, 0)}
+            detail={(lastPage ?? 1) > 1 ? "Në këtë faqe" : "Të mbuluara"}
+          />
+          <DashboardKpi
+            label="Në pritje"
+            value={rows.reduce((sum, manager) => sum + (manager.pending_offers?.length ?? 0), 0)}
+            detail={(lastPage ?? 1) > 1 ? "Në këtë faqe" : "Fletushka që presin"}
+            tone="pending"
+          />
+        </div>
+      ) : null}
       {managers.isLoading ? (
         <Spinner label="Duke ngarkuar menaxherët" />
       ) : managers.isError ? (

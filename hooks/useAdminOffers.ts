@@ -26,18 +26,28 @@ export const adminApprovedOffersQueryKey = [
 export const adminOfferBundleQueryKey = (id: string) =>
   ["admin", "offer-bundles", id] as const;
 
-export function usePendingOffers(page = 1) {
+export function usePendingOffers(page = 1, q = "") {
   return useQuery({
-    queryKey: [...adminPendingOffersQueryKey, page],
-    queryFn: () => fetchPendingOffers(page),
+    queryKey: [...adminPendingOffersQueryKey, page, q],
+    queryFn: () => fetchPendingOffers(page, undefined, q),
     placeholderData: (previous) => previous,
   });
 }
 
-export function useApprovedOffers(page = 1) {
+export function useApprovedOffers(
+  page = 1,
+  q = "",
+  status: "approved" | "all" = "approved",
+) {
   return useQuery({
-    queryKey: [...adminApprovedOffersQueryKey, page],
-    queryFn: () => fetchApprovedOffers(page),
+    queryKey: [
+      ...(status === "all"
+        ? (["admin", "offer-bundles", "all"] as const)
+        : adminApprovedOffersQueryKey),
+      page,
+      q,
+    ],
+    queryFn: () => fetchApprovedOffers(page, undefined, q, status),
     placeholderData: (previous) => previous,
   });
 }
@@ -57,6 +67,12 @@ export function useApproveOffer() {
     onSuccess: async (_data, id) => {
       await queryClient.invalidateQueries({
         queryKey: adminPendingOffersQueryKey,
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminApprovedOffersQueryKey,
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["admin", "offer-bundles", "all"],
       });
       await queryClient.invalidateQueries({
         queryKey: adminOfferBundleQueryKey(id),
@@ -89,6 +105,9 @@ export function useTakeDownOffer() {
     onSuccess: async (_data, { id }) => {
       await queryClient.invalidateQueries({
         queryKey: adminApprovedOffersQueryKey,
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["admin", "offer-bundles", "all"],
       });
       await queryClient.invalidateQueries({
         queryKey: adminPendingOffersQueryKey,

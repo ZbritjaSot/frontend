@@ -25,10 +25,18 @@ export async function fetchAdminBusiness(id: string) {
   return payload.data;
 }
 
+export type BusinessCounts = {
+  active: number;
+  inactive: number;
+  exclusive: number;
+  address: number;
+};
+
 export async function fetchAdminBusinesses(
   page = 1,
   perPage = ADMIN_BUSINESSES_PAGE_SIZE,
   q = "",
+  scope = "",
 ) {
   const params = new URLSearchParams({
     page: String(page),
@@ -38,8 +46,11 @@ export async function fetchAdminBusinesses(
   if (search !== "") {
     params.set("q", search);
   }
+  if (scope !== "") {
+    params.set("scope", scope);
+  }
 
-  return apiFetch<Paginated<Business>>(
+  return apiFetch<Paginated<Business> & { counts?: BusinessCounts }>(
     `/admin/businesses?${params.toString()}`,
     { auth: true },
   );
