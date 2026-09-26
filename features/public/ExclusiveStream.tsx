@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchPublicPlacement, type ExclusiveItem } from "@/features/offers/api";
-import { ExclusiveList } from "@/features/public/ExclusiveList";
+import { ExclusiveStage } from "@/features/public/ExclusiveStage";
 
 export function ExclusiveStream({
   items,
@@ -59,8 +59,8 @@ export function ExclusiveStream({
   }, [done, failed, loadMore, loading]);
 
   return (
-    <div className="mt-8">
-      <ExclusiveList items={shown} />
+    <div>
+      <ExclusiveStage items={shown} />
       <div ref={sentinel} className="h-8" />
       {loading ? (
         <p className="m-0 text-center text-sm font-semibold text-muted">Duke ngarkuar…</p>

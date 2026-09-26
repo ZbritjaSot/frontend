@@ -36,32 +36,39 @@ export default async function ExclusivePage() {
   }
 
   return (
-    <Frame className="py-8 sm:py-12">
-      <header className="overflow-hidden rounded-[1.75rem] bg-forest px-5 py-7 text-ivory sm:px-8 sm:py-9 dark:bg-[#121816] dark:text-ink">
-        <p className="m-0 text-[0.68rem] font-bold tracking-[0.2em] text-accent uppercase">
-          {EXCLUSIVE_LABEL}
-        </p>
-        <h1 className="m-0 mt-2 max-w-3xl text-[clamp(2.6rem,7vw,4.6rem)] leading-[0.9] font-extrabold tracking-[-0.045em] text-ivory dark:text-ink">
-          {title}
-        </h1>
+    <div className="pb-16 sm:pb-24">
+      <header className="bg-forest text-ivory dark:bg-[#121816] dark:text-ink">
+        <Frame className="py-16 sm:py-24 lg:py-28">
+          <p className="m-0 flex items-center gap-3 text-[0.68rem] font-bold tracking-[0.28em] text-accent uppercase">
+            <span className="h-px w-8 bg-accent" aria-hidden />
+            {EXCLUSIVE_LABEL}
+          </p>
+          <h1 className="m-0 mt-5 max-w-4xl text-[clamp(3.4rem,9vw,7rem)] leading-[0.84] font-extrabold tracking-[-0.055em] text-ivory dark:text-ink">
+            {title}
+          </h1>
+        </Frame>
       </header>
-      {failed ? (
-        <div className="mt-10">
+      <Frame>
+        {failed ? (
           <EmptyNote
             title="Diçka shkoi keq"
             body="Nuk mundëm t’i ngarkojmë ofertat. Provo përsëri së shpejti."
           />
-        </div>
-      ) : items.length === 0 ? (
-        <div className="mt-10">
-          <EmptyNote
-            title="Momentalisht bosh"
-            body="Kthehu më vonë për oferta të reja."
-          />
-        </div>
-      ) : (
-        <ExclusiveStream items={items} lastPage={lastPage} />
-      )}
-    </Frame>
+        ) : items.length === 0 ? (
+          <div className="mx-auto max-w-lg py-20 text-center sm:py-28">
+            <h2 className="m-0 text-[clamp(2.4rem,6vw,4rem)] leading-[0.9] font-extrabold tracking-[-0.045em]">
+              Momentalisht bosh
+            </h2>
+            <p className="mx-auto mt-5 mb-0 max-w-sm text-base leading-relaxed text-muted">
+              Kthehu më vonë për oferta të reja.
+            </p>
+          </div>
+        ) : (
+          <div className="-mt-10 sm:-mt-16">
+            <ExclusiveStream items={items} lastPage={lastPage} />
+          </div>
+        )}
+      </Frame>
+    </div>
   );
 }
