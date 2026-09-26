@@ -132,7 +132,44 @@ export function CatalogStream({
           </button>
         </p>
       ) : null}
+      <BackToTop />
     </div>
+  );
+}
+
+function BackToTop() {
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setShown(window.scrollY > 640);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  if (!shown) {
+    return null;
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label="Kthehu në krye"
+      className="fixed right-5 bottom-[max(1.5rem,env(safe-area-inset-bottom))] z-30 inline-flex size-11 cursor-pointer items-center justify-center rounded-full border-0 bg-accent text-charcoal shadow-[0_8px_24px_rgba(0,0,0,0.28)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+      onClick={() => {
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+      }}
+    >
+      <svg viewBox="0 0 16 16" className="size-4" aria-hidden="true">
+        <path
+          d="M8 3.5 3 8.5l1.1 1.1L7.2 6.5V13h1.6V6.5l3.1 3.1L13 8.5 8 3.5Z"
+          fill="currentColor"
+        />
+      </svg>
+    </button>
   );
 }
 
