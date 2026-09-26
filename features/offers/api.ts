@@ -54,12 +54,15 @@ export async function fetchPublicHome(): Promise<PublicHome> {
 }
 
 export async function fetchPublicBusinesses(
-  query: { q?: string; page?: number; perPage?: number } = {},
+  query: { q?: string; city?: string; page?: number; perPage?: number } = {},
 ): Promise<Paginated<PublicBusiness>> {
   const params = new URLSearchParams();
   params.set("per_page", String(query.perPage ?? 24));
   if (query.q) {
     params.set("q", query.q);
+  }
+  if (query.city) {
+    params.set("city", query.city);
   }
   if (query.page && query.page > 1) {
     params.set("page", String(query.page));
@@ -113,10 +116,16 @@ export async function fetchPublicOffers(
   });
 }
 
-export async function fetchPublicCities(): Promise<string[]> {
-  const payload = await apiFetch<{ data: string[] }>("/cities", {
-    ...PUBLIC_FETCH,
-  });
+export async function fetchPublicCities(options?: { shops?: boolean }): Promise<string[]> {
+  const params = new URLSearchParams();
+  if (options?.shops) {
+    params.set("for", "shops");
+  }
+  const query = params.toString();
+  const payload = await apiFetch<{ data: string[] }>(
+    `/cities${query === "" ? "" : `?${query}`}`,
+    { ...PUBLIC_FETCH },
+  );
   return payload.data;
 }
 
@@ -178,6 +187,13 @@ export async function recordPublicOfferView(id: string): Promise<void> {
     method: "POST",
     cache: "no-store",
   });
+}
+
+export async function fetchPublicRecommended(id: string): Promise<PublicOffer[]> {
+  const payload = await apiFetch<{ data: PublicOffer[] }>(`/offers/${id}/recommended`, {
+    ...PUBLIC_FETCH,
+  });
+  return payload.data;
 }
 
 export async function fetchPublicOffer(id: string): Promise<PublicOffer> {

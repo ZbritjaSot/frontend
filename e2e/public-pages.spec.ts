@@ -22,7 +22,8 @@ test("public pages render", async ({ page }) => {
 test("the exclusive mark stays on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  const mark = page.getByRole("link", { name: "Ekskluzive" });
+  await page.getByRole("button", { name: "Hap menynë" }).click();
+  const mark = page.getByRole("navigation", { name: "Kryesore" }).getByRole("link", { name: "Ekskluzive" });
   await expect(mark).toBeVisible();
   const box = await mark.boundingBox();
   expect(box).not.toBeNull();

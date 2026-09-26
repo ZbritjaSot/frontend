@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CatalogFilters } from "@/features/public/CatalogFilters";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
 import { Band, EmptyNote, Frame, Pager } from "@/features/public/Frame";
 import { display, kicker } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
 import { campaignWord, locationLabel, productWord } from "@/features/public/compose";
-import { ApiError, fetchPublicBusinesses } from "@/features/offers/api";
+import { ApiError, fetchPublicBusinesses, fetchPublicCities } from "@/features/offers/api";
 import { browsePath } from "@/lib/browse";
 import { publicPageMetadata } from "@/lib/metadata";
 import type { PublicBusiness } from "@/types";
 
 type DirectoryPageProps = {
-  searchParams: Promise<{ q?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; city?: string; page?: string }>;
 };
 
 export async function generateMetadata({
@@ -19,9 +20,10 @@ export async function generateMetadata({
 }: DirectoryPageProps): Promise<Metadata> {
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
-  if (q || params.page) {
+  const city = params.city?.trim() ?? "";
+  if (q || city || params.page) {
     return publicPageMetadata({
-      title: q ? `Dyqanet: ${q}` : "Dyqanet",
+      title: city ? `Dyqanet në ${city}` : q ? `Dyqanet: ${q}` : "Dyqanet",
       description: "Dyqanet lokale me fletushka aktive në Kosovë.",
       path: "/biznese",
       index: false,
@@ -38,20 +40,27 @@ export async function generateMetadata({
 export default async function BusinessDirectoryPage({ searchParams }: DirectoryPageProps) {
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
+  const city = params.city?.trim() || undefined;
   const page = Math.max(1, Number(params.page) || 1);
 
   let shops: PublicBusiness[] = [];
+  let cities: string[] = [];
   let lastPage = 1;
   let total = 0;
   let errorMessage: string | null = null;
 
   try {
-    const result = await fetchPublicBusinesses({
-      q: q || undefined,
-      page,
-      perPage: 24,
-    });
+    const [result, cityList] = await Promise.all([
+      fetchPublicBusinesses({
+        q: q || undefined,
+        city,
+        page,
+        perPage: 24,
+      }),
+      fetchPublicCities({ shops: true }).catch(() => [] as string[]),
+    ]);
     shops = result.data;
+    cities = cityList;
     lastPage = result.meta?.last_page ?? 1;
     total = result.meta?.total ?? shops.length;
   } catch (error) {
@@ -77,19 +86,31 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
         {total} dyqane me fletushka aktive. Kjo nuk është çdo biznes në Kosovë, vetëm ata
         që kanë një fletushkë publike tani.
       </p>
-      <div className="mt-6 max-w-xl">
+      <div className="mt-6 flex max-w-xl flex-col gap-3">
         <DiscoverForm
           basePath="/biznese"
           q={q}
+          city={city}
           categories={[]}
           showCategories={false}
           placeholder="Kërko një dyqan"
+        />
+        <CatalogFilters
+          basePath="/biznese"
+          q={q}
+          city={city}
+          cities={cities}
+          showSort={false}
         />
       </div>
       {shops.length === 0 ? (
         <EmptyNote
           title="Nuk u gjet asgjë"
-          body="Provo një emër tjetër, ose kthehu te të gjithë dyqanet."
+          body={
+            city
+              ? `Nuk ka dyqan në ${city}.`
+              : "Provo një emër tjetër, ose kthehu te të gjithë dyqanet."
+          }
         />
       ) : (
         <ul className="m-0 mt-8 grid list-none gap-2 p-0 sm:grid-cols-2 lg:grid-cols-3">
@@ -120,7 +141,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
       <Pager
         page={page}
         lastPage={lastPage}
-        hrefFor={(next) => browsePath("/biznese", { q, page: next })}
+        hrefFor={(next) => browsePath("/biznese", { q, city, page: next })}
       />
     </Band>
   );

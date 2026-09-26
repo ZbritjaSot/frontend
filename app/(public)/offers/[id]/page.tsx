@@ -4,15 +4,13 @@ import { headers } from "next/headers";
 import {
   fetchPublicFolder,
   fetchPublicOffer,
-  fetchPublicPlacement,
-  fetchPublicSections,
+  fetchPublicRecommended,
   isNotFound,
   recordPublicOfferView,
 } from "@/features/offers/api";
 import { withCampaign } from "@/features/public/compose";
 import { EmptyNote, Frame } from "@/features/public/Frame";
 import { OfferDetail } from "@/features/offers/OfferDetail";
-import type { ExclusiveItem } from "@/features/offers/api";
 import type { PublicOffer } from "@/types";
 import { publicPageMetadata } from "@/lib/metadata";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
@@ -48,7 +46,7 @@ export default async function OfferPage({ params }: OfferPageProps) {
 
   let offer: PublicOffer | null = null;
   let related: PublicOffer[] = [];
-  let exclusive: ExclusiveItem[] = [];
+  let recommended: PublicOffer[] = [];
   let failed = false;
 
   try {
@@ -63,21 +61,10 @@ export default async function OfferPage({ params }: OfferPageProps) {
         related = [];
       }
     }
-    let showExclusive = true;
     try {
-      const sections = await fetchPublicSections();
-      showExclusive = sections.some((section) => section.key === "exclusive");
+      recommended = await fetchPublicRecommended(offer.id);
     } catch {
-      showExclusive = true;
-    }
-    if (showExclusive) {
-      try {
-        exclusive = (await fetchPublicPlacement({ perPage: 40 })).data.filter(
-          (item) => item.kind === "flyer" || item.offer.id !== offer?.id,
-        );
-      } catch {
-        exclusive = [];
-      }
+      recommended = [];
     }
   } catch (error) {
     if (isNotFound(error)) {
@@ -119,7 +106,7 @@ export default async function OfferPage({ params }: OfferPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd(offer)).replace(/</g, "\\u003c") }}
       />
-      <OfferDetail offer={offer} related={related} exclusive={exclusive} />
+      <OfferDetail offer={offer} related={related} recommended={recommended} />
     </>
   );
 }

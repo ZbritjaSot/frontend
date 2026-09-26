@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import { RibbonRain } from "@/features/public/RibbonRain";
+import { useState, type FormEvent } from "react";
 import { apiFetch, validationMessage } from "@/lib/api";
 
 const field =
@@ -17,13 +16,6 @@ export function NewsletterSignup({ variant }: { variant: "footer" | "home" }) {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [pending, setPending] = useState(false);
-  const [celebrate, setCelebrate] = useState(false);
-
-  useEffect(() => {
-    if (!celebrate) return undefined;
-    const timer = window.setTimeout(() => setCelebrate(false), 4900);
-    return () => window.clearTimeout(timer);
-  }, [celebrate]);
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -45,7 +37,6 @@ export function NewsletterSignup({ variant }: { variant: "footer" | "home" }) {
         body: JSON.stringify({ email: trimmed }),
       });
       setDone(true);
-      setCelebrate(true);
       setEmail("");
     } catch (caught) {
       setError(validationMessage(caught, "Nuk mundëm të të regjistrojmë."));
@@ -62,7 +53,6 @@ export function NewsletterSignup({ variant }: { variant: "footer" | "home" }) {
       onSubmit={onSubmit}
       noValidate
     >
-      {celebrate ? <RibbonRain /> : null}
       {compact && !done ? (
         <p className="m-0 text-sm font-bold tracking-[-0.02em] text-ivory dark:text-ink">
           ZbritjaSot në inbox

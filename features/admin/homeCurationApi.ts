@@ -41,6 +41,11 @@ export type HomeCuration = {
     candidates: HomeShopPick[];
   };
   flyers: HomeFlyerItem[];
+  recommended: {
+    shuffle: boolean;
+    picks: HomeOfferPick[];
+    candidates: HomeOfferCandidate[];
+  };
 };
 
 export async function fetchAdminHome(q = ""): Promise<HomeCuration> {
@@ -97,6 +102,21 @@ export async function saveAdminSections(
     auth: true,
     body: JSON.stringify({ sections }),
   });
+  return payload.data;
+}
+
+export async function saveAdminRecommended(
+  offerIds: string[],
+  shuffle: boolean,
+): Promise<HomeCuration["recommended"]> {
+  const payload = await apiFetch<{ data: HomeCuration["recommended"] }>(
+    "/admin/home/recommended",
+    {
+      method: "PUT",
+      auth: true,
+      body: JSON.stringify({ offer_ids: offerIds, shuffle }),
+    },
+  );
   return payload.data;
 }
 

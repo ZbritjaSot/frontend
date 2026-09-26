@@ -19,6 +19,7 @@ type CatalogFiltersProps = {
   city?: string;
   sort?: CatalogSort;
   cities?: string[];
+  showSort?: boolean;
 };
 
 const sortLink =
@@ -32,11 +33,17 @@ export function CatalogFilters({
   city,
   sort = "newest",
   cities = [],
+  showSort = true,
 }: CatalogFiltersProps) {
   const router = useRouter();
 
+  if (!showSort && cities.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div className={showSort ? "flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between" : "flex"}>
+      {showSort ? (
       <div className="flex min-w-0 items-center gap-2">
         <span className="shrink-0 text-xs font-medium text-muted">Rendit</span>
         <div className="min-w-0 flex-1 overflow-x-auto [scrollbar-width:none] max-sm:[mask-image:linear-gradient(to_right,black_calc(100%-1.5rem),transparent)] sm:flex-none [&::-webkit-scrollbar]:hidden">
@@ -70,6 +77,7 @@ export function CatalogFilters({
           </nav>
         </div>
       </div>
+      ) : null}
       {cities.length > 0 ? (
         <CityMenu
           city={city}

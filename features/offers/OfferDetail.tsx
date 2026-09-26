@@ -8,21 +8,15 @@ import { display, kicker } from "@/features/public/tone";
 import { ProductGrid, ShopLink } from "@/features/public/ProductPoster";
 import { ProductVisual } from "@/features/public/visuals";
 import { formatDateSq, formatEurFromCents } from "@/lib/format";
-import { ExclusiveList } from "@/features/public/ExclusiveList";
-import type { ExclusiveItem } from "@/features/offers/api";
-import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import type { PublicOffer } from "@/types";
 
 type OfferDetailProps = {
   offer: PublicOffer;
   related?: PublicOffer[];
-  exclusive?: ExclusiveItem[];
+  recommended?: PublicOffer[];
 };
 
-export function OfferDetail({ offer, related = [], exclusive = [] }: OfferDetailProps) {
-  const more = exclusive.filter(
-    (item) => item.kind === "flyer" || item.offer.id !== offer.id,
-  );
+export function OfferDetail({ offer, related = [], recommended = [] }: OfferDetailProps) {
   const shop = offer.business?.name ?? "Dyqan";
   const backHref = offer.bundle ? `/dosje/${offer.bundle.id}` : "/";
   const backLabel = offer.bundle?.title ?? "Kreu";
@@ -131,10 +125,10 @@ export function OfferDetail({ offer, related = [], exclusive = [] }: OfferDetail
         </Band>
       ) : null}
 
-      {more.length > 0 ? (
+      {recommended.length > 0 ? (
         <Band>
-          <SectionHeading title={EXCLUSIVE_LABEL} />
-          <ExclusiveList items={more} />
+          <SectionHeading title="Të rekomanduara" />
+          <ProductGrid offers={recommended} />
         </Band>
       ) : null}
     </article>

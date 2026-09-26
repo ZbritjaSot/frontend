@@ -34,6 +34,7 @@ const actionCopy: Record<AuditAction, string> = {
   home_hero_ordered: "Renditi pjesën e parë",
   home_shops_ordered: "Renditi dyqanet",
   home_flyers_ordered: "Renditi fletushkat",
+  home_recommended_ordered: "Renditi të rekomanduarat",
   placement_ordered: "Renditi Ekskluziven",
   category_renamed: "Ndryshoi kategorinë",
   section_titles: "Ndryshoi titujt e seksioneve",

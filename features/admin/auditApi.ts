@@ -23,6 +23,7 @@ export type AuditAction =
   | "home_hero_ordered"
   | "home_shops_ordered"
   | "home_flyers_ordered"
+  | "home_recommended_ordered"
   | "placement_ordered"
   | "category_renamed"
   | "section_titles";
