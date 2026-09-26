@@ -1,10 +1,12 @@
+import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
+
 export type HomeSection = {
   key: string;
   title: string;
 };
 
 export const defaultHomeSections: HomeSection[] = [
-  { key: "exclusive", title: "Kapeni tani." },
+  { key: "exclusive", title: EXCLUSIVE_LABEL },
   { key: "spotlight", title: "Zbritje të forta" },
   { key: "flyers", title: "Fletushkat" },
   { key: "inbox", title: "Mos i humb zbritjet më të mira." },

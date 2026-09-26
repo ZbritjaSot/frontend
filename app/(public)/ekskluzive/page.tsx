@@ -12,15 +12,17 @@ export const metadata: Metadata = {
 };
 
 export default async function ExclusivePage() {
+  let title = EXCLUSIVE_LABEL;
+
   try {
     const sections = await fetchPublicSections();
     if (!sections.some((section) => section.key === "exclusive")) {
       notFound();
     }
+    title = sections.find((section) => section.key === "exclusive")?.title || title;
   } catch {
     // A failed settings read still shows the page.
   }
-
   let items: Awaited<ReturnType<typeof fetchPublicPlacement>>["data"] = [];
   let lastPage = 1;
   let failed = false;
@@ -34,10 +36,15 @@ export default async function ExclusivePage() {
   }
 
   return (
-    <Frame className="py-10 sm:py-14">
-      <h1 className="m-0 text-[clamp(2.2rem,5vw,3.4rem)] leading-none font-extrabold tracking-[-0.04em]">
-        {EXCLUSIVE_LABEL}
-      </h1>
+    <Frame className="py-8 sm:py-12">
+      <header className="overflow-hidden rounded-[1.75rem] bg-forest px-5 py-7 text-ivory sm:px-8 sm:py-9 dark:bg-[#121816] dark:text-ink">
+        <p className="m-0 text-[0.68rem] font-bold tracking-[0.2em] text-accent uppercase">
+          {EXCLUSIVE_LABEL}
+        </p>
+        <h1 className="m-0 mt-2 max-w-3xl text-[clamp(2.6rem,7vw,4.6rem)] leading-[0.9] font-extrabold tracking-[-0.045em] text-ivory dark:text-ink">
+          {title}
+        </h1>
+      </header>
       {failed ? (
         <div className="mt-10">
           <EmptyNote

@@ -10,6 +10,7 @@ import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Spinner } from "@/components/ui/Spinner";
 import { BranchPanel } from "@/features/branches/BranchPanel";
+import { MailResends } from "@/features/admin/MailResends";
 import { ManagerNote } from "@/features/biz/ManagerNote";
 import { AdminGallery } from "@/features/gallery/AdminGallery";
 import { deleteAdminLogo, uploadAdminLogo } from "@/features/gallery/api";

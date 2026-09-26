@@ -9,6 +9,7 @@ import { adminInspectKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
 import { OfferBundleView } from "@/features/offers/OfferBundleView";
+import { MailResends } from "@/features/admin/MailResends";
 import {
   useAdminOfferBundle,
   useApproveOffer,

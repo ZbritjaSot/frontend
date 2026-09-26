@@ -3,6 +3,7 @@
 import AccountTreeOutlinedIcon from "@mui/icons-material/AccountTreeOutlined";
 import CategoryIcon from "@mui/icons-material/Category";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import MailOutlinedIcon from "@mui/icons-material/MailOutlined";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
@@ -54,6 +55,11 @@ const baseNav: DashboardNavItem[] = [
     href: "/admin/newsletter",
     label: "Newsletter",
     icon: <MailOutlinedIcon fontSize="small" />,
+  },
+  {
+    href: "/admin/audit",
+    label: "Regjistri",
+    icon: <HistoryOutlinedIcon fontSize="small" />,
   },
 ];
 
