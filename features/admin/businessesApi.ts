@@ -28,11 +28,16 @@ export async function fetchAdminBusiness(id: string) {
 export async function fetchAdminBusinesses(
   page = 1,
   perPage = ADMIN_BUSINESSES_PAGE_SIZE,
+  q = "",
 ) {
   const params = new URLSearchParams({
     page: String(page),
     per_page: String(perPage),
   });
+  const search = q.trim();
+  if (search !== "") {
+    params.set("q", search);
+  }
 
   return apiFetch<Paginated<Business>>(
     `/admin/businesses?${params.toString()}`,
@@ -69,9 +74,30 @@ export async function rejectBusinessLocation(id: string, note: string) {
   return payload.data;
 }
 
+export async function geocodeAdminAddress(address: string) {
+  const payload = await apiFetch<{
+    data: { latitude: number; longitude: number };
+  }>("/admin/businesses/geocode", {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify({ address }),
+  });
+  return payload.data;
+}
+
 export async function updateBusiness(
   id: string,
-  data: { name?: string; is_active?: boolean },
+  data: {
+    name?: string;
+    is_active?: boolean;
+    street?: string | null;
+    village?: string | null;
+    city?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    owner_name?: string;
+    owner_email?: string;
+  },
 ) {
   const payload = await apiFetch<BusinessPayload>(`/admin/businesses/${id}`, {
     method: "PUT",
@@ -79,4 +105,20 @@ export async function updateBusiness(
     body: JSON.stringify(data),
   });
   return payload.data;
+}
+
+export async function setBusinessPassword(
+  id: string,
+  password: string,
+  notify = false,
+) {
+  await apiFetch(`/admin/businesses/${id}/password`, {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify({
+      password,
+      password_confirmation: password,
+      notify,
+    }),
+  });
 }

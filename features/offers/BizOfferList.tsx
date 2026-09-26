@@ -5,11 +5,12 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { bizOfferKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
+import { TableSearch } from "@/components/ui/TableSearch";
 import { BIZ_OFFERS_PAGE_SIZE } from "@/features/offers/bizApi";
 import {
   canDeleteOffer,
@@ -39,11 +40,26 @@ const rowButton =
 
 export function BizOfferList() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError, error, refetch } = useBizOffers(page);
+  const [query, setQuery] = useState("");
+  const [q, setQ] = useState("");
+  const { data, isLoading, isError, error, refetch } = useBizOffers(page, q);
   const submitMutation = useSubmitBizOffer();
   const deleteMutation = useDeleteBizOffer();
   const [actionError, setActionError] = useState<string | null>(null);
   const [bundleToDelete, setBundleToDelete] = useState<OfferBundle | null>(null);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const next = query.trim();
+      setQ((current) => {
+        if (current !== next) {
+          setPage(1);
+        }
+        return next;
+      });
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [query]);
 
   const bundles = data?.data ?? [];
   const lastPage = data?.meta?.last_page;
@@ -124,10 +140,13 @@ export function BizOfferList() {
         </p>
       ) : null}
 
-      {bundles.length === 0 ? (
-        <p className={panelLead}>Nuk ke oferta ende.</p>
-      ) : (
-        <div className="overflow-hidden rounded-2xl border border-line">
+      <div className="overflow-hidden rounded-2xl border border-line">
+        <TableSearch value={query} onChange={setQuery} label="Kërko ofertën" />
+        {bundles.length === 0 ? (
+          <p className="m-0 px-4 py-6 text-sm leading-relaxed text-muted">
+            {q === "" ? "Nuk ke oferta ende." : "Nuk u gjet asnjë ofertë."}
+          </p>
+        ) : (
           <div className="overflow-x-auto md:grid md:grid-cols-[minmax(0,1.4fr)_auto_auto_auto_auto] md:gap-x-4">
             <div className="col-span-5 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
               <span className="whitespace-nowrap">Oferta</span>
@@ -227,6 +246,8 @@ export function BizOfferList() {
               })}
             </ul>
           </div>
+        )}
+        {bundles.length > 0 ? (
           <Pagination
             page={page}
             lastPage={lastPage ?? 1}
@@ -234,8 +255,8 @@ export function BizOfferList() {
             perPage={BIZ_OFFERS_PAGE_SIZE}
             onPageChange={setPage}
           />
-        </div>
-      )}
+        ) : null}
+      </div>
 
       <ConfirmModal
         open={bundleToDelete !== null}

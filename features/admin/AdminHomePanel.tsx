@@ -204,7 +204,7 @@ export function AdminHomePanel() {
               {waitingAddresses.map((business) => (
                 <li key={business.id} className="border-t border-line">
                   <Link
-                    href={`/admin/businesses?adrese=${business.id}`}
+                    href={`/admin/businesses/${business.id}`}
                     className="grid min-w-0 px-5 py-3 text-inherit no-underline hover:bg-sunken"
                   >
                     <span className="truncate font-semibold">{business.name}</span>

@@ -38,6 +38,7 @@ export async function fetchBizOfferBundles(
   page = 1,
   perPage = BIZ_OFFERS_PAGE_SIZE,
   status?: string,
+  q = "",
 ): Promise<Paginated<OfferBundle>> {
   const params = new URLSearchParams({
     page: String(page),
@@ -45,6 +46,10 @@ export async function fetchBizOfferBundles(
   });
   if (status) {
     params.set("status", status);
+  }
+  const search = q.trim();
+  if (search !== "") {
+    params.set("q", search);
   }
 
   return apiFetch<Paginated<OfferBundle>>(

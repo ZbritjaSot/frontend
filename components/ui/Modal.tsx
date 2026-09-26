@@ -19,6 +19,8 @@ type ModalProps = {
   footer?: ReactNode;
   /** Wider dialog for forms. */
   size?: "sm" | "md";
+  /** Red shell for a change that is hard to undo. */
+  danger?: boolean;
 };
 
 export function Modal({
@@ -28,6 +30,7 @@ export function Modal({
   children,
   footer,
   size = "sm",
+  danger = false,
 }: ModalProps) {
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -86,15 +89,23 @@ export function Modal({
     >
       <div
         ref={dialogRef}
-        className={`flex max-h-[min(90dvh,40rem)] w-full flex-col overflow-hidden rounded-lg border border-line bg-elevated shadow-[0_24px_64px_var(--color-shadow)] outline-none ${
+        className={`flex max-h-[min(90dvh,40rem)] w-full flex-col overflow-hidden rounded-lg border shadow-[0_24px_64px_var(--color-shadow)] outline-none ${
           size === "md" ? "max-w-lg" : "max-w-sm"
+        } ${
+          danger
+            ? "border-2 border-[#e53935] bg-[#4a1212] text-white"
+            : "border-line bg-elevated"
         }`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
       >
-        <div className="flex shrink-0 items-start justify-between gap-5 bg-elevated px-5 pt-5">
+        <div
+          className={`flex shrink-0 items-start justify-between gap-5 px-5 pt-5 ${
+            danger ? "bg-[#c62828] text-white" : "bg-elevated"
+          }`}
+        >
           <h2
             id={titleId}
             className="m-0 text-lg font-bold tracking-[-0.02em]"
@@ -103,7 +114,9 @@ export function Modal({
           </h2>
           <button
             type="button"
-            className="-mt-1 -mr-1 inline-flex cursor-pointer border-0 bg-transparent p-0 text-muted hover:text-ink"
+            className={`-mt-1 -mr-1 inline-flex cursor-pointer border-0 bg-transparent p-0 ${
+              danger ? "text-white/80 hover:text-white" : "text-muted hover:text-ink"
+            }`}
             onClick={onClose}
             aria-label="Mbyll"
           >
@@ -114,7 +127,13 @@ export function Modal({
           {children}
         </div>
         {footer ? (
-          <div className="relative z-2 flex shrink-0 flex-wrap justify-end gap-2.5 border-t border-line bg-elevated px-5 pt-3.5 pb-5">
+          <div
+            className={`relative z-2 flex shrink-0 flex-wrap justify-end gap-2.5 border-t px-5 pt-3.5 pb-5 ${
+              danger
+                ? "border-[#e53935]/50 bg-[#3a0d0d]"
+                : "border-line bg-elevated"
+            }`}
+          >
             {footer}
           </div>
         ) : null}
