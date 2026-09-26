@@ -8,7 +8,7 @@ export function CampaignSection({ folders }: { folders: PublicFolder[] }) {
   }
 
   return (
-    <Frame className="pt-10 sm:pt-12">
+    <Frame className="pt-10 pb-12 sm:pt-12 sm:pb-16">
       <div className="mb-4 flex items-end justify-between gap-3">
         <h2 className="m-0 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
           Fletushkat

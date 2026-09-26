@@ -5,6 +5,7 @@ import { CategoryBand } from "@/features/public/home/CategoryBand";
 import { DiscoverBand } from "@/features/public/home/DiscoverBand";
 import { HeroSection } from "@/features/public/home/HeroSection";
 import { ShopDirectory } from "@/features/public/home/ShopDirectory";
+import { InboxBand } from "@/features/public/home/InboxBand";
 import { SpotlightSection } from "@/features/public/home/SpotlightSection";
 import type { PublicHome } from "@/features/offers/api";
 
@@ -28,6 +29,7 @@ export function HomeView({ home }: { home: PublicHome }) {
       ) : null}
       <SpotlightSection offers={home.featured} />
       <CampaignSection folders={home.flyers} />
+      <InboxBand home={home} />
       <CategoryBand categories={home.categories} />
       <CatalogSection latest={home.fresh} soon={home.ending_soon} />
       <ShopDirectory shops={home.shops} />

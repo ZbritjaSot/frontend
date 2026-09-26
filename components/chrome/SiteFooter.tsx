@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/Wordmark";
+import { NewsletterSignup } from "@/features/public/NewsletterSignup";
 import { SITE_TAGLINE } from "@/lib/site";
 
 const link =
@@ -8,7 +9,7 @@ const link =
 export function SiteFooter() {
   return (
     <footer className="mt-auto bg-forest text-ivory dark:bg-[#101614] dark:text-ink">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-10 sm:px-8">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-8 sm:px-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Wordmark tone="inverse" className="text-2xl" />
@@ -34,9 +35,12 @@ export function SiteFooter() {
             </Link>
           </nav>
         </div>
-        <p className="m-0 text-sm text-ivory/60 dark:text-muted">
-          © {new Date().getFullYear()} ZbritjaSot
-        </p>
+        <div className="flex flex-col gap-3 border-t border-ivory/10 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+          <NewsletterSignup variant="footer" />
+          <p className="m-0 text-sm text-ivory/60 dark:text-muted">
+            © {new Date().getFullYear()} ZbritjaSot
+          </p>
+        </div>
       </div>
     </footer>
   );
