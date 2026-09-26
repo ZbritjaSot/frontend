@@ -10,6 +10,7 @@ import {
 } from "@/features/branches/api";
 import { fetchManagerCompanyShops } from "@/features/biz/managerApi";
 import { ItemPhoto } from "@/features/gallery/ItemPhoto";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Modal } from "@/components/ui/Modal";
@@ -463,6 +464,54 @@ export function OfferForm({
           </p>
         </div>
 
+        <div className="mb-4 rounded-2xl border border-line p-4">
+          <p className="m-0 text-sm font-semibold">Foto e fletushkës</p>
+          <p className="m-0 mt-1 text-sm text-muted">
+            Opsionale. Zgjidh foton e një produkti. Pa të, fletushka del pa foto.
+          </p>
+          {items.some((item) => item.thumb_url) ? (
+            <ul className="m-0 mt-3 flex list-none flex-wrap gap-3 p-0">
+              {items.map((item) =>
+                item.thumb_url ? (
+                  <li key={item.key}>
+                    <button
+                      type="button"
+                      aria-pressed={coverKey === item.key}
+                      disabled={pending}
+                      className={`flex w-28 cursor-pointer flex-col gap-2 rounded-xl border p-2 text-left ${
+                        coverKey === item.key
+                          ? "border-accent bg-accent/10"
+                          : "border-line bg-transparent hover:bg-sunken"
+                      }`}
+                      onClick={() =>
+                        setCoverKey((current) => (current === item.key ? null : item.key))
+                      }
+                    >
+                      <span className="relative block aspect-square overflow-hidden rounded-lg">
+                        <Image
+                          src={item.thumb_url}
+                          alt=""
+                          fill
+                          unoptimized
+                          className="object-cover"
+                          sizes="112px"
+                        />
+                      </span>
+                      <span className="truncate text-xs font-bold">
+                        {coverKey === item.key ? "E zgjedhur" : item.name || "Produkt"}
+                      </span>
+                    </button>
+                  </li>
+                ) : null,
+              )}
+            </ul>
+          ) : (
+            <p className="m-0 mt-3 text-sm text-muted">
+              Shto një foto te një produkt më poshtë, pastaj zgjidhe këtu.
+            </p>
+          )}
+        </div>
+
         <div className="grid gap-3">
           {items.map((item, index) => {
             const percent = Number(item.discount_percent);
@@ -477,7 +526,9 @@ export function OfferForm({
             return (
               <div
                 key={item.key}
-                className="rounded-2xl border border-line px-4 py-4"
+                className={`rounded-2xl border px-4 py-4 ${
+                  coverKey === item.key ? "border-accent" : "border-line"
+                }`}
               >
                 <div className="flex items-stretch gap-4">
                   <ItemPhoto
@@ -528,6 +579,7 @@ export function OfferForm({
                             patchItem(item.key, { category_id: value })
                           }
                           options={categoryOptions}
+                          searchable
                           placeholder="Kategoria"
                           disabled={pending || categoriesLoading}
                           aria-label={`Kategoria e produktit ${index + 1}`}
@@ -613,22 +665,6 @@ export function OfferForm({
                       <p className="m-0 text-sm font-semibold text-accent">
                         {formatEurFromCents(item.original_price)} − {percent}% = {formatEurFromCents(item.discounted_price)}
                       </p>
-                    ) : null}
-                    {item.thumb_url ? (
-                      <button
-                        type="button"
-                        disabled={pending}
-                        className={`w-fit text-left text-sm font-bold ${
-                          coverKey === item.key
-                            ? "text-ink"
-                            : "text-muted hover:text-ink"
-                        }`}
-                        onClick={() => setCoverKey(item.key)}
-                      >
-                        {coverKey === item.key
-                          ? "Foto e fletushkës"
-                          : "Vendose në fletushkë"}
-                      </button>
                     ) : null}
                   </div>
                 </div>

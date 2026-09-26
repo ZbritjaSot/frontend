@@ -41,6 +41,7 @@ export type Business = {
   id: string;
   parent_id?: string | null;
   parent?: { id: string; name: string } | null;
+  manager?: { name: string; email: string } | null;
   name: string;
   street?: string | null;
   village?: string | null;
@@ -57,6 +58,7 @@ export type Business = {
   location_status?: "pending" | "rejected" | null;
   location_rejection_note?: string | null;
   is_active: boolean;
+  is_approved?: boolean;
   extra_placement?: boolean;
   logo_url?: string | null;
   owner?: User | null;

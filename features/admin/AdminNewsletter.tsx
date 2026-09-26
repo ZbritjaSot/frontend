@@ -20,14 +20,7 @@ import {
 } from "@/hooks/useAdminNewsletter";
 import { validationMessage } from "@/lib/api";
 import { formatDateSq } from "@/lib/format";
-import {
-  btnPrimary,
-  fieldError,
-  fieldLabel,
-  inputClass,
-  pageTitle,
-  panelLead,
-} from "@/lib/ui";
+import { btnPrimary, fieldError, fieldLabel, iconButton, inputClass, pageTitle, panelLead } from "@/lib/ui";
 
 const rowButton =
   "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60";
@@ -341,12 +334,13 @@ export function AdminNewsletter() {
                             </span>
                             <button
                               type="button"
-                              className="shrink-0 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-muted hover:text-ink"
+                              className={iconButton}
+                              aria-label={`Hiq ${item.title}`}
                               onClick={() =>
                                 group.clear(group.items.filter((pickedItem) => pickedItem.id !== item.id))
                               }
                             >
-                              Hiq
+                              <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
                             </button>
                           </li>
                         ))}
@@ -430,7 +424,7 @@ export function AdminNewsletter() {
                       aria-label={`Hiq ${subscriber.email}`}
                       onClick={() => setPendingDelete(subscriber)}
                     >
-                      <DeleteOutlinedIcon fontSize="small" />
+                      <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
                     </button>
                   </li>
                 ))}

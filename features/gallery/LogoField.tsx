@@ -1,6 +1,6 @@
 "use client";
 
-import CloseIcon from "@mui/icons-material/Close";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined";
 import { useRef, useState } from "react";
 import { ShopLogo } from "@/features/public/visuals";
@@ -64,7 +64,7 @@ export function LogoField({
             type="button"
             disabled={busy}
             aria-label="Hiq logon"
-            className="absolute -top-1 -left-1 grid size-6 place-items-center rounded-full bg-charcoal text-white ring-2 ring-elevated"
+            className="absolute -top-1 -left-1 grid size-6 place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated"
             onClick={async () => {
               setError(null);
               setBusy(true);
@@ -77,7 +77,7 @@ export function LogoField({
               }
             }}
           >
-            <CloseIcon sx={{ fontSize: 14 }} />
+            <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
           </button>
         ) : null}
       </div>

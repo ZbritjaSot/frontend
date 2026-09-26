@@ -1,7 +1,7 @@
 "use client";
 
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
-import CloseIcon from "@mui/icons-material/Close";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import Image from "next/image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -114,10 +114,10 @@ export function ItemPhoto({
           type="button"
           disabled={disabled || busy}
           aria-label="Hiq foton"
-          className="absolute -top-1.5 -right-1.5 grid size-6 place-items-center rounded-full bg-charcoal text-white ring-2 ring-elevated"
+          className="absolute -top-1.5 -right-1.5 grid size-6 place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated"
           onClick={onClear}
         >
-          <CloseIcon sx={{ fontSize: 14 }} />
+          <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
         </button>
       ) : null}
       <input

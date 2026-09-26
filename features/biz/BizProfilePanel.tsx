@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/Spinner";
 import { useQueryClient } from "@tanstack/react-query";
 import { hasRole } from "@/features/auth/api";
+import { ManagerNote } from "@/features/biz/ManagerNote";
 import { ManagerShops } from "@/features/biz/ManagerShops";
 import { BranchPanel } from "@/features/branches/BranchPanel";
 import { BizGallery } from "@/features/gallery/BizGallery";
@@ -196,6 +197,7 @@ export function BizProfilePanel() {
               <h2 className="m-0 mt-1 truncate text-xl font-bold tracking-[-0.02em] text-ink">
                 {business?.name}
               </h2>
+              {business ? <ManagerNote business={business} /> : null}
             </div>
           </div>
           {business ? (

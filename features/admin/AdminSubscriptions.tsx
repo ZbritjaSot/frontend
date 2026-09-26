@@ -593,6 +593,7 @@ export function AdminSubscriptions() {
                 value={businessId}
                 onChange={setBusinessId}
                 options={businessOptions}
+                searchable
                 placeholder="Zgjidh biznesin"
                 disabled={createMutation.isPending || businessesLoading}
                 aria-label="Biznesi"

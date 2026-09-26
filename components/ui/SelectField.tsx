@@ -25,6 +25,8 @@ type SelectFieldProps = {
   onChange: (value: string) => void;
   options: SelectOption[];
   placeholder?: string;
+  /** Shows a filter box in the menu. Use it for shops, categories, and other long lists. */
+  searchable?: boolean;
   disabled?: boolean;
   id?: string;
   "aria-label"?: string;
@@ -36,6 +38,7 @@ export function SelectField({
   onChange,
   options,
   placeholder = "Zgjidh…",
+  searchable = false,
   disabled = false,
   id,
   "aria-label": ariaLabel,
@@ -43,7 +46,9 @@ export function SelectField({
 }: SelectFieldProps) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLUListElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [menuBox, setMenuBox] = useState<{
     left: number;
@@ -54,6 +59,13 @@ export function SelectField({
   } | null>(null);
 
   const selected = options.find((o) => o.value === value);
+  const needle = query.trim().toLocaleLowerCase("sq");
+  const visible =
+    needle === ""
+      ? options
+      : options.filter((option) =>
+          option.label.toLocaleLowerCase("sq").includes(needle),
+        );
 
   useEffect(() => {
     if (!open) {
@@ -66,13 +78,13 @@ export function SelectField({
         !rootRef.current?.contains(target) &&
         !menuRef.current?.contains(target)
       ) {
-        setOpen(false);
+        closeMenu();
       }
     };
 
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") {
-        setOpen(false);
+        closeMenu();
       }
     };
 
@@ -83,6 +95,17 @@ export function SelectField({
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [open]);
+
+  function closeMenu() {
+    setOpen(false);
+    setQuery("");
+  }
+
+  useLayoutEffect(() => {
+    if (open && searchable) {
+      searchRef.current?.focus();
+    }
+  }, [open, searchable]);
 
   useLayoutEffect(() => {
     if (!open) {
@@ -152,7 +175,13 @@ export function SelectField({
         aria-controls={listId}
         aria-label={ariaLabel}
         disabled={disabled}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          if (open) {
+            closeMenu();
+            return;
+          }
+          setOpen(true);
+        }}
         onKeyDown={onTriggerKeyDown}
       >
         <span className={selected ? undefined : "text-muted"}>
@@ -166,10 +195,9 @@ export function SelectField({
 
       {open && menuBox
         ? createPortal(
-        <ul
+        <div
           ref={menuRef}
-          id={listId}
-          className="fixed z-[100] m-0 list-none overflow-auto rounded-lg border border-line bg-elevated p-1.5 shadow-[0_12px_32px_var(--color-shadow)]"
+          className="fixed z-[100] flex flex-col overflow-hidden rounded-lg border border-line bg-elevated p-1.5 shadow-[0_12px_32px_var(--color-shadow)]"
           style={{
             left: menuBox.left,
             width: menuBox.width,
@@ -177,35 +205,54 @@ export function SelectField({
             top: menuBox.top,
             bottom: menuBox.bottom,
           }}
-          role="listbox"
-          aria-label={ariaLabel}
         >
-          {options.length === 0 ? (
-            <li className="px-3 py-2.5 text-sm text-muted">Asnjë opsion</li>
-          ) : (
-            options.map((option) => {
-              const isSelected = option.value === value;
-              return (
-                <li key={option.value} role="presentation">
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={isSelected}
-                    className={
-                      isSelected ? `${optionClass} bg-accent/14 text-accent` : optionClass
-                    }
+          {searchable ? (
+            <input
+              ref={searchRef}
+              type="text"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Kërko"
+              aria-label="Kërko"
+              aria-controls={listId}
+              className="mb-1.5 min-h-10 w-full shrink-0 rounded-md border border-line bg-sunken px-3 text-sm font-medium text-ink outline-none placeholder:text-muted focus:border-accent/40"
+            />
+          ) : null}
+          <ul
+            id={listId}
+            className="m-0 min-h-0 flex-1 list-none overflow-auto p-0"
+            role="listbox"
+            aria-label={ariaLabel}
+          >
+            {options.length === 0 ? (
+              <li className="px-3 py-2.5 text-sm text-muted">Asnjë opsion</li>
+            ) : visible.length === 0 ? (
+              <li className="px-3 py-2.5 text-sm text-muted">Asnjë rezultat</li>
+            ) : (
+              visible.map((option) => {
+                const isSelected = option.value === value;
+                return (
+                  <li key={option.value} role="presentation">
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={isSelected}
+                      className={
+                        isSelected ? `${optionClass} bg-accent/14 text-accent` : optionClass
+                      }
                     onClick={() => {
                       onChange(option.value);
-                      setOpen(false);
+                      closeMenu();
                     }}
-                  >
-                    {option.label}
-                  </button>
-                </li>
-              );
-            })
-          )}
-        </ul>,
+                    >
+                      {option.label}
+                    </button>
+                  </li>
+                );
+              })
+            )}
+          </ul>
+        </div>,
           document.body,
         )
         : null}

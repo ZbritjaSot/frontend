@@ -52,6 +52,7 @@ export function ManagerCreateOffer() {
               <SelectField
                 value={shopId}
                 onChange={setShopId}
+                searchable
                 placeholder="Zgjidh dyqanin"
                 aria-label="Dyqani"
                 options={rows.map((shop) => ({

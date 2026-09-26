@@ -1,12 +1,15 @@
+import Link from "next/link";
 import { CatalogFilters } from "@/features/public/CatalogFilters";
 import { CatalogStream } from "@/features/public/CatalogStream";
 import { CampaignGrid, CampaignPoster, CampaignRail } from "@/features/public/CampaignPoster";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
 import { Band, EmptyNote, Pager, SectionHeading } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
+import { locationLabel } from "@/features/public/compose";
 import { display, kicker as kickerClass } from "@/features/public/tone";
+import { ShopLogo } from "@/features/public/visuals";
 import { browsePath, type CatalogSort, type Katalog } from "@/lib/browse";
-import type { CategorySummary, PublicFolder, PublicOffer } from "@/types";
+import type { CategorySummary, PublicBusiness, PublicFolder, PublicOffer } from "@/types";
 
 type ResultsViewProps = {
   folders: PublicFolder[];
@@ -23,6 +26,7 @@ type ResultsViewProps = {
   folderLastPage: number;
   offerTotal?: number;
   folderTotal?: number;
+  shops?: PublicBusiness[];
   basePath?: string;
 };
 
@@ -41,6 +45,7 @@ export function ResultsView({
   folderLastPage,
   offerTotal = offers.length,
   folderTotal = folders.length,
+  shops = [],
   basePath = "/",
 }: ResultsViewProps) {
   const categoryName = categories.find((item) => item.slug === category)?.name;
@@ -57,9 +62,9 @@ export function ResultsView({
   const showFlyerGrid = flyerCatalogue;
   const showFlyerRail = !flyerCatalogue && page === 1 && folders.length > 0;
   const showOffers = !flyerCatalogue && offers.length > 0;
-  const empty = !showFlyerGrid && !showFlyerRail && !showOffers
+  const empty = shops.length === 0 && (!showFlyerGrid && !showFlyerRail && !showOffers
     ? true
-    : flyerCatalogue && folders.length === 0;
+    : flyerCatalogue && folders.length === 0);
   const lastPage = flyerCatalogue
     ? folderLastPage
     : offers.length > 0 || offerLastPage > 1
@@ -114,6 +119,33 @@ export function ResultsView({
           />
         </div>
       )}
+
+      {q && shops.length > 0 ? (
+        <div className="mt-10">
+          <SectionHeading kicker="Dyqane" title="Lokacionet" />
+          <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2">
+            {shops.map((shop) => {
+              const place = shop.city ?? shop.village ?? locationLabel(shop.locations_count, shop.address);
+              return (
+                <li key={shop.id}>
+                  <Link
+                    href={`/biznese/${shop.id}`}
+                    className="flex min-h-12 min-w-0 items-center gap-3 border-b border-line px-1 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                  >
+                    <ShopLogo name={shop.name} logoUrl={shop.logo_url} size="sm" />
+                    <span className="min-w-0">
+                      <span className="block truncate font-extrabold">{shop.name}</span>
+                      {place ? (
+                        <span className="block truncate text-sm text-muted">{place}</span>
+                      ) : null}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : null}
 
       {catalogue && katalog && !empty ? (
         <CatalogStream

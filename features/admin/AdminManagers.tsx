@@ -1,5 +1,6 @@
 "use client";
 
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -117,6 +118,7 @@ export function AdminManagers() {
     <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
       <h1 className={`${pageTitle} mb-0!`}>Menaxherët</h1>
       <button className={btnPrimary} type="button" onClick={() => setCreating(true)}>
+        <AddOutlinedIcon fontSize="small" />
         Shto menaxher
       </button>
     </div>

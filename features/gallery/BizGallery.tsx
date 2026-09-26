@@ -1,7 +1,7 @@
 "use client";
 
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import CloseIcon from "@mui/icons-material/Close";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import Image from "next/image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
@@ -91,7 +91,7 @@ export function BizGallery() {
               type="button"
               disabled={busy}
               aria-label="Hiq foton"
-              className="absolute -top-1.5 -right-1.5 grid size-6 place-items-center rounded-full bg-charcoal text-white ring-2 ring-elevated"
+              className="absolute -top-1.5 -right-1.5 grid size-6 place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated"
               onClick={async () => {
                 setError(null);
                 setBusy(true);
@@ -105,7 +105,7 @@ export function BizGallery() {
                 }
               }}
             >
-              <CloseIcon sx={{ fontSize: 14 }} />
+              <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
             </button>
           </li>
         ))}

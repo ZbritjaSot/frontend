@@ -1,5 +1,7 @@
 "use client";
 
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";
@@ -17,7 +19,7 @@ import {
 } from "@/features/admin/placementApi";
 import { validationMessage } from "@/lib/api";
 import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
-import { btnGhost, btnPrimary, btnSm, fieldError, pageTitle, panelLead } from "@/lib/ui";
+import { btnGhost, btnPrimary, btnSm, fieldError, iconButton, pageTitle, panelLead } from "@/lib/ui";
 
 const queryKey = ["admin", "placement"] as const;
 
@@ -154,8 +156,9 @@ export function AdminExclusive() {
                 }
                 trailing={(row) => (
                   <button
-                    className={`${btnGhost} ${btnSm}`}
+                    className={iconButton}
                     type="button"
+                    aria-label={`Hiq ${row.name}`}
                     disabled={save.isPending}
                     onClick={() =>
                       persist(
@@ -163,7 +166,7 @@ export function AdminExclusive() {
                       )
                     }
                   >
-                    Hiq
+                    <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
                   </button>
                 )}
               >
@@ -242,8 +245,9 @@ function CandidateGroup({
               </p>
             </div>
             <button
-              className={`${btnGhost} ${btnSm}`}
+              className={iconButton}
               type="button"
+              aria-label={`Shto ${item.name}`}
               disabled={pending}
               onClick={() =>
                 onAdd({
@@ -255,7 +259,7 @@ function CandidateGroup({
                 })
               }
             >
-              Shto
+              <AddOutlinedIcon fontSize="small" className="text-accent!" />
             </button>
           </li>
         ))}

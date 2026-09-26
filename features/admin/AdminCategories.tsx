@@ -1,5 +1,6 @@
 "use client";
 
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -162,6 +163,7 @@ export function AdminCategories() {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h1 className={`${pageTitle} mb-0!`}>Kategoritë</h1>
         <button className={btnPrimary} type="button" onClick={openCreate}>
+          <AddOutlinedIcon fontSize="small" />
           Shto kategori
         </button>
       </div>

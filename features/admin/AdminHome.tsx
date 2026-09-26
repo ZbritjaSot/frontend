@@ -1,5 +1,7 @@
 "use client";
 
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import Image from "next/image";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -13,7 +15,7 @@ import {
   saveAdminHomeShops,
 } from "@/features/admin/homeCurationApi";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, btnSm, fieldError, inputClass, panelLead } from "@/lib/ui";
+import { fieldError, iconButton, inputClass, panelLead } from "@/lib/ui";
 
 const homeKey = ["admin", "home"] as const;
 
@@ -136,8 +138,9 @@ export function AdminHome() {
                 onReorder={(ids) => saveHero.mutate(ids)}
                 trailing={(offer) => (
                   <button
-                    className={`${btnGhost} ${btnSm}`}
+                    className={iconButton}
                     type="button"
+                    aria-label={`Hiq ${offer.name}`}
                     disabled={saveHero.isPending}
                     onClick={() =>
                       saveHero.mutate(
@@ -145,7 +148,7 @@ export function AdminHome() {
                       )
                     }
                   >
-                    Hiq
+                    <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
                   </button>
                 )}
               >
@@ -203,14 +206,15 @@ export function AdminHome() {
                         </p>
                       </div>
                       <button
-                        className={`${btnGhost} ${btnSm}`}
+                        className={iconButton}
                         type="button"
+                        aria-label={`Shto ${offer.name}`}
                         disabled={saveHero.isPending}
                         onClick={() =>
                           saveHero.mutate([...heroes.map((item) => item.id), offer.id])
                         }
                       >
-                        Shto
+                        <AddOutlinedIcon fontSize="small" className="text-accent!" />
                       </button>
                     </li>
                   ))}

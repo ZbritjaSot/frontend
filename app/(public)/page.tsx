@@ -4,6 +4,7 @@ import { EmptyNote, Frame } from "@/features/public/Frame";
 import { ResultsView } from "@/features/public/ResultsView";
 import {
   ApiError,
+  fetchPublicBusinesses,
   fetchPublicCategories,
   fetchPublicCities,
   fetchPublicFolders,
@@ -12,7 +13,7 @@ import {
   type PublicHome,
 } from "@/features/offers/api";
 import { readKatalog, readSort } from "@/lib/browse";
-import type { CategorySummary, PublicFolder, PublicOffer } from "@/types";
+import type { CategorySummary, PublicBusiness, PublicFolder, PublicOffer } from "@/types";
 
 export const metadata: Metadata = {
   title: "Zbritjet e ditës",
@@ -42,6 +43,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   let folders: PublicFolder[] = [];
   let offers: PublicOffer[] = [];
+  let shops: PublicBusiness[] = [];
   let folderLastPage = 1;
   let offerLastPage = 1;
   let folderTotal = 0;
@@ -55,7 +57,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const loadOffers = katalog !== "fletushka";
 
   try {
-    const [folderResult, offerResult, categoryList, cityList, homeResult] = await Promise.all([
+    const [folderResult, offerResult, categoryList, cityList, homeResult, shopResult] = await Promise.all([
       !browsing && loadFolders
         ? fetchPublicFolders({
             q: q || undefined,
@@ -79,9 +81,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       browsing ? Promise.resolve([]) : fetchPublicCategories().catch(() => []),
       catalogue ? fetchPublicCities().catch(() => []) : Promise.resolve([]),
       browsing ? fetchPublicHome() : Promise.resolve(null),
+      !browsing && q !== ""
+        ? fetchPublicBusinesses({ q, perPage: 24 }).catch(() => null)
+        : Promise.resolve(null),
     ]);
     folders = folderResult?.data ?? [];
     offers = offerResult?.data ?? [];
+    shops = shopResult?.data ?? [];
     folderLastPage = folderResult?.meta?.last_page ?? 1;
     offerLastPage = offerResult?.meta?.last_page ?? 1;
     folderTotal = folderResult?.meta?.total ?? folders.length;
@@ -121,6 +127,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         folderLastPage={folderLastPage}
         offerTotal={offerTotal}
         folderTotal={folderTotal}
+        shops={shops}
       />
     );
   }

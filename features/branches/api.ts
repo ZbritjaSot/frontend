@@ -67,6 +67,29 @@ export async function createAdminBranch(
   return payload.data;
 }
 
+export async function approveAdminBranch(businessId: string): Promise<Business> {
+  const payload = await apiFetch<{ data: Business }>(
+    `/admin/businesses/${businessId}/approve`,
+    { method: "POST", auth: true },
+  );
+  return payload.data;
+}
+
+export async function makeAdminBranchMain(businessId: string): Promise<Business> {
+  const payload = await apiFetch<{ data: Business }>(
+    `/admin/businesses/${businessId}/make-main`,
+    { method: "POST", auth: true },
+  );
+  return payload.data;
+}
+
+export async function deleteAdminBranch(businessId: string): Promise<void> {
+  await apiFetch<void>(`/admin/businesses/${businessId}`, {
+    method: "DELETE",
+    auth: true,
+  });
+}
+
 export async function fetchAdminCompanyShops(businessId: string): Promise<CompanyShop[]> {
   const payload = await apiFetch<ListPayload<CompanyShop[]>>(
     `/admin/businesses/${businessId}/company-shops`,

@@ -10,6 +10,7 @@ import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Spinner } from "@/components/ui/Spinner";
 import { BranchPanel } from "@/features/branches/BranchPanel";
+import { ManagerNote } from "@/features/biz/ManagerNote";
 import { AdminGallery } from "@/features/gallery/AdminGallery";
 import { deleteAdminLogo, uploadAdminLogo } from "@/features/gallery/api";
 import { LogoField } from "@/features/gallery/LogoField";
@@ -237,7 +238,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
           {business?.name ?? "Profili"}
         </h1>
         {business?.extra_placement ? (
-          <StarIcon className="text-accent!" aria-label={EXCLUSIVE_LABEL} />
+          <StarIcon fontSize="small" className="shrink-0 text-accent!" aria-label={EXCLUSIVE_LABEL} />
         ) : null}
         {business ? (
           <Link
@@ -250,6 +251,11 @@ export function AdminBusinessProfile({ id }: { id: string }) {
           </Link>
         ) : null}
       </div>
+      {business ? (
+        <div className="col-start-2">
+          <ManagerNote business={business} />
+        </div>
+      ) : null}
     </div>
   );
 
@@ -360,6 +366,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
 
   return (
     <div>
+      {heading}
       <nav className="mb-6 flex flex-wrap gap-x-5 gap-y-2 border-b border-line" aria-label="Seksionet e profilit">
         {(
           [
@@ -436,11 +443,6 @@ export function AdminBusinessProfile({ id }: { id: string }) {
                 onChange={(event) => setActive(event.target.checked)}
               />
               <span>Llogaria aktive</span>
-            <p className="m-0 text-sm leading-relaxed text-muted">
-              {business.extra_placement
-                ? `${EXCLUSIVE_LABEL}. Ylli te lista e bizneseve e ndez dhe e fik për krejt kompaninë.`
-                : `Nuk është ${EXCLUSIVE_LABEL}. Ylli te lista e bizneseve e ndez për krejt kompaninë.`}
-            </p>
             </label>
             <div className="flex justify-end">
               <button

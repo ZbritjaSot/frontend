@@ -1,5 +1,6 @@
 "use client";
 
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
@@ -84,7 +85,7 @@ function ShopLine({
           <ShopLogo name={business.name} logoUrl={business.logo_url} size="sm" />
           <span className="min-w-0">
             <span className="block truncate">{business.name}</span>
-            {branch && place ? (
+            {place ? (
               <span className="block truncate text-sm font-medium text-muted">{place}</span>
             ) : null}
           </span>
@@ -113,9 +114,13 @@ function ShopLine({
         ) : null}
       </div>
       <span
-        className={`${offerStatusClass(business.is_active ? "approved" : "rejected")} mt-0! w-fit self-center! md:ml-6`}
+        className={`${offerStatusClass(business.is_approved === false ? "pending" : business.is_active ? "approved" : "rejected")} mt-0! w-fit self-center! md:ml-6`}
       >
-        {business.is_active ? "Aktive" : "Joaktive"}
+        {business.is_approved === false
+          ? "Pret aprovim"
+          : business.is_active
+            ? "Aktive"
+            : "Joaktive"}
       </span>
       <div className="grid grid-cols-4 gap-1.5 border-l border-line pl-4">
         {branchCount > 0 ? (
@@ -255,6 +260,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h1 className={`${pageTitle} mb-0!`}>Bizneset</h1>
         <button className={btnPrimary} type="button" onClick={openCreate}>
+          <AddOutlinedIcon fontSize="small" />
           Shto biznes
         </button>
       </div>
