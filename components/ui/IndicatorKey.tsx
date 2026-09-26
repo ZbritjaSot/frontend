@@ -7,6 +7,7 @@ import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
+import StarIcon from "@mui/icons-material/Star";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { offerStatusClass } from "@/lib/ui";
 
@@ -27,6 +28,7 @@ export type IndicatorMark =
   | "lock"
   | "unlock"
   | "drag"
+  | "star"
   | "history"
   | "count-danger"
   | "count-pending"
@@ -129,6 +131,12 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
       return (
         <span className={iconBox}>
           <DragIndicatorIcon fontSize="small" />
+        </span>
+      );
+    case "star":
+      return (
+        <span className={iconBox}>
+          <StarIcon fontSize="small" className="text-accent!" />
         </span>
       );
     case "history":
@@ -266,6 +274,7 @@ export const adminBusinessKey: IndicatorItem[] = [
   { mark: "edit", text: "Ndrysho të dhënat." },
   { mark: "lock", text: "Çaktivizo biznesin." },
   { mark: "unlock", text: "Aktivizo biznesin." },
+  { mark: "star", text: "Bëje ekskluzive." },
 ];
 
 export const adminCategoryKey: IndicatorItem[] = [

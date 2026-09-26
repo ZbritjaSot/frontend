@@ -3,7 +3,13 @@ import { ProductGrid } from "@/features/public/ProductPoster";
 import { kicker } from "@/features/public/tone";
 import type { PublicOffer } from "@/types";
 
-export function SpotlightSection({ offers }: { offers: PublicOffer[] }) {
+export function SpotlightSection({
+  offers,
+  title = "Zbritje të forta",
+}: {
+  offers: PublicOffer[];
+  title?: string;
+}) {
   if (offers.length === 0) {
     return null;
   }
@@ -14,7 +20,7 @@ export function SpotlightSection({ offers }: { offers: PublicOffer[] }) {
         <div>
           <p className={kicker}>Përzgjedhje</p>
           <h2 className="m-0 mt-1 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
-            Zbritje të forta
+            {title}
           </h2>
         </div>
         <SeeAll href="/?katalog=oferta">Shiko të gjitha</SeeAll>

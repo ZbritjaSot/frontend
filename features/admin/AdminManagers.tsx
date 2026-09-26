@@ -125,7 +125,7 @@ export function AdminManagers() {
       {header}
       <p className={`${panelLead} -mt-2 mb-4`}>
         Çdo dyqan i caktohet një menaxheri. Fletushkat në pritje shfaqen këtu, jo te
-        radha jote. Aprovoji ose ndryshoji para se ta fshish llogarinë.
+        lista jote. Aprovoji ose ndryshoji para se ta fshish llogarinë.
       </p>
 
       {managers.isLoading ? (

@@ -56,6 +56,7 @@ export type Business = {
   location_status?: "pending" | "rejected" | null;
   location_rejection_note?: string | null;
   is_active: boolean;
+  extra_placement?: boolean;
   logo_url?: string | null;
   owner?: User | null;
   created_at?: string;

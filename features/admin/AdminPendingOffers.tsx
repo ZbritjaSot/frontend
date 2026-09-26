@@ -19,7 +19,7 @@ export function AdminPendingOffers() {
   const { data, isLoading, isError, error, refetch } = usePendingOffers(page);
 
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar radhën" />;
+    return <Spinner label="Duke ngarkuar listën" />;
   }
 
   if (isError) {

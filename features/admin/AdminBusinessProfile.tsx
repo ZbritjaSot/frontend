@@ -26,6 +26,7 @@ import {
   useUpdateSubscription,
 } from "@/hooks/useAdminSubscriptions";
 import { accountEmailMessage, validationMessage } from "@/lib/api";
+import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { toDateTimeLocalValue } from "@/lib/datetime";
 import { formatDateSq } from "@/lib/format";
 import {
@@ -166,6 +167,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
 
   const [name, setName] = useState("");
   const [active, setActive] = useState(true);
+  const [extra, setExtra] = useState(false);
   const [ownerName, setOwnerName] = useState("");
   const [ownerEmail, setOwnerEmail] = useState("");
   const [seededId, setSeededId] = useState<string | null>(null);
@@ -205,6 +207,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
     setSeededId(business.id);
     setName(business.name);
     setActive(business.is_active);
+    setExtra(business.extra_placement === true);
     setOwnerName(business.owner?.name ?? "");
     setOwnerEmail(business.owner?.email ?? "");
   }
@@ -269,6 +272,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
         id: business.id,
         name: trimmed,
         is_active: active,
+        extra_placement: extra,
       });
     } catch (error) {
       setBusinessError(validationMessage(error, "Nuk mundëm ta ruajmë biznesin."));
@@ -393,6 +397,21 @@ export function AdminBusinessProfile({ id }: { id: string }) {
                 onChange={(event) => setActive(event.target.checked)}
               />
               <span>Llogaria aktive</span>
+            </label>
+            <label className={checkLabelClass}>
+              <input
+                className={checkInput}
+                type="checkbox"
+                checked={extra}
+                onChange={(event) => setExtra(event.target.checked)}
+              />
+              <span>
+                Bëje ekskluzive
+                <span className="mt-0.5 block text-sm font-normal text-muted">
+                  Vlen për dyqanin kryesor dhe të gjitha degët. Ofertat e tyre të aprovuara
+                  mund të zgjidhen te {EXCLUSIVE_LABEL}.
+                </span>
+              </span>
             </label>
             <div className="flex justify-end">
               <button

@@ -3,6 +3,8 @@
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import StarIcon from "@mui/icons-material/Star";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { adminBusinessKey, IndicatorKey } from "@/components/ui/IndicatorKey";
@@ -18,6 +20,7 @@ import {
   useUpdateBusiness,
 } from "@/hooks/useAdminBusinesses";
 import { accountEmailMessage, validationMessage } from "@/lib/api";
+import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import {
   btnGhost,
   btnPrimary,
@@ -163,20 +166,21 @@ export function AdminBusinesses() {
             {q === "" ? "Nuk ka biznese ende." : "Nuk u gjet asnjë biznes."}
           </p>
         ) : (
-          <div className="overflow-x-auto md:grid md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_auto_auto] md:gap-x-4">
-            <div className="col-span-4 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
+          <div className="overflow-x-auto md:grid md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_auto_auto_auto] md:gap-x-4">
+            <div className="col-span-5 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
               <span className="whitespace-nowrap">Biznesi</span>
               <span className="whitespace-nowrap">Pronari</span>
               <span className="whitespace-nowrap">Statusi</span>
+              <span className="sr-only">Ekskluzive</span>
               <span className="border-l border-line pl-4 whitespace-nowrap">
                 Veprimet
               </span>
             </div>
-            <ul className="col-span-4 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
+            <ul className="col-span-5 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
               {businesses.map((business) => (
                 <li
                   key={business.id}
-                  className="col-span-4 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
+                  className="col-span-5 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
                 >
                   <div className="min-w-0">
                     <p className="m-0 flex min-w-0 items-center gap-3 truncate text-base font-semibold">
@@ -215,6 +219,29 @@ export function AdminBusinesses() {
                   >
                     {business.is_active ? "Aktive" : "Joaktive"}
                   </span>
+                  <button
+                    className={rowButton}
+                    type="button"
+                    aria-pressed={business.extra_placement === true}
+                    aria-label={
+                      business.extra_placement
+                        ? `Hiq ${business.name} nga ${EXCLUSIVE_LABEL}`
+                        : `Shto ${business.name} te ${EXCLUSIVE_LABEL}`
+                    }
+                    disabled={updateMutation.isPending}
+                    onClick={() =>
+                      updateMutation.mutate({
+                        id: business.id,
+                        extra_placement: business.extra_placement !== true,
+                      })
+                    }
+                  >
+                    {business.extra_placement ? (
+                      <StarIcon fontSize="small" className="text-accent!" />
+                    ) : (
+                      <StarBorderIcon fontSize="small" />
+                    )}
+                  </button>
                   <div className="flex items-center gap-1.5 border-l border-line pl-4">
                     <Link
                       className={`${rowButton} no-underline`}

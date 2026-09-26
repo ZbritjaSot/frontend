@@ -127,11 +127,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   return <HomeView home={home ?? {
     hero: null,
+    heroes: [],
     featured: [],
     fresh: [],
     ending_soon: [],
     flyers: [],
     shops: [],
     categories: [],
+    exclusive: [],
+    sections: [],
   }} />;
 }

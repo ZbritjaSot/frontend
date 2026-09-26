@@ -18,7 +18,7 @@ export function ManagerReview() {
   const { data, isLoading, isError, error, refetch } = useManagerReview(page);
 
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar radhën" />;
+    return <Spinner label="Duke ngarkuar listën" />;
   }
 
   if (isError) {

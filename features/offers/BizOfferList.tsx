@@ -70,7 +70,7 @@ export function BizOfferList() {
       <div>
         <h1 className={pageTitle}>Ofertat</h1>
         <p className={panelLead}>
-          Fletushkat që presin aprovim janë te radha jote. Emailin dhe fjalëkalimin
+          Fletushkat që presin aprovim janë te lista jote. Emailin dhe fjalëkalimin
           e dyqanit i ndryshon administrata.
         </p>
         <Link href="/biz" className={btnPrimary}>

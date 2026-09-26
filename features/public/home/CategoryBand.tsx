@@ -4,7 +4,13 @@ import { kicker } from "@/features/public/tone";
 import { browsePath } from "@/lib/browse";
 import type { CategorySummary } from "@/types";
 
-export function CategoryBand({ categories }: { categories: CategorySummary[] }) {
+export function CategoryBand({
+  categories,
+  title = "Shfleto sipas llojit.",
+}: {
+  categories: CategorySummary[];
+  title?: string;
+}) {
   if (categories.length === 0) {
     return null;
   }
@@ -15,7 +21,7 @@ export function CategoryBand({ categories }: { categories: CategorySummary[] }) 
         <div>
           <p className={kicker}>Kategori</p>
           <h2 className="m-0 mt-1 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
-            Shfleto sipas llojit.
+            {title}
           </h2>
         </div>
         <SeeAll href="/?katalog=oferta">Të gjitha ofertat</SeeAll>
