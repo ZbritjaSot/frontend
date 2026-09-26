@@ -32,7 +32,7 @@ export function AdminGallery({ businessId }: { businessId: string }) {
   }
 
   return (
-    <div className="grid gap-2">
+    <div className="relative grid gap-2">
       <p className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
         Galeria
       </p>

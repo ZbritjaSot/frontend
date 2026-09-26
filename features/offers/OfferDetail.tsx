@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { OfferPlace } from "@/components/place/OfferPlace";
+import { BranchPlaces } from "@/features/public/BranchPlaces";
 import { savingsCents } from "@/features/public/compose";
 import { BackLink, Band, Frame, SectionHeading } from "@/features/public/Frame";
 import { DiscountBadge, PriceLine } from "@/features/public/price";
@@ -108,6 +109,7 @@ export function OfferDetail({ offer, related = [] }: OfferDetailProps) {
                 longitude: offer.business.longitude,
               }}
             />
+            <BranchPlaces places={offer.also_at} />
           </div>
         </Band>
       ) : null}

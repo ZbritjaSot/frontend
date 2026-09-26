@@ -2,13 +2,20 @@
 
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from "react";
+import {
+  fetchAdminCompanyShops,
+  fetchBizCompanyShops,
+} from "@/features/branches/api";
+import { fetchManagerCompanyShops } from "@/features/biz/managerApi";
 import { ItemPhoto } from "@/features/gallery/ItemPhoto";
 import { useRouter } from "next/navigation";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { PosMoneyField } from "@/components/ui/PosMoneyField";
 import { SelectField } from "@/components/ui/SelectField";
 import { useUpdateAdminOffer } from "@/hooks/useAdminOffers";
+import { useCreateManagerBundle, useUpdateManagerBundle } from "@/hooks/useManagerReview";
 import {
   useActiveCategories,
   useCreateBizOffer,
@@ -19,6 +26,7 @@ import { validationMessage } from "@/lib/api";
 import {
   btnGhost,
   btnPrimary,
+  checkInput,
   fieldError,
   inputClass,
 } from "@/lib/ui";
@@ -42,8 +50,12 @@ type ItemDraft = {
 type OfferFormProps = {
   mode: "create" | "edit";
   offer?: OfferBundle;
-  /** Admin edits a waiting flyer. The shop form stays on drafts. */
-  audience?: "biz" | "admin";
+  /** Admin or a manager edits a waiting flyer. The shop form stays on drafts. */
+  audience?: "biz" | "admin" | "manager";
+  /** Shop that owns a flyer a manager is writing from scratch. */
+  businessId?: string;
+  /** A main shop can carry the flyer at its other locations. */
+  canShare?: boolean;
 };
 
 function emptyItem(key: string): ItemDraft {
@@ -100,19 +112,34 @@ function onPercentKeyDown(event: KeyboardEvent<HTMLInputElement>) {
   }
 }
 
-export function OfferForm({ mode, offer, audience = "biz" }: OfferFormProps) {
+export function OfferForm({
+  mode,
+  offer,
+  audience = "biz",
+  businessId,
+  canShare = false,
+}: OfferFormProps) {
   const router = useRouter();
   const { data: categories = [], isLoading: categoriesLoading } =
     useActiveCategories();
-  const createMutation = useCreateBizOffer();
+  const createBizMutation = useCreateBizOffer();
+  const createManagerMutation = useCreateManagerBundle(businessId ?? "");
+  const createMutation = audience === "manager" ? createManagerMutation : createBizMutation;
   const updateBizMutation = useUpdateBizOffer(offer?.id ?? "");
   const updateAdminMutation = useUpdateAdminOffer(offer?.id ?? "");
+  const updateManagerMutation = useUpdateManagerBundle(offer?.id ?? "");
   const updateMutation =
-    audience === "admin" ? updateAdminMutation : updateBizMutation;
+    audience === "admin"
+      ? updateAdminMutation
+      : audience === "manager"
+        ? updateManagerMutation
+        : updateBizMutation;
   const leaveHref =
     audience === "admin" && offer
       ? `/admin/offers/${offer.id}`
-      : "/biz/offers";
+      : audience === "manager" && offer
+        ? `/biz/review/${offer.id}`
+        : "/biz/offers";
 
   const defaults = defaultOfferWindow();
   const [title, setTitle] = useState(offer?.title ?? "");
@@ -138,6 +165,28 @@ export function OfferForm({ mode, offer, audience = "biz" }: OfferFormProps) {
       }));
     }
     return [emptyItem("item-0")];
+  });
+  const [branchIds, setBranchIds] = useState<string[]>(
+    () => offer?.branches?.map((branch) => branch.id) ?? [],
+  );
+  const companyShopId =
+    audience === "manager" && mode === "create"
+      ? canShare
+        ? businessId
+        : undefined
+      : offer?.business?.id;
+  const companyShops = useQuery({
+    queryKey: ["company-shops", audience, companyShopId ?? "biz"],
+    queryFn: () => {
+      if (audience === "admin" && companyShopId) {
+        return fetchAdminCompanyShops(companyShopId);
+      }
+      if (audience === "manager" && companyShopId) {
+        return fetchManagerCompanyShops(companyShopId);
+      }
+      return fetchBizCompanyShops();
+    },
+    enabled: audience === "biz" || Boolean(companyShopId),
   });
   const [coverKey, setCoverKey] = useState<string | null>(() => {
     const imageId = offer?.cover_gallery_image_id;
@@ -229,6 +278,7 @@ export function OfferForm({ mode, offer, audience = "biz" }: OfferFormProps) {
       ),
       cover_gallery_image_id:
         items.find((item) => item.key === coverKey)?.gallery_image_id ?? null,
+      ...((companyShops.data?.length ?? 0) > 0 ? { branch_ids: branchIds } : {}),
     });
 
     if (!parsed.success) {
@@ -240,8 +290,8 @@ export function OfferForm({ mode, offer, audience = "biz" }: OfferFormProps) {
 
     try {
       if (mode === "create") {
-        await createMutation.mutateAsync(parsed.data);
-        router.replace("/biz/offers");
+        const created = await createMutation.mutateAsync(parsed.data);
+        router.replace(audience === "manager" ? `/biz/review/${created.id}` : "/biz/offers");
       } else if (offer) {
         await updateMutation.mutateAsync(parsed.data);
         router.replace(leaveHref);
@@ -295,6 +345,42 @@ export function OfferForm({ mode, offer, audience = "biz" }: OfferFormProps) {
         </div>
       </section>
 
+      {(companyShops.data?.length ?? 0) > 0 ? (
+        <section className="rounded-2xl border border-line px-5 py-5">
+          <h2 className={`${micro} m-0`}>Ku tjetër shfaqet</h2>
+          <p className="m-0 mt-2 text-sm leading-relaxed text-muted">
+            Zgjidh dyqanet e kompanisë ku shfaqet kjo fletushkë. Nuk u shtohet vetë.
+          </p>
+          <ul className="m-0 mt-4 grid list-none gap-2 p-0">
+            {companyShops.data?.map((shop) => (
+              <li key={shop.id}>
+                <label className="flex items-center gap-3 text-sm font-semibold">
+                  <input
+                    className={checkInput}
+                    type="checkbox"
+                    checked={branchIds.includes(shop.id)}
+                    onChange={() =>
+                      setBranchIds((current) =>
+                        current.includes(shop.id)
+                          ? current.filter((id) => id !== shop.id)
+                          : [...current, shop.id],
+                      )
+                    }
+                    disabled={pending}
+                  />
+                  <span>
+                    {shop.name}
+                    {shop.city ? (
+                      <span className="ml-2 font-medium text-muted">{shop.city}</span>
+                    ) : null}
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       <section>
         <div className="mb-3 flex items-baseline justify-between gap-3">
           <h2 className={`${micro} m-0`}>Produktet</h2>
@@ -324,8 +410,9 @@ export function OfferForm({ mode, offer, audience = "biz" }: OfferFormProps) {
                     name={item.name}
                     thumbUrl={item.thumb_url}
                     businessId={
-                      audience === "admin" ? offer?.business?.id : undefined
+                      audience === "biz" ? undefined : (businessId ?? offer?.business?.id)
                     }
+                    gallery={audience === "manager" ? "manager" : audience === "admin" ? "admin" : "biz"}
                     disabled={pending}
                     onPick={(image) => {
                       patchItem(item.key, {

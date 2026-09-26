@@ -9,6 +9,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import {
+  fetchManagerGallery,
+  uploadManagerGallery,
+} from "@/features/biz/managerApi";
+import {
   fetchAdminGallery,
   fetchBizGallery,
   uploadAdminGallery,
@@ -24,6 +28,7 @@ export function ItemPhoto({
   name,
   thumbUrl,
   businessId,
+  gallery = "biz",
   disabled,
   onPick,
   onClear,
@@ -32,6 +37,7 @@ export function ItemPhoto({
   thumbUrl?: string | null;
   /** When set, photos come from that shop's gallery instead of the signed-in shop. */
   businessId?: string;
+  gallery?: "biz" | "admin" | "manager";
   disabled?: boolean;
   onPick: (image: OfferImage) => void;
   onClear: () => void;
@@ -42,13 +48,23 @@ export function ItemPhoto({
   const [picking, setPicking] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const galleryKey = businessId
-    ? (["admin", "gallery", businessId] as const)
-    : bizGalleryQueryKey;
-  const gallery = useQuery({
+  const galleryKey =
+    gallery === "manager" && businessId
+      ? (["biz", "review", "gallery", businessId] as const)
+      : businessId && gallery === "admin"
+        ? (["admin", "gallery", businessId] as const)
+        : bizGalleryQueryKey;
+  const photos = useQuery({
     queryKey: galleryKey,
-    queryFn: () =>
-      businessId ? fetchAdminGallery(businessId) : fetchBizGallery(),
+    queryFn: () => {
+      if (gallery === "manager" && businessId) {
+        return fetchManagerGallery(businessId);
+      }
+      if (gallery === "admin" && businessId) {
+        return fetchAdminGallery(businessId);
+      }
+      return fetchBizGallery();
+    },
     enabled: open && picking,
   });
 
@@ -65,9 +81,12 @@ export function ItemPhoto({
     setError(null);
     setBusy(true);
     try {
-      const image = businessId
-        ? await uploadAdminGallery(businessId, file)
-        : await uploadBizGallery(file);
+      const image =
+        gallery === "manager" && businessId
+          ? await uploadManagerGallery(businessId, file)
+          : gallery === "admin" && businessId
+            ? await uploadAdminGallery(businessId, file)
+            : await uploadBizGallery(file);
       await queryClient.invalidateQueries({ queryKey: galleryKey });
       onPick(image);
       close();
@@ -126,13 +145,13 @@ export function ItemPhoto({
           </p>
         ) : null}
         {picking ? (
-          gallery.isError ? (
+          photos.isError ? (
             <p className={fieldError} role="alert">
-              {validationMessage(gallery.error, "Galeria nuk u ngarkua.")}
+              {validationMessage(photos.error, "Galeria nuk u ngarkua.")}
             </p>
-          ) : gallery.data && gallery.data.length > 0 ? (
+          ) : photos.data && photos.data.length > 0 ? (
             <ul className="m-0 grid list-none grid-cols-3 gap-2 p-0">
-              {gallery.data.map((image) => (
+              {photos.data.map((image) => (
                 <li key={image.id}>
                   <button
                     type="button"

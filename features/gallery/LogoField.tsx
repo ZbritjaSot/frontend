@@ -39,7 +39,7 @@ export function LogoField({
   }
 
   return (
-    <div className="grid justify-items-start gap-2">
+    <div className="relative grid justify-items-start gap-2">
       <div className="relative">
         <button
           type="button"

@@ -17,7 +17,7 @@ import {
   useCreateBusiness,
   useUpdateBusiness,
 } from "@/hooks/useAdminBusinesses";
-import { validationMessage } from "@/lib/api";
+import { accountEmailMessage, validationMessage } from "@/lib/api";
 import {
   btnGhost,
   btnPrimary,
@@ -99,7 +99,7 @@ export function AdminBusinesses() {
       });
     } catch (submitError) {
       setFormError(
-        validationMessage(submitError, "Nuk mundëm ta krijojmë biznesin."),
+        accountEmailMessage(submitError, "Nuk mundëm ta krijojmë biznesin."),
       );
     }
   }
@@ -186,6 +186,11 @@ export function AdminBusinesses() {
                         size="sm"
                       />
                       <span className="truncate">{business.name}</span>
+                      {business.parent_id ? (
+                        <span className="shrink-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
+                          Degë
+                        </span>
+                      ) : null}
                     </p>
                     {business.location_status === "pending" ? (
                       <span className={`${offerStatusClass("pending")} mt-2`}>

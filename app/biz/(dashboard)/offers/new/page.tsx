@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { OfferForm } from "@/features/offers/OfferForm";
-import { OffersBackHeading } from "@/features/offers/EditOfferScreen";
+import { BizNewOfferScreen } from "@/features/offers/BizNewOfferScreen";
 
 export const metadata: Metadata = {
   title: "Dosje e re",
@@ -8,10 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function NewBizOfferPage() {
-  return (
-    <>
-      <OffersBackHeading title="Dosje e re" />
-      <OfferForm mode="create" />
-    </>
-  );
+  return <BizNewOfferScreen />;
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BizHomePanel } from "@/features/biz/BizHomePanel";
+import { BizHomeGate } from "@/features/biz/BizHomeGate";
 
 export const metadata: Metadata = {
   title: "Biznes",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function BizHomePage() {
-  return <BizHomePanel />;
+  return <BizHomeGate />;
 }

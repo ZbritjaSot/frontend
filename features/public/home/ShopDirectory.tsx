@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { campaignWord } from "@/features/public/compose";
+import { campaignWord, locationLabel } from "@/features/public/compose";
 import { Frame, SeeAll } from "@/features/public/Frame";
 import { kicker } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
@@ -26,7 +26,7 @@ export function ShopDirectory({ shops }: { shops: PublicBusiness[] }) {
       </div>
       <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2">
         {shops.map((shop) => {
-          const place = shop.city ?? shop.village;
+          const place = locationLabel(shop.locations_count, shop.city ?? shop.village);
           const flyers = shop.flyers_count ?? 0;
           return (
             <li key={shop.id}>

@@ -1,3 +1,4 @@
+import { readActingShopId } from "@/features/biz/actingShop";
 import { getApiUrl } from "@/lib/site";
 
 export class ApiError extends Error {
@@ -78,6 +79,10 @@ export async function apiFetch<T>(
     if (xsrf) {
       headers.set("X-XSRF-TOKEN", xsrf);
     }
+    const shopId = readActingShopId();
+    if (shopId && !headers.has("X-Shop-Id")) {
+      headers.set("X-Shop-Id", shopId);
+    }
   }
 
   const response = await fetch(url, {
@@ -111,4 +116,12 @@ export function validationMessage(error: unknown, fallback: string): string {
   const body = error.body as { message?: string; errors?: Record<string, string[]> };
   const first = body.errors ? Object.values(body.errors).flat()[0] : undefined;
   return first ?? body.message ?? fallback;
+}
+
+export function accountEmailMessage(error: unknown, fallback: string): string {
+  const message = validationMessage(error, fallback);
+  if (message === "This email is already taken.") {
+    return "Ky email është i zënë.";
+  }
+  return message;
 }

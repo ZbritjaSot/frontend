@@ -21,6 +21,7 @@ export function toApiBody(input: OfferBundleFormInput) {
     starts_at: fromDateTimeLocalValue(input.starts_at),
     expires_at: fromDateTimeLocalValue(input.expires_at),
     cover_gallery_image_id: input.cover_gallery_image_id ?? null,
+    ...(input.branch_ids ? { branch_ids: input.branch_ids } : {}),
     items: input.items.map((item) => ({
       category_id: item.category_id,
       name: item.name,

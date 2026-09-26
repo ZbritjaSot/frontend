@@ -24,6 +24,8 @@ export type DashboardNavItem = {
 
 type DashboardShellProps = {
   area: "admin" | "biz";
+  /** Small label under the wordmark. Managers use Menaxher. */
+  label?: string;
   nav: DashboardNavItem[];
   children: ReactNode;
   showLogout?: boolean;
@@ -32,6 +34,7 @@ type DashboardShellProps = {
 
 export function DashboardShell({
   area,
+  label,
   nav,
   children,
   showLogout = false,
@@ -40,7 +43,7 @@ export function DashboardShell({
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const homeHref = area === "admin" ? "/admin" : "/biz";
-  const areaLabel = area === "admin" ? "Admin" : "Biznes";
+  const areaLabel = label ?? (area === "admin" ? "Admin" : "Biznes");
   const logoutTo =
     logoutRedirectTo ?? (area === "admin" ? "/admin/login" : "/biz/login");
 

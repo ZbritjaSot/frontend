@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { clearActingShopId } from "@/features/biz/actingShop";
 import { fetchMe, hasRole, logout as logoutRequest } from "@/features/auth/api";
 import { ApiError } from "@/lib/api";
 import type { User } from "@/types";
@@ -24,6 +25,7 @@ export function useLogout() {
     try {
       await logoutRequest();
     } finally {
+      clearActingShopId();
       queryClient.setQueryData(meQueryKey, null);
       await queryClient.invalidateQueries({ queryKey: meQueryKey });
     }
@@ -35,7 +37,7 @@ export function isUnauthenticated(error: unknown): boolean {
 }
 
 export function requireBusinessUser(user: User | undefined): user is User {
-  return !!user && hasRole(user, "business");
+  return !!user && (hasRole(user, "business") || hasRole(user, "manager"));
 }
 
 export function requireAdminUser(user: User | undefined): user is User {

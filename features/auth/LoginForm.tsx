@@ -12,7 +12,7 @@ import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
 import { loginSchema } from "@/schemas/login";
 
 type LoginFormProps = {
-  requiredRole: "admin" | "business";
+  requiredRole: "admin" | "business" | Array<"admin" | "business" | "manager">;
   nextPath: string;
   wrongRoleMessage: string;
   forgotHref?: string;
@@ -45,7 +45,8 @@ export function LoginForm({
     try {
       const user = await loginWithCookies(parsed.data);
 
-      if (!hasRole(user, requiredRole)) {
+      const allowed = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+      if (!allowed.some((role) => hasRole(user, role))) {
         setError(wrongRoleMessage);
         return;
       }

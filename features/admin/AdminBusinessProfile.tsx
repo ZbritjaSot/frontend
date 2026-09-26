@@ -8,6 +8,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Spinner } from "@/components/ui/Spinner";
+import { BranchPanel } from "@/features/branches/BranchPanel";
 import { AdminGallery } from "@/features/gallery/AdminGallery";
 import { deleteAdminLogo, uploadAdminLogo } from "@/features/gallery/api";
 import { LogoField } from "@/features/gallery/LogoField";
@@ -24,7 +25,7 @@ import {
   adminSubscriptionsQueryKey,
   useUpdateSubscription,
 } from "@/hooks/useAdminSubscriptions";
-import { validationMessage } from "@/lib/api";
+import { accountEmailMessage, validationMessage } from "@/lib/api";
 import { toDateTimeLocalValue } from "@/lib/datetime";
 import { formatDateSq } from "@/lib/format";
 import {
@@ -300,7 +301,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
       setEmailConfirmOpen(false);
     } catch (error) {
       setEmailConfirmOpen(false);
-      setAccountError(validationMessage(error, "Nuk mundëm ta ruajmë llogarinë."));
+      setAccountError(accountEmailMessage(error, "Nuk mundëm ta ruajmë llogarinë."));
     }
   };
 
@@ -651,6 +652,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
             <AdminGallery businessId={business.id} />
           </div>
         </section>
+        <BranchPanel mode="admin" business={business} />
       </div>
       <ConfirmModal
         open={emailConfirmOpen}
