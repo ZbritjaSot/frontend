@@ -20,8 +20,19 @@ import {
   useCreateSubscription,
   useUpdateSubscription,
 } from "@/hooks/useAdminSubscriptions";
-import { defaultSubscriptionWindow } from "@/lib/datetime";
-import { formatDateShortSq, formatDateTimeShortSq, formatEurFromCents } from "@/lib/format";
+import {
+  addLocalMonths,
+  defaultSubscriptionWindow,
+  SUBSCRIPTION_LENGTHS,
+  subscriptionLengthLabel,
+  type SubscriptionLength,
+} from "@/lib/datetime";
+import {
+  formatCalendarDateSq,
+  formatDateShortSq,
+  formatDateTimeShortSq,
+  formatEurFromCents,
+} from "@/lib/format";
 import { validationMessage } from "@/lib/api";
 import {
   btnGhost,
@@ -128,6 +139,14 @@ function resetFormDefaults() {
   return defaultSubscriptionWindow();
 }
 
+function periodLabel(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
+  if (!match) {
+    return "—";
+  }
+  return `${formatCalendarDateSq(Number(match[1]), Number(match[2]), Number(match[3]))} · ${match[4]}:${match[5]}`;
+}
+
 export function AdminSubscriptions() {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
@@ -149,6 +168,7 @@ export function AdminSubscriptions() {
   const [businessId, setBusinessId] = useState("");
   const [startsAt, setStartsAt] = useState(defaults.starts_at);
   const [endsAt, setEndsAt] = useState(defaults.ends_at);
+  const [lengthMonths, setLengthMonths] = useState<SubscriptionLength | null>(1);
   const [isActive, setIsActive] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
   const [priceCents, setPriceCents] = useState(0);
@@ -205,6 +225,7 @@ export function AdminSubscriptions() {
     setBusinessId("");
     setStartsAt(next.starts_at);
     setEndsAt(next.ends_at);
+    setLengthMonths(1);
     setIsActive(true);
     setPaymentMethod("cash");
     setPriceCents(0);
@@ -541,7 +562,7 @@ export function AdminSubscriptions() {
             <div className="flex justify-between gap-3">
               <dt className="text-muted">Periudha</dt>
               <dd className="m-0 text-right font-semibold">
-                {startsAt || "—"} → {endsAt || "—"}
+                {periodLabel(startsAt)} → {periodLabel(endsAt)}
               </dd>
             </div>
             <div className="flex justify-between gap-3">
@@ -583,25 +604,67 @@ export function AdminSubscriptions() {
             <h3 className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
               Periudha
             </h3>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <label className={fieldLabel}>
-                <span>Fillon</span>
-                <DateTimeField
-                  value={startsAt}
-                  onChange={setStartsAt}
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Kohëzgjatja">
+              {SUBSCRIPTION_LENGTHS.map((months) => (
+                <button
+                  key={months}
+                  type="button"
+                  className={`min-h-9 cursor-pointer rounded-lg border-0 px-3 text-sm font-bold ${
+                    lengthMonths === months
+                      ? "bg-accent text-charcoal"
+                      : "bg-sunken text-muted hover:text-ink"
+                  }`}
                   disabled={createMutation.isPending}
-                  aria-label="Fillon"
-                />
-              </label>
-              <label className={fieldLabel}>
-                <span>Mbaron</span>
-                <DateTimeField
-                  value={endsAt}
-                  onChange={setEndsAt}
-                  disabled={createMutation.isPending}
-                  aria-label="Mbaron"
-                />
-              </label>
+                  onClick={() => {
+                    setLengthMonths(months);
+                    setEndsAt(addLocalMonths(startsAt, months));
+                  }}
+                >
+                  {subscriptionLengthLabel(months)}
+                </button>
+              ))}
+              <button
+                type="button"
+                className={`min-h-9 cursor-pointer rounded-lg border-0 px-3 text-sm font-bold ${
+                  lengthMonths === null
+                    ? "bg-accent text-charcoal"
+                    : "bg-sunken text-muted hover:text-ink"
+                }`}
+                disabled={createMutation.isPending}
+                onClick={() => setLengthMonths(null)}
+              >
+                Tjetër
+              </button>
+            </div>
+            <p className="m-0 text-sm text-muted">
+              Zgjidh një kohë, ose vendos datat vetë për një periudhë më të gjatë.
+            </p>
+            <div className="grid items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+              <DateTimeField
+                variant="card"
+                caption="Fillon"
+                value={startsAt}
+                onChange={(value) => {
+                  setStartsAt(value);
+                  if (lengthMonths !== null) {
+                    setEndsAt(addLocalMonths(value, lengthMonths));
+                  }
+                }}
+                disabled={createMutation.isPending}
+              />
+              <span className="hidden self-center px-1 text-lg text-muted sm:block" aria-hidden>
+                →
+              </span>
+              <DateTimeField
+                variant="card"
+                caption="Mbaron"
+                value={endsAt}
+                onChange={(value) => {
+                  setEndsAt(value);
+                  setLengthMonths(null);
+                }}
+                disabled={createMutation.isPending}
+              />
             </div>
           </section>
 

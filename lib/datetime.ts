@@ -52,11 +52,38 @@ export function defaultOfferWindow(): {
   };
 }
 
-/** Same midnight window for subscription create forms. */
+/** Lengths offered when recording a payment. Other spans stay on the calendars. */
+export const SUBSCRIPTION_LENGTHS = [1, 3, 6, 12] as const;
+
+export type SubscriptionLength = (typeof SUBSCRIPTION_LENGTHS)[number];
+
+/**
+ * Add calendar months in local time. A short month keeps the last day,
+ * so 31 January plus one month is 28 or 29 February.
+ */
+export function addLocalMonths(value: string, months: number): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  const day = date.getDate();
+  const next = new Date(date.getTime());
+  next.setDate(1);
+  next.setMonth(next.getMonth() + months);
+  const lastDay = new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate();
+  next.setDate(Math.min(day, lastDay));
+  return toDateTimeLocalValue(next);
+}
+
+/** A new payment starts today at midnight and runs one month. */
 export function defaultSubscriptionWindow(): {
   starts_at: string;
   ends_at: string;
 } {
-  const { starts_at, expires_at } = defaultOfferWindow();
-  return { starts_at, ends_at: expires_at };
+  const starts_at = toDateTimeLocalValue(startOfLocalDay());
+  return { starts_at, ends_at: addLocalMonths(starts_at, 1) };
+}
+
+export function subscriptionLengthLabel(months: SubscriptionLength): string {
+  return months === 12 ? "1 vit" : `${months} muaj`;
 }

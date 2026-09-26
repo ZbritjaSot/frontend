@@ -587,24 +587,22 @@ export function AdminBusinessProfile({ id }: { id: string }) {
               onSubmit={onSubscription}
               noValidate
             >
-              <label className={fieldLabel}>
-                <span>Fillon</span>
+              <div className="grid items-stretch gap-2 sm:grid-cols-2">
                 <DateTimeField
+                  variant="card"
+                  caption="Fillon"
                   value={startsAt}
                   onChange={setStartsAt}
                   disabled={updateSubscription.isPending}
-                  aria-label="Fillon"
                 />
-              </label>
-              <label className={fieldLabel}>
-                <span>Mbaron</span>
                 <DateTimeField
+                  variant="card"
+                  caption="Mbaron"
                   value={endsAt}
                   onChange={setEndsAt}
                   disabled={updateSubscription.isPending}
-                  aria-label="Mbaron"
                 />
-              </label>
+              </div>
               <p className="m-0 text-sm leading-relaxed text-muted">
                 Zgjatja e datave nuk regjistron një pagesë të re. Pagesa e re
                 regjistrohet te{" "}
