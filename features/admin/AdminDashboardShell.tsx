@@ -2,6 +2,7 @@
 
 import CategoryIcon from "@mui/icons-material/Category";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import MailOutlinedIcon from "@mui/icons-material/MailOutlined";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import StoreIcon from "@mui/icons-material/Store";
@@ -35,6 +36,11 @@ const baseNav: DashboardNavItem[] = [
     href: "/admin/categories",
     label: "Kategoritë",
     icon: <CategoryIcon fontSize="small" />,
+  },
+  {
+    href: "/admin/newsletter",
+    label: "Newsletter",
+    icon: <MailOutlinedIcon fontSize="small" />,
   },
 ];
 
