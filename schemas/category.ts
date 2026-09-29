@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { categoryIconIds } from "@/lib/categoryIcons";
 
 export const categoryFormSchema = z.object({
   name: z
@@ -12,6 +13,7 @@ export const categoryFormSchema = z.object({
     .max(255, "Slug është shumë i gjatë.")
     .optional()
     .or(z.literal("")),
+  icon: z.enum(categoryIconIds).nullable(),
   is_active: z.boolean(),
 });
 

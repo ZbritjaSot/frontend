@@ -20,22 +20,26 @@ export function SiteFooter() {
               {SITE_EMAIL}
             </a>
           </div>
-          <nav aria-label="Fundi i faqes" className="flex flex-wrap gap-x-5 gap-y-2">
-            <Link href="/?katalog=oferta" className={link}>
-              Ofertat
-            </Link>
-            <Link href="/?katalog=fletushka" className={link}>
-              Fletushkat
-            </Link>
-            <Link href="/biznese" className={link}>
-              Dyqanet
-            </Link>
-            <Link href="/privatesia" className={link}>
-              Privatësia
-            </Link>
-            <Link href="/kushtet" className={link}>
-              Kushtet
-            </Link>
+          <nav aria-label="Fundi i faqes" className="flex flex-col gap-3">
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              <Link href="/?katalog=oferta" className={link}>
+                Ofertat
+              </Link>
+              <Link href="/?katalog=fletushka" className={link}>
+                Fletushkat
+              </Link>
+              <Link href="/biznese" className={link}>
+                Dyqanet
+              </Link>
+            </div>
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              <Link href="/privatesia" className={link}>
+                Privatësia
+              </Link>
+              <Link href="/kushtet" className={link}>
+                Kushtet
+              </Link>
+            </div>
           </nav>
         </div>
         <div className="flex flex-col gap-3 border-t border-ivory/10 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">

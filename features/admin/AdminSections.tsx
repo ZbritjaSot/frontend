@@ -19,7 +19,6 @@ const hints: Record<string, string> = {
   spotlight: "Zbritjet e forta",
   flyers: "Fletushkat",
   inbox: "Email-i",
-  categories: "Kategoritë",
   fresh: "Të rejat",
   ending: "Afatshkurtra",
   shops: "Dyqanet",
@@ -32,10 +31,12 @@ export function AdminSections() {
     queryFn: fetchAdminSections,
   });
   const [draft, setDraft] = useState<AdminHomeSection[] | null>(null);
-  const rows = (draft ?? sections.data ?? []).map((section) => ({
-    ...section,
-    id: section.key,
-  }));
+  const rows = (draft ?? sections.data ?? [])
+    .filter((section) => section.key !== "categories")
+    .map((section) => ({
+      ...section,
+      id: section.key,
+    }));
 
   const save = useMutation({
     mutationFn: (next: AdminHomeSection[]) => saveAdminSections(next),
@@ -60,8 +61,8 @@ export function AdminSections() {
           Seksionet
         </h2>
         <p className="m-0 mt-1 text-sm text-muted">
-          Ndrysho titullin, ndizi ose fik, dhe tërhiqi. Kërkimi dhe pjesa e parë
-          qëndrojnë në krye.
+          Ndrysho titullin, ndizi ose fik, dhe tërhiqi. Kërkimi qëndron në krye.
+          Kategoritë qëndrojnë gjithmonë poshtë kokës dhe nuk renditen këtu.
         </p>
       </div>
       {sections.isLoading ? (
@@ -97,18 +98,27 @@ export function AdminSections() {
                 role="switch"
                 aria-checked={row.is_visible}
                 aria-label={row.is_visible ? "Fike" : "Ndize"}
-                className={`relative h-7 w-12 shrink-0 cursor-pointer rounded-full border-0 p-0 motion-safe:transition-colors motion-safe:duration-200 motion-safe:ease-out ${
-                  row.is_visible ? "bg-accent" : "bg-line"
-                }`}
-                onClick={() =>
+                disabled={row.can_enable === false}
+                title={
+                  row.can_enable === false
+                    ? "S’ka dyqan ekskluziv, ndaj ky seksion nuk ndizet."
+                    : undefined
+                }
+                className={`relative h-7 w-12 shrink-0 rounded-full border-0 p-0 motion-safe:transition-colors motion-safe:duration-200 motion-safe:ease-out ${
+                  row.can_enable === false ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                } ${row.is_visible ? "bg-accent" : "bg-line"}`}
+                onClick={() => {
+                  if (row.can_enable === false) {
+                    return;
+                  }
                   persist(
                     rows.map(({ key, title, is_visible }) => ({
                       key,
                       title,
                       is_visible: key === row.key ? !is_visible : is_visible,
                     })),
-                  )
-                }
+                  );
+                }}
               >
                 <span
                   aria-hidden
@@ -153,6 +163,11 @@ export function AdminSections() {
                     );
                   }}
                 />
+                {row.key === "exclusive" && row.can_enable === false ? (
+                  <span className="text-xs font-semibold text-muted">
+                    S’ka dyqan ekskluziv, ndaj ky seksion nuk ndizet.
+                  </span>
+                ) : null}
               </label>
             )}
           </DragList>

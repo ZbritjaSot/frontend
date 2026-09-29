@@ -153,15 +153,20 @@ export default async function FolderPage({ params }: FolderPageProps) {
 }
 
 function FlyerProducts({ items }: { items: PublicOffer[] }) {
-  const groups = new Map<string, { name: string; items: PublicOffer[] }>();
+  const groups = new Map<string, { id: string; name: string; items: PublicOffer[] }>();
   for (const item of items) {
-    const key = item.category?.id ?? "other";
-    const group = groups.get(key) ?? {
-      name: item.category?.name ?? "Të tjera",
-      items: [],
-    };
-    group.items.push(item);
-    groups.set(key, group);
+    const categories = item.categories?.length
+      ? item.categories
+      : [{ id: "other", name: "Të tjera", slug: "" }];
+    for (const category of categories) {
+      const group = groups.get(category.id) ?? {
+        id: category.id,
+        name: category.name,
+        items: [],
+      };
+      group.items.push(item);
+      groups.set(category.id, group);
+    }
   }
   const grouped = [...groups.values()];
 
@@ -172,7 +177,7 @@ function FlyerProducts({ items }: { items: PublicOffer[] }) {
   return (
     <div className="grid gap-14">
       {grouped.map((group) => (
-        <section key={group.name}>
+        <section key={group.id}>
           <h3 className="m-0 mb-6 text-sm font-bold tracking-[0.16em] text-muted uppercase">
             {group.name}
           </h3>

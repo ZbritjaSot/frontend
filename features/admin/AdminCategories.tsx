@@ -38,12 +38,15 @@ import {
   pageTitle,
   panelLead,
 } from "@/lib/ui";
+import { CategoryIconPicker } from "@/features/admin/CategoryIconPicker";
+import { CategoryGlyph, isCategoryIconId } from "@/lib/categoryIcons";
 import { categoryFormSchema, type CategoryFormInput } from "@/schemas/category";
 import type { Category } from "@/types";
 
 const emptyForm: CategoryFormInput = {
   name: "",
   slug: "",
+  icon: null,
   is_active: true,
 };
 
@@ -91,6 +94,7 @@ export function AdminCategories() {
     setForm({
       name: category.name,
       slug: category.slug,
+      icon: isCategoryIconId(category.icon) ? category.icon : null,
       is_active: category.is_active,
     });
     setFormError(null);
@@ -270,13 +274,18 @@ export function AdminCategories() {
                 >
                   <DragIndicatorIcon fontSize="small" />
                 </button>
-                <div className="min-w-0">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-sunken text-muted">
+                    <CategoryGlyph name={category.icon} size={22} />
+                  </span>
+                  <div className="min-w-0">
                   <p className="m-0 truncate text-base font-semibold">
                     {category.name}
                   </p>
                   <p className="m-0 truncate text-sm text-muted">
                     {category.slug}
                   </p>
+                  </div>
                 </div>
                 <span
                   className={`${offerStatusClass(
@@ -347,6 +356,7 @@ export function AdminCategories() {
 
       <Modal
         open={editor !== null}
+        size="md"
         title={editor === "new" ? "Kategori e re" : "Ndrysho kategorinë"}
         onClose={() => {
           if (!pending) {
@@ -407,6 +417,10 @@ export function AdminCategories() {
               }
             />
           </label>
+          <CategoryIconPicker
+            value={form.icon}
+            onChange={(icon) => setForm((current) => ({ ...current, icon }))}
+          />
           <label className="flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none">
             <input
               className={checkInput}

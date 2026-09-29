@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DiscountBadge, PriceLine } from "@/features/public/price";
 import { Frame } from "@/features/public/Frame";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
@@ -10,42 +10,91 @@ import type { PublicOffer } from "@/types";
 
 const SLIDE_MS = 5000;
 
-function useSlideTick(enabled: boolean): number {
-  return useSyncExternalStore(
-    (notify) => {
-      if (!enabled || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        return () => {};
-      }
-      const id = window.setInterval(notify, SLIDE_MS);
-      return () => window.clearInterval(id);
-    },
-    () => Math.floor(Date.now() / SLIDE_MS),
-    () => 0,
-  );
-}
-
 export function HeroSection({ offers }: { offers: PublicOffer[] }) {
   const count = offers.length;
-  const tick = useSlideTick(count > 1);
-  const [shift, setShift] = useState(0);
-  const [frozen, setFrozen] = useState<number | null>(null);
-  const index = count === 0 ? 0 : (frozen ?? (tick + shift) % count);
+  const scroller = useRef<HTMLDivElement>(null);
+  const holdUntil = useRef(0);
+  const hovering = useRef(false);
+  const programmatic = useRef(false);
+  const drag = useRef<{ x: number; y: number; left: number; axis: "x" | "y" | null; index: number } | null>(null);
+  const suppressClick = useRef(false);
+  const [index, setIndex] = useState(0);
   const hero = offers[index] ?? null;
 
+  useEffect(() => {
+    if (count < 2) {
+      return;
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+    const id = window.setInterval(() => {
+      if (hovering.current || Date.now() < holdUntil.current) {
+        return;
+      }
+      const el = scroller.current;
+      if (!el || el.clientWidth === 0) {
+        return;
+      }
+      const next = (Math.round(el.scrollLeft / el.clientWidth) + 1) % count;
+      programmatic.current = true;
+      el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
+      setIndex(next);
+      window.setTimeout(() => {
+        programmatic.current = false;
+      }, 700);
+    }, SLIDE_MS);
+    return () => window.clearInterval(id);
+  }, [count]);
+
+  function hold(ms = SLIDE_MS) {
+    const until = Date.now() + ms;
+    if (until > holdUntil.current) {
+      holdUntil.current = until;
+    }
+  }
+
+  function release() {
+    holdUntil.current = Date.now() + SLIDE_MS;
+  }
+
+  function syncFromScroll() {
+    const el = scroller.current;
+    if (!el || el.clientWidth === 0 || programmatic.current || drag.current) {
+      return;
+    }
+    const next = Math.max(0, Math.min(count - 1, Math.round(el.scrollLeft / el.clientWidth)));
+    setIndex((current) => (current === next ? current : next));
+    hold();
+  }
+
   function show(next: number) {
-    if (count === 0) {
+    const el = scroller.current;
+    if (!el || count === 0) {
       return;
     }
     const normalized = (next + count) % count;
-    setShift((normalized - (tick % count) + count) % count);
-    setFrozen(null);
+    hold();
+    programmatic.current = true;
+    el.scrollTo({
+      left: normalized * el.clientWidth,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    });
+    setIndex(normalized);
+    window.setTimeout(() => {
+      programmatic.current = false;
+    }, 700);
   }
 
   return (
     <section
-      className="bg-forest text-ivory dark:bg-[#121816] dark:text-ink"
-      onMouseEnter={() => setFrozen(index)}
-      onMouseLeave={() => setFrozen(null)}
+      className="overflow-x-clip bg-forest text-ivory dark:bg-[#121816] dark:text-ink"
+      onMouseEnter={() => {
+        hovering.current = true;
+      }}
+      onMouseLeave={() => {
+        hovering.current = false;
+      }}
     >
       <Frame className="py-8 sm:py-10">
         <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-12">
@@ -64,26 +113,98 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
               </p>
             )}
           </div>
-          {hero ? (
-            <Link
-              key={hero.id}
-              href={`/offers/${hero.id}`}
-              className="relative block overflow-hidden rounded-[1.75rem] ring-1 ring-white/10"
+          {count > 0 ? (
+            <div
+              ref={scroller}
+              className="flex aspect-[4/3] w-full cursor-grab touch-pan-y overflow-x-hidden overflow-y-hidden rounded-[1.75rem] ring-1 ring-white/10 [scrollbar-width:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+              onScroll={syncFromScroll}
+              onPointerDown={(event) => {
+                if (!scroller.current || (event.pointerType === "mouse" && event.button !== 0)) {
+                  return;
+                }
+                suppressClick.current = false;
+                hold(60_000);
+                const width = scroller.current.clientWidth || 1;
+                const startIndex = Math.round(scroller.current.scrollLeft / width);
+                drag.current = {
+                  x: event.clientX,
+                  y: event.clientY,
+                  left: startIndex * width,
+                  axis: null,
+                  index: startIndex,
+                };
+                scroller.current.setPointerCapture(event.pointerId);
+              }}
+              onPointerMove={(event) => {
+                const start = drag.current;
+                const el = scroller.current;
+                if (!start || !el) {
+                  return;
+                }
+                const dx = event.clientX - start.x;
+                const dy = event.clientY - start.y;
+                if (start.axis === null) {
+                  if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
+                    return;
+                  }
+                  start.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+                }
+                if (start.axis === "x") {
+                  const limited = Math.max(-el.clientWidth, Math.min(el.clientWidth, dx));
+                  el.scrollLeft = start.left - limited;
+                }
+              }}
+              onPointerUp={(event) => {
+                const start = drag.current;
+                drag.current = null;
+                release();
+                if (!start || start.axis !== "x" || !scroller.current || scroller.current.clientWidth === 0) {
+                  return;
+                }
+                const dx = event.clientX - start.x;
+                if (Math.abs(dx) < 40) {
+                  show(start.index);
+                  return;
+                }
+                suppressClick.current = true;
+                show(start.index + (dx < 0 ? 1 : -1));
+              }}
+              onPointerCancel={() => {
+                drag.current = null;
+                release();
+              }}
+              onClickCapture={(event) => {
+                if (!suppressClick.current) {
+                  return;
+                }
+                suppressClick.current = false;
+                event.preventDefault();
+                event.stopPropagation();
+              }}
             >
-              <ProductVisual
-                name={hero.name}
-                imageUrl={hero.image?.detail_url ?? hero.image?.thumb_url}
-                eager
-                priority
-                sizes="(max-width: 1024px) 100vw, 640px"
-                className="aspect-[4/3] w-full"
-              />
-              {hero.discount_percent != null && hero.discount_percent > 0 ? (
-                <span className="absolute top-3 left-3 z-10">
-                  <DiscountBadge percent={hero.discount_percent} />
-                </span>
-              ) : null}
-            </Link>
+              {offers.map((offer) => (
+                <Link
+                  key={offer.id}
+                  href={`/offers/${offer.id}`}
+                  draggable={false}
+                  className="relative block w-full shrink-0"
+                >
+                  <ProductVisual
+                    name={offer.name}
+                    imageUrl={offer.image?.detail_url ?? offer.image?.thumb_url}
+                    eager
+                    priority={offer.id === hero?.id}
+                    sizes="(max-width: 1024px) 100vw, 640px"
+                    className="aspect-[4/3] w-full"
+                  />
+                  {offer.discount_percent != null && offer.discount_percent > 0 ? (
+                    <span className="absolute top-3 left-3 z-10">
+                      <DiscountBadge percent={offer.discount_percent} />
+                    </span>
+                  ) : null}
+                </Link>
+              ))}
+            </div>
           ) : null}
           {count > 1 ? (
             <div className="flex items-center gap-1 lg:col-span-2">
@@ -93,7 +214,7 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
                   type="button"
                   aria-label={`Oferta ${dot + 1}`}
                   aria-current={dot === index ? "true" : undefined}
-                  className="inline-flex h-6 min-w-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0"
+                  className="inline-flex h-11 min-w-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0"
                   onClick={() => show(dot)}
                 >
                   <span
@@ -121,9 +242,12 @@ function DealCopy({ offer }: { offer: PublicOffer }) {
           {formatDiscountPercent(offer.discount_percent)}
         </p>
       ) : null}
-      <p className="m-0 mt-3 line-clamp-2 text-2xl leading-tight font-extrabold tracking-[-0.03em]">
+      <Link
+        href={`/offers/${offer.id}`}
+        className="mt-3 line-clamp-2 block text-2xl leading-tight font-extrabold tracking-[-0.03em] text-inherit no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      >
         {offer.name}
-      </p>
+      </Link>
       {shop ? (
         <span className="mt-3 flex min-w-0 items-center gap-2">
           <ShopLogo name={shop} logoUrl={offer.business?.logo_url} size="sm" />
@@ -145,12 +269,6 @@ function DealCopy({ offer }: { offer: PublicOffer }) {
       <p className="mt-2 mb-0 text-sm text-ivory/70 dark:text-muted">
         Deri më {formatDateSq(offer.expires_at)}
       </p>
-      <Link
-        href={`/offers/${offer.id}`}
-        className="mt-5 inline-flex min-h-11 items-center rounded-full bg-accent px-5 text-sm font-extrabold text-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-      >
-        Hap ofertën
-      </Link>
     </div>
   );
 }

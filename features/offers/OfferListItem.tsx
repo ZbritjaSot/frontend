@@ -34,7 +34,9 @@ export function OfferListItem({ offer }: OfferListItemProps) {
           </span>
           <span className="mt-1 block truncate text-sm text-muted">
             {shop}
-            {offer.category ? ` · ${offer.category.name}` : ""}
+            {offer.categories?.length
+              ? ` · ${offer.categories.map((category) => category.name).join(" · ")}`
+              : ""}
           </span>
         </span>
         <span className="shrink-0 text-right">

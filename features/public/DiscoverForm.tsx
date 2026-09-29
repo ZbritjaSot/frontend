@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { CategoryChip } from "@/features/public/CategoryChip";
 import { browsePath, type CatalogSort, type Katalog } from "@/lib/browse";
 import type { CategorySummary } from "@/types";
 
@@ -16,16 +16,6 @@ type DiscoverFormProps = {
   catalog?: boolean;
   placeholder?: string;
 };
-
-const chip =
-  "inline-flex min-h-11 shrink-0 items-center rounded-full px-3.5 text-sm font-semibold whitespace-nowrap no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
-
-const catalogChip =
-  "inline-flex h-8 shrink-0 items-center rounded-full px-3 text-[0.8125rem] leading-none font-semibold whitespace-nowrap no-underline transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
-
-const catalogChipActive = `${catalogChip} bg-accent text-charcoal`;
-
-const catalogChipIdle = `${catalogChip} text-muted hover:bg-hover hover:text-ink`;
 
 export function DiscoverForm({
   basePath = "/",
@@ -102,33 +92,23 @@ export function DiscoverForm({
 
       {showCategories && categories.length > 0 ? (
         <nav
-          className={
-            catalog
-              ? "flex gap-1 overflow-x-auto [scrollbar-width:none] max-sm:[mask-image:linear-gradient(to_right,black_calc(100%-2.25rem),transparent)] [&::-webkit-scrollbar]:hidden"
-              : "-mx-5 flex gap-x-5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
-          }
+          className="-mx-5 flex gap-1 overflow-x-auto overscroll-x-contain px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
           aria-label="Kategoritë"
         >
-          <Link
+          <CategoryChip
+            name="Të gjitha"
+            icon="grid_view"
+            active={!category}
             href={browsePath(basePath, { q, katalog, city, sort })}
-            aria-current={category ? undefined : "true"}
-            className={
-              catalog
-                ? category
-                  ? catalogChipIdle
-                  : catalogChipActive
-                : category
-                  ? `${chip} text-muted ring-1 ring-line hover:text-ink`
-                  : `${chip} bg-accent text-charcoal`
-            }
-          >
-            Të gjitha
-          </Link>
+          />
           {categories.map((item) => {
             const active = item.slug === category;
             return (
-              <Link
+              <CategoryChip
                 key={item.id}
+                name={item.name}
+                icon={item.icon}
+                active={active}
                 href={browsePath(basePath, {
                   q,
                   katalog,
@@ -136,19 +116,7 @@ export function DiscoverForm({
                   sort,
                   category: active ? null : item.slug,
                 })}
-                aria-current={active ? "true" : undefined}
-                className={
-                  catalog
-                    ? active
-                      ? catalogChipActive
-                      : catalogChipIdle
-                    : active
-                      ? `${chip} bg-accent text-charcoal`
-                      : `${chip} text-ink ring-1 ring-line hover:bg-hover`
-                }
-              >
-                {item.name}
-              </Link>
+              />
             );
           })}
         </nav>

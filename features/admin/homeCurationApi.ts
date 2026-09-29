@@ -85,6 +85,7 @@ export type AdminHomeSection = {
   key: string;
   title: string;
   is_visible: boolean;
+  can_enable?: boolean;
 };
 
 export async function fetchAdminSections(): Promise<AdminHomeSection[]> {

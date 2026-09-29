@@ -45,10 +45,20 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
           </div>
 
           <div className="rounded-2xl border border-line bg-elevated p-5 sm:p-6 lg:col-span-5 dark:border-white/10 dark:bg-[#1a2420]">
-            {offer.category ? (
-              <Link href={`/?category=${offer.category.slug}`} className={`${kicker} hover:text-ink`}>
-                {offer.category.name}
-              </Link>
+            {offer.categories?.length ? (
+              <p className={`${kicker} m-0`}>
+                {offer.categories.map((category, index) => (
+                  <span key={category.id}>
+                    {index > 0 ? " · " : null}
+                    <Link
+                      href={`/?katalog=oferta&category=${category.slug}`}
+                      className="hover:text-ink"
+                    >
+                      {category.name}
+                    </Link>
+                  </span>
+                ))}
+              </p>
             ) : null}
             <h1 className={`m-0 mt-3 text-[clamp(2.2rem,4vw,3.4rem)] ${display}`}>
               {offer.name}

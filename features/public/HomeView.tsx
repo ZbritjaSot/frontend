@@ -17,12 +17,15 @@ export function HomeView({ home }: { home: PublicHome }) {
     home.featured.length === 0 &&
     home.flyers.length === 0 &&
     home.fresh.length === 0;
-  const sections = home.sections?.length ? home.sections : defaultHomeSections;
+  const sections = (home.sections?.length ? home.sections : defaultHomeSections).filter(
+    (section) => section.key !== "categories",
+  );
 
   return (
     <>
-      <HeroSection offers={home.heroes} />
       <DiscoverBand categories={home.categories} />
+      <CategoryBand categories={home.categories} />
+      <HeroSection key={home.heroes.map((offer) => offer.id).join("|")} offers={home.heroes} />
       {empty ? (
         <Frame className="pt-6 pb-10">
           <p className="m-0 max-w-lg text-base leading-relaxed text-muted">
@@ -47,8 +50,6 @@ function HomeBlock({ section, home }: { section: HomeSection; home: PublicHome }
       return <CampaignSection folders={home.flyers} title={section.title} />;
     case "inbox":
       return <InboxBand home={home} title={section.title} />;
-    case "categories":
-      return <CategoryBand categories={home.categories} title={section.title} />;
     case "fresh":
       return <CatalogSection latest={home.fresh} soon={[]} freshTitle={section.title} />;
     case "ending":

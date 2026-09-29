@@ -162,7 +162,7 @@ export function OfferBundleView({
                       </div>
                     </div>
                     <p className="m-0 truncate text-sm font-semibold">
-                      {item.category?.name ?? "Kategori"}
+                      {item.categories?.map((category) => category.name).join(" · ") || "Kategori"}
                     </p>
                     {item.discount_percent != null ? (
                       <span className="inline-flex w-fit items-center justify-center rounded-md bg-accent px-2 py-1 text-sm leading-none font-bold text-on-accent md:ml-6">
@@ -205,7 +205,9 @@ export function OfferBundleView({
               <ProductThumb name={item.name} url={item.image?.detail_url ?? item.image?.thumb_url} large />
               <div className="min-w-0">
                 <p className="m-0 text-lg font-bold tracking-[-0.02em]">{item.name}</p>
-                <p className="m-0 mt-1 text-sm text-muted">{item.category?.name ?? "Pa kategori"}</p>
+                <p className="m-0 mt-1 text-sm text-muted">
+                  {item.categories?.map((category) => category.name).join(" · ") || "Pa kategori"}
+                </p>
                 <div className="mt-3 flex flex-wrap items-end gap-3">
                   {item.discount_percent != null ? (
                     <span className="inline-flex items-center rounded-md bg-accent px-2 py-1 text-sm font-bold text-on-accent">

@@ -38,7 +38,7 @@ import type { OfferBundle } from "@/types";
 
 type ItemDraft = {
   key: string;
-  category_id: string;
+  category_ids: string[];
   name: string;
   /** Integer cents (POS). */
   original_price: number;
@@ -64,7 +64,7 @@ type OfferFormProps = {
 function emptyItem(key: string): ItemDraft {
   return {
     key,
-    category_id: "",
+    category_ids: [],
     name: "",
     original_price: 0,
     discounted_price: 0,
@@ -158,7 +158,7 @@ export function OfferForm({
     if (offer?.items?.length) {
       return offer.items.map((item, index) => ({
         key: item.id ?? `item-${index}`,
-        category_id: item.category?.id ?? "",
+        category_ids: item.categories?.map((category) => category.id) ?? [],
         name: item.name,
         original_price: item.original_price ?? 0,
         discounted_price: item.discounted_price ?? 0,
@@ -272,14 +272,14 @@ export function OfferForm({
       expires_at: expiresAt,
       items: items.map(
         ({
-          category_id,
+          category_ids,
           name,
           original_price,
           discounted_price,
           discount_percent,
           gallery_image_id,
         }) => ({
-          category_id,
+          category_ids,
           name,
           original_price: original_price > 0 ? original_price : null,
           discounted_price: discounted_price > 0 ? discounted_price : null,
@@ -574,13 +574,24 @@ export function OfferForm({
                           aria-label={`Emri i produktit ${index + 1}`}
                         />
                         <SelectField
-                          value={item.category_id}
-                          onChange={(value) =>
-                            patchItem(item.key, { category_id: value })
-                          }
-                          options={categoryOptions}
+                          value=""
+                          onChange={(value) => {
+                            if (!value || item.category_ids.includes(value)) {
+                              return;
+                            }
+                            patchItem(item.key, {
+                              category_ids: [...item.category_ids, value],
+                            });
+                          }}
+                          options={categoryOptions.filter(
+                            (option) => !item.category_ids.includes(option.value),
+                          )}
                           searchable
-                          placeholder="Kategoria"
+                          placeholder={
+                            item.category_ids.length > 0
+                              ? "Shto kategori"
+                              : "Kategoria"
+                          }
                           disabled={pending || categoriesLoading}
                           aria-label={`Kategoria e produktit ${index + 1}`}
                         />
@@ -600,6 +611,30 @@ export function OfferForm({
                         </button>
                       ) : null}
                     </div>
+                    {item.category_ids.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {item.category_ids.map((id) => (
+                          <button
+                            key={id}
+                            type="button"
+                            className="inline-flex items-center gap-1 rounded-full border border-line bg-elevated px-2.5 py-1 text-sm font-semibold text-ink"
+                            disabled={pending}
+                            onClick={() =>
+                              patchItem(item.key, {
+                                category_ids: item.category_ids.filter(
+                                  (current) => current !== id,
+                                ),
+                              })
+                            }
+                          >
+                            {categoryOptions.find((option) => option.value === id)
+                              ?.label ?? "Kategori"}
+                            <span aria-hidden>×</span>
+                            <span className="sr-only">Hiq kategorinë</span>
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
 
                     <div className="grid items-end gap-3 sm:grid-cols-3">
                       <label className="flex min-w-0 flex-col gap-1.5">

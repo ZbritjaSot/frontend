@@ -9,6 +9,7 @@ function toApiBody(input: CategoryFormInput) {
   return {
     name: input.name.trim(),
     ...(slug ? { slug } : {}),
+    icon: input.icon,
     is_active: input.is_active,
   };
 }
@@ -68,6 +69,9 @@ export async function updateCategory(
   }
   if (input.sort_order !== undefined) {
     body.sort_order = input.sort_order;
+  }
+  if (input.icon !== undefined) {
+    body.icon = input.icon;
   }
   if (input.is_active !== undefined) {
     body.is_active = input.is_active;

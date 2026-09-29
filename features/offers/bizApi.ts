@@ -23,7 +23,7 @@ export function toApiBody(input: OfferBundleFormInput) {
     cover_gallery_image_id: input.cover_gallery_image_id ?? null,
     ...(input.branch_ids ? { branch_ids: input.branch_ids } : {}),
     items: input.items.map((item) => ({
-      category_id: item.category_id,
+      category_ids: item.category_ids,
       name: item.name,
       original_price: item.original_price,
       discounted_price: item.discounted_price,

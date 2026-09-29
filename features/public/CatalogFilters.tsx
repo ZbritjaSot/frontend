@@ -43,6 +43,23 @@ export function CatalogFilters({
 
   return (
     <div className={showSort ? "flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between" : "flex"}>
+      {cities.length > 0 ? (
+        <CityMenu
+          city={city}
+          cities={cities}
+          onChange={(next) => {
+            router.push(
+              browsePath(basePath, {
+                q,
+                category,
+                katalog,
+                sort,
+                city: next,
+              }),
+            );
+          }}
+        />
+      ) : null}
       {showSort ? (
       <div className="flex min-w-0 items-center gap-2">
         <span className="shrink-0 text-xs font-medium text-muted">Rendit</span>
@@ -77,23 +94,6 @@ export function CatalogFilters({
           </nav>
         </div>
       </div>
-      ) : null}
-      {cities.length > 0 ? (
-        <CityMenu
-          city={city}
-          cities={cities}
-          onChange={(next) => {
-            router.push(
-              browsePath(basePath, {
-                q,
-                category,
-                katalog,
-                sort,
-                city: next,
-              }),
-            );
-          }}
-        />
       ) : null}
     </div>
   );

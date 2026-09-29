@@ -11,7 +11,7 @@ function folder(overrides: Record<string, unknown> = {}) {
     expires_at: "2026-09-30T20:00",
     items: [
       {
-        category_id: categoryId,
+        category_ids: [categoryId],
         name: "Espresso",
         original_price: 200,
         discounted_price: 140,
@@ -38,7 +38,7 @@ describe("offer form validation", () => {
         folder({
           items: [
             {
-              category_id: categoryId,
+              category_ids: [categoryId],
               name: "Qumësht",
               original_price: null,
               discounted_price: null,
@@ -53,7 +53,7 @@ describe("offer form validation", () => {
         folder({
           items: [
             {
-              category_id: categoryId,
+              category_ids: [categoryId],
               name: "Bukë",
               original_price: 200,
               discounted_price: 140,

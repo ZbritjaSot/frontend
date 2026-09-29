@@ -9,6 +9,7 @@ export type CategorySummary = {
   id: string;
   name: string;
   slug: string;
+  icon?: string | null;
 };
 
 /** Admin category payload (matches CategoryResource). */
@@ -16,6 +17,7 @@ export type Category = {
   id: string;
   name: string;
   slug: string;
+  icon: string | null;
   is_active: boolean;
   sort_order: number;
   created_at?: string;
@@ -124,7 +126,7 @@ export type OfferItem = {
   view_count: number;
   /** Set when admin takes the flyer down. */
   rejection_note?: string | null;
-  category?: CategorySummary;
+  categories?: CategorySummary[];
 };
 
 /** Public offer payload (flat product; dates from bundle). */
@@ -182,7 +184,7 @@ export type PublicOffer = {
   starts_at: string;
   expires_at: string;
   bundle?: OfferBundleSummary | null;
-  category?: CategorySummary;
+  categories?: CategorySummary[];
   business?: BusinessSummary;
   /** Other public branches that carry this product. Detail only. */
   also_at?: BusinessSummary[];

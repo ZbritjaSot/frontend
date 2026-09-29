@@ -17,7 +17,9 @@ const optionalPercent = z
 
 const offerItemSchema = z
   .object({
-    category_id: z.string().uuid("Zgjidh një kategori."),
+    category_ids: z
+      .array(z.string().uuid())
+      .min(1, "Zgjidh një kategori."),
     name: z
       .string()
       .trim()
