@@ -73,7 +73,7 @@ html[data-theme="dark"] {
   --color-bg-muted: color-mix(in srgb, var(--color-off-white) 6%, var(--color-charcoal));
   --color-border: color-mix(in srgb, var(--color-off-white) 12%, transparent);
   --color-text: var(--color-off-white);
-  --color-text-muted: var(--color-slate);
+  --color-text-muted: #8a9388;
   --color-danger: #ff8e8e;
   --color-danger-soft: #ff8e8e;
   --color-shadow: color-mix(in srgb, #000 55%, transparent);
@@ -81,7 +81,7 @@ html[data-theme="dark"] {
   --color-bg-mist: var(--color-bg-elevated);
   --color-chrome: color-mix(in srgb, var(--color-charcoal) 92%, transparent);
   --color-chrome-text: var(--color-off-white);
-  --color-chrome-muted: var(--color-slate);
+  --color-chrome-muted: #8a9388;
   --color-chrome-footer: var(--color-bg-elevated);
   --color-chrome-footer-text: var(--color-text-muted);
   color-scheme: dark;

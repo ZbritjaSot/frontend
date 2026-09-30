@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return publicPageMetadata({
     title,
-    description: `${title}. Oferta të zgjedhura nga dyqanet në ${SITE_NAME}.`,
+    description: `${title} në ${SITE_NAME}.`,
     path: "/ekskluzive",
   });
 }
@@ -40,7 +40,7 @@ export default async function ExclusivePage() {
   let failed = false;
 
   try {
-    const page = await fetchPublicPlacement({ page: 1, perPage: 8 });
+    const page = await fetchPublicPlacement({ page: 1, perPage: 12 });
     items = page.data;
     lastPage = page.meta?.last_page ?? 1;
   } catch {
@@ -48,19 +48,27 @@ export default async function ExclusivePage() {
   }
 
   return (
-    <div className="pb-16 sm:pb-24">
-      <header className="bg-forest text-ivory dark:bg-[#121816] dark:text-ink">
-        <Frame className="py-16 sm:py-24 lg:py-28">
+    <div className="exclusive-page relative pb-16 sm:pb-24">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_12%_8%,rgba(36,53,40,0.07),transparent_42%),radial-gradient(ellipse_at_88%_28%,rgba(168,255,0,0.045),transparent_38%),radial-gradient(ellipse_at_50%_100%,rgba(36,53,40,0.05),transparent_45%)] dark:bg-[radial-gradient(ellipse_at_12%_8%,rgba(36,53,40,0.55),transparent_48%),radial-gradient(ellipse_at_88%_28%,rgba(168,255,0,0.05),transparent_40%),radial-gradient(ellipse_at_50%_100%,rgba(36,53,40,0.35),transparent_50%)]"
+      />
+      <header className="relative bg-forest text-ivory">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_85%_0%,rgba(168,255,0,0.1),transparent_45%)]"
+        />
+        <Frame className="relative py-12 sm:py-16 lg:py-20">
           <p className="m-0 flex items-center gap-3 text-[0.68rem] font-bold tracking-[0.28em] text-accent uppercase">
             <span className="h-px w-8 bg-accent" aria-hidden />
             {EXCLUSIVE_LABEL}
           </p>
-          <h1 className="m-0 mt-5 max-w-4xl text-[clamp(3.4rem,9vw,7rem)] leading-[0.84] font-extrabold tracking-[-0.055em] text-ivory dark:text-ink">
+          <h1 className="m-0 mt-4 max-w-4xl text-[clamp(2.6rem,6.5vw,5rem)] leading-[0.9] font-extrabold tracking-[-0.05em] text-ivory">
             {title}
           </h1>
         </Frame>
       </header>
-      <Frame>
+      <Frame className="relative">
         {failed ? (
           <EmptyNote
             title="Diçka shkoi keq"
@@ -76,7 +84,7 @@ export default async function ExclusivePage() {
             </p>
           </div>
         ) : (
-          <div className="-mt-10 sm:-mt-16">
+          <div className="mt-8 sm:mt-10 lg:mt-12">
             <ExclusiveStream items={items} lastPage={lastPage} />
           </div>
         )}

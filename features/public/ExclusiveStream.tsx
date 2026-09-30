@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { fetchPublicPlacement, type ExclusiveItem } from "@/features/offers/api";
 import { ExclusiveStage } from "@/features/public/ExclusiveStage";
+import { useInfiniteSentinel } from "@/lib/useInfiniteSentinel";
 
 export function ExclusiveStream({
   items,
@@ -16,7 +17,6 @@ export function ExclusiveStream({
   const [done, setDone] = useState(lastPage <= 1);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
-  const sentinel = useRef<HTMLDivElement>(null);
   const loadingRef = useRef(false);
 
   const loadMore = useCallback(async () => {
@@ -28,7 +28,7 @@ export function ExclusiveStream({
     setFailed(false);
     const next = page + 1;
     try {
-      const result = await fetchPublicPlacement({ page: next, perPage: 8 });
+      const result = await fetchPublicPlacement({ page: next, perPage: 12 });
       setShown((current) => appendUnique(current, result.data));
       setPage(next);
       setDone(next >= (result.meta?.last_page ?? next));
@@ -40,23 +40,10 @@ export function ExclusiveStream({
     }
   }, [done, page]);
 
-  useEffect(() => {
-    const node = sentinel.current;
-    if (!node || done || failed || loading) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          void loadMore();
-        }
-      },
-      { rootMargin: "240px" },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [done, failed, loadMore, loading]);
+  const sentinel = useInfiniteSentinel({
+    onLoadMore: loadMore,
+    enabled: !done && !failed && !loading,
+  });
 
   return (
     <div>

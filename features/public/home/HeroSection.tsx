@@ -88,7 +88,7 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
 
   return (
     <section
-      className="overflow-x-clip bg-forest text-ivory dark:bg-[#121816] dark:text-ink"
+      className="overflow-x-clip bg-forest text-ivory"
       onMouseEnter={() => {
         hovering.current = true;
       }}
@@ -102,7 +102,7 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
             <p className="m-0 text-[0.68rem] font-bold tracking-[0.2em] text-accent uppercase">
               Zbritje e fortë
             </p>
-            <h1 className="m-0 mt-3 max-w-xl text-[clamp(2.2rem,4.6vw,3.6rem)] leading-[0.94] font-extrabold tracking-[-0.045em] text-ivory dark:text-ink">
+            <h1 className="m-0 mt-3 max-w-xl text-[clamp(2.2rem,4.6vw,3.6rem)] leading-[0.94] font-extrabold tracking-[-0.045em] text-ivory">
               Zbritjet e ditës.
             </h1>
             {hero ? (
@@ -251,7 +251,7 @@ function DealCopy({ offer }: { offer: PublicOffer }) {
       {shop ? (
         <span className="mt-3 flex min-w-0 items-center gap-2">
           <ShopLogo name={shop} logoUrl={offer.business?.logo_url} size="sm" />
-          <span className="truncate text-sm font-semibold text-ivory/85 dark:text-ink">
+          <span className="truncate text-sm font-semibold text-ivory/85">
             {shop}
           </span>
         </span>

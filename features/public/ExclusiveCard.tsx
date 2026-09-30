@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { DiscountBadge } from "@/features/public/price";
+import {
+  ExclusiveDiscount,
+  ExclusiveMark,
+  exclusiveFocus,
+  exclusiveShell,
+} from "@/features/public/exclusiveChrome";
+import { PriceLine } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import type { ExclusiveItem } from "@/features/offers/api";
-import { formatDateShortSq, formatEurFromCents } from "@/lib/format";
-
-const focus =
-  "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent";
+import { formatDateShortSq } from "@/lib/format";
 
 export function ExclusiveCard({
   item,
@@ -32,13 +35,13 @@ function OfferCard({
   const shop = offer.business?.name;
   const onForest = layout === "rail";
   const width =
-    layout === "rail" ? "w-40 shrink-0 snap-start sm:w-48" : "block min-w-0";
+    layout === "rail" ? "w-44 shrink-0 snap-start sm:w-52" : "block min-w-0";
 
   if (layout === "feature") {
     return (
       <Link
         href={`/offers/${offer.id}`}
-        className={`group grid overflow-hidden rounded-[1.75rem] bg-forest text-ivory sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] dark:bg-[#121816] dark:text-ink ${focus}`}
+        className={`group grid sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] ${exclusiveShell.featured} ${exclusiveFocus}`}
       >
         <span className="relative block min-h-56 sm:min-h-72">
           <ProductVisual
@@ -48,13 +51,18 @@ function OfferCard({
             imageUrl={offer.image?.detail_url ?? offer.image?.thumb_url}
             sizes="(max-width: 640px) 100vw, 520px"
           />
-          {offer.discount_percent != null && offer.discount_percent > 0 ? (
-            <span className="absolute top-3 left-3 z-10">
-              <DiscountBadge percent={offer.discount_percent} />
-            </span>
-          ) : null}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-3 rounded-xl ring-1 ring-accent/20"
+          />
+          <span className="absolute top-3 left-3 z-10 flex flex-wrap items-center gap-1.5">
+            <ExclusiveMark size="md" />
+            {offer.discount_percent != null && offer.discount_percent > 0 ? (
+              <ExclusiveDiscount percent={offer.discount_percent} />
+            ) : null}
+          </span>
         </span>
-        <span className="flex min-w-0 flex-col justify-center gap-3 px-5 py-6 sm:px-8">
+        <span className="flex min-w-0 flex-col justify-center gap-3 border-t border-accent/30 px-5 py-6 sm:border-t-0 sm:border-l sm:px-8">
           {shop ? (
             <ShopLine name={shop} logoUrl={offer.business?.logo_url} forest />
           ) : null}
@@ -62,11 +70,14 @@ function OfferCard({
             {offer.name}
           </span>
           {offer.discounted_price != null ? (
-            <span className="text-2xl font-extrabold text-accent tabular-nums">
-              {formatEurFromCents(offer.discounted_price)}
-            </span>
+            <PriceLine
+              sale={offer.discounted_price}
+              original={offer.original_price ?? 0}
+              size="lg"
+              tone="inverse"
+            />
           ) : null}
-          <span className="text-sm text-ivory/70 dark:text-muted">
+          <span className="text-sm text-ivory/70">
             Deri më {formatDateShortSq(offer.expires_at)}
           </span>
         </span>
@@ -75,31 +86,41 @@ function OfferCard({
   }
 
   return (
-    <Link href={`/offers/${offer.id}`} className={`${width} ${focus}`}>
-      <span className="relative block overflow-hidden rounded-2xl ring-1 ring-accent/40">
+    <Link href={`/offers/${offer.id}`} className={`${width} ${exclusiveFocus}`}>
+      <span className={`relative block ${exclusiveShell.offerFrame} !rounded-2xl`}>
         <ProductVisual
           name={offer.name}
           imageUrl={offer.image?.thumb_url}
           eager
-          sizes={layout === "rail" ? "192px" : "(max-width: 640px) 50vw, 280px"}
+          sizes={layout === "rail" ? "208px" : "(max-width: 640px) 50vw, 280px"}
           className="aspect-[3/4] w-full"
         />
-        {offer.discount_percent != null && offer.discount_percent > 0 ? (
-          <span className="absolute top-2 left-2 z-10">
-            <DiscountBadge percent={offer.discount_percent} />
-          </span>
-        ) : null}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-1.5 rounded-[0.85rem] ring-1 ring-accent/15"
+        />
+        <span className="absolute top-2 left-2 z-10 flex flex-wrap items-center gap-1">
+          {onForest ? <ExclusiveMark size="sm" /> : <ExclusiveMark size="sm" tone="on-light" />}
+          {offer.discount_percent != null && offer.discount_percent > 0 ? (
+            <ExclusiveDiscount percent={offer.discount_percent} />
+          ) : null}
+        </span>
       </span>
       <span
-        className={`mt-2 block truncate text-sm font-extrabold tracking-tight ${
-          onForest ? "" : "text-ink"
+        className={`mt-2.5 block truncate text-sm font-extrabold tracking-tight ${
+          onForest ? "text-ivory" : "text-ink"
         }`}
       >
         {offer.name}
       </span>
       {offer.discounted_price != null ? (
-        <span className="mt-0.5 block text-sm font-extrabold text-accent tabular-nums">
-          {formatEurFromCents(offer.discounted_price)}
+        <span className="mt-1 block">
+          <PriceLine
+            sale={offer.discounted_price}
+            original={offer.original_price ?? 0}
+            size="sm"
+            tone={onForest ? "inverse" : "default"}
+          />
         </span>
       ) : null}
       {shop ? (
@@ -121,13 +142,13 @@ function FlyerCard({
   const coverName = folder.cover?.name ?? folder.title;
   const onForest = layout === "rail";
   const width =
-    layout === "rail" ? "w-40 shrink-0 snap-start sm:w-48" : "block min-w-0";
+    layout === "rail" ? "w-44 shrink-0 snap-start sm:w-52" : "block min-w-0";
 
   if (layout === "feature") {
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className={`group grid overflow-hidden rounded-[1.75rem] bg-forest text-ivory sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] dark:bg-[#121816] dark:text-ink ${focus}`}
+        className={`group grid sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] ${exclusiveShell.featured} ${exclusiveFocus}`}
       >
         <span className="relative block min-h-56 sm:min-h-72">
           <ProductVisual
@@ -137,11 +158,18 @@ function FlyerCard({
             imageUrl={folder.cover?.detail_url ?? folder.cover?.thumb_url}
             sizes="(max-width: 640px) 100vw, 520px"
           />
-          <span className="absolute top-3 left-3 z-10 rounded-full bg-ivory px-2.5 py-1 text-[0.68rem] font-extrabold tracking-tight text-charcoal">
-            Fletushkë
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-3 rounded-xl ring-1 ring-accent/20"
+          />
+          <span className="absolute top-3 left-3 z-10 flex flex-wrap items-center gap-1.5">
+            <ExclusiveMark size="md" />
+            <span className="rounded-full border border-ivory/30 bg-ivory/95 px-2 py-0.5 text-[0.58rem] font-extrabold tracking-tight text-charcoal uppercase">
+              Fletushkë
+            </span>
           </span>
         </span>
-        <span className="flex min-w-0 flex-col justify-center gap-3 px-5 py-6 sm:px-8">
+        <span className="flex min-w-0 flex-col justify-center gap-3 border-t border-accent/30 px-5 py-6 sm:border-t-0 sm:border-l sm:px-8">
           {shop ? (
             <ShopLine name={shop} logoUrl={folder.business?.logo_url} forest />
           ) : null}
@@ -149,9 +177,7 @@ function FlyerCard({
             {folder.title}
           </span>
           {folder.lead_discount_percent != null && folder.lead_discount_percent > 0 ? (
-            <span>
-              <DiscountBadge percent={folder.lead_discount_percent} />
-            </span>
+            <ExclusiveDiscount percent={folder.lead_discount_percent} />
           ) : null}
         </span>
       </Link>
@@ -159,27 +185,34 @@ function FlyerCard({
   }
 
   return (
-    <Link href={`/dosje/${folder.id}`} className={`${width} ${focus}`}>
-      <span className="relative block overflow-hidden rounded-2xl ring-1 ring-accent/40">
+    <Link href={`/dosje/${folder.id}`} className={`${width} ${exclusiveFocus}`}>
+      <span className={`relative block ${exclusiveShell.offerFrame} !rounded-2xl`}>
         <ProductVisual
           name={coverName}
           imageUrl={folder.cover?.thumb_url}
           eager
-          sizes={layout === "rail" ? "192px" : "(max-width: 640px) 100vw, 360px"}
+          sizes={layout === "rail" ? "208px" : "(max-width: 640px) 100vw, 360px"}
           className="aspect-[3/4] w-full"
         />
-        <span className="absolute top-2 left-2 z-10 rounded-full bg-ivory px-2 py-0.5 text-[0.65rem] font-extrabold tracking-tight text-charcoal">
-          Fletushkë
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-1.5 rounded-[0.85rem] ring-1 ring-accent/15"
+        />
+        <span className="absolute top-2 left-2 z-10 flex flex-wrap items-center gap-1">
+          {onForest ? <ExclusiveMark size="sm" /> : <ExclusiveMark size="sm" tone="on-light" />}
+          <span className="rounded-full bg-ivory px-2 py-0.5 text-[0.58rem] font-extrabold tracking-tight text-charcoal uppercase">
+            Fletushkë
+          </span>
         </span>
         {folder.lead_discount_percent != null && folder.lead_discount_percent > 0 ? (
           <span className="absolute top-2 right-2 z-10">
-            <DiscountBadge percent={folder.lead_discount_percent} />
+            <ExclusiveDiscount percent={folder.lead_discount_percent} />
           </span>
         ) : null}
       </span>
       <span
-        className={`mt-2 block truncate text-sm font-extrabold tracking-tight ${
-          onForest ? "" : "text-ink"
+        className={`mt-2.5 block truncate text-sm font-extrabold tracking-tight ${
+          onForest ? "text-ivory" : "text-ink"
         }`}
       >
         {folder.title}
@@ -201,9 +234,13 @@ function ShopLine({
   forest: boolean;
 }) {
   return (
-    <span className="mt-1 flex min-w-0 items-center gap-1.5">
+    <span className="mt-1.5 flex min-w-0 items-center gap-1.5">
       <ShopLogo name={name} logoUrl={logoUrl} size="sm" />
-      <span className={`truncate text-xs ${forest ? "text-ivory/70 dark:text-muted" : "text-muted"}`}>
+      <span
+        className={`truncate text-[0.68rem] font-bold tracking-[0.12em] uppercase ${
+          forest ? "text-ivory/75" : "text-muted"
+        }`}
+      >
         {name}
       </span>
     </span>

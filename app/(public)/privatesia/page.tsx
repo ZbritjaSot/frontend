@@ -29,7 +29,7 @@ const points = [
   },
   {
     title: "Harta",
-    body: "Kur hap vendndodhjen e një dyqani, shfletuesi ngarkon hartën nga Esri. Nëse shtyp lidhjen për Google Maps ose Apple Maps, del nga kjo faqe. ZbritjaSot nuk ruan një gjurmë të asaj hapjeje.",
+    body: "Kur hap vendndodhjen e një dyqani, shfletuesi ngarkon hartën nga Esri. Nëse shtyp «Shiko lokacionin», del nga kjo faqe te një aplikacion ose faqe hartash. ZbritjaSot nuk ruan një gjurmë të asaj hapjeje.",
   },
   {
     title: "Cookie e hyrjes",

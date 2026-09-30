@@ -57,7 +57,7 @@ async function createAndSubmit(
   }
 
   await page.getByLabel("Emri i produktit 1").fill(product);
-  await page.getByRole("button", { name: "Kategoria e produktit 1" }).click();
+  await page.getByRole("button", { name: "Kategoritë e produktit 1" }).click();
   await page.getByRole("option", { name: "Kafene" }).click();
 
   const price = page.getByLabel("Çmimi origjinal i produktit 1");

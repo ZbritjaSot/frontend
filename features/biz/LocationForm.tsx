@@ -8,7 +8,7 @@ import { geocodeBizAddress, updateBizLocation } from "@/features/biz/api";
 import { bizBusinessQueryKey } from "@/hooks/useBizProfile";
 import { validationMessage } from "@/lib/api";
 import { btnGhost, btnPrimary, fieldError, inputClass } from "@/lib/ui";
-import { appleMapsUrl, googleMapsUrl } from "@/lib/maps";
+import { mapsUrl } from "@/lib/maps";
 import { useWideScreen } from "@/lib/useWideScreen";
 import type { Business } from "@/types";
 
@@ -248,22 +248,14 @@ export function LocationForm({
         )}
 
         {place.address || (latitude != null && longitude != null) ? (
-          <div className="mt-4 flex flex-wrap gap-4 text-sm font-semibold">
+          <div className="mt-4">
             <a
-              className="text-muted no-underline hover:text-accent"
-              href={appleMapsUrl(place)}
+              className="text-sm font-semibold text-muted no-underline hover:text-accent"
+              href={mapsUrl(place)}
               target="_blank"
               rel="noopener noreferrer"
             >
-              Apple Maps
-            </a>
-            <a
-              className="text-muted no-underline hover:text-accent"
-              href={googleMapsUrl(place)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Google Maps
+              Shiko lokacionin
             </a>
           </div>
         ) : null}

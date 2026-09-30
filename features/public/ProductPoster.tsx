@@ -77,7 +77,6 @@ export function ProductGrid({
   priorityFirst = false,
 }: {
   offers: PublicOffer[];
-  dense?: boolean;
   eager?: boolean;
   /** The first card is the page's large photo. Later cards in the first row load immediately. */
   priorityFirst?: boolean;
@@ -94,45 +93,6 @@ export function ProductGrid({
         </li>
       ))}
     </ul>
-  );
-}
-
-export function OfferRow({ offer }: { offer: PublicOffer }) {
-  const shop = offer.business?.name;
-
-  return (
-    <Link
-      href={`/offers/${offer.id}`}
-      className="group -mx-2 flex min-h-11 items-center gap-4 rounded-xl px-2 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-    >
-      <span className="relative shrink-0">
-        <ProductVisual
-          name={offer.name}
-          imageUrl={offer.image?.thumb_url}
-          sizes="80px"
-          className="size-20 rounded-2xl"
-        />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-base font-extrabold tracking-tight">
-          {offer.name}
-        </span>
-        <span className="mt-1 block truncate text-sm text-muted">
-          {shop ? `${shop} · ` : ""}
-          deri më {formatDateShortSq(offer.expires_at)}
-        </span>
-      </span>
-      <span className="shrink-0 text-right">
-        {offer.discounted_price != null ? (
-          <PriceLine
-            sale={offer.discounted_price}
-            original={offer.original_price ?? 0}
-          />
-        ) : offer.discount_percent != null ? (
-          <DiscountBadge percent={offer.discount_percent} />
-        ) : null}
-      </span>
-    </Link>
   );
 }
 

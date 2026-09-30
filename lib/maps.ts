@@ -27,3 +27,11 @@ export function appleMapsUrl(place: MapPlace): string {
 
   return `https://maps.apple.com/?q=${encodeURIComponent(place.address ?? "")}`;
 }
+
+/**
+ * Neutral external map link for web. Uses a Google Maps search URL because it
+ * works for most visitors; the UI label stays "Shiko lokacionin".
+ */
+export function mapsUrl(place: MapPlace): string {
+  return googleMapsUrl(place);
+}

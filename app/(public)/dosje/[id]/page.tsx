@@ -67,11 +67,11 @@ export default async function FolderPage({ params }: FolderPageProps) {
 
   return (
     <article>
-      <section className="bg-forest text-ivory dark:bg-[#101614] dark:text-ink">
+      <section className="bg-forest text-ivory">
         <Frame className="py-10 sm:py-14">
           <BackLink
             href={backHref}
-            className="text-ivory/75 hover:text-ivory dark:text-muted dark:hover:text-ink"
+            className="text-ivory/75 hover:text-ivory"
           >
             {folder.business ? "Kthehu te dyqani" : "Kreu"}
           </BackLink>
@@ -113,7 +113,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
                     className="aspect-[4/5] w-full"
                   />
                 </span>
-                <span className="mt-3 line-clamp-2 block font-extrabold tracking-tight text-ivory dark:text-ink">
+                <span className="mt-3 line-clamp-2 block font-extrabold tracking-tight text-ivory">
                   {lead.name}
                 </span>
                 <span className="mt-1 flex min-w-0 items-baseline gap-3">
@@ -171,7 +171,7 @@ function FlyerProducts({ items }: { items: PublicOffer[] }) {
   const grouped = [...groups.values()];
 
   if (grouped.length < 2) {
-    return <ProductGrid offers={items} dense={items.length > 9} />;
+    return <ProductGrid offers={items} />;
   }
 
   return (
@@ -181,7 +181,7 @@ function FlyerProducts({ items }: { items: PublicOffer[] }) {
           <h3 className="m-0 mb-6 text-sm font-bold tracking-[0.16em] text-muted uppercase">
             {group.name}
           </h3>
-          <ProductGrid offers={group.items} dense={items.length > 9} />
+          <ProductGrid offers={group.items} />
         </section>
       ))}
     </div>

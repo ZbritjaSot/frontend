@@ -19,6 +19,7 @@ import { fetchBizShops } from "@/features/branches/api";
 import { OFFER_STATUS_LABEL } from "@/features/offers/status";
 import { useManagerReview } from "@/hooks/useManagerReview";
 import { validationMessage } from "@/lib/api";
+import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { formatDateShortSq } from "@/lib/format";
 import { btnGhost, btnPrimary, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 
@@ -159,7 +160,7 @@ export function ManagerReview() {
                             <StarIcon
                               fontSize="inherit"
                               className="shrink-0 text-accent!"
-                              aria-label="Ekskluzive"
+                              aria-label={EXCLUSIVE_LABEL}
                             />
                           ) : null}
                         </p>

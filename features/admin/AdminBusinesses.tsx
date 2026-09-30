@@ -322,7 +322,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
           />
           <DashboardKpi
             value={counts.exclusive}
-            label="Ekskluzive"
+            label={EXCLUSIVE_LABEL}
             detail="Kompani me yll"
             tone="accent"
             active={scope === "exclusive"}

@@ -16,7 +16,9 @@ export function HomeView({ home }: { home: PublicHome }) {
     home.hero === null &&
     home.featured.length === 0 &&
     home.flyers.length === 0 &&
-    home.fresh.length === 0;
+    home.fresh.length === 0 &&
+    home.exclusive.length === 0 &&
+    home.shops.length === 0;
   const sections = (home.sections?.length ? home.sections : defaultHomeSections).filter(
     (section) => section.key !== "categories",
   );

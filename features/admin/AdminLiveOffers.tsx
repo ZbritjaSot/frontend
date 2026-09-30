@@ -11,6 +11,7 @@ import { OFFER_STATUS_LABEL } from "@/features/offers/status";
 import { useApprovedOffers } from "@/hooks/useAdminOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
+import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { btnGhost, offerStatusClass, panelLead } from "@/lib/ui";
 
 const rowButton =
@@ -117,7 +118,7 @@ export function AdminLiveOffers({
                         <StarIcon
                           fontSize="inherit"
                           className="shrink-0 text-accent!"
-                          aria-label="Ekskluzive"
+                          aria-label={EXCLUSIVE_LABEL}
                         />
                       ) : null}
                     </p>

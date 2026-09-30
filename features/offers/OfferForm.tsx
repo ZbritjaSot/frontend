@@ -593,7 +593,7 @@ export function OfferForm({
                               : "Kategoria"
                           }
                           disabled={pending || categoriesLoading}
-                          aria-label={`Kategoria e produktit ${index + 1}`}
+                          aria-label={`Kategoritë e produktit ${index + 1}`}
                         />
                       </div>
                       {items.length > 1 ? (

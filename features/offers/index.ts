@@ -13,8 +13,6 @@ export { EditOfferScreen } from "./EditOfferScreen";
 export { OfferBundleView } from "./OfferBundleView";
 export { OfferDetail } from "./OfferDetail";
 export { OfferForm } from "./OfferForm";
-export { OfferList } from "./OfferList";
-export { OfferListItem } from "./OfferListItem";
 export { ViewOfferScreen } from "./ViewOfferScreen";
 export {
   canDeleteOffer,

@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { apiFetch, validationMessage } from "@/lib/api";
 
 const field =
-  "min-w-0 w-full border border-ivory/20 bg-black/30 text-sm font-medium text-ivory outline-none placeholder:text-ivory/40 transition-[border-color,box-shadow] duration-150 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/40 disabled:opacity-60 dark:border-white/15 dark:text-ink dark:placeholder:text-muted";
+  "min-w-0 w-full border border-ivory/20 bg-black/30 text-sm font-medium text-ivory outline-none placeholder:text-ivory/40 transition-[border-color,box-shadow] duration-150 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/40 disabled:opacity-60";
 
 const submit =
   "inline-flex shrink-0 cursor-pointer items-center justify-center border-0 bg-accent font-bold text-charcoal transition-[filter] duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-wait disabled:opacity-65";
@@ -54,7 +54,7 @@ export function NewsletterSignup({ variant }: { variant: "footer" | "home" }) {
       noValidate
     >
       {compact && !done ? (
-        <p className="m-0 text-sm font-bold tracking-[-0.02em] text-ivory dark:text-ink">
+        <p className="m-0 text-sm font-bold tracking-[-0.02em] text-ivory">
           ZbritjaSot në inbox
         </p>
       ) : null}

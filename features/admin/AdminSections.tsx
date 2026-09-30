@@ -10,12 +10,13 @@ import {
   type AdminHomeSection,
 } from "@/features/admin/homeCurationApi";
 import { validationMessage } from "@/lib/api";
+import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { fieldError, inputClass } from "@/lib/ui";
 
 const sectionKey = ["admin", "sections"] as const;
 
 const hints: Record<string, string> = {
-  exclusive: "Ekskluzive",
+  exclusive: EXCLUSIVE_LABEL,
   spotlight: "Zbritjet e forta",
   flyers: "Fletushkat",
   inbox: "Email-i",

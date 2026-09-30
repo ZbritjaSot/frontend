@@ -19,7 +19,7 @@ const offerItemSchema = z
   .object({
     category_ids: z
       .array(z.string().uuid())
-      .min(1, "Zgjidh një kategori."),
+      .min(1, "Zgjidh të paktën një kategori."),
     name: z
       .string()
       .trim()

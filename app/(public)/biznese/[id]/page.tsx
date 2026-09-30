@@ -232,7 +232,7 @@ export default async function BusinessPage({
               <h2 className="m-0 mb-8 text-[clamp(1.7rem,3vw,2.3rem)] leading-none font-extrabold tracking-[-0.04em]">
                 {page > 1 ? "Më shumë produkte" : "Zbritjet aktive"}
               </h2>
-              <ProductGrid offers={offers} dense={offers.length > 9} />
+              <ProductGrid offers={offers} />
               <Pager
                 page={page}
                 lastPage={offerLastPage}

@@ -4,16 +4,16 @@ import { NewsletterSignup } from "@/features/public/NewsletterSignup";
 import { SITE_EMAIL, SITE_TAGLINE } from "@/lib/site";
 
 const link =
-  "text-sm font-semibold text-ivory/90 underline-offset-4 hover:text-ivory hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent dark:text-ink dark:hover:text-ink";
+  "text-sm font-semibold text-ivory/90 underline-offset-4 hover:text-ivory hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-auto bg-forest text-ivory dark:bg-[#101614] dark:text-ink">
+    <footer className="mt-auto bg-forest text-ivory">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-8 sm:px-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Wordmark tone="inverse" className="text-2xl" />
-            <p className="mt-3 mb-0 max-w-xs text-sm leading-relaxed text-ivory/70 dark:text-muted">
+            <p className="mt-3 mb-0 max-w-xs text-sm leading-relaxed text-ivory/70">
               {SITE_TAGLINE}
             </p>
             <a href={`mailto:${SITE_EMAIL}`} className={`${link} mt-3 inline-flex`}>

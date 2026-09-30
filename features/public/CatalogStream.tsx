@@ -11,6 +11,7 @@ import {
 } from "@/features/public/CampaignPoster";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import type { CatalogSort, Katalog } from "@/lib/browse";
+import { useInfiniteSentinel } from "@/lib/useInfiniteSentinel";
 import type { PublicFolder, PublicOffer } from "@/types";
 
 type CatalogStreamProps = {
@@ -41,7 +42,6 @@ export function CatalogStream({
   const [done, setDone] = useState(lastPage <= 1);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
-  const sentinel = useRef<HTMLDivElement>(null);
   const loadingRef = useRef(false);
 
   const loadMore = useCallback(async () => {
@@ -86,23 +86,10 @@ export function CatalogStream({
     }
   }, [category, city, done, flyers, page, q, sort]);
 
-  useEffect(() => {
-    const node = sentinel.current;
-    if (!node || done || failed || loading) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          void loadMore();
-        }
-      },
-      { rootMargin: "240px" },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [done, failed, loadMore, loading]);
+  const sentinel = useInfiniteSentinel({
+    onLoadMore: loadMore,
+    enabled: !done && !failed && !loading,
+  });
 
   return (
     <div className="mt-6">
