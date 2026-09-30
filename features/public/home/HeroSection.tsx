@@ -133,7 +133,8 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
                   axis: null,
                   index: startIndex,
                 };
-                scroller.current.setPointerCapture(event.pointerId);
+                // Capture only after a horizontal drag starts so a plain click
+                // still reaches the offer <Link>.
               }}
               onPointerMove={(event) => {
                 const start = drag.current;
@@ -148,6 +149,13 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
                     return;
                   }
                   start.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+                  if (start.axis === "x" && el.hasPointerCapture?.(event.pointerId) !== true) {
+                    try {
+                      el.setPointerCapture(event.pointerId);
+                    } catch {
+                      // Some environments reject capture mid-gesture.
+                    }
+                  }
                 }
                 if (start.axis === "x") {
                   const limited = Math.max(-el.clientWidth, Math.min(el.clientWidth, dx));
@@ -158,7 +166,11 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
                 const start = drag.current;
                 drag.current = null;
                 release();
-                if (!start || start.axis !== "x" || !scroller.current || scroller.current.clientWidth === 0) {
+                const el = scroller.current;
+                if (el?.hasPointerCapture?.(event.pointerId)) {
+                  el.releasePointerCapture(event.pointerId);
+                }
+                if (!start || start.axis !== "x" || !el || el.clientWidth === 0) {
                   return;
                 }
                 const dx = event.clientX - start.x;
@@ -169,7 +181,11 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
                 suppressClick.current = true;
                 show(start.index + (dx < 0 ? 1 : -1));
               }}
-              onPointerCancel={() => {
+              onPointerCancel={(event) => {
+                const el = scroller.current;
+                if (el?.hasPointerCapture?.(event.pointerId)) {
+                  el.releasePointerCapture(event.pointerId);
+                }
                 drag.current = null;
                 release();
               }}

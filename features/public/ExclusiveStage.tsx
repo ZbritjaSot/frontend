@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { PriceLine } from "@/features/public/price";
 import {
   ExclusiveDiscount,
@@ -123,6 +124,9 @@ function FeaturedOffer({ item }: { item: Extract<ExclusiveItem, { kind: "offer" 
           <ExclusiveMark size="lg" />
           {percent != null && percent > 0 ? <ExclusiveDiscount percent={percent} /> : null}
         </span>
+        <span className="absolute top-4 right-4 z-20 sm:top-6 sm:right-6">
+          <FavoriteButton kind="offer" id={offer.id} size="md" />
+        </span>
       </span>
       <span className="relative flex min-w-0 flex-col justify-center gap-5 border-t border-accent/30 px-6 py-8 sm:px-10 sm:py-12 lg:border-t-0 lg:border-l">
         <span
@@ -174,6 +178,9 @@ function FeaturedFlyer({ item }: { item: Extract<ExclusiveItem, { kind: "flyer" 
           </span>
           {percent != null && percent > 0 ? <ExclusiveDiscount percent={percent} /> : null}
         </span>
+        <span className="absolute top-4 right-4 z-20 sm:top-6 sm:right-6">
+          <FavoriteButton kind="flyer" id={folder.id} size="md" />
+        </span>
       </span>
       <span className="relative flex min-w-0 flex-col justify-center gap-5 border-t border-accent/30 px-6 py-8 sm:px-10 sm:py-12 lg:border-t-0 lg:border-l">
         <span
@@ -221,6 +228,9 @@ function SpotlightOffer({ item }: { item: Extract<ExclusiveItem, { kind: "offer"
             <ExclusiveDiscount percent={offer.discount_percent} />
           ) : null}
         </span>
+        <span className="absolute top-3 right-3 z-20">
+          <FavoriteButton kind="offer" id={offer.id} />
+        </span>
       </span>
       <span className="relative flex min-w-0 flex-col justify-center gap-3 border-t border-accent/25 px-5 py-6 sm:border-t-0 sm:border-l sm:px-7">
         {shop ? <ShopMark name={shop} logoUrl={offer.business?.logo_url} /> : null}
@@ -265,6 +275,9 @@ function SpotlightFlyer({ item }: { item: Extract<ExclusiveItem, { kind: "flyer"
           <span className="rounded-full border border-ivory/30 bg-ivory/95 px-2 py-0.5 text-[0.58rem] font-extrabold tracking-[0.14em] text-charcoal uppercase">
             Fletushkë
           </span>
+        </span>
+        <span className="absolute top-3 right-3 z-20">
+          <FavoriteButton kind="flyer" id={folder.id} />
         </span>
       </span>
       <span className="relative flex min-w-0 flex-col justify-center gap-3 border-t border-accent/25 px-5 py-6 sm:border-t-0 sm:border-l sm:px-7">
@@ -314,6 +327,9 @@ function FlyerTile({
             <ExclusiveDiscount percent={folder.lead_discount_percent} />
           ) : null}
         </span>
+        <span className="absolute top-2.5 right-2.5 z-20">
+          <FavoriteButton kind="flyer" id={folder.id} />
+        </span>
       </span>
       <span className="mt-3 grid gap-1.5">
         {shop ? (
@@ -361,6 +377,9 @@ function OfferTile({
           {offer.discount_percent != null && offer.discount_percent > 0 ? (
             <ExclusiveDiscount percent={offer.discount_percent} />
           ) : null}
+        </span>
+        <span className="absolute top-2.5 right-2.5 z-20">
+          <FavoriteButton kind="offer" id={offer.id} />
         </span>
       </span>
       <span className="mt-3 grid gap-1.5">

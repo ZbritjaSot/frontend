@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { PlacePinRow } from "@/components/place/OfferPlace";
 import { leadProduct, productWord, withCampaign } from "@/features/public/compose";
 import { display } from "@/features/public/tone";
@@ -77,12 +78,20 @@ export default async function FolderPage({ params }: FolderPageProps) {
     <article>
       <section className="bg-forest text-ivory">
         <Frame className="py-10 sm:py-14">
-          <BackLink
-            href={backHref}
-            className="text-ivory/75 hover:text-ivory"
-          >
-            {folder.business ? "Kthehu te dyqani" : "Kreu"}
-          </BackLink>
+          <div className="flex items-center justify-between gap-3">
+            <BackLink
+              href={backHref}
+              className="text-ivory/75 hover:text-ivory"
+            >
+              {folder.business ? "Kthehu te dyqani" : "Kreu"}
+            </BackLink>
+            <FavoriteButton
+              kind="flyer"
+              id={folder.id}
+              size="md"
+              className="shrink-0 ring-1 ring-ivory/20"
+            />
+          </div>
           <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.7fr)]">
             <div>
               <p className="m-0 flex min-w-0 items-center gap-3 text-sm font-semibold">

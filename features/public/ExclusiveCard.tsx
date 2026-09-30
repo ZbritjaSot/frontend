@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import {
   ExclusiveDiscount,
   ExclusiveMark,
@@ -61,6 +62,9 @@ function OfferCard({
               <ExclusiveDiscount percent={offer.discount_percent} />
             ) : null}
           </span>
+          <span className="absolute top-3 right-3 z-20">
+            <FavoriteButton kind="offer" id={offer.id} />
+          </span>
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-3 border-t border-accent/30 px-5 py-6 sm:border-t-0 sm:border-l sm:px-8">
           {shop ? (
@@ -104,6 +108,9 @@ function OfferCard({
           {offer.discount_percent != null && offer.discount_percent > 0 ? (
             <ExclusiveDiscount percent={offer.discount_percent} />
           ) : null}
+        </span>
+        <span className="absolute top-2 right-2 z-20">
+          <FavoriteButton kind="offer" id={offer.id} />
         </span>
       </span>
       <span
@@ -168,6 +175,9 @@ function FlyerCard({
               Fletushkë
             </span>
           </span>
+          <span className="absolute top-3 right-3 z-20">
+            <FavoriteButton kind="flyer" id={folder.id} />
+          </span>
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-3 border-t border-accent/30 px-5 py-6 sm:border-t-0 sm:border-l sm:px-8">
           {shop ? (
@@ -209,6 +219,9 @@ function FlyerCard({
             <ExclusiveDiscount percent={folder.lead_discount_percent} />
           </span>
         ) : null}
+        <span className="absolute bottom-2 right-2 z-20">
+          <FavoriteButton kind="flyer" id={folder.id} />
+        </span>
       </span>
       <span
         className={`mt-2.5 block truncate text-sm font-extrabold tracking-tight ${

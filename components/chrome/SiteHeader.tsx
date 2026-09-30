@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { LogoMark } from "@/components/brand/LogoMark";
@@ -26,6 +27,7 @@ export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }
   const menuId = useId();
   const [open, setOpen] = useState(false);
   const onSettings = pathname.startsWith("/cilesimet");
+  const onFavorites = pathname.startsWith("/preferuarat");
 
   useEffect(() => {
     if (!open) {
@@ -103,15 +105,24 @@ export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }
           >
             {open ? <CloseIcon /> : <MenuIcon />}
           </button>
-          <button
-            type="button"
-            disabled
-            aria-label="Të preferuarat — së shpejti"
-            title="Të preferuarat — së shpejti"
-            className={`${iconHit} cursor-default text-chrome-muted opacity-70`}
+          <Link
+            href="/preferuarat"
+            aria-label="Të preferuarat"
+            aria-current={onFavorites ? "page" : undefined}
+            title="Të preferuarat"
+            onClick={() => setOpen(false)}
+            className={`${iconHit} ${
+              onFavorites
+                ? "border border-line bg-elevated text-[#ff6b7a]"
+                : "hover:bg-white/10"
+            }`}
           >
-            <FavoriteBorderIcon fontSize="small" />
-          </button>
+            {onFavorites ? (
+              <FavoriteIcon fontSize="small" />
+            ) : (
+              <FavoriteBorderIcon fontSize="small" />
+            )}
+          </Link>
           <Link
             href="/cilesimet"
             aria-label="Cilësimet"

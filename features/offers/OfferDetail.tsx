@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { OfferPlace } from "@/components/place/OfferPlace";
 import { BranchPlaces } from "@/features/public/BranchPlaces";
 import { savingsCents } from "@/features/public/compose";
@@ -41,6 +42,9 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                   <DiscountBadge percent={offer.discount_percent} />
                 </span>
               ) : null}
+              <span className="absolute top-4 right-4 z-20">
+                <FavoriteButton kind="offer" id={offer.id} size="md" />
+              </span>
             </div>
           </div>
 

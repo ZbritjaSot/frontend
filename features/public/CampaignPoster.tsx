@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { folderCount, leadProduct, productWord } from "@/features/public/compose";
 import { Rail } from "@/features/public/Frame";
 import { DiscountBadge } from "@/features/public/price";
@@ -22,6 +23,10 @@ export function CampaignPoster({
   const coverName = folder.cover?.name ?? lead?.name ?? folder.title;
   const coverUrl = folder.cover?.thumb_url ?? lead?.image?.thumb_url;
   const meta = `${count} ${productWord(count)} · deri më ${formatDateShortSq(folder.expires_at)}`;
+  const heartButton = <FavoriteButton kind="flyer" id={folder.id} />;
+  const heart = (
+    <span className="absolute top-2 right-2 z-20 sm:top-3 sm:right-3">{heartButton}</span>
+  );
 
   if (layout === "editorial") {
     return (
@@ -37,6 +42,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="(max-width: 640px) 100vw, 420px"
           />
+          {heart}
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-2 px-4 py-4 sm:px-6">
           <span className="flex min-w-0 items-center gap-2">
@@ -72,6 +78,9 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="108px"
           />
+          <span className="absolute top-1 right-1 z-20 scale-90">
+            <FavoriteButton kind="flyer" id={folder.id} />
+          </span>
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-1.5 px-3 py-3">
           <span className="flex min-w-0 items-center gap-2">
@@ -112,6 +121,9 @@ export function CampaignPoster({
               <DiscountBadge percent={percent} />
             </span>
           ) : null}
+          <span className="absolute top-4 right-4 z-20">
+            <FavoriteButton kind="flyer" id={folder.id} size="md" />
+          </span>
         </span>
         <span className="flex flex-col justify-between p-6 sm:p-8">
           <span>
@@ -134,36 +146,39 @@ export function CampaignPoster({
 
   if (layout === "card") {
     return (
-      <Link
-        href={`/dosje/${folder.id}`}
-        className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420]"
-      >
-        <span className="relative block aspect-[5/4] overflow-hidden">
-          <ProductVisual
-            fill
-            name={coverName}
-            imageUrl={coverUrl}
-            eager={eager}
-            sizes="(max-width: 640px) 100vw, 50vw"
-          />
-          {percent > 0 ? (
-            <span className="absolute top-3 left-3 z-10">
-              <DiscountBadge percent={percent} />
+      <div className="relative h-full min-w-0">
+        <Link
+          href={`/dosje/${folder.id}`}
+          className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420]"
+        >
+          <span className="relative block aspect-[5/4] overflow-hidden">
+            <ProductVisual
+              fill
+              name={coverName}
+              imageUrl={coverUrl}
+              eager={eager}
+              sizes="(max-width: 640px) 100vw, 50vw"
+            />
+            {percent > 0 ? (
+              <span className="absolute top-3 left-3 z-10">
+                <DiscountBadge percent={percent} />
+              </span>
+            ) : null}
+          </span>
+          <span className="flex flex-1 flex-col p-5">
+            <span className="flex items-center gap-2.5">
+              <ShopLogo name={shop} logoUrl={folder.business?.logo_url} size="sm" />
+              <span className="truncate text-sm font-semibold">{shop}</span>
             </span>
-          ) : null}
-        </span>
-        <span className="flex flex-1 flex-col p-5">
-          <span className="flex items-center gap-2.5">
-            <ShopLogo name={shop} logoUrl={folder.business?.logo_url} size="sm" />
-            <span className="truncate text-sm font-semibold">{shop}</span>
+            <span className="mt-3 line-clamp-2 h-12 overflow-hidden text-lg leading-6 font-extrabold tracking-tight">
+              {folder.title}
+            </span>
+            <span className="mt-auto pt-4 text-sm leading-relaxed text-muted">{meta}</span>
+            <span className="mt-3 text-sm font-extrabold tracking-tight">Hap fletushkën</span>
           </span>
-          <span className="mt-3 line-clamp-2 h-12 overflow-hidden text-lg leading-6 font-extrabold tracking-tight">
-            {folder.title}
-          </span>
-          <span className="mt-auto pt-4 text-sm leading-relaxed text-muted">{meta}</span>
-          <span className="mt-3 text-sm font-extrabold tracking-tight">Hap fletushkën</span>
-        </span>
-      </Link>
+        </Link>
+        <span className="absolute top-3 right-3 z-20">{heartButton}</span>
+      </div>
     );
   }
 
@@ -191,6 +206,7 @@ export function CampaignPoster({
             <DiscountBadge percent={percent} />
           </span>
         ) : null}
+        {heart}
       </span>
     </Link>
   );

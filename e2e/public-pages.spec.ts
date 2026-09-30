@@ -7,6 +7,7 @@ const pages = [
   { path: "/biznese", heading: /Dyqanet/ },
   { path: "/ekskluzive", heading: /Ekskluzive|Përfito tani/ },
   { path: "/cilesimet", heading: /Cilësimet/ },
+  { path: "/preferuarat", heading: /Të preferuarat/ },
   { path: "/privatesia", heading: /Privatësia/ },
   { path: "/kushtet", heading: /Kushtet/ },
 ];

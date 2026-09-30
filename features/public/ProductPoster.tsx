@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { DiscountBadge, PriceLine } from "@/features/public/price";
 import { media } from "@/features/public/tone";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
@@ -27,47 +28,52 @@ export function ProductPoster({
   const resolved = emphasis ? "feature" : tone;
 
   return (
-    <Link href={`/offers/${offer.id}`} className={cardLink}>
-      <span className={`relative block border border-line bg-elevated ${media}`}>
-        <ProductVisual
-          name={offer.name}
-          imageUrl={offer.image?.thumb_url}
-          eager={eager}
-          priority={priority}
-          sizes="(max-width: 640px) 50vw, 280px"
-          className="aspect-square w-full"
-        />
-        {offer.discount_percent != null && offer.discount_percent > 0 ? (
-          <span className="absolute top-2 left-2 z-10">
-            <DiscountBadge percent={offer.discount_percent} />
-          </span>
-        ) : null}
-      </span>
-      <span className="mt-2 grid gap-0.5">
-        <span className="block h-4 truncate text-[0.68rem] font-bold tracking-[0.12em] text-muted uppercase">
-          {shop ?? "\u00a0"}
-        </span>
-        <span
-          className={`line-clamp-2 h-10 overflow-hidden font-extrabold leading-5 tracking-tight text-ink ${
-            resolved === "feature" ? "text-base" : "text-sm"
-          }`}
-        >
-          {offer.name}
-        </span>
-        {offer.discounted_price != null ? (
-          <PriceLine
-            sale={offer.discounted_price}
-            original={offer.original_price ?? 0}
-            size="sm"
+    <div className="relative min-w-0">
+      <Link href={`/offers/${offer.id}`} className={cardLink}>
+        <span className={`relative block border border-line bg-elevated ${media}`}>
+          <ProductVisual
+            name={offer.name}
+            imageUrl={offer.image?.thumb_url}
+            eager={eager}
+            priority={priority}
+            sizes="(max-width: 640px) 50vw, 280px"
+            className="aspect-square w-full"
           />
-        ) : (
-          <span className="block h-5" />
-        )}
-        <span className="block h-4 truncate text-xs text-muted">
-          Deri më {formatDateShortSq(offer.expires_at)}
+          {offer.discount_percent != null && offer.discount_percent > 0 ? (
+            <span className="absolute top-2 left-2 z-10">
+              <DiscountBadge percent={offer.discount_percent} />
+            </span>
+          ) : null}
         </span>
+        <span className="mt-2 grid gap-0.5">
+          <span className="block h-4 truncate text-[0.68rem] font-bold tracking-[0.12em] text-muted uppercase">
+            {shop ?? "\u00a0"}
+          </span>
+          <span
+            className={`line-clamp-2 h-10 overflow-hidden font-extrabold leading-5 tracking-tight text-ink ${
+              resolved === "feature" ? "text-base" : "text-sm"
+            }`}
+          >
+            {offer.name}
+          </span>
+          {offer.discounted_price != null ? (
+            <PriceLine
+              sale={offer.discounted_price}
+              original={offer.original_price ?? 0}
+              size="sm"
+            />
+          ) : (
+            <span className="block h-5" />
+          )}
+          <span className="block h-4 truncate text-xs text-muted">
+            Deri më {formatDateShortSq(offer.expires_at)}
+          </span>
+        </span>
+      </Link>
+      <span className="absolute top-2 right-2 z-20">
+        <FavoriteButton kind="offer" id={offer.id} />
       </span>
-    </Link>
+    </div>
   );
 }
 
@@ -102,39 +108,44 @@ export function ProductList({ offers }: { offers: PublicOffer[] }) {
     <ul className="m-0 grid list-none divide-y divide-line p-0">
       {offers.map((offer) => (
         <li key={offer.id}>
-          <Link
-            href={`/offers/${offer.id}`}
-            className={`${cardLink} flex items-center gap-4 py-4`}
-          >
-            <span className={`relative block size-20 shrink-0 overflow-hidden border border-line bg-elevated sm:size-24 ${media}`}>
-              <ProductVisual
-                name={offer.name}
-                imageUrl={offer.image?.thumb_url}
-                sizes="96px"
-                className="size-full"
-              />
-              {offer.discount_percent != null && offer.discount_percent > 0 ? (
-                <span className="absolute top-1 left-1 z-10 scale-90">
-                  <DiscountBadge percent={offer.discount_percent} />
-                </span>
-              ) : null}
-            </span>
-            <span className="grid min-w-0 flex-1 gap-1">
-              <span className="line-clamp-2 text-base font-extrabold leading-5 tracking-tight text-ink">
-                {offer.name}
-              </span>
-              {offer.discounted_price != null ? (
-                <PriceLine
-                  sale={offer.discounted_price}
-                  original={offer.original_price ?? 0}
-                  size="sm"
+          <div className="relative">
+            <Link
+              href={`/offers/${offer.id}`}
+              className={`${cardLink} flex items-center gap-4 py-4`}
+            >
+              <span className={`relative block size-20 shrink-0 overflow-hidden border border-line bg-elevated sm:size-24 ${media}`}>
+                <ProductVisual
+                  name={offer.name}
+                  imageUrl={offer.image?.thumb_url}
+                  sizes="96px"
+                  className="size-full"
                 />
-              ) : null}
-              <span className="truncate text-xs text-muted">
-                Deri më {formatDateShortSq(offer.expires_at)}
+                {offer.discount_percent != null && offer.discount_percent > 0 ? (
+                  <span className="absolute top-1 left-1 z-10 scale-90">
+                    <DiscountBadge percent={offer.discount_percent} />
+                  </span>
+                ) : null}
               </span>
+              <span className="grid min-w-0 flex-1 gap-1">
+                <span className="line-clamp-2 text-base font-extrabold leading-5 tracking-tight text-ink">
+                  {offer.name}
+                </span>
+                {offer.discounted_price != null ? (
+                  <PriceLine
+                    sale={offer.discounted_price}
+                    original={offer.original_price ?? 0}
+                    size="sm"
+                  />
+                ) : null}
+                <span className="truncate text-xs text-muted">
+                  Deri më {formatDateShortSq(offer.expires_at)}
+                </span>
+              </span>
+            </Link>
+            <span className="absolute top-5 right-1 z-20 scale-90 sm:top-6">
+              <FavoriteButton kind="offer" id={offer.id} />
             </span>
-          </Link>
+          </div>
         </li>
       ))}
     </ul>
