@@ -217,7 +217,7 @@ export function AdminHome() {
                   <input
                     className={`${inputClass} min-w-0 flex-1`}
                     value={heroSearch}
-                    placeholder="Kërko produkt, dyqan ose qytet"
+                    placeholder=""
                     aria-label="Kërko produkt, dyqan ose qytet"
                     onChange={(event) => setHeroSearch(event.target.value)}
                     onKeyDown={(event) => {
@@ -435,7 +435,7 @@ export function AdminHome() {
                 <input
                   className={inputClass}
                   value={recommendedSearch}
-                  placeholder="Kërko te ekskluzivet"
+                  placeholder=""
                   aria-label="Kërko te ekskluzivet për të rekomanduara"
                   onChange={(event) => setRecommendedSearch(event.target.value)}
                   onKeyDown={(event) => {

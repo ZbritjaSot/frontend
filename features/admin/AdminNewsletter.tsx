@@ -64,7 +64,7 @@ function PickSearch({
       <input
         className={inputClass}
         value={query}
-        placeholder={`Kërko te ${label.toLowerCase()}`}
+        placeholder=""
         onFocus={() => setOpen(true)}
         onBlur={() => {
           window.setTimeout(() => setOpen(false), 150);

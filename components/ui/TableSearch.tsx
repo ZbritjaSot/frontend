@@ -19,7 +19,7 @@ export function TableSearch({
       <input
         className="h-12 w-full appearance-none border-0 bg-transparent pr-4 pl-11 text-sm font-medium text-ink outline-none placeholder:text-muted focus-visible:bg-elevated focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent/55"
         value={value}
-        placeholder={label}
+        placeholder=""
         onChange={(event) => onChange(event.target.value)}
       />
     </label>

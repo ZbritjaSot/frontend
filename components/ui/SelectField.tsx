@@ -212,7 +212,7 @@ export function SelectField({
               type="text"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Kërko"
+              placeholder=""
               aria-label="Kërko"
               aria-controls={listId}
               className="mb-1.5 min-h-10 w-full shrink-0 rounded-md border border-line bg-sunken px-3 text-sm font-medium text-ink outline-none placeholder:text-muted focus:border-accent/40"

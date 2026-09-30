@@ -41,7 +41,7 @@ export function CategoryIconPicker({
         <input
           className={inputClass}
           value={query}
-          placeholder="Kërko ikonën"
+          placeholder=""
           onChange={(event) => setQuery(event.target.value)}
         />
       </label>

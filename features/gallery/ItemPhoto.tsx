@@ -3,9 +3,10 @@
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import SearchIcon from "@mui/icons-material/Search";
 import Image from "next/image";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import {
   fetchManagerGallery,
@@ -13,19 +14,49 @@ import {
 } from "@/features/biz/managerApi";
 import {
   fetchAdminGallery,
+  fetchAdminPlatformGallery,
   fetchBizGallery,
+  fetchBizPlatformGallery,
   uploadAdminGallery,
   uploadBizGallery,
 } from "@/features/gallery/api";
 import { validationMessage } from "@/lib/api";
-import { fieldError } from "@/lib/ui";
-import type { OfferImage } from "@/types";
+import { btnGhost, btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
+import type { OfferImage, Paginated } from "@/types";
 
 export const bizGalleryQueryKey = ["biz", "gallery"] as const;
+
+type GalleryAudience = "biz" | "admin" | "manager";
+type PickerTab = "upload" | "mine" | "platform";
+
+const PAGE_SIZE = 24;
+
+const tabs: { id: PickerTab; label: string }[] = [
+  { id: "upload", label: "Shto imazh" },
+  { id: "mine", label: "Galeria ime" },
+  { id: "platform", label: "Galeria ZbritjaSot" },
+];
+
+function mineGalleryKey(gallery: GalleryAudience, businessId?: string, q = "") {
+  if (gallery === "manager" && businessId) {
+    return ["biz", "review", "gallery", businessId, q] as const;
+  }
+  if (gallery === "admin" && businessId) {
+    return ["admin", "gallery", businessId, q] as const;
+  }
+  return [...bizGalleryQueryKey, q] as const;
+}
+
+function platformGalleryKey(gallery: GalleryAudience, q = "") {
+  return gallery === "admin"
+    ? (["admin", "platform-gallery", q] as const)
+    : (["biz", "platform-gallery", q] as const);
+}
 
 export function ItemPhoto({
   name,
   thumbUrl,
+  selectedId,
   businessId,
   gallery = "biz",
   disabled,
@@ -34,9 +65,10 @@ export function ItemPhoto({
 }: {
   name: string;
   thumbUrl?: string | null;
+  selectedId?: string | null;
   /** When set, photos come from that shop's gallery instead of the signed-in shop. */
   businessId?: string;
-  gallery?: "biz" | "admin" | "manager";
+  gallery?: GalleryAudience;
   disabled?: boolean;
   onPick: (image: OfferImage) => void;
   onClear: () => void;
@@ -44,35 +76,93 @@ export function ItemPhoto({
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState<PickerTab>("upload");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const galleryKey =
-    gallery === "manager" && businessId
-      ? (["biz", "review", "gallery", businessId] as const)
-      : businessId && gallery === "admin"
-        ? (["admin", "gallery", businessId] as const)
-        : bizGalleryQueryKey;
-  const photos = useQuery({
-    queryKey: galleryKey,
-    queryFn: () => {
+  const [title, setTitle] = useState("");
+  const [search, setSearch] = useState("");
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    if (!open || (tab !== "mine" && tab !== "platform")) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setQ(search.trim());
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [search, open, tab]);
+
+  const mineKey = mineGalleryKey(gallery, businessId, q);
+  const platformKey = platformGalleryKey(gallery, q);
+
+  const minePhotos = useInfiniteQuery({
+    queryKey: mineKey,
+    queryFn: ({ pageParam }): Promise<Paginated<OfferImage>> => {
+      const params = { q, page: pageParam, per_page: PAGE_SIZE };
       if (gallery === "manager" && businessId) {
-        return fetchManagerGallery(businessId);
+        return fetchManagerGallery(businessId, params);
       }
       if (gallery === "admin" && businessId) {
-        return fetchAdminGallery(businessId);
+        return fetchAdminGallery(businessId, params);
       }
-      return fetchBizGallery();
+      return fetchBizGallery(params);
     },
-    enabled: open,
+    initialPageParam: 1,
+    getNextPageParam: (last) => {
+      const meta = last.meta;
+      if (!meta || meta.current_page >= meta.last_page) {
+        return undefined;
+      }
+      return meta.current_page + 1;
+    },
+    enabled: open && tab === "mine",
+  });
+
+  const platformPhotos = useInfiniteQuery({
+    queryKey: platformKey,
+    queryFn: ({ pageParam }): Promise<Paginated<OfferImage>> => {
+      const params = { q, page: pageParam, per_page: PAGE_SIZE };
+      if (gallery === "admin") {
+        return fetchAdminPlatformGallery(params);
+      }
+      return fetchBizPlatformGallery(params);
+    },
+    initialPageParam: 1,
+    getNextPageParam: (last) => {
+      const meta = last.meta;
+      if (!meta || meta.current_page >= meta.last_page) {
+        return undefined;
+      }
+      return meta.current_page + 1;
+    },
+    enabled: open && tab === "platform",
   });
 
   function close() {
     setOpen(false);
     setError(null);
+    setTab("upload");
+    setSearch("");
+    setQ("");
+  }
+
+  function openPicker() {
+    setTitle(name.trim());
+    setError(null);
+    setTab("upload");
+    setSearch("");
+    setQ("");
+    setOpen(true);
   }
 
   async function upload(file: File | undefined) {
     if (!file) {
+      return;
+    }
+    const cleanTitle = title.trim();
+    if (!cleanTitle) {
+      setError("Titulli është i detyrueshëm.");
       return;
     }
     setError(null);
@@ -80,19 +170,32 @@ export function ItemPhoto({
     try {
       const image =
         gallery === "manager" && businessId
-          ? await uploadManagerGallery(businessId, file)
+          ? await uploadManagerGallery(businessId, file, cleanTitle)
           : gallery === "admin" && businessId
-            ? await uploadAdminGallery(businessId, file)
-            : await uploadBizGallery(file);
-      await queryClient.invalidateQueries({ queryKey: galleryKey });
+            ? await uploadAdminGallery(businessId, file, cleanTitle)
+            : await uploadBizGallery(file, cleanTitle);
+      await queryClient.invalidateQueries({
+        queryKey:
+          gallery === "manager" && businessId
+            ? (["biz", "review", "gallery", businessId] as const)
+            : gallery === "admin" && businessId
+              ? (["admin", "gallery", businessId] as const)
+              : bizGalleryQueryKey,
+      });
       onPick(image);
-      close();
+      setTab("mine");
+      setSearch("");
+      setQ("");
     } catch (caught) {
       setError(validationMessage(caught, "Fotoja nuk u ngarkua."));
     } finally {
       setBusy(false);
     }
   }
+
+  const activePhotos = tab === "mine" ? minePhotos : platformPhotos;
+  const images =
+    activePhotos.data?.pages.flatMap((page) => page.data) ?? [];
 
   return (
     <div className="relative size-16 shrink-0 sm:size-[4.75rem]">
@@ -101,7 +204,7 @@ export function ItemPhoto({
         disabled={disabled || busy}
         aria-label={thumbUrl ? `Ndërro foton e ${name || "produktit"}` : "Shto foto"}
         className="relative grid size-full place-items-center overflow-hidden rounded-2xl border border-line bg-sunken text-muted disabled:opacity-60"
-        onClick={() => setOpen(true)}
+        onClick={openPicker}
       >
         {thumbUrl ? (
           <Image src={thumbUrl} alt="" fill unoptimized className="object-cover" sizes="76px" />
@@ -131,59 +234,152 @@ export function ItemPhoto({
           void upload(file);
         }}
       />
-      <Modal
-        open={open}
-        title="Foto e produktit"
-        size="md"
-        onClose={close}
-      >
+      <Modal open={open} title="Foto e produktit" size="lg" onClose={close}>
         {error ? (
           <p className={`${fieldError} mb-3`} role="alert">
             {error}
           </p>
         ) : null}
-        <button
-          type="button"
-          disabled={busy}
-          className="mb-4 flex min-h-12 w-full items-center gap-3 rounded-xl border border-dashed border-line px-3 text-left font-semibold text-ink hover:bg-sunken disabled:opacity-60"
-          onClick={() => inputRef.current?.click()}
-        >
-          <AddPhotoAlternateOutlinedIcon fontSize="small" />
-          Ngarko foto
-        </button>
-        <p className="m-0 mb-2 text-xs font-bold tracking-[0.08em] text-muted uppercase">
-          Galeria
-        </p>
-        {photos.isError ? (
-          <p className={fieldError} role="alert">
-            {validationMessage(photos.error, "Galeria nuk u ngarkua.")}
-          </p>
-        ) : photos.data && photos.data.length > 0 ? (
-          <ul className="m-0 grid list-none grid-cols-3 gap-2 p-0">
-            {photos.data.map((image) => (
-              <li key={image.id}>
-                <button
-                  type="button"
-                  className="relative block aspect-square w-full overflow-hidden rounded-xl"
-                  onClick={() => {
-                    onPick(image);
-                    close();
-                  }}
-                >
-                  <Image
-                    src={image.thumb_url}
-                    alt=""
-                    fill
-                    unoptimized
-                    className="object-cover"
-                    sizes="120px"
-                  />
-                </button>
-              </li>
-            ))}
-          </ul>
+
+        <div className="mb-4 flex gap-1 border-b border-line">
+          {tabs.map((item) => {
+            const active = tab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={`-mb-px cursor-pointer border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
+                  active
+                    ? "border-accent text-ink"
+                    : "border-transparent text-muted hover:text-ink"
+                }`}
+                onClick={() => {
+                  setError(null);
+                  setTab(item.id);
+                  setSearch("");
+                  setQ("");
+                }}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {tab === "upload" ? (
+          <div className="grid gap-3">
+            <label className="grid gap-1.5">
+              <span className={fieldLabel}>Titulli</span>
+              <input
+                className={inputClass}
+                value={title}
+                maxLength={160}
+                required
+                onChange={(event) => setTitle(event.target.value)}
+              />
+            </label>
+            <button
+              type="button"
+              disabled={busy}
+              className={`${btnPrimary} inline-flex min-h-11 items-center justify-center gap-2 disabled:opacity-60`}
+              onClick={() => {
+                if (!title.trim()) {
+                  setError("Titulli është i detyrueshëm.");
+                  return;
+                }
+                inputRef.current?.click();
+              }}
+            >
+              <AddPhotoAlternateOutlinedIcon fontSize="small" />
+              {busy ? "Duke ngarkuar…" : "Zgjidh dhe ngarko"}
+            </button>
+            <p className="m-0 text-xs text-muted">
+              JPEG, PNG ose WebP — deri në 8MB.
+            </p>
+          </div>
         ) : (
-          <p className="m-0 text-sm text-muted">Nuk ka foto ende. Ngarko të parën.</p>
+          <div className="grid gap-3">
+            <label className="relative block">
+              <span className="sr-only">Kërko</span>
+              <SearchIcon
+                fontSize="small"
+                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted"
+              />
+              <input
+                className={`${inputClass} pl-10`}
+                value={search}
+                placeholder=""
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </label>
+
+            {activePhotos.isError ? (
+              <p className={fieldError} role="alert">
+                {validationMessage(activePhotos.error, "Galeria nuk u ngarkua.")}
+              </p>
+            ) : null}
+
+            {activePhotos.isLoading ? (
+              <p className="m-0 text-sm text-muted">Duke ngarkuar…</p>
+            ) : images.length > 0 ? (
+              <ul className="m-0 grid max-h-[min(24rem,50vh)] list-none grid-cols-3 gap-2 overflow-y-auto p-0 sm:grid-cols-4">
+                {images.map((image) => {
+                  const selected = selectedId === image.id;
+                  return (
+                    <li key={image.id}>
+                      <button
+                        type="button"
+                        className="grid w-full gap-1 text-left"
+                        onClick={() => {
+                          onPick(image);
+                          close();
+                        }}
+                      >
+                        <span
+                          className={`relative block aspect-square w-full overflow-hidden rounded-xl ${
+                            selected
+                              ? "ring-2 ring-accent ring-offset-2 ring-offset-elevated"
+                              : ""
+                          }`}
+                        >
+                          <Image
+                            src={image.thumb_url}
+                            alt={image.title ?? ""}
+                            fill
+                            unoptimized
+                            className="object-cover"
+                            sizes="120px"
+                          />
+                        </span>
+                        <span className="truncate text-xs font-medium text-ink">
+                          {image.title || "Pa titull"}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="m-0 text-sm text-muted">
+                {tab === "mine"
+                  ? "Nuk ka foto ende. Ngarko të parën te Shto imazh."
+                  : "Nuk u gjet asnjë foto në galerinë e platformës."}
+              </p>
+            )}
+
+            {activePhotos.hasNextPage ? (
+              <button
+                type="button"
+                disabled={activePhotos.isFetchingNextPage}
+                className={`${btnGhost} min-h-10 disabled:opacity-60`}
+                onClick={() => void activePhotos.fetchNextPage()}
+              >
+                {activePhotos.isFetchingNextPage
+                  ? "Duke ngarkuar…"
+                  : "Ngarko më shumë"}
+              </button>
+            ) : null}
+          </div>
         )}
       </Modal>
     </div>

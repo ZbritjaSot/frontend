@@ -109,7 +109,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
         <input
           className={inputClass}
           value={shopSearch}
-          placeholder="Kërko dyqanin"
+          placeholder=""
           aria-label="Kërko dyqanin"
           onChange={(event) => setShopSearch(event.target.value)}
           onKeyDown={(event) => {
@@ -223,11 +223,16 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
         <ItemPhoto
           name={name || "Produkt"}
           thumbUrl={thumbUrl}
+          selectedId={galleryImageId}
           businessId={businessId}
           gallery="admin"
           onPick={(image) => {
             setGalleryImageId(image.id);
             setThumbUrl(image.thumb_url);
+            const platformTitle = image.title?.trim();
+            if (image.source === "platform" && platformTitle) {
+              setName(platformTitle);
+            }
           }}
           onClear={() => {
             setGalleryImageId(null);

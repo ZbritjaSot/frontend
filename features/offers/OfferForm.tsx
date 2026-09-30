@@ -534,15 +534,20 @@ export function OfferForm({
                   <ItemPhoto
                     name={item.name}
                     thumbUrl={item.thumb_url}
+                    selectedId={item.gallery_image_id}
                     businessId={
                       audience === "biz" ? undefined : (businessId ?? offer?.business?.id)
                     }
                     gallery={audience === "manager" ? "manager" : audience === "admin" ? "admin" : "biz"}
                     disabled={pending}
                     onPick={(image) => {
+                      const platformTitle = image.title?.trim();
                       patchItem(item.key, {
                         gallery_image_id: image.id,
                         thumb_url: image.thumb_url,
+                        ...(image.source === "platform" && platformTitle
+                          ? { name: platformTitle }
+                          : {}),
                       });
                       setCoverKey((current) => current ?? item.key);
                     }}

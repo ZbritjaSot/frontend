@@ -93,7 +93,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
           city={city}
           categories={[]}
           showCategories={false}
-          placeholder="Kërko një dyqan"
+          placeholder=""
         />
         <CatalogFilters
           basePath="/biznese"

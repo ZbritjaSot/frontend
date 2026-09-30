@@ -110,6 +110,8 @@ export type OfferImage = {
   id: string;
   thumb_url: string;
   detail_url: string;
+  title?: string | null;
+  source?: "business" | "platform";
 };
 
 /** Product line inside a folder (biz/admin). */

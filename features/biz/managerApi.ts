@@ -70,20 +70,37 @@ export async function fetchManagerCompanyShops(businessId: string): Promise<Comp
   return payload.data;
 }
 
-export async function fetchManagerGallery(businessId: string): Promise<OfferImage[]> {
-  const payload = await apiFetch<{ data: OfferImage[] }>(
-    `/biz/review/companies/${businessId}/gallery`,
+export async function fetchManagerGallery(
+  businessId: string,
+  params?: { q?: string; page?: number; per_page?: number },
+): Promise<Paginated<OfferImage>> {
+  const qs = new URLSearchParams();
+  if (params?.q?.trim()) {
+    qs.set("q", params.q.trim());
+  }
+  if (params?.page && params.page > 1) {
+    qs.set("page", String(params.page));
+  }
+  if (params?.per_page) {
+    qs.set("per_page", String(params.per_page));
+  }
+  const query = qs.toString();
+  return apiFetch<Paginated<OfferImage>>(
+    `/biz/review/companies/${businessId}/gallery${query ? `?${query}` : ""}`,
     { auth: true },
   );
-  return payload.data;
 }
 
 export async function uploadManagerGallery(
   businessId: string,
   file: File,
+  title?: string | null,
 ): Promise<OfferImage> {
   const body = new FormData();
   body.set("image", file);
+  if (title?.trim()) {
+    body.set("title", title.trim());
+  }
   const payload = await apiFetch<{ data: OfferImage }>(
     `/biz/review/companies/${businessId}/gallery`,
     { method: "POST", auth: true, body },

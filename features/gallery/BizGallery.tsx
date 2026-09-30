@@ -2,9 +2,10 @@
 
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import SearchIcon from "@mui/icons-material/Search";
 import Image from "next/image";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import {
   deleteBizGallery,
   fetchBizGallery,
@@ -12,17 +13,41 @@ import {
 } from "@/features/gallery/api";
 import { bizGalleryQueryKey } from "@/features/gallery/ItemPhoto";
 import { validationMessage } from "@/lib/api";
-import { fieldError } from "@/lib/ui";
+import { btnGhost, fieldError, fieldLabel, inputClass } from "@/lib/ui";
+
+const PAGE_SIZE = 24;
 
 export function BizGallery() {
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const gallery = useQuery({
-    queryKey: bizGalleryQueryKey,
-    queryFn: fetchBizGallery,
+  const [title, setTitle] = useState("");
+  const [search, setSearch] = useState("");
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setQ(search.trim());
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [search]);
+
+  const gallery = useInfiniteQuery({
+    queryKey: [...bizGalleryQueryKey, q],
+    queryFn: ({ pageParam }) =>
+      fetchBizGallery({ q, page: pageParam, per_page: PAGE_SIZE }),
+    initialPageParam: 1,
+    getNextPageParam: (last) => {
+      const meta = last.meta;
+      if (!meta || meta.current_page >= meta.last_page) {
+        return undefined;
+      }
+      return meta.current_page + 1;
+    },
   });
+
+  const images = gallery.data?.pages.flatMap((page) => page.data) ?? [];
 
   async function refresh() {
     await queryClient.invalidateQueries({ queryKey: bizGalleryQueryKey });
@@ -40,21 +65,54 @@ export function BizGallery() {
           {validationMessage(gallery.error, "Galeria nuk u ngarkua.")}
         </p>
       ) : null}
-      <ul className="m-0 grid list-none grid-cols-4 gap-2 p-0 sm:grid-cols-6 lg:grid-cols-8">
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <label className="grid min-w-0 flex-1 gap-1.5">
+          <span className={fieldLabel}>Titulli</span>
+          <input
+            className={inputClass}
+            value={title}
+            maxLength={160}
+            required
+            onChange={(event) => setTitle(event.target.value)}
+          />
+        </label>
+        <label className="relative block min-w-0 flex-1">
+          <span className="sr-only">Kërko</span>
+          <SearchIcon
+            fontSize="small"
+            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted"
+          />
+          <input
+            className={`${inputClass} pl-10`}
+            value={search}
+            placeholder=""
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </label>
+      </div>
+
+      <ul className="m-0 grid list-none grid-cols-3 gap-3 p-0 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
         <li>
           <button
             type="button"
             disabled={busy}
             aria-label="Shto foto"
             className="grid aspect-square w-full place-items-center rounded-xl border border-dashed border-line bg-sunken text-muted disabled:opacity-60"
-            onClick={() => inputRef.current?.click()}
+            onClick={() => {
+              if (!title.trim()) {
+                setError("Titulli është i detyrueshëm.");
+                return;
+              }
+              inputRef.current?.click();
+            }}
           >
             <AddOutlinedIcon fontSize="small" />
           </button>
           <input
             ref={inputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
             className="sr-only"
             onChange={async (event) => {
               const file = event.target.files?.[0];
@@ -62,10 +120,16 @@ export function BizGallery() {
               if (!file) {
                 return;
               }
+              const cleanTitle = title.trim();
+              if (!cleanTitle) {
+                setError("Titulli është i detyrueshëm.");
+                return;
+              }
               setError(null);
               setBusy(true);
               try {
-                await uploadBizGallery(file);
+                await uploadBizGallery(file, cleanTitle);
+                setTitle("");
                 await refresh();
               } catch (caught) {
                 setError(validationMessage(caught, "Fotoja nuk u ngarkua."));
@@ -74,19 +138,23 @@ export function BizGallery() {
               }
             }}
           />
+          <p className="m-0 mt-1 truncate text-xs font-medium text-muted">Shto</p>
         </li>
-        {gallery.data?.map((image) => (
+        {images.map((image) => (
           <li key={image.id} className="relative">
             <span className="relative block aspect-square overflow-hidden rounded-xl">
               <Image
                 src={image.thumb_url}
-                alt=""
+                alt={image.title ?? ""}
                 fill
                 unoptimized
                 className="object-cover"
                 sizes="120px"
               />
             </span>
+            <p className="m-0 mt-1 truncate text-xs font-medium text-ink">
+              {image.title || "Pa titull"}
+            </p>
             <button
               type="button"
               disabled={busy}
@@ -110,6 +178,17 @@ export function BizGallery() {
           </li>
         ))}
       </ul>
+
+      {gallery.hasNextPage ? (
+        <button
+          type="button"
+          disabled={gallery.isFetchingNextPage}
+          className={`${btnGhost} min-h-10 justify-self-start disabled:opacity-60`}
+          onClick={() => void gallery.fetchNextPage()}
+        >
+          {gallery.isFetchingNextPage ? "Duke ngarkuar…" : "Ngarko më shumë"}
+        </button>
+      ) : null}
     </div>
   );
 }
