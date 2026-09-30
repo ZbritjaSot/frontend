@@ -50,7 +50,7 @@ export function ProductPoster({
             {shop ?? "\u00a0"}
           </span>
           <span
-            className={`line-clamp-2 h-10 overflow-hidden font-extrabold leading-5 tracking-tight text-ink ${
+            className={`truncate font-extrabold leading-5 tracking-tight text-ink ${
               resolved === "feature" ? "text-base" : "text-sm"
             }`}
           >
@@ -127,7 +127,7 @@ export function ProductList({ offers }: { offers: PublicOffer[] }) {
                 ) : null}
               </span>
               <span className="grid min-w-0 flex-1 gap-1">
-                <span className="line-clamp-2 text-base font-extrabold leading-5 tracking-tight text-ink">
+                <span className="truncate text-base font-extrabold leading-5 tracking-tight text-ink">
                   {offer.name}
                 </span>
                 {offer.discounted_price != null ? (
