@@ -55,7 +55,7 @@ export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }
   const exclusiveActive = pathname === EXCLUSIVE_HREF;
 
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-chrome text-chrome-text backdrop-blur-md dark:border-white/8 dark:bg-chrome/90">
+    <header className="sticky top-0 z-40 border-b border-line bg-chrome text-chrome-text backdrop-blur-md dark:border-white/8 dark:bg-chrome/90">
       <div className="mx-auto flex min-h-16 w-full max-w-7xl items-center gap-4 px-5 sm:gap-8 sm:px-8">
         <Link
           href="/"
