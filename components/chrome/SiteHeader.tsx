@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { readKatalog } from "@/lib/browse";
 import { EXCLUSIVE_HREF, EXCLUSIVE_LABEL } from "@/lib/exclusive";
 
@@ -15,12 +16,16 @@ const links = [
   { href: "/biznese", label: "Dyqanet", match: "dyqane" },
 ] as const;
 
+const iconHit =
+  "inline-flex size-10 items-center justify-center rounded-xl text-chrome-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+
 export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }) {
   const pathname = usePathname();
   const params = useSearchParams();
   const katalog = readKatalog(params.get("katalog") ?? undefined);
   const menuId = useId();
   const [open, setOpen] = useState(false);
+  const onSettings = pathname.startsWith("/cilesimet");
 
   useEffect(() => {
     if (!open) {
@@ -87,10 +92,10 @@ export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }
           ) : null}
         </nav>
 
-        <div className="ml-auto flex items-center gap-1 md:ml-0">
+        <div className="ml-auto flex items-center gap-0.5 md:ml-0">
           <button
             type="button"
-            className="inline-flex size-11 cursor-pointer items-center justify-center rounded-lg text-chrome-text hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent md:hidden"
+            className={`${iconHit} cursor-pointer hover:bg-white/10 md:hidden`}
             aria-label={open ? "Mbyll menynë" : "Hap menynë"}
             aria-expanded={open}
             aria-controls={menuId}
@@ -98,7 +103,29 @@ export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }
           >
             {open ? <CloseIcon /> : <MenuIcon />}
           </button>
-          <ThemeToggle />
+          <button
+            type="button"
+            disabled
+            aria-label="Të preferuarat — së shpejti"
+            title="Të preferuarat — së shpejti"
+            className={`${iconHit} cursor-default text-chrome-muted opacity-70`}
+          >
+            <FavoriteBorderIcon fontSize="small" />
+          </button>
+          <Link
+            href="/cilesimet"
+            aria-label="Cilësimet"
+            aria-current={onSettings ? "page" : undefined}
+            title="Cilësimet"
+            onClick={() => setOpen(false)}
+            className={`${iconHit} ${
+              onSettings
+                ? "border border-line bg-elevated"
+                : "hover:bg-white/10"
+            }`}
+          >
+            <SettingsOutlinedIcon fontSize="small" />
+          </Link>
         </div>
       </div>
 
