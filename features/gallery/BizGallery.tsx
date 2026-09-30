@@ -1,13 +1,11 @@
 "use client";
 
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import Image from "next/image";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import {
-  deleteBizGallery,
   fetchBizGallery,
   uploadBizGallery,
 } from "@/features/gallery/api";
@@ -141,7 +139,7 @@ export function BizGallery() {
           <p className="m-0 mt-1 truncate text-xs font-medium text-muted">Shto</p>
         </li>
         {images.map((image) => (
-          <li key={image.id} className="relative">
+          <li key={image.id}>
             <span className="relative block aspect-square overflow-hidden rounded-xl">
               <Image
                 src={image.thumb_url}
@@ -155,26 +153,6 @@ export function BizGallery() {
             <p className="m-0 mt-1 truncate text-xs font-medium text-ink">
               {image.title || "Pa titull"}
             </p>
-            <button
-              type="button"
-              disabled={busy}
-              aria-label="Hiq foton"
-              className="absolute -top-1.5 -right-1.5 grid size-6 place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated"
-              onClick={async () => {
-                setError(null);
-                setBusy(true);
-                try {
-                  await deleteBizGallery(image.id);
-                  await refresh();
-                } catch (caught) {
-                  setError(validationMessage(caught, "Fotoja nuk u hoq."));
-                } finally {
-                  setBusy(false);
-                }
-              }}
-            >
-              <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
-            </button>
           </li>
         ))}
       </ul>

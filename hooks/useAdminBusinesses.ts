@@ -67,6 +67,10 @@ export function useUpdateBusiness() {
       longitude?: number | null;
       owner_name?: string;
       owner_email?: string;
+      website_url?: string | null;
+      instagram_url?: string | null;
+      facebook_url?: string | null;
+      whatsapp?: string | null;
     }) => updateBusiness(id, data),
     onSuccess: async () => {
       await queryClient.invalidateQueries({

@@ -23,6 +23,20 @@ export async function updateBizLocation(body: {
   return payload.data;
 }
 
+export async function updateBizLinks(body: {
+  website_url: string | null;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  whatsapp: string | null;
+}) {
+  const payload = await apiFetch<{ data: Business }>("/biz/business/links", {
+    method: "PUT",
+    auth: true,
+    body: JSON.stringify(body),
+  });
+  return payload.data;
+}
+
 export async function geocodeBizAddress(address: string) {
   const payload = await apiFetch<{
     data: { latitude: number; longitude: number };

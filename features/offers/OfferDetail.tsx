@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { OfferPlace } from "@/components/place/OfferPlace";
-import { BranchPlaces } from "@/features/public/BranchPlaces";
+import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
 import { savingsCents } from "@/features/public/compose";
 import { BackLink, Band, Frame, SectionHeading } from "@/features/public/Frame";
 import { DiscountBadge, PriceLine } from "@/features/public/price";
@@ -109,13 +109,12 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
           <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
             Ku e gjen
           </p>
-          <h2 className="m-0 mt-2 text-2xl font-extrabold tracking-tight">
-            {offer.business.name}
-          </h2>
-          <div className="mt-5 max-w-xl">
+          <div className="mt-3 max-w-xl grid gap-3">
+            <PlaceBranchRow place={offer.business} />
             <OfferPlace
               surface="plain"
               showHeading={false}
+              showPin={false}
               mapClassName="h-72 rounded-[1.5rem]"
               name={offer.business.name}
               place={{

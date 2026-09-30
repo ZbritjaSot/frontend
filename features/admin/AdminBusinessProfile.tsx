@@ -10,13 +10,14 @@ import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Spinner } from "@/components/ui/Spinner";
 import { BranchPanel } from "@/features/branches/BranchPanel";
+import { BusinessLinksForm } from "@/features/business/BusinessLinksForm";
 import { MailResends } from "@/features/admin/MailResends";
 import { ManagerNote } from "@/features/biz/ManagerNote";
 import { AdminGallery } from "@/features/gallery/AdminGallery";
 import { deleteAdminLogo, uploadAdminLogo } from "@/features/gallery/api";
 import { LogoField } from "@/features/gallery/LogoField";
 import { fetchAdminSubscriptions } from "@/features/admin/subscriptionsApi";
-import { setBusinessPassword } from "@/features/admin/businessesApi";
+import { setBusinessPassword, updateBusiness as saveBusiness } from "@/features/admin/businessesApi";
 import {
   adminBusinessesQueryKey,
   useAdminBusiness,
@@ -456,6 +457,15 @@ export function AdminBusinessProfile({ id }: { id: string }) {
             </div>
           </form>
           <AddressLink business={business} />
+          <BusinessLinksForm
+            business={business}
+            onSave={async (links) => {
+              await saveBusiness(business.id, links);
+              await queryClient.invalidateQueries({
+                queryKey: adminBusinessesQueryKey,
+              });
+            }}
+          />
           {business.location_status === "pending" ? (
             <div className="grid gap-3 border-t border-line px-5 py-4">
               <p className={`m-0 ${micro}`}>Adresë në pritje</p>

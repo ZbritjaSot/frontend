@@ -52,13 +52,6 @@ export async function fetchBizPlatformGallery(
   );
 }
 
-export async function deleteBizGallery(imageId: string): Promise<void> {
-  await apiFetch<void>(`/biz/gallery/${imageId}`, {
-    method: "DELETE",
-    auth: true,
-  });
-}
-
 export async function uploadBizGallery(
   file: File,
   title?: string | null,

@@ -33,6 +33,7 @@ export type BusinessSummary = {
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  parent_id?: string | null;
   is_active?: boolean;
   extra_placement?: boolean;
   logo_url?: string | null;
@@ -63,6 +64,10 @@ export type Business = {
   is_approved?: boolean;
   extra_placement?: boolean;
   logo_url?: string | null;
+  website_url?: string | null;
+  instagram_url?: string | null;
+  facebook_url?: string | null;
+  whatsapp?: string | null;
   owner?: User | null;
   branches?: Business[];
   created_at?: string;
@@ -143,6 +148,11 @@ export type PublicBusiness = {
   latitude?: number | null;
   longitude?: number | null;
   logo_url?: string | null;
+  parent_id?: string | null;
+  website_url?: string | null;
+  instagram_url?: string | null;
+  facebook_url?: string | null;
+  whatsapp?: string | null;
   flyers_count?: number;
   offers_count?: number;
   /** Public locations in this company. Set on the directory for the main shop. */
@@ -236,6 +246,8 @@ export type CompanyShop = {
   city?: string | null;
   village?: string | null;
   address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   parent_id?: string | null;
   is_active?: boolean;
   logo_url?: string | null;

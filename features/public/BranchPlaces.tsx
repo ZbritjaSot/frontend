@@ -5,6 +5,8 @@ import type { BusinessSummary } from "@/types";
 
 type BranchPlacesProps = {
   places: BusinessSummary[] | undefined;
+  /** Second headline under “Degë të tjera”. Flyer default: same offer elsewhere. */
+  title?: string;
 };
 
 function PinIcon({ className }: { className?: string }) {
@@ -15,66 +17,106 @@ function PinIcon({ className }: { className?: string }) {
   );
 }
 
-export function BranchPlaces({ places }: BranchPlacesProps) {
+function placeRole(place: Pick<BusinessSummary, "parent_id">): string {
+  return place.parent_id ? "Degë" : "Dyqani kryesor";
+}
+
+export function PlaceBranchRow({
+  place,
+  linked = true,
+  tone = "default",
+  className,
+}: {
+  place: BusinessSummary;
+  /** When false, the row is the shop you are already on — no self-link. */
+  linked?: boolean;
+  /** Soft bar for forest / dark hero surfaces. */
+  tone?: "default" | "onForest";
+  className?: string;
+}) {
+  const address = place.address?.trim() || null;
+  const role = placeRole(place);
+  const mapsHref = mapsUrl({
+    address: place.address,
+    latitude: place.latitude,
+    longitude: place.longitude,
+  });
+  const canMap =
+    Boolean(address) || (place.latitude != null && place.longitude != null);
+  const onForest = tone === "onForest";
+  const nameClass = onForest
+    ? "block truncate text-sm font-extrabold tracking-tight text-ivory"
+    : "block truncate text-sm font-extrabold tracking-tight text-ink";
+  const metaClass = onForest
+    ? "block truncate text-xs text-ivory/70"
+    : "block truncate text-xs text-muted";
+  const shellClass = onForest
+    ? "flex min-w-0 items-center gap-3 rounded-xl border border-white/12 bg-white/[0.06] px-3 py-2.5"
+    : "flex min-w-0 items-center gap-3 rounded-xl border border-line bg-elevated px-3 py-2.5 dark:border-white/10";
+
+  const body = (
+    <>
+      <ShopLogo name={place.name} logoUrl={place.logo_url} size="sm" />
+      <span className="min-w-0 flex-1">
+        <span className={nameClass}>{place.name}</span>
+        <span className={metaClass}>
+          {address ? `${role} · ${address}` : role}
+        </span>
+      </span>
+    </>
+  );
+
+  return (
+    <div className={`${shellClass} ${className ?? ""}`.trim()}>
+      {linked ? (
+        <Link
+          href={`/biznese/${place.id}`}
+          className="flex min-w-0 flex-1 items-center gap-3 underline-offset-4 hover:underline"
+        >
+          {body}
+        </Link>
+      ) : (
+        <div className="flex min-w-0 flex-1 items-center gap-3">{body}</div>
+      )}
+      {canMap ? (
+        <a
+          href={mapsHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Shiko lokacionin: ${address ?? place.name}`}
+          className="inline-grid size-8 shrink-0 place-items-center rounded-full bg-accent text-on-accent transition-transform duration-150 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          <PinIcon />
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
+export function BranchPlaces({
+  places,
+  title = "E njëjta ofertë",
+}: BranchPlacesProps) {
   if (!places || places.length === 0) {
     return null;
   }
 
   return (
-    <div className="mt-12 grid gap-6">
+    <div className="mt-6 grid gap-3">
       <div>
         <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
           Degë të tjera
         </p>
-        <h2 className="m-0 mt-2 text-2xl font-extrabold tracking-tight">
-          E njëjta ofertë
+        <h2 className="m-0 mt-0.5 text-2xl font-extrabold tracking-tight">
+          {title}
         </h2>
       </div>
       <ul className="m-0 grid list-none gap-2 p-0">
-        {places.map((place) => {
-          const address = place.address?.trim() || null;
-          const mapsHref = mapsUrl({
-            address: place.address,
-            latitude: place.latitude,
-            longitude: place.longitude,
-          });
-          const canMap =
-            Boolean(address) ||
-            (place.latitude != null && place.longitude != null);
-
-          return (
-            <li
-              key={place.id}
-              className="flex min-w-0 items-center gap-3 rounded-xl border border-line bg-elevated px-3 py-2.5 dark:border-white/10"
-            >
-              <Link
-                href={`/biznese/${place.id}`}
-                className="flex min-w-0 flex-1 items-center gap-3 underline-offset-4 hover:underline"
-              >
-                <ShopLogo name={place.name} logoUrl={place.logo_url} size="sm" />
-                <span className="min-w-0 flex-1 truncate text-sm">
-                  <span className="font-extrabold tracking-tight text-ink">
-                    {place.name}
-                  </span>
-                  {address ? (
-                    <span className="text-muted"> · {address}</span>
-                  ) : null}
-                </span>
-              </Link>
-              {canMap ? (
-                <a
-                  href={mapsHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Shiko lokacionin: ${address ?? place.name}`}
-                  className="inline-grid size-8 shrink-0 place-items-center rounded-full bg-accent text-on-accent transition-transform duration-150 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                >
-                  <PinIcon />
-                </a>
-              ) : null}
-            </li>
-          );
-        })}
+        {places.map((place) => (
+          <li key={place.id}>
+            <PlaceBranchRow place={place} />
+          </li>
+        ))}
       </ul>
     </div>
   );

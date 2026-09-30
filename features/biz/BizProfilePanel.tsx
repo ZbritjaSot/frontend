@@ -9,7 +9,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { hasRole } from "@/features/auth/api";
 import { ManagerNote } from "@/features/biz/ManagerNote";
 import { ManagerShops } from "@/features/biz/ManagerShops";
+import { updateBizLinks } from "@/features/biz/api";
 import { BranchPanel } from "@/features/branches/BranchPanel";
+import { BusinessLinksForm } from "@/features/business/BusinessLinksForm";
 import { BizGallery } from "@/features/gallery/BizGallery";
 import { LogoField } from "@/features/gallery/LogoField";
 import { deleteBizLogo, uploadBizLogo } from "@/features/gallery/api";
@@ -223,7 +225,21 @@ export function BizProfilePanel() {
           </button>
         ))}
       </nav>
-      {section === "biznesi" && business ? <AddressLink business={business} /> : null}
+      {section === "biznesi" && business ? (
+        <>
+          <AddressLink business={business} />
+          <BusinessLinksForm
+            business={business}
+            readOnly={Boolean(business.parent_id)}
+            onSave={async (links) => {
+              await updateBizLinks(links);
+              await queryClient.invalidateQueries({
+                queryKey: bizBusinessQueryKey,
+              });
+            }}
+          />
+        </>
+      ) : null}
       {section === "abonimi" ? (
       <section className="py-5">
         <div className="flex items-center justify-between gap-4">

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OfferPlace } from "@/components/place/OfferPlace";
 import { CampaignGrid, CampaignPoster } from "@/features/public/CampaignPoster";
@@ -10,6 +9,8 @@ import { ProductGrid } from "@/features/public/ProductPoster";
 import { ResultsView } from "@/features/public/ResultsView";
 import { display, kicker, panel } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
+import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
+import { ShopLinksRow } from "@/features/public/ShopLinksRow";
 import {
   fetchPublicBusiness,
   fetchPublicCategories,
@@ -120,14 +121,22 @@ export default async function BusinessPage({
     );
   }
 
-  const lines = [business.street, business.village, business.city].filter(
-    (part): part is string => Boolean(part),
-  );
-  const address = lines.length > 0 ? lines.join(", ") : (business.address ?? "");
   const place = business.city ?? business.village ?? "Dyqan lokal";
   const otherLocations = (business.locations ?? []).filter(
     (location) => location.id !== business.id,
   );
+  const here = {
+    id: business.id,
+    name: business.name,
+    address: business.address,
+    latitude: business.latitude,
+    longitude: business.longitude,
+    logo_url: business.logo_url,
+    parent_id: business.parent_id,
+  };
+  const hasHere =
+    Boolean(here.address?.trim()) ||
+    (here.latitude != null && here.longitude != null);
 
   return (
     <article>
@@ -145,11 +154,7 @@ export default async function BusinessPage({
             <h1 className={`m-0 mt-3 text-[clamp(2.8rem,6vw,4.8rem)] ${display}`}>
               {business.name}
             </h1>
-            {address ? (
-              <p className="mt-4 mb-0 max-w-md text-base leading-relaxed text-muted">
-                {address}
-              </p>
-            ) : null}
+            <ShopLinksRow business={business} className="mt-4" />
             <p className="mt-4 mb-0 text-sm font-semibold">
               {folderTotal} {campaignWord(folderTotal)} · {offerTotal}{" "}
               {productWord(offerTotal)}
@@ -158,6 +163,7 @@ export default async function BusinessPage({
           <OfferPlace
             surface="plain"
             showHeading={false}
+            showPin={false}
             className="w-full"
             mapClassName="h-72 overflow-hidden rounded-2xl border border-line"
             name={business.name}
@@ -168,38 +174,13 @@ export default async function BusinessPage({
             }}
           />
         </header>
+        {hasHere ? (
+          <PlaceBranchRow place={here} linked={false} className="mt-6" />
+        ) : null}
+        {otherLocations.length > 0 ? (
+          <BranchPlaces places={otherLocations} title="Lokacionet" />
+        ) : null}
       </Frame>
-
-      {otherLocations.length > 0 ? (
-        <Band className="pb-0">
-          <h2 className="m-0 text-[clamp(1.7rem,3vw,2.3rem)] leading-none font-extrabold tracking-[-0.04em]">
-            Lokacionet
-          </h2>
-          <ul className="m-0 mt-6 grid list-none gap-2 p-0 sm:grid-cols-2">
-            {otherLocations.map((location) => {
-              const where = [location.city, location.village].find(
-                (part): part is string => Boolean(part),
-              );
-              return (
-                <li key={location.id}>
-                  <Link
-                    href={`/biznese/${location.id}`}
-                    className="flex min-h-20 flex-col justify-center rounded-xl border border-line bg-elevated px-4 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                  >
-                    <span className="font-extrabold tracking-tight">
-                      {location.name}
-                    </span>
-                    <span className="text-sm text-muted">
-                      {location.parent_id ? "Degë" : "Dyqani kryesor"}
-                      {where ? ` · ${where}` : ""}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </Band>
-      ) : null}
 
       {!filtering ? (
         <>

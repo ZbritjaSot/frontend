@@ -10,6 +10,8 @@ type OfferPlaceProps = {
   className?: string;
   /** Shop page already shows the name and address. */
   showHeading?: boolean;
+  /** Hide the compact address + pin bar (e.g. when a richer branch row is shown). */
+  showPin?: boolean;
   mapClassName?: string;
   /** `plain` drops the boxed panel so the map can sit in a page section. */
   surface?: "card" | "plain";
@@ -91,6 +93,7 @@ export function OfferPlace({
   place,
   className,
   showHeading = true,
+  showPin = true,
   mapClassName,
   surface = "card",
   showMap = true,
@@ -111,15 +114,12 @@ export function OfferPlace({
       aria-label="Vendndodhja"
     >
       {showHeading ? (
-        <div>
-          <p className="m-0 flex items-center gap-1 text-xs font-bold tracking-[0.14em] text-muted uppercase">
-            <PinIcon className="size-[15px] fill-current" />
-            Ku e gjen
-          </p>
-          <h2 className="m-0 mt-2 text-lg font-semibold">{name}</h2>
-        </div>
+        <p className="m-0 flex items-center gap-1 text-xs font-bold tracking-[0.14em] text-muted uppercase">
+          <PinIcon className="size-[15px] fill-current" />
+          Ku e gjen
+        </p>
       ) : null}
-      <PlacePinRow name={name} place={place} />
+      {showPin ? <PlacePinRow name={name} place={place} /> : null}
       {showMap && pinned && wide ? (
         <div
           className={`${mapClassName ?? "h-60"} overflow-hidden rounded-xl border border-line`}

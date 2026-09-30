@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
-import { PlacePinRow } from "@/components/place/OfferPlace";
 import { leadProduct, productWord, withCampaign } from "@/features/public/compose";
 import { display } from "@/features/public/tone";
-import { BranchPlaces } from "@/features/public/BranchPlaces";
+import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
 import { BackLink, Band, EmptyNote, Frame } from "@/features/public/Frame";
 import { ProductList } from "@/features/public/ProductPoster";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
@@ -66,13 +65,6 @@ export default async function FolderPage({ params }: FolderPageProps) {
     folder.items.find((item) => item.id === folder.cover?.id) ??
     leadProduct(folder);
   const backHref = folder.business ? `/biznese/${folder.business.id}` : "/";
-  const place = folder.business
-    ? {
-        address: folder.business.address,
-        latitude: folder.business.latitude,
-        longitude: folder.business.longitude,
-      }
-    : null;
 
   return (
     <article>
@@ -119,12 +111,10 @@ export default async function FolderPage({ params }: FolderPageProps) {
                 {formatDateSq(folder.starts_at)} deri më{" "}
                 {formatDateSq(folder.expires_at)}.
               </p>
-              {place ? (
-                <PlacePinRow
-                  name={shop}
-                  place={place}
+              {folder.business ? (
+                <PlaceBranchRow
+                  place={folder.business}
                   tone="onForest"
-                  dense
                   className="mt-5 max-w-md"
                 />
               ) : null}
