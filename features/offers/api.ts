@@ -17,7 +17,7 @@ export type PublicOfferQuery = {
   category?: string;
   business?: string;
   city?: string;
-  sort?: "newest" | "cheapest" | "discount";
+  sort?: "newest" | "oldest" | "cheapest" | "discount";
   perPage?: number;
   page?: number;
 };

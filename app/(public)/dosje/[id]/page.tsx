@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PlacePinRow } from "@/components/place/OfferPlace";
 import { leadProduct, productWord, withCampaign } from "@/features/public/compose";
 import { display } from "@/features/public/tone";
 import { BranchPlaces } from "@/features/public/BranchPlaces";
 import { BackLink, Band, EmptyNote, Frame } from "@/features/public/Frame";
-import { ProductGrid } from "@/features/public/ProductPoster";
+import { ProductList } from "@/features/public/ProductPoster";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { fetchPublicFolder, isNotFound } from "@/features/offers/api";
 import { formatDateSq, formatDiscountPercent, formatEurFromCents } from "@/lib/format";
 import { publicPageMetadata } from "@/lib/metadata";
 import { SITE_NAME } from "@/lib/site";
-import type { PublicFolder, PublicOffer } from "@/types";
+import type { PublicFolder } from "@/types";
 
 type FolderPageProps = {
   params: Promise<{ id: string }>;
@@ -64,6 +65,13 @@ export default async function FolderPage({ params }: FolderPageProps) {
     folder.items.find((item) => item.id === folder.cover?.id) ??
     leadProduct(folder);
   const backHref = folder.business ? `/biznese/${folder.business.id}` : "/";
+  const place = folder.business
+    ? {
+        address: folder.business.address,
+        latitude: folder.business.latitude,
+        longitude: folder.business.longitude,
+      }
+    : null;
 
   return (
     <article>
@@ -102,6 +110,15 @@ export default async function FolderPage({ params }: FolderPageProps) {
                 {formatDateSq(folder.starts_at)} deri më{" "}
                 {formatDateSq(folder.expires_at)}.
               </p>
+              {place ? (
+                <PlacePinRow
+                  name={shop}
+                  place={place}
+                  tone="onForest"
+                  dense
+                  className="mt-5 max-w-md"
+                />
+              ) : null}
             </div>
             {lead ? (
               <Link href={`/offers/${lead.id}`} className="group block max-w-sm">
@@ -139,7 +156,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
           Produktet
         </h2>
         {count > 0 ? (
-          <FlyerProducts items={withCampaign(folder)} />
+          <ProductList offers={withCampaign(folder)} />
         ) : (
           <EmptyNote
             title="Kjo fletushkë është bosh"
@@ -149,41 +166,5 @@ export default async function FolderPage({ params }: FolderPageProps) {
         <BranchPlaces places={folder.also_at} />
       </Band>
     </article>
-  );
-}
-
-function FlyerProducts({ items }: { items: PublicOffer[] }) {
-  const groups = new Map<string, { id: string; name: string; items: PublicOffer[] }>();
-  for (const item of items) {
-    const categories = item.categories?.length
-      ? item.categories
-      : [{ id: "other", name: "Të tjera", slug: "" }];
-    for (const category of categories) {
-      const group = groups.get(category.id) ?? {
-        id: category.id,
-        name: category.name,
-        items: [],
-      };
-      group.items.push(item);
-      groups.set(category.id, group);
-    }
-  }
-  const grouped = [...groups.values()];
-
-  if (grouped.length < 2) {
-    return <ProductGrid offers={items} />;
-  }
-
-  return (
-    <div className="grid gap-14">
-      {grouped.map((group) => (
-        <section key={group.id}>
-          <h3 className="m-0 mb-6 text-sm font-bold tracking-[0.16em] text-muted uppercase">
-            {group.name}
-          </h3>
-          <ProductGrid offers={group.items} />
-        </section>
-      ))}
-    </div>
   );
 }

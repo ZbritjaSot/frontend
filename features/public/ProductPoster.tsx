@@ -96,6 +96,51 @@ export function ProductGrid({
   );
 }
 
+/** Flat product rows for flyer detail — no category grouping. */
+export function ProductList({ offers }: { offers: PublicOffer[] }) {
+  return (
+    <ul className="m-0 grid list-none divide-y divide-line p-0">
+      {offers.map((offer) => (
+        <li key={offer.id}>
+          <Link
+            href={`/offers/${offer.id}`}
+            className={`${cardLink} flex items-center gap-4 py-4`}
+          >
+            <span className={`relative block size-20 shrink-0 overflow-hidden border border-line bg-elevated sm:size-24 ${media}`}>
+              <ProductVisual
+                name={offer.name}
+                imageUrl={offer.image?.thumb_url}
+                sizes="96px"
+                className="size-full"
+              />
+              {offer.discount_percent != null && offer.discount_percent > 0 ? (
+                <span className="absolute top-1 left-1 z-10 scale-90">
+                  <DiscountBadge percent={offer.discount_percent} />
+                </span>
+              ) : null}
+            </span>
+            <span className="grid min-w-0 flex-1 gap-1">
+              <span className="line-clamp-2 text-base font-extrabold leading-5 tracking-tight text-ink">
+                {offer.name}
+              </span>
+              {offer.discounted_price != null ? (
+                <PriceLine
+                  sale={offer.discounted_price}
+                  original={offer.original_price ?? 0}
+                  size="sm"
+                />
+              ) : null}
+              <span className="truncate text-xs text-muted">
+                Deri më {formatDateShortSq(offer.expires_at)}
+              </span>
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function ShopLink({
   name,
   logoUrl,

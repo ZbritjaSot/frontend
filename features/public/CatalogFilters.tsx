@@ -7,8 +7,7 @@ import { browsePath, type CatalogSort, type Katalog } from "@/lib/browse";
 
 const SORTS: Array<{ id: CatalogSort; label: string }> = [
   { id: "newest", label: "Më të rejat" },
-  { id: "cheapest", label: "Më të lirat" },
-  { id: "discount", label: "Zbritja më e madhe" },
+  { id: "oldest", label: "Më të vjetrat" },
 ];
 
 type CatalogFiltersProps = {

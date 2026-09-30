@@ -30,7 +30,7 @@ export function appleMapsUrl(place: MapPlace): string {
 
 /**
  * Neutral external map link for web. Uses a Google Maps search URL because it
- * works for most visitors; the UI label stays "Shiko lokacionin".
+ * works for most visitors; the pin control keeps accessibility label "Shiko lokacionin".
  */
 export function mapsUrl(place: MapPlace): string {
   return googleMapsUrl(place);

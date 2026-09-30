@@ -1,9 +1,9 @@
 export type Katalog = "oferta" | "fletushka";
 
-export type CatalogSort = "newest" | "cheapest" | "discount";
+export type CatalogSort = "newest" | "oldest";
 
 export function readSort(value: string | undefined): CatalogSort {
-  if (value === "cheapest" || value === "discount") {
+  if (value === "oldest") {
     return value;
   }
   return "newest";
