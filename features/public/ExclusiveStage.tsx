@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { PriceLine } from "@/features/public/price";
@@ -11,19 +13,29 @@ import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import type { ExclusiveItem } from "@/features/offers/api";
 import { formatDateShortSq } from "@/lib/format";
 
-export function ExclusiveStage({ items }: { items: ExclusiveItem[] }) {
+/**
+ * Trailing grid is 2 cols, then 4 from lg. Hold-back uses LCM(2,4)=4 so both
+ * breakpoints keep complete rows while more pages are loading.
+ */
+export const EXCLUSIVE_GRID_ALIGN = 4;
+export const EXCLUSIVE_PAGE_SIZE = 15; // 3 hero slots + 12 grid cells
+
+export function ExclusiveStage({
+  items,
+  hasMore = false,
+}: {
+  items: ExclusiveItem[];
+  hasMore?: boolean;
+}) {
   if (items.length === 0) {
     return null;
   }
 
   const [lead, second, third, ...rest] = items;
   const pair = [second, third].filter((item): item is ExclusiveItem => item != null);
-  const flyers = rest.filter(
-    (item): item is Extract<ExclusiveItem, { kind: "flyer" }> => item.kind === "flyer",
-  );
-  const offers = rest.filter(
-    (item): item is Extract<ExclusiveItem, { kind: "offer" }> => item.kind === "offer",
-  );
+  // Hold back a ragged last row until the next page can fill it (show all on the final page).
+  const complete = Math.floor(rest.length / EXCLUSIVE_GRID_ALIGN) * EXCLUSIVE_GRID_ALIGN;
+  const grid = hasMore && complete > 0 ? rest.slice(0, complete) : rest;
 
   return (
     <div className="grid gap-12 sm:gap-16 lg:gap-20">
@@ -41,34 +53,18 @@ export function ExclusiveStage({ items }: { items: ExclusiveItem[] }) {
         </div>
       ) : null}
 
-      {flyers.length > 0 ? (
-        <section className="grid gap-5">
-          <p className="m-0 text-[0.68rem] font-bold tracking-[0.2em] text-muted uppercase">
-            Fletushkat
-          </p>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2">
-            {flyers.map((item) => (
-              <FlyerWide key={itemKey(item)} item={item} />
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {offers.length > 0 ? (
-        <section className="grid gap-5">
-          {lead || pair.length > 0 || flyers.length > 0 ? (
-            <p className="m-0 text-[0.68rem] font-bold tracking-[0.2em] text-muted uppercase">
-              Ofertat
-            </p>
-          ) : null}
-          <ul className="m-0 grid list-none grid-cols-2 gap-x-4 gap-y-10 p-0 sm:gap-x-6 lg:grid-cols-3 xl:grid-cols-4 lg:gap-x-7 lg:gap-y-12">
-            {offers.map((item, index) => (
-              <li key={itemKey(item)} className="min-w-0">
-                <OfferTile item={item} eager={index < 6} />
-              </li>
-            ))}
-          </ul>
-        </section>
+      {grid.length > 0 ? (
+        <ul className="m-0 grid list-none grid-cols-2 gap-x-4 gap-y-10 p-0 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-7 lg:gap-y-12">
+          {grid.map((item, index) => (
+            <li key={itemKey(item)} className="min-w-0">
+              {item.kind === "flyer" ? (
+                <FlyerTile item={item} eager={index < 4} />
+              ) : (
+                <OfferTile item={item} eager={index < 4} />
+              )}
+            </li>
+          ))}
+        </ul>
       ) : null}
     </div>
   );
@@ -284,38 +280,51 @@ function SpotlightFlyer({ item }: { item: Extract<ExclusiveItem, { kind: "flyer"
   );
 }
 
-function FlyerWide({ item }: { item: Extract<ExclusiveItem, { kind: "flyer" }> }) {
+function FlyerTile({
+  item,
+  eager = false,
+}: {
+  item: Extract<ExclusiveItem, { kind: "flyer" }>;
+  eager?: boolean;
+}) {
   const folder = item.flyer;
   const shop = folder.business?.name;
   const coverName = folder.cover?.name ?? folder.title;
 
   return (
-    <Link href={`/dosje/${folder.id}`} className={`group ${exclusiveShell.flyer} ${exclusiveFocus}`}>
-      <span className="relative block aspect-[16/10] w-full">
-        <ImageFrame>
-          <ProductVisual
-            fill
-            eager
-            name={coverName}
-            imageUrl={folder.cover?.thumb_url}
-            sizes="(max-width: 1024px) 100vw, 560px"
-          />
-        </ImageFrame>
-        <span className="absolute top-3 left-3 z-10 flex flex-wrap items-center gap-1.5">
-          <ExclusiveMark size="sm" />
-          <span className="rounded-full border border-ivory/30 bg-ivory/95 px-2 py-0.5 text-[0.58rem] font-extrabold tracking-[0.14em] text-charcoal uppercase">
+    <Link href={`/dosje/${folder.id}`} className={`group block min-w-0 ${exclusiveFocus}`}>
+      <span className={`block ${exclusiveShell.offerFrame}`}>
+        <ProductVisual
+          name={coverName}
+          imageUrl={folder.cover?.thumb_url}
+          eager={eager}
+          sizes="(max-width: 1024px) 50vw, 280px"
+          className="aspect-[3/4] w-full"
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-2 rounded-[0.9rem] ring-1 ring-accent/15"
+        />
+        <span className="absolute top-2.5 left-2.5 z-10 flex flex-wrap items-center gap-1">
+          <ExclusiveMark size="sm" tone="on-light" />
+          <span className="rounded-full border border-charcoal/10 bg-ivory/95 px-2 py-0.5 text-[0.58rem] font-extrabold tracking-[0.14em] text-charcoal uppercase">
             Fletushkë
           </span>
-        </span>
-        {folder.lead_discount_percent != null && folder.lead_discount_percent > 0 ? (
-          <span className="absolute top-3 right-3 z-10">
+          {folder.lead_discount_percent != null && folder.lead_discount_percent > 0 ? (
             <ExclusiveDiscount percent={folder.lead_discount_percent} />
+          ) : null}
+        </span>
+      </span>
+      <span className="mt-3 grid gap-1.5">
+        {shop ? (
+          <span className="flex min-w-0 items-center gap-1.5">
+            <ShopLogo name={shop} logoUrl={folder.business?.logo_url} size="sm" />
+            <span className="truncate text-[0.68rem] font-bold tracking-[0.16em] text-muted uppercase">
+              {shop}
+            </span>
           </span>
         ) : null}
-      </span>
-      <span className="grid gap-2 border-t border-accent/25 px-5 py-4">
-        {shop ? <ShopMark name={shop} logoUrl={folder.business?.logo_url} /> : null}
-        <span className="line-clamp-2 text-xl leading-snug font-extrabold tracking-[-0.03em]">
+        <span className="line-clamp-2 text-base leading-snug font-extrabold tracking-[-0.03em] text-ink group-hover:underline group-hover:decoration-accent group-hover:underline-offset-4">
           {folder.title}
         </span>
       </span>
@@ -340,7 +349,7 @@ function OfferTile({
           name={offer.name}
           imageUrl={offer.image?.thumb_url}
           eager={eager}
-          sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 280px"
+          sizes="(max-width: 1024px) 50vw, 280px"
           className="aspect-[3/4] w-full"
         />
         <span

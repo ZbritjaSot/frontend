@@ -2,15 +2,17 @@
 
 import { useCallback, useRef, useState } from "react";
 import { fetchPublicPlacement, type ExclusiveItem } from "@/features/offers/api";
-import { ExclusiveStage } from "@/features/public/ExclusiveStage";
+import { ExclusiveStage, EXCLUSIVE_PAGE_SIZE } from "@/features/public/ExclusiveStage";
 import { useInfiniteSentinel } from "@/lib/useInfiniteSentinel";
 
 export function ExclusiveStream({
   items,
   lastPage,
+  q = "",
 }: {
   items: ExclusiveItem[];
   lastPage: number;
+  q?: string;
 }) {
   const [shown, setShown] = useState(items);
   const [page, setPage] = useState(1);
@@ -18,6 +20,7 @@ export function ExclusiveStream({
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const loadingRef = useRef(false);
+  const query = q.trim();
 
   const loadMore = useCallback(async () => {
     if (loadingRef.current || done) {
@@ -28,7 +31,11 @@ export function ExclusiveStream({
     setFailed(false);
     const next = page + 1;
     try {
-      const result = await fetchPublicPlacement({ page: next, perPage: 12 });
+      const result = await fetchPublicPlacement({
+        page: next,
+        perPage: EXCLUSIVE_PAGE_SIZE,
+        q: query || undefined,
+      });
       setShown((current) => appendUnique(current, result.data));
       setPage(next);
       setDone(next >= (result.meta?.last_page ?? next));
@@ -38,7 +45,7 @@ export function ExclusiveStream({
       loadingRef.current = false;
       setLoading(false);
     }
-  }, [done, page]);
+  }, [done, page, query]);
 
   const sentinel = useInfiniteSentinel({
     onLoadMore: loadMore,
@@ -47,7 +54,7 @@ export function ExclusiveStream({
 
   return (
     <div>
-      <ExclusiveStage items={shown} />
+      <ExclusiveStage items={shown} hasMore={!done} />
       <div ref={sentinel} className="h-8" />
       {loading ? (
         <p className="m-0 text-center text-sm font-semibold text-muted">Duke ngarkuar…</p>

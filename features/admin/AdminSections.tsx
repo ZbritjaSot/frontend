@@ -16,7 +16,7 @@ import { fieldError, inputClass } from "@/lib/ui";
 const sectionKey = ["admin", "sections"] as const;
 
 const hints: Record<string, string> = {
-  exclusive: EXCLUSIVE_LABEL,
+  exclusive: `${EXCLUSIVE_LABEL} në kryefaqe (faqja /ekskluzive mbetet gjithmonë)`,
   spotlight: "Zbritjet e forta",
   flyers: "Fletushkat",
   inbox: "Email-i",
@@ -102,7 +102,7 @@ export function AdminSections() {
                 disabled={row.can_enable === false}
                 title={
                   row.can_enable === false
-                    ? "S’ka dyqan ekskluziv, ndaj ky seksion nuk ndizet."
+                    ? "Ky seksion nuk mund të ndizet tani."
                     : undefined
                 }
                 className={`relative h-7 w-12 shrink-0 rounded-full border-0 p-0 motion-safe:transition-colors motion-safe:duration-200 motion-safe:ease-out ${
@@ -164,11 +164,6 @@ export function AdminSections() {
                     );
                   }}
                 />
-                {row.key === "exclusive" && row.can_enable === false ? (
-                  <span className="text-xs font-semibold text-muted">
-                    S’ka dyqan ekskluziv, ndaj ky seksion nuk ndizet.
-                  </span>
-                ) : null}
               </label>
             )}
           </DragList>

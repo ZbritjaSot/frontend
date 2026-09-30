@@ -74,12 +74,16 @@ export async function fetchPublicBusinesses(
 }
 
 export async function fetchPublicPlacement(
-  query: { page?: number; perPage?: number } = {},
+  query: { page?: number; perPage?: number; q?: string } = {},
 ): Promise<Paginated<ExclusiveItem>> {
   const params = new URLSearchParams();
   params.set("per_page", String(query.perPage ?? 12));
   if (query.page && query.page > 1) {
     params.set("page", String(query.page));
+  }
+  const q = query.q?.trim();
+  if (q) {
+    params.set("q", q);
   }
 
   return apiFetch<Paginated<ExclusiveItem>>(`/placement?${params.toString()}`, {
