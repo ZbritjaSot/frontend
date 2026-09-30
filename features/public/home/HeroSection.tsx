@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { DiscountBadge, PriceLine } from "@/features/public/price";
 import { Frame } from "@/features/public/Frame";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
-import { formatDateSq, formatDiscountPercent } from "@/lib/format";
+import { formatDateSq } from "@/lib/format";
 import type { PublicOffer } from "@/types";
 
 const SLIDE_MS = 5000;
@@ -237,10 +237,13 @@ function DealCopy({ offer }: { offer: PublicOffer }) {
 
   return (
     <div className="mt-6 max-w-md">
-      {offer.discount_percent != null && offer.discount_percent > 0 ? (
-        <p className="m-0 text-5xl leading-none font-extrabold tracking-[-0.05em] text-accent">
-          {formatDiscountPercent(offer.discount_percent)}
-        </p>
+      {offer.discounted_price != null ? (
+        <PriceLine
+          sale={offer.discounted_price}
+          original={offer.original_price ?? 0}
+          size="xl"
+          tone="hero"
+        />
       ) : null}
       <Link
         href={`/offers/${offer.id}`}
@@ -255,16 +258,6 @@ function DealCopy({ offer }: { offer: PublicOffer }) {
             {shop}
           </span>
         </span>
-      ) : null}
-      {offer.discounted_price != null ? (
-        <div className="mt-4">
-          <PriceLine
-            sale={offer.discounted_price}
-            original={offer.original_price ?? 0}
-            size="lg"
-            tone="inverse"
-          />
-        </div>
       ) : null}
       <p className="mt-2 mb-0 text-sm text-ivory/70 dark:text-muted">
         Deri më {formatDateSq(offer.expires_at)}

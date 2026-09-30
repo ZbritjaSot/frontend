@@ -21,8 +21,12 @@ export function PriceLine({
   sale: number;
   original: number;
   size?: "sm" | "md" | "lg" | "xl";
-  /** Inverse is for a forest surface, where the sale price stays ivory. */
-  tone?: "default" | "inverse";
+  /**
+   * default — catalog / offer detail
+   * inverse — olive surfaces (sale stays ivory)
+   * hero — olive hero: large lime sale, warm was-price
+   */
+  tone?: "default" | "inverse" | "hero";
 }) {
   const saleClass =
     size === "xl"
@@ -33,19 +37,31 @@ export function PriceLine({
           ? "text-sm"
           : "text-base";
 
+  const heroSale =
+    size === "xl"
+      ? "text-[clamp(2.8rem,7vw,3.6rem)]"
+      : size === "lg"
+        ? "text-[clamp(2.4rem,6vw,3rem)]"
+        : saleClass;
+
+  const saleTone =
+    tone === "hero"
+      ? "text-accent"
+      : tone === "inverse"
+        ? "text-ivory"
+        : "text-ink dark:text-accent";
+
   return (
-    <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+    <span className="flex min-w-0 flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
       <span
-        className={`${saleClass} leading-none font-extrabold tabular-nums ${
-          tone === "inverse" ? "text-ivory" : "text-ink dark:text-accent"
-        }`}
+        className={`${tone === "hero" ? heroSale : saleClass} leading-none font-extrabold tabular-nums ${saleTone}`}
       >
         {formatEurFromCents(sale)}
       </span>
       {original > sale ? (
         <span
-          className={`text-sm line-through tabular-nums ${
-            tone === "inverse" ? "text-ivory/80" : "text-muted"
+          className={`text-was line-through tabular-nums ${
+            tone === "hero" ? "text-lg sm:text-xl" : "text-sm"
           }`}
         >
           {formatEurFromCents(original)}
