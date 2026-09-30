@@ -70,6 +70,34 @@ export async function saveAdminHero(offerIds: string[]): Promise<HomeCuration["h
   return payload.data;
 }
 
+export type StandaloneHeroOfferInput = {
+  business_id: string;
+  name: string;
+  title?: string;
+  starts_at: string;
+  expires_at: string;
+  original_price?: number | null;
+  discounted_price?: number | null;
+  discount_percent?: number | null;
+  gallery_image_id?: string | null;
+  category_ids?: string[];
+  add_to_hero?: boolean;
+};
+
+export async function createStandaloneHeroOffer(
+  input: StandaloneHeroOfferInput,
+): Promise<HomeCuration["hero"]> {
+  const payload = await apiFetch<{ data: { hero: HomeCuration["hero"] } }>(
+    "/admin/home/hero/offers",
+    {
+      method: "POST",
+      auth: true,
+      body: JSON.stringify(input),
+    },
+  );
+  return payload.data.hero;
+}
+
 export async function saveAdminHomeShops(
   businessIds: string[],
 ): Promise<HomeCuration["shops"]> {
