@@ -17,18 +17,31 @@ export function Frame({
   );
 }
 
+/** Vertical rhythm for public page sections. Avoid overriding with conflicting pt/pb/py. */
+const bandPad = {
+  section: "py-14 sm:py-16",
+  page: "pt-8 pb-14 sm:pb-16",
+  compact: "py-8 sm:py-10",
+  flush: "",
+} as const;
+
+export type BandPad = keyof typeof bandPad;
+
 export function Band({
   children,
   tone = "canvas",
+  pad = "section",
   className,
 }: {
   children: ReactNode;
   tone?: "canvas" | "wash";
+  /** section = default feed blocks; page = catalog/settings entry; compact = location/tool strips. */
+  pad?: BandPad;
   className?: string;
 }) {
   return (
     <section className={tone === "wash" ? "bg-sunken dark:bg-[#101614]" : ""}>
-      <Frame className={`py-14 sm:py-16 ${className ?? ""}`}>{children}</Frame>
+      <Frame className={`${bandPad[pad]} ${className ?? ""}`.trim()}>{children}</Frame>
     </section>
   );
 }

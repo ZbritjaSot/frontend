@@ -14,7 +14,7 @@ export const metadata: Metadata = publicPageMetadata({
 
 export default function ContactPage() {
   return (
-    <Band className="pt-8 pb-16">
+    <Band pad="page">
       <p className={kicker}>Cilësimet</p>
       <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,4rem)] ${display}`}>Na Kontakto</h1>
       <p className="mt-4 mb-0 max-w-xl text-base leading-relaxed text-muted">

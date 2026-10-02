@@ -79,7 +79,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
   }
 
   return (
-    <Band className="pt-8">
+    <Band pad="page">
       <p className={kicker}>Dyqane</p>
       <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,4rem)] ${display}`}>Dyqanet</h1>
       <p className="mt-3 mb-0 max-w-xl text-sm leading-relaxed text-muted">
@@ -122,7 +122,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
               <li key={shop.id}>
                 <Link
                   href={`/biznese/${shop.id}`}
-                  className="flex min-h-36 items-center gap-3 rounded-xl border border-line bg-elevated px-3 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-safe:transition-colors dark:border-white/10 dark:bg-[#1a2420]"
+                  className="flex items-center gap-3 rounded-xl border border-line bg-elevated px-3 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-safe:transition-colors dark:border-white/10 dark:bg-[#1a2420]"
                 >
                   <ShopLogo name={shop.name} logoUrl={shop.logo_url} size="md" />
                   <span className="min-w-0">

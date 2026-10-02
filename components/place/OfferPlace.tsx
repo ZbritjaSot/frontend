@@ -55,14 +55,14 @@ export function PlacePinRow({
 
   const label = place.address ?? name;
   const onForest = tone === "onForest";
-  const pad = dense ? "px-3 py-2" : "px-4 py-2.5";
+  const pad = dense ? "px-3 py-2" : "px-3 py-2.5";
 
   return (
     <a
       className={
         onForest
-          ? `group flex min-w-0 items-center gap-2.5 rounded-xl border border-white/12 bg-white/[0.06] ${pad} transition-colors hover:bg-white/[0.1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className ?? ""}`
-          : `group flex min-w-0 items-center gap-2.5 rounded-xl border border-line bg-elevated ${pad} transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:border-white/10 ${className ?? ""}`
+          ? `group flex min-w-0 items-center gap-3 rounded-xl border border-white/12 bg-white/[0.06] ${pad} transition-colors hover:bg-white/[0.1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className ?? ""}`
+          : `group flex min-w-0 items-center gap-3 rounded-xl border border-line bg-elevated ${pad} transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:border-white/10 ${className ?? ""}`
       }
       href={mapsUrl({ ...place, address: place.address ?? name })}
       target="_blank"

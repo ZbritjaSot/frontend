@@ -72,7 +72,7 @@ export function ResultsView({
       : folderLastPage;
 
   return (
-    <Band className="pt-8">
+    <Band pad="page">
       <p className={kickerClass}>{kicker}</p>
       <h1 className={`m-0 mt-2 max-w-4xl text-[clamp(2.4rem,6vw,4rem)] ${display}`}>
         {title}

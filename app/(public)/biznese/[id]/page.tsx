@@ -142,7 +142,7 @@ export default async function BusinessPage({
     <article>
       <Frame className="pt-8">
         <header className="grid items-end gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,420px)]">
-          <div className={`${panel} p-6 sm:p-8`}>
+          <div className={`${panel} p-5 sm:p-6`}>
             <ShopLogo
               name={business.name}
               logoUrl={business.logo_url}
@@ -160,31 +160,37 @@ export default async function BusinessPage({
               {productWord(offerTotal)}
             </p>
           </div>
-          <OfferPlace
-            surface="plain"
-            showHeading={false}
-            showPin={false}
-            className="w-full"
-            mapClassName="h-72 overflow-hidden rounded-2xl border border-line"
-            name={business.name}
-            place={{
-              address: business.address,
-              latitude: business.latitude,
-              longitude: business.longitude,
-            }}
-          />
+          <div className="grid w-full gap-3">
+            {hasHere ? (
+              <PlaceBranchRow place={here} linked={false} />
+            ) : null}
+            <OfferPlace
+              surface="plain"
+              showHeading={false}
+              showPin={false}
+              className="w-full"
+              mapClassName="h-72 overflow-hidden rounded-2xl border border-line"
+              name={business.name}
+              place={{
+                address: business.address,
+                latitude: business.latitude,
+                longitude: business.longitude,
+              }}
+            />
+          </div>
         </header>
-        {hasHere ? (
-          <PlaceBranchRow place={here} linked={false} className="mt-6" />
-        ) : null}
         {otherLocations.length > 0 ? (
-          <BranchPlaces places={otherLocations} title="Lokacionet" />
+          <BranchPlaces
+            places={otherLocations}
+            title="Lokacionet"
+            className="mt-8"
+          />
         ) : null}
       </Frame>
 
       {!filtering ? (
         <>
-          <Band className="pb-4">
+          <Band pad="compact">
             <DiscoverForm
               basePath={basePath}
               categories={categories}
@@ -192,7 +198,7 @@ export default async function BusinessPage({
           </Band>
           {folders.length > 0 ? (
             <Band>
-              <h2 className="m-0 mb-6 text-[clamp(2rem,4vw,3rem)] leading-[0.9] font-extrabold tracking-[-0.05em]">
+              <h2 className="m-0 mb-8 text-[clamp(1.65rem,3vw,2.35rem)] leading-[0.95] font-extrabold tracking-[-0.04em]">
                 Fletushkat
               </h2>
               <div className="grid gap-4">
@@ -210,7 +216,7 @@ export default async function BusinessPage({
           ) : null}
           {offers.length > 0 ? (
             <Band>
-              <h2 className="m-0 mb-8 text-[clamp(1.7rem,3vw,2.3rem)] leading-none font-extrabold tracking-[-0.04em]">
+              <h2 className="m-0 mb-8 text-[clamp(1.65rem,3vw,2.35rem)] leading-[0.95] font-extrabold tracking-[-0.04em]">
                 {page > 1 ? "Më shumë produkte" : "Zbritjet aktive"}
               </h2>
               <ProductGrid offers={offers} />

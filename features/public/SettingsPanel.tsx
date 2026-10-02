@@ -22,7 +22,7 @@ export function SettingsPanel() {
   const isDark = theme === "dark";
 
   return (
-    <Band className="pt-8 pb-16">
+    <Band pad="page">
       <p className={kicker}>Aplikacioni</p>
       <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,4rem)] ${display}`}>Cilësimet</h1>
 

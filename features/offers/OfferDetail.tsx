@@ -105,7 +105,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
       </Frame>
 
       {offer.business ? (
-        <Band className="pt-10 pb-4">
+        <Band pad="compact">
           <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
             Ku e gjen
           </p>
@@ -123,7 +123,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                 longitude: offer.business.longitude,
               }}
             />
-            <BranchPlaces places={offer.also_at} />
+            <BranchPlaces places={offer.also_at} showHeading={false} />
           </div>
         </Band>
       ) : null}

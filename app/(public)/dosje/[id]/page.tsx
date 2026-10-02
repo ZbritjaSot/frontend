@@ -151,7 +151,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
       </section>
 
       <Band>
-        <h2 className="m-0 mb-8 text-[clamp(1.7rem,3vw,2.3rem)] leading-none font-extrabold tracking-[-0.04em]">
+        <h2 className="m-0 mb-8 text-[clamp(1.65rem,3vw,2.35rem)] leading-[0.95] font-extrabold tracking-[-0.04em]">
           Produktet
         </h2>
         {count > 0 ? (
@@ -162,7 +162,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
             body="Nuk ka produkte aktive brenda kësaj fletushke."
           />
         )}
-        <BranchPlaces places={folder.also_at} />
+        <BranchPlaces places={folder.also_at} className="mt-8" />
       </Band>
     </article>
   );

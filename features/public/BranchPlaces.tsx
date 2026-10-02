@@ -7,6 +7,9 @@ type BranchPlacesProps = {
   places: BusinessSummary[] | undefined;
   /** Second headline under “Degë të tjera”. Flyer default: same offer elsewhere. */
   title?: string;
+  /** When false, only the list is rendered (parent already has a section intro). */
+  showHeading?: boolean;
+  className?: string;
 };
 
 function PinIcon({ className }: { className?: string }) {
@@ -96,21 +99,25 @@ export function PlaceBranchRow({
 export function BranchPlaces({
   places,
   title = "E njëjta ofertë",
+  showHeading = true,
+  className,
 }: BranchPlacesProps) {
   if (!places || places.length === 0) {
     return null;
   }
 
   return (
-    <div className="mt-6 grid gap-3">
-      <div>
-        <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
-          Degë të tjera
-        </p>
-        <h2 className="m-0 mt-0.5 text-2xl font-extrabold tracking-tight">
-          {title}
-        </h2>
-      </div>
+    <div className={`grid gap-3 ${className ?? ""}`.trim()}>
+      {showHeading ? (
+        <div>
+          <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
+            Degë të tjera
+          </p>
+          <h2 className="m-0 mt-1 text-[clamp(1.65rem,3vw,2.35rem)] leading-[0.95] font-extrabold tracking-[-0.04em]">
+            {title}
+          </h2>
+        </div>
+      ) : null}
       <ul className="m-0 grid list-none gap-2 p-0">
         {places.map((place) => (
           <li key={place.id}>
