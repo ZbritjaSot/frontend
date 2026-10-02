@@ -1,261 +1,293 @@
 import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import {
-  ExclusiveDiscount,
-  ExclusiveMark,
+  ExclusivePercent,
   exclusiveFocus,
+  exclusiveMedia,
   exclusiveShell,
 } from "@/features/public/exclusiveChrome";
 import { PriceLine } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import type { ExclusiveItem } from "@/features/offers/api";
-import { formatDateShortSq } from "@/lib/format";
+import { formatEurFromCents } from "@/lib/format";
 
+/**
+ * Exclusive card — photo + ivory brand panel.
+ * No gradient, no drop shadow, no overlay stack.
+ * Offers and flyers share one footprint.
+ */
 export function ExclusiveCard({
   item,
   layout,
+  lead = false,
 }: {
   item: ExclusiveItem;
   layout: "rail" | "tile" | "feature";
+  lead?: boolean;
 }) {
-  if (item.kind === "flyer") {
-    return <FlyerCard item={item} layout={layout} />;
+  if (layout === "feature") {
+    return <FeatureCard item={item} />;
   }
 
-  return <OfferCard item={item} layout={layout} />;
+  return <CollectionCard item={item} layout={layout} lead={lead} />;
 }
 
-function OfferCard({
+function CollectionCard({
   item,
   layout,
+  lead,
 }: {
-  item: Extract<ExclusiveItem, { kind: "offer" }>;
-  layout: "rail" | "tile" | "feature";
+  item: ExclusiveItem;
+  layout: "rail" | "tile";
+  lead: boolean;
 }) {
-  const offer = item.offer;
-  const shop = offer.business?.name;
-  const onForest = layout === "rail";
+  const meta = cardMeta(item);
   const width =
-    layout === "rail" ? "w-44 shrink-0 snap-start sm:w-52" : "block min-w-0";
-
-  if (layout === "feature") {
-    return (
-      <Link
-        href={`/offers/${offer.id}`}
-        className={`group grid sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] ${exclusiveShell.featured} ${exclusiveFocus}`}
-      >
-        <span className="relative block min-h-56 sm:min-h-72">
-          <ProductVisual
-            fill
-            eager
-            name={offer.name}
-            imageUrl={offer.image?.detail_url ?? offer.image?.thumb_url}
-            sizes="(max-width: 640px) 100vw, 520px"
-          />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-3 rounded-xl ring-1 ring-accent/20"
-          />
-          <span className="absolute top-3 left-3 z-10 flex flex-wrap items-center gap-1.5">
-            <ExclusiveMark size="md" />
-            {offer.discount_percent != null && offer.discount_percent > 0 ? (
-              <ExclusiveDiscount percent={offer.discount_percent} />
-            ) : null}
-          </span>
-          <span className="absolute top-3 right-3 z-20">
-            <FavoriteButton kind="offer" id={offer.id} />
-          </span>
-        </span>
-        <span className="flex min-w-0 flex-col justify-center gap-3 border-t border-accent/30 px-5 py-6 sm:border-t-0 sm:border-l sm:px-8">
-          {shop ? (
-            <ShopLine name={shop} logoUrl={offer.business?.logo_url} forest />
-          ) : null}
-          <span className="line-clamp-3 text-[clamp(1.6rem,3vw,2.4rem)] leading-[1.05] font-extrabold tracking-[-0.04em]">
-            {offer.name}
-          </span>
-          {offer.discounted_price != null ? (
-            <PriceLine
-              sale={offer.discounted_price}
-              original={offer.original_price ?? 0}
-              size="lg"
-              tone="inverse"
-            />
-          ) : null}
-          <span className="text-sm text-ivory/70">
-            Deri më {formatDateShortSq(offer.expires_at)}
-          </span>
-        </span>
-      </Link>
-    );
-  }
+    layout === "rail"
+      ? lead
+        ? "w-[16rem] shrink-0 snap-start sm:w-[18rem]"
+        : "w-[14.5rem] shrink-0 snap-start sm:w-[16rem]"
+      : "flex h-full min-w-0 w-full flex-col";
 
   return (
-    <Link href={`/offers/${offer.id}`} className={`${width} ${exclusiveFocus}`}>
-      <span className={`relative block ${exclusiveShell.offerFrame} !rounded-2xl`}>
-        <ProductVisual
-          name={offer.name}
-          imageUrl={offer.image?.thumb_url}
-          eager
-          sizes={layout === "rail" ? "208px" : "(max-width: 640px) 50vw, 280px"}
-          className="aspect-[3/4] w-full"
-        />
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-1.5 rounded-[0.85rem] ring-1 ring-accent/15"
-        />
-        <span className="absolute top-2 left-2 z-10 flex flex-wrap items-center gap-1">
-          {onForest ? <ExclusiveMark size="sm" /> : <ExclusiveMark size="sm" tone="on-light" />}
-          {offer.discount_percent != null && offer.discount_percent > 0 ? (
-            <ExclusiveDiscount percent={offer.discount_percent} />
-          ) : null}
+    <Link
+      href={meta.href}
+      draggable={layout === "rail" ? false : undefined}
+      className={`group ${width} ${exclusiveFocus}`}
+    >
+      <span className={`${exclusiveShell.tile} ${layout === "tile" ? "h-full" : ""}`}>
+        <span className={`relative ${exclusiveMedia}`}>
+          <ProductVisual
+            fill
+            eager={layout === "rail"}
+            wash="plain"
+            name={meta.imageName}
+            imageUrl={meta.thumbUrl}
+            sizes={
+              layout === "rail"
+                ? lead
+                  ? "288px"
+                  : "256px"
+                : "(max-width: 1024px) 50vw, 280px"
+            }
+          />
+          <span className="absolute top-3 right-3 z-10">
+            <FavoriteButton kind={meta.favoriteKind} id={meta.favoriteId} />
+          </span>
         </span>
-        <span className="absolute top-2 right-2 z-20">
-          <FavoriteButton kind="offer" id={offer.id} />
-        </span>
-      </span>
-      <span
-        className={`mt-2.5 block truncate text-sm font-extrabold tracking-tight ${
-          onForest ? "text-ivory" : "text-ink"
-        }`}
-      >
-        {offer.name}
-      </span>
-      {offer.discounted_price != null ? (
-        <span className="mt-1 block">
-          <PriceLine
-            sale={offer.discounted_price}
-            original={offer.original_price ?? 0}
-            size="sm"
-            tone={onForest ? "inverse" : "default"}
+
+        <span className="flex flex-1 flex-col gap-2.5 px-3.5 pt-3.5 pb-4 sm:gap-3 sm:px-4 sm:pt-4 sm:pb-5">
+          <BrandRow
+            shop={meta.shop}
+            logoUrl={meta.logoUrl}
+            kindLabel={meta.kindLabel}
+            compact
+          />
+          <span
+            className={`line-clamp-2 font-extrabold tracking-[-0.035em] text-charcoal dark:text-ivory ${
+              lead || layout === "tile"
+                ? "text-[1.05rem] leading-snug sm:text-[1.15rem]"
+                : "text-[0.98rem] leading-snug"
+            }`}
+          >
+            {meta.title}
+          </span>
+          <OfferLine
+            sale={meta.sale}
+            percent={meta.percent}
+            size={lead || layout === "tile" ? "md" : "sm"}
           />
         </span>
-      ) : null}
-      {shop ? (
-        <ShopLine name={shop} logoUrl={offer.business?.logo_url} forest={onForest} />
-      ) : null}
+      </span>
     </Link>
   );
 }
 
-function FlyerCard({
-  item,
-  layout,
-}: {
-  item: Extract<ExclusiveItem, { kind: "flyer" }>;
-  layout: "rail" | "tile" | "feature";
-}) {
-  const folder = item.flyer;
-  const shop = folder.business?.name;
-  const coverName = folder.cover?.name ?? folder.title;
-  const onForest = layout === "rail";
-  const width =
-    layout === "rail" ? "w-44 shrink-0 snap-start sm:w-52" : "block min-w-0";
+function FeatureCard({ item }: { item: ExclusiveItem }) {
+  const meta = cardMeta(item);
 
-  if (layout === "feature") {
-    return (
-      <Link
-        href={`/dosje/${folder.id}`}
-        className={`group grid sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] ${exclusiveShell.featured} ${exclusiveFocus}`}
-      >
-        <span className="relative block min-h-56 sm:min-h-72">
-          <ProductVisual
-            fill
-            eager
-            name={coverName}
-            imageUrl={folder.cover?.detail_url ?? folder.cover?.thumb_url}
-            sizes="(max-width: 640px) 100vw, 520px"
+  return (
+    <Link
+      href={meta.href}
+      className={`group grid lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.9fr)] ${exclusiveShell.featured} ${exclusiveFocus}`}
+    >
+      <span className="relative aspect-[4/5] min-h-[17rem] sm:aspect-[5/4] sm:min-h-[20rem] lg:aspect-auto lg:min-h-[26rem]">
+        <ProductVisual
+          fill
+          eager
+          priority
+          wash="plain"
+          name={meta.imageName}
+          imageUrl={meta.detailUrl ?? meta.thumbUrl}
+          sizes="(max-width: 1024px) 100vw, 55vw"
+        />
+        <span className="absolute top-4 right-4 z-10 lg:hidden">
+          <FavoriteButton kind={meta.favoriteKind} id={meta.favoriteId} size="md" />
+        </span>
+      </span>
+
+      <span className="relative flex flex-col justify-between gap-8 bg-ivory px-6 py-7 sm:gap-10 sm:px-9 sm:py-9 lg:px-10 lg:py-11 dark:bg-[#141a16]">
+        <span className="absolute top-5 right-5 hidden lg:block">
+          <FavoriteButton kind={meta.favoriteKind} id={meta.favoriteId} size="md" />
+        </span>
+
+        <span className="flex flex-col gap-5 sm:gap-6">
+          <BrandRow
+            shop={meta.shop}
+            logoUrl={meta.logoUrl}
+            kindLabel={meta.kindLabel}
           />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-3 rounded-xl ring-1 ring-accent/20"
-          />
-          <span className="absolute top-3 left-3 z-10 flex flex-wrap items-center gap-1.5">
-            <ExclusiveMark size="md" />
-            <span className="rounded-full border border-ivory/30 bg-ivory/95 px-2 py-0.5 text-[0.58rem] font-extrabold tracking-tight text-charcoal uppercase">
-              Fletushkë
+          <span className="line-clamp-4 max-w-md text-[clamp(1.75rem,3.4vw,2.85rem)] leading-[0.98] font-extrabold tracking-[-0.045em] text-charcoal dark:text-ivory">
+            {meta.title}
+          </span>
+        </span>
+
+        <span className="flex flex-col gap-3">
+          {meta.sale != null ? (
+            <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              {meta.percent != null && meta.percent > 0 ? (
+                <ExclusivePercent percent={meta.percent} className="text-xl sm:text-2xl" />
+              ) : null}
+              <PriceLine
+                sale={meta.sale}
+                original={meta.original ?? 0}
+                size="xl"
+                tone="default"
+              />
             </span>
-          </span>
-          <span className="absolute top-3 right-3 z-20">
-            <FavoriteButton kind="flyer" id={folder.id} />
+          ) : meta.percent != null && meta.percent > 0 ? (
+            <ExclusivePercent percent={meta.percent} className="text-2xl sm:text-3xl" />
+          ) : null}
+          <span className="text-[0.68rem] font-bold tracking-[0.2em] text-forest/55 uppercase dark:text-ivory/45">
+            Ekskluzive
           </span>
         </span>
-        <span className="flex min-w-0 flex-col justify-center gap-3 border-t border-accent/30 px-5 py-6 sm:border-t-0 sm:border-l sm:px-8">
-          {shop ? (
-            <ShopLine name={shop} logoUrl={folder.business?.logo_url} forest />
-          ) : null}
-          <span className="line-clamp-3 text-[clamp(1.6rem,3vw,2.4rem)] leading-[1.05] font-extrabold tracking-[-0.04em]">
-            {folder.title}
-          </span>
-          {folder.lead_discount_percent != null && folder.lead_discount_percent > 0 ? (
-            <ExclusiveDiscount percent={folder.lead_discount_percent} />
-          ) : null}
-        </span>
-      </Link>
-    );
+      </span>
+    </Link>
+  );
+}
+
+function BrandRow({
+  shop,
+  logoUrl,
+  kindLabel,
+  compact = false,
+}: {
+  shop?: string;
+  logoUrl?: string | null;
+  kindLabel?: string;
+  compact?: boolean;
+}) {
+  if (!shop && !kindLabel) {
+    return null;
   }
 
   return (
-    <Link href={`/dosje/${folder.id}`} className={`${width} ${exclusiveFocus}`}>
-      <span className={`relative block ${exclusiveShell.offerFrame} !rounded-2xl`}>
-        <ProductVisual
-          name={coverName}
-          imageUrl={folder.cover?.thumb_url}
-          eager
-          sizes={layout === "rail" ? "208px" : "(max-width: 640px) 100vw, 360px"}
-          className="aspect-[3/4] w-full"
-        />
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-1.5 rounded-[0.85rem] ring-1 ring-accent/15"
-        />
-        <span className="absolute top-2 left-2 z-10 flex flex-wrap items-center gap-1">
-          {onForest ? <ExclusiveMark size="sm" /> : <ExclusiveMark size="sm" tone="on-light" />}
-          <span className="rounded-full bg-ivory px-2 py-0.5 text-[0.58rem] font-extrabold tracking-tight text-charcoal uppercase">
-            Fletushkë
-          </span>
-        </span>
-        {folder.lead_discount_percent != null && folder.lead_discount_percent > 0 ? (
-          <span className="absolute top-2 right-2 z-10">
-            <ExclusiveDiscount percent={folder.lead_discount_percent} />
+    <span className={`flex min-w-0 items-center ${compact ? "gap-2" : "gap-2.5"}`}>
+      {shop ? (
+        <ShopLogo name={shop} logoUrl={logoUrl} size={compact ? "sm" : "md"} />
+      ) : null}
+      <span className="min-w-0 flex flex-col gap-0.5">
+        {kindLabel ? (
+          <span className="text-[0.62rem] font-bold tracking-[0.16em] text-forest/55 uppercase dark:text-accent/80">
+            {kindLabel}
           </span>
         ) : null}
-        <span className="absolute bottom-2 right-2 z-20">
-          <FavoriteButton kind="flyer" id={folder.id} />
-        </span>
-      </span>
-      <span
-        className={`mt-2.5 block truncate text-sm font-extrabold tracking-tight ${
-          onForest ? "text-ivory" : "text-ink"
-        }`}
-      >
-        {folder.title}
-      </span>
-      {shop ? (
-        <ShopLine name={shop} logoUrl={folder.business?.logo_url} forest={onForest} />
-      ) : null}
-    </Link>
-  );
-}
-
-function ShopLine({
-  name,
-  logoUrl,
-  forest,
-}: {
-  name: string;
-  logoUrl?: string | null;
-  forest: boolean;
-}) {
-  return (
-    <span className="mt-1.5 flex min-w-0 items-center gap-1.5">
-      <ShopLogo name={name} logoUrl={logoUrl} size="sm" />
-      <span
-        className={`truncate text-[0.68rem] font-bold tracking-[0.12em] uppercase ${
-          forest ? "text-ivory/75" : "text-muted"
-        }`}
-      >
-        {name}
+        {shop ? (
+          <span
+            className={`truncate font-bold tracking-tight text-charcoal dark:text-ivory ${
+              compact ? "text-[0.78rem]" : "text-sm"
+            }`}
+          >
+            {shop}
+          </span>
+        ) : null}
       </span>
     </span>
   );
+}
+
+function OfferLine({
+  sale,
+  percent,
+  size,
+}: {
+  sale?: number | null;
+  percent?: number | null;
+  size: "sm" | "md";
+}) {
+  if (sale == null && (percent == null || percent <= 0)) {
+    return <span className="block h-5" aria-hidden />;
+  }
+
+  return (
+    <span className="mt-auto flex flex-wrap items-baseline gap-x-2">
+      {percent != null && percent > 0 ? (
+        <ExclusivePercent
+          percent={percent}
+          className={size === "md" ? "text-[0.95rem]" : "text-sm"}
+        />
+      ) : null}
+      {sale != null ? (
+        <span
+          className={`font-extrabold text-charcoal tabular-nums dark:text-ivory ${
+            size === "md" ? "text-base" : "text-[0.95rem]"
+          }`}
+        >
+          {formatEurFromCents(sale)}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+type CardMeta = {
+  href: string;
+  title: string;
+  imageName: string;
+  thumbUrl?: string | null;
+  detailUrl?: string | null;
+  shop?: string;
+  logoUrl?: string | null;
+  kindLabel?: string;
+  sale?: number | null;
+  original?: number | null;
+  percent?: number | null;
+  favoriteKind: "offer" | "flyer";
+  favoriteId: string;
+};
+
+function cardMeta(item: ExclusiveItem): CardMeta {
+  if (item.kind === "flyer") {
+    const folder = item.flyer;
+    return {
+      href: `/dosje/${folder.id}`,
+      title: folder.title,
+      imageName: folder.cover?.name ?? folder.title,
+      thumbUrl: folder.cover?.thumb_url,
+      detailUrl: folder.cover?.detail_url,
+      shop: folder.business?.name,
+      logoUrl: folder.business?.logo_url,
+      kindLabel: "Fletushkë",
+      percent: folder.lead_discount_percent,
+      favoriteKind: "flyer",
+      favoriteId: folder.id,
+    };
+  }
+
+  const offer = item.offer;
+  return {
+    href: `/offers/${offer.id}`,
+    title: offer.name,
+    imageName: offer.name,
+    thumbUrl: offer.image?.thumb_url,
+    detailUrl: offer.image?.detail_url,
+    shop: offer.business?.name,
+    logoUrl: offer.business?.logo_url,
+    sale: offer.discounted_price,
+    original: offer.original_price,
+    percent: offer.discount_percent,
+    favoriteKind: "offer",
+    favoriteId: offer.id,
+  };
 }

@@ -1,58 +1,78 @@
 import { formatDiscountPercent } from "@/lib/format";
 
-/** Small curated mark — hierarchy via size, not loud color. */
+/** Exclusive wordmark — identity, not a card badge. */
 export function ExclusiveMark({
   size = "md",
   tone = "on-forest",
 }: {
   size?: "sm" | "md" | "lg";
-  /** on-forest sits on olive; on-light sits on cream. */
   tone?: "on-forest" | "on-light";
 }) {
   const pad =
     size === "lg"
-      ? "px-2.5 py-1 text-[0.62rem] tracking-[0.2em]"
+      ? "text-[0.72rem] tracking-[0.26em]"
       : size === "sm"
-        ? "px-1.5 py-0.5 text-[0.58rem] tracking-[0.16em]"
-        : "px-2 py-0.5 text-[0.6rem] tracking-[0.18em]";
+        ? "text-[0.62rem] tracking-[0.18em]"
+        : "text-[0.65rem] tracking-[0.22em]";
 
-  const colors =
-    tone === "on-forest"
-      ? "border-accent/55 bg-charcoal/35 text-accent"
-      : "border-accent/45 bg-forest text-accent";
+  const color = tone === "on-forest" ? "text-accent" : "text-forest dark:text-accent";
 
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border font-extrabold uppercase ${pad} ${colors}`}
-    >
-      <span className="size-1 rounded-full bg-accent" aria-hidden />
+    <span className={`inline-flex items-center gap-2.5 font-bold uppercase ${pad} ${color}`}>
+      <span
+        className={`h-px w-7 ${tone === "on-forest" ? "bg-accent" : "bg-forest dark:bg-accent"}`}
+        aria-hidden
+      />
       Ekskluzive
     </span>
   );
 }
 
-export function ExclusiveDiscount({ percent }: { percent: number }) {
+export function ExclusivePercent({
+  percent,
+  className = "",
+  tone = "panel",
+}: {
+  percent: number;
+  className?: string;
+  /** panel = on ivory (readable forest); forest = on olive (lime). */
+  tone?: "panel" | "forest";
+}) {
   if (!Number.isFinite(percent) || percent <= 0) {
     return null;
   }
 
+  const color =
+    tone === "forest"
+      ? "text-accent"
+      : "text-forest dark:text-accent";
+
   return (
-    <span className="inline-flex rounded-full border border-charcoal/10 bg-accent px-2 py-0.5 text-[0.7rem] leading-none font-extrabold tracking-tight text-charcoal tabular-nums shadow-[0_0_0_1px_rgba(168,255,0,0.25)]">
+    <span
+      className={`font-extrabold tracking-tight tabular-nums ${color} ${className}`.trim()}
+    >
       {formatDiscountPercent(percent)}
     </span>
   );
 }
 
-/** Shared card shells — stronger → weaker. */
+/** @deprecated Prefer ExclusivePercent. */
+export function ExclusiveDiscount({ percent }: { percent: number }) {
+  return <ExclusivePercent percent={percent} />;
+}
+
+/**
+ * Flat editorial surfaces only — no gradient, no drop shadow.
+ * Shared media ratio keeps offers and flyers on one footprint.
+ */
+export const exclusiveMedia = "aspect-[4/5] w-full overflow-hidden bg-[#1a2420]";
+
 export const exclusiveShell = {
+  /** Collection / rail tile: photo stacked over ivory type panel. */
+  tile: "flex h-full flex-col overflow-hidden rounded-2xl bg-ivory text-charcoal dark:bg-[#141a16] dark:text-ivory",
+  /** Featured cover: media + brand panel. */
   featured:
-    "relative overflow-hidden rounded-[1.75rem] bg-forest text-ivory ring-1 ring-accent/40 shadow-[0_0_0_1px_rgba(36,53,40,0.85),0_28px_64px_-40px_rgba(36,53,40,0.55)]",
-  spotlight:
-    "relative overflow-hidden rounded-[1.5rem] bg-forest text-ivory ring-1 ring-accent/30 shadow-[0_0_0_1px_rgba(36,53,40,0.7)]",
-  flyer:
-    "relative overflow-hidden rounded-[1.5rem] bg-forest text-ivory ring-1 ring-accent/28",
-  offerFrame:
-    "relative overflow-hidden rounded-2xl bg-elevated ring-1 ring-accent/28 shadow-[0_0_0_1px_rgba(36,53,40,0.08)]",
+    "overflow-hidden rounded-2xl bg-ivory text-charcoal dark:bg-[#141a16] dark:text-ivory",
 } as const;
 
 export const exclusiveFocus =

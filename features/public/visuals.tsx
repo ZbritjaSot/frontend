@@ -73,6 +73,7 @@ export function ProductVisual({
   priority = false,
   eager = false,
   sizes = "(max-width: 768px) 100vw, 640px",
+  wash = "default",
 }: {
   name: string;
   imageUrl?: string | null;
@@ -84,6 +85,8 @@ export function ProductVisual({
   /** Other photos already on the first screen. Loads immediately. */
   eager?: boolean;
   sizes?: string;
+  /** plain = solid wash only (Exclusive — no stripe gradients). */
+  wash?: "default" | "plain";
 }) {
   const frame = `${fill ? "absolute inset-0" : "relative"} block overflow-hidden ${className ?? ""}`;
 
@@ -113,7 +116,7 @@ export function ProductVisual({
       className={`${fill ? "absolute inset-0" : "relative"} @container block overflow-hidden ${className ?? ""}`}
     >
       <span className={`absolute inset-0 ${WASHES[tone]}`} />
-      <span className={`absolute inset-0 ${STRIPES[tone]}`} />
+      {wash === "default" ? <span className={`absolute inset-0 ${STRIPES[tone]}`} /> : null}
       <span className="absolute top-3 left-3 size-2.5 rounded-sm bg-accent" />
       <span className="absolute inset-0 grid place-items-center">
         <span className="text-[30cqw] leading-none font-extrabold tracking-tight text-charcoal/25 select-none dark:text-white/35">

@@ -2,7 +2,8 @@
 
 import { useCallback, useRef, useState } from "react";
 import { fetchPublicPlacement, type ExclusiveItem } from "@/features/offers/api";
-import { ExclusiveStage, EXCLUSIVE_PAGE_SIZE } from "@/features/public/ExclusiveStage";
+import { EXCLUSIVE_PAGE_SIZE } from "@/features/public/exclusiveConstants";
+import { ExclusiveStage } from "@/features/public/ExclusiveStage";
 import { useInfiniteSentinel } from "@/lib/useInfiniteSentinel";
 
 export function ExclusiveStream({

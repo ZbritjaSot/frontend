@@ -3,6 +3,7 @@ import { ProductGrid } from "@/features/public/ProductPoster";
 import { kicker } from "@/features/public/tone";
 import type { PublicOffer } from "@/types";
 
+/** Highest-discount offer grid. Overlaps Exclusive ranking — see homeSections note. */
 export function SpotlightSection({
   offers,
   title = "Zbritje të forta",

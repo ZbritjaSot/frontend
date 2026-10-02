@@ -3,7 +3,8 @@ import { fetchPublicPlacement, fetchPublicSections } from "@/features/offers/api
 import { EmptyNote, Frame } from "@/features/public/Frame";
 import { ExclusiveSearch } from "@/features/public/ExclusiveSearch";
 import { ExclusiveStream } from "@/features/public/ExclusiveStream";
-import { EXCLUSIVE_PAGE_SIZE } from "@/features/public/ExclusiveStage";
+import { ExclusiveMark } from "@/features/public/exclusiveChrome";
+import { EXCLUSIVE_PAGE_SIZE } from "@/features/public/exclusiveConstants";
 import { publicPageMetadata } from "@/lib/metadata";
 import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { SITE_NAME } from "@/lib/site";
@@ -61,51 +62,46 @@ export default async function ExclusivePage({ searchParams }: ExclusivePageProps
   }
 
   return (
-    <div className="exclusive-page relative pb-16 sm:pb-24">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_12%_8%,rgba(36,53,40,0.07),transparent_42%),radial-gradient(ellipse_at_88%_28%,rgba(168,255,0,0.045),transparent_38%),radial-gradient(ellipse_at_50%_100%,rgba(36,53,40,0.05),transparent_45%)] dark:bg-[radial-gradient(ellipse_at_12%_8%,rgba(36,53,40,0.55),transparent_48%),radial-gradient(ellipse_at_88%_28%,rgba(168,255,0,0.05),transparent_40%),radial-gradient(ellipse_at_50%_100%,rgba(36,53,40,0.35),transparent_50%)]"
-      />
-      <header className="relative bg-forest text-ivory">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_85%_0%,rgba(168,255,0,0.1),transparent_45%)]"
-        />
-        <Frame className="relative py-12 sm:py-16 lg:py-20">
-          <p className="m-0 flex items-center gap-3 text-[0.68rem] font-bold tracking-[0.28em] text-accent uppercase">
-            <span className="h-px w-8 bg-accent" aria-hidden />
-            {EXCLUSIVE_LABEL}
-          </p>
-          <h1 className="m-0 mt-4 max-w-4xl text-[clamp(2.6rem,6.5vw,5rem)] leading-[0.9] font-extrabold tracking-[-0.05em] text-ivory">
-            {title}
-          </h1>
-          <p className="mt-4 mb-0 max-w-xl text-sm leading-relaxed text-ivory/70">
-            Zbritjet më të forta nga të gjitha dyqanet, të renditura sipas përqindjes.
-          </p>
-          <ExclusiveSearch key={q || "all"} initialQ={q} />
+    <div className="pb-24 sm:pb-28">
+      {/* Solid forest opening — typography + spacing, no gradient. */}
+      <header className="bg-forest text-ivory">
+        <Frame className="pt-14 pb-10 sm:pt-16 sm:pb-12 lg:pt-20 lg:pb-14">
+          <div className="grid max-w-5xl gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)] lg:items-end lg:gap-16">
+            <div className="min-w-0">
+              <ExclusiveMark size="lg" />
+              <h1 className="m-0 mt-5 text-[clamp(2.35rem,5.2vw,4rem)] leading-[0.92] font-extrabold tracking-[-0.05em]">
+                {title}
+              </h1>
+              <p className="mt-4 mb-0 max-w-md text-[0.95rem] leading-relaxed text-ivory/58 sm:text-base">
+                Zbritjet më të forta nga dyqanet — të zgjedhura me kujdes për ty.
+              </p>
+            </div>
+            <div className="lg:justify-self-end">
+              <ExclusiveSearch key={q || "all"} initialQ={q} tone="forest" />
+            </div>
+          </div>
         </Frame>
       </header>
-      <Frame className="relative">
+
+      <Frame className="pt-10 sm:pt-12 lg:pt-14">
         {failed ? (
           <EmptyNote
             title="Diçka shkoi keq"
             body="Nuk mundëm t’i ngarkojmë ofertat. Provo përsëri së shpejti."
           />
         ) : items.length === 0 ? (
-          <div className="mx-auto max-w-lg py-20 text-center sm:py-28">
-            <h2 className="m-0 text-[clamp(2.4rem,6vw,4rem)] leading-[0.9] font-extrabold tracking-[-0.045em]">
+          <div className="max-w-lg py-24 sm:py-32">
+            <h2 className="m-0 text-[clamp(1.85rem,4vw,2.75rem)] leading-[0.95] font-extrabold tracking-[-0.04em]">
               {q ? "Asnjë rezultat" : "Momentalisht bosh"}
             </h2>
-            <p className="mx-auto mt-5 mb-0 max-w-sm text-base leading-relaxed text-muted">
+            <p className="mt-4 mb-0 max-w-sm text-base leading-relaxed text-muted">
               {q
                 ? `Nuk u gjet asgjë për «${q}». Provo një fjalë tjetër.`
                 : "Kthehu më vonë për oferta të reja."}
             </p>
           </div>
         ) : (
-          <div className="mt-8 sm:mt-10 lg:mt-12">
-            <ExclusiveStream key={q || "all"} items={items} lastPage={lastPage} q={q} />
-          </div>
+          <ExclusiveStream key={q || "all"} items={items} lastPage={lastPage} q={q} />
         )}
       </Frame>
     </div>
