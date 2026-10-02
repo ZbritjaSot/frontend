@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PartnerForm } from "@/features/public/PartnerForm";
 import { Band } from "@/features/public/Frame";
 import { display, kicker } from "@/features/public/tone";
-import { btnPrimary } from "@/lib/ui";
 import { publicPageMetadata } from "@/lib/metadata";
-import { SITE_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = publicPageMetadata({
   title: "Bëhu Partner",
@@ -20,15 +19,7 @@ export default function PartnerPage() {
       <p className="mt-4 mb-0 max-w-xl text-base leading-relaxed text-muted">
         Ke një dyqan në Kosovë? Bashkohu me ZbritjaSot që klientët të gjejnë zbritjet e tua.
       </p>
-      <p className="mt-4 mb-0 max-w-xl text-base leading-relaxed text-muted">
-        Shkruaji ekipit për t’u bërë partner:
-      </p>
-      <a
-        href={`mailto:${SITE_EMAIL}?subject=${encodeURIComponent("Aplikim për partneritet — ZbritjaSot")}`}
-        className={`${btnPrimary} mt-6`}
-      >
-        {SITE_EMAIL}
-      </a>
+      <PartnerForm />
       <p className="mt-8 mb-0">
         <Link
           href="/cilesimet"
