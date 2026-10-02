@@ -14,8 +14,11 @@ import { Band } from "@/features/public/Frame";
 import { display, kicker } from "@/features/public/tone";
 import type { ReactNode } from "react";
 
-const rowClass =
-  "flex min-h-14 w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-3.5 py-3 text-left text-ink no-underline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent";
+const group =
+  "overflow-hidden rounded-2xl border border-line bg-elevated dark:border-white/10";
+
+const sectionLabel =
+  "m-0 mb-2.5 text-[0.68rem] font-bold tracking-[0.18em] text-muted uppercase";
 
 export function SettingsPanel() {
   const { theme, toggleTheme } = useTheme();
@@ -23,51 +26,79 @@ export function SettingsPanel() {
 
   return (
     <Band pad="page">
-      <p className={kicker}>Aplikacioni</p>
-      <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,4rem)] ${display}`}>Cilësimet</h1>
+      <div className="max-w-xl">
+        <p className={kicker}>Aplikacioni</p>
+        <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,3.6rem)] ${display}`}>
+          Cilësimet
+        </h1>
+        <p className="mt-3 mb-0 text-base leading-relaxed text-muted">
+          Pamja, njoftimet dhe mënyrat për të na kontaktuar.
+        </p>
 
-      <div className="mt-8 max-w-xl overflow-hidden rounded-2xl border border-line bg-elevated dark:border-white/10">
-        <button type="button" className={rowClass} onClick={toggleTheme}>
-          <span className="inline-flex size-7 items-center justify-center text-ink" aria-hidden>
-            {isDark ? <DarkModeIcon fontSize="small" /> : <LightModeIcon fontSize="small" />}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-bold">Pamja</span>
-            <span className="block text-sm font-semibold text-muted">
-              {isDark ? "E errët" : "E ndritshme"}
-            </span>
-          </span>
-        </button>
-        <RowRule />
-        <SettingsLink
-          href="/cilesimet/njoftimet"
-          label="Njoftimet"
-          detail="Së shpejti"
-          icon={<NotificationsNoneIcon fontSize="small" />}
-        />
-        <RowRule />
-        <SettingsLink
-          href="/cilesimet/partner"
-          label="Bëhu Partner"
-          icon={<StorefrontOutlinedIcon fontSize="small" />}
-        />
-        <RowRule />
-        <SettingsLink
-          href="/cilesimet/kontakt"
-          label="Na Kontakto"
-          icon={<MailOutlinedIcon fontSize="small" />}
-        />
-      </div>
+        <section className="mt-10">
+          <h2 className={sectionLabel}>Preferencat</h2>
+          <div className={group}>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex min-h-[4.25rem] w-full cursor-pointer items-center gap-3.5 border-0 bg-transparent px-4 py-3.5 text-left text-ink focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
+            >
+              <IconWell>
+                {isDark ? <DarkModeIcon fontSize="small" /> : <LightModeIcon fontSize="small" />}
+              </IconWell>
+              <span className="min-w-0 flex-1">
+                <span className="block text-base font-extrabold tracking-tight">Pamja</span>
+                <span className="mt-0.5 block text-sm font-semibold text-muted">
+                  Ndrysho midis pamjes së ndritshme dhe të errët
+                </span>
+              </span>
+              <span className="shrink-0 rounded-lg border border-line bg-canvas px-2.5 py-1 text-xs font-bold tracking-tight text-ink dark:border-white/10 dark:bg-sunken">
+                {isDark ? "E errët" : "E ndritshme"}
+              </span>
+            </button>
+            <RowRule />
+            <SettingsLink
+              href="/cilesimet/njoftimet"
+              label="Njoftimet"
+              detail="Së shpejti, push njoftimet"
+              muted
+              icon={<NotificationsNoneIcon fontSize="small" />}
+            />
+          </div>
+        </section>
 
-      <div className="my-6 max-w-xl border-t border-line dark:border-white/10" />
+        <section className="mt-8">
+          <h2 className={sectionLabel}>Na shkruaj</h2>
+          <div className={group}>
+            <SettingsLink
+              href="/cilesimet/partner"
+              label="Bëhu Partner"
+              detail="Apliko që dyqani yt të shfaqet në ZbritjaSot"
+              icon={<StorefrontOutlinedIcon fontSize="small" />}
+              emphasis
+            />
+            <RowRule />
+            <SettingsLink
+              href="/cilesimet/kontakt"
+              label="Na Kontakto"
+              detail="Pyetje, sugjerime ose probleme me faqen"
+              icon={<MailOutlinedIcon fontSize="small" />}
+              emphasis
+            />
+          </div>
+        </section>
 
-      <div className="max-w-xl overflow-hidden rounded-2xl border border-line bg-elevated dark:border-white/10">
-        <SettingsLink
-          href="/biz/login"
-          label="Hyr"
-          detail="Paneli i biznesit"
-          icon={<LoginOutlinedIcon fontSize="small" />}
-        />
+        <section className="mt-8">
+          <h2 className={sectionLabel}>Biznesi</h2>
+          <div className={group}>
+            <SettingsLink
+              href="/biz/login"
+              label="Hyr"
+              detail="Paneli i biznesit"
+              icon={<LoginOutlinedIcon fontSize="small" />}
+            />
+          </div>
+        </section>
       </div>
     </Band>
   );
@@ -78,11 +109,15 @@ function SettingsLink({
   label,
   detail,
   icon,
+  muted = false,
+  emphasis = false,
 }: {
   href: string;
   label: string;
   detail?: string;
   icon: ReactNode;
+  muted?: boolean;
+  emphasis?: boolean;
 }) {
   const pathname = usePathname();
   const current = pathname === href;
@@ -91,22 +126,59 @@ function SettingsLink({
     <Link
       href={href}
       aria-current={current ? "page" : undefined}
-      className={rowClass}
+      className={[
+        "flex w-full items-center gap-3.5 px-4 py-3.5 text-left no-underline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+        emphasis ? "min-h-[4.5rem]" : "min-h-[4.25rem]",
+        muted ? "text-muted" : "text-ink",
+      ].join(" ")}
     >
-      <span className="inline-flex size-7 items-center justify-center text-ink" aria-hidden>
-        {icon}
-      </span>
+      <IconWell muted={muted}>{icon}</IconWell>
       <span className="min-w-0 flex-1">
-        <span className="block text-base font-bold">{label}</span>
+        <span
+          className={[
+            "block tracking-tight",
+            emphasis ? "text-base font-extrabold" : "text-base font-bold",
+            muted ? "text-muted" : "text-ink",
+          ].join(" ")}
+        >
+          {label}
+        </span>
         {detail ? (
-          <span className="block text-sm font-semibold text-muted">{detail}</span>
+          <span
+            className={[
+              "mt-0.5 block text-sm leading-snug font-semibold",
+              muted ? "text-muted/80" : "text-muted",
+            ].join(" ")}
+          >
+            {detail}
+          </span>
         ) : null}
       </span>
-      <ChevronRightIcon fontSize="small" className="text-muted" aria-hidden />
+      <ChevronRightIcon
+        fontSize="small"
+        className={muted ? "text-muted/60" : "text-muted"}
+        aria-hidden
+      />
     </Link>
   );
 }
 
+function IconWell({ children, muted = false }: { children: ReactNode; muted?: boolean }) {
+  return (
+    <span
+      className={[
+        "inline-grid size-10 shrink-0 place-items-center rounded-xl",
+        muted
+          ? "bg-sunken text-muted dark:bg-white/5"
+          : "bg-sunken text-ink dark:bg-white/8",
+      ].join(" ")}
+      aria-hidden
+    >
+      {children}
+    </span>
+  );
+}
+
 function RowRule() {
-  return <div className="ml-[3.25rem] h-px bg-line dark:bg-white/10" />;
+  return <div className="ml-[4.25rem] h-px bg-line dark:bg-white/10" />;
 }

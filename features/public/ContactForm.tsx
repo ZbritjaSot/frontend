@@ -1,21 +1,32 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { Spinner } from "@/components/ui/Spinner";
+import {
+  InquiryField,
+  InquiryInput,
+  InquiryTextarea,
+} from "@/features/public/inquiry/InquiryField";
+import { InquirySuccess } from "@/features/public/inquiry/InquirySuccess";
+import {
+  inquiryError,
+  inquiryForm,
+  inquiryPanel,
+  inquirySubmit,
+} from "@/features/public/inquiry/styles";
 import { apiFetch, validationMessage } from "@/lib/api";
-import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
-type ContactFormProps = {
-  intro?: string;
-};
+type FieldKey = "name" | "email" | "message";
 
-export function ContactForm({ intro }: ContactFormProps) {
+export function ContactForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [invalid, setInvalid] = useState<Partial<Record<FieldKey, boolean>>>({});
   const [done, setDone] = useState(false);
   const [pending, setPending] = useState(false);
 
@@ -24,22 +35,32 @@ export function ContactForm({ intro }: ContactFormProps) {
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
     const trimmedMessage = message.trim();
+    const nextInvalid: Partial<Record<FieldKey, boolean>> = {};
     if (trimmedName === "") {
+      nextInvalid.name = true;
+      setInvalid(nextInvalid);
       setError("Shkruaj emrin.");
       return;
     }
     if (trimmedEmail === "") {
+      nextInvalid.email = true;
+      setInvalid(nextInvalid);
       setError("Shkruaj email-in.");
       return;
     }
     if (!emailPattern.test(trimmedEmail)) {
+      nextInvalid.email = true;
+      setInvalid(nextInvalid);
       setError("Shkruaj një email të vlefshëm.");
       return;
     }
     if (trimmedMessage === "") {
+      nextInvalid.message = true;
+      setInvalid(nextInvalid);
       setError("Shkruaj mesazhin.");
       return;
     }
+    setInvalid({});
     setError(null);
     setPending(true);
     try {
@@ -67,78 +88,98 @@ export function ContactForm({ intro }: ContactFormProps) {
 
   if (done) {
     return (
-      <p className="m-0 max-w-xl text-base leading-relaxed font-semibold text-ink" role="status">
-        Mesazhi u dërgua. Do të kthehemi sa më shpejt.
-      </p>
+      <InquirySuccess
+        title="Mesazhi u dërgua"
+        body="Faleminderit që na shkrove. Do të kthehemi sa më shpejt që të mundemi."
+      />
     );
   }
 
   return (
-    <form className="mt-6 grid max-w-xl gap-5" onSubmit={onSubmit} noValidate>
-      {intro ? (
-        <p className="m-0 text-base leading-relaxed text-muted">{intro}</p>
-      ) : null}
-      <label className={fieldLabel}>
-        <span>Emri *</span>
-        <input
-          className={inputClass}
-          name="name"
-          autoComplete="name"
-          value={name}
-          maxLength={120}
-          disabled={pending}
-          onChange={(event) => setName(event.target.value)}
-          required
-        />
-      </label>
-      <label className={fieldLabel}>
-        <span>Email *</span>
-        <input
-          className={inputClass}
-          type="email"
-          name="email"
-          autoComplete="email"
-          value={email}
-          maxLength={255}
-          disabled={pending}
-          onChange={(event) => setEmail(event.target.value)}
-          required
-        />
-      </label>
-      <label className={fieldLabel}>
-        <span>Telefoni</span>
-        <input
-          className={inputClass}
-          type="tel"
-          name="phone"
-          autoComplete="tel"
-          value={phone}
-          maxLength={40}
-          disabled={pending}
-          onChange={(event) => setPhone(event.target.value)}
-          placeholder="opsionale"
-        />
-      </label>
-      <label className={fieldLabel}>
-        <span>Mesazhi *</span>
-        <textarea
-          className={`${inputClass} min-h-32 resize-y`}
-          name="message"
-          value={message}
-          maxLength={5000}
-          disabled={pending}
-          onChange={(event) => setMessage(event.target.value)}
-          required
-        />
-      </label>
-      {error ? (
-        <p className={fieldError} role="alert">
-          {error}
-        </p>
-      ) : null}
-      <button className={`${btnPrimary} w-fit`} type="submit" disabled={pending} aria-busy={pending}>
-        {pending ? "Duke u dërguar…" : "Dërgo mesazhin"}
-      </button>
-    </form>
+    <div className={inquiryPanel}>
+      <form className={inquiryForm} onSubmit={onSubmit} noValidate>
+        <InquiryField label="Emri" required htmlFor="contact-name">
+          <InquiryInput
+            id="contact-name"
+            name="name"
+            autoComplete="name"
+            value={name}
+            maxLength={120}
+            disabled={pending}
+            invalid={invalid.name}
+            placeholder="Emri yt"
+            onChange={(event) => {
+              setName(event.target.value);
+              setInvalid((prev) => ({ ...prev, name: false }));
+            }}
+            required
+          />
+        </InquiryField>
+        <InquiryField label="Email" required htmlFor="contact-email">
+          <InquiryInput
+            id="contact-email"
+            type="email"
+            name="email"
+            autoComplete="email"
+            value={email}
+            maxLength={255}
+            disabled={pending}
+            invalid={invalid.email}
+            placeholder="email@shembull.com"
+            onChange={(event) => {
+              setEmail(event.target.value);
+              setInvalid((prev) => ({ ...prev, email: false }));
+            }}
+            required
+          />
+        </InquiryField>
+        <InquiryField label="Telefoni" htmlFor="contact-phone">
+          <InquiryInput
+            id="contact-phone"
+            type="tel"
+            name="phone"
+            autoComplete="tel"
+            value={phone}
+            maxLength={40}
+            disabled={pending}
+            placeholder="p.sh. +383 44 000 000"
+            onChange={(event) => setPhone(event.target.value)}
+          />
+        </InquiryField>
+        <InquiryField label="Mesazhi" required htmlFor="contact-message">
+          <InquiryTextarea
+            id="contact-message"
+            name="message"
+            value={message}
+            maxLength={5000}
+            disabled={pending}
+            invalid={invalid.message}
+            placeholder="Si mund të të ndihmojmë?"
+            onChange={(event) => {
+              setMessage(event.target.value);
+              setInvalid((prev) => ({ ...prev, message: false }));
+            }}
+            required
+          />
+        </InquiryField>
+        {error ? (
+          <p className={inquiryError} role="alert">
+            {error}
+          </p>
+        ) : null}
+        <div className="pt-1">
+          <button className={inquirySubmit} type="submit" disabled={pending} aria-busy={pending}>
+            {pending ? (
+              <span className="inline-flex items-center gap-2.5">
+                <Spinner label="Duke u dërguar" size="sm" block={false} tone="onAccent" />
+                <span>Duke u dërguar…</span>
+              </span>
+            ) : (
+              "Dërgo mesazhin"
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
