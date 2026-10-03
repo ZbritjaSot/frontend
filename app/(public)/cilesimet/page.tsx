@@ -4,7 +4,7 @@ import { publicPageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = publicPageMetadata({
   title: "Cilësimet",
-  description: "Pamja, njoftimet dhe lidhjet e ZbritjaSot.",
+  description: "Pamja dhe lidhjet e ZbritjaSot.",
   path: "/cilesimet",
 });
 

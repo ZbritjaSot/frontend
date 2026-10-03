@@ -6,7 +6,6 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import MailOutlinedIcon from "@mui/icons-material/MailOutlined";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useTheme } from "@/components/theme/ThemeProvider";
@@ -32,7 +31,7 @@ export function SettingsPanel() {
           Cilësimet
         </h1>
         <p className="mt-3 mb-0 text-base leading-relaxed text-muted">
-          Pamja, njoftimet dhe mënyrat për të na kontaktuar.
+          Pamja dhe mënyrat për të na kontaktuar.
         </p>
 
         <section className="mt-10">
@@ -56,14 +55,6 @@ export function SettingsPanel() {
                 {isDark ? "E errët" : "E ndritshme"}
               </span>
             </button>
-            <RowRule />
-            <SettingsLink
-              href="/cilesimet/njoftimet"
-              label="Njoftimet"
-              detail="Së shpejti, push njoftimet"
-              muted
-              icon={<NotificationsNoneIcon fontSize="small" />}
-            />
           </div>
         </section>
 
