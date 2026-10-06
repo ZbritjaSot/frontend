@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";
 import { Spinner } from "@/components/ui/Spinner";
-import { ManagerNote } from "@/features/biz/ManagerNote";
 import { ViewsChart } from "@/features/biz/ViewsChart";
 import { useBizOfferViews, useBizOffersByStatus } from "@/hooks/useBizOffers";
 import { useBizBusiness, useBizSubscription } from "@/hooks/useBizProfile";
@@ -76,7 +75,6 @@ export function BizHomePanel() {
               {business.name}
             </p>
           ) : null}
-          {business ? <ManagerNote business={business} /> : null}
         </div>
         <Link href="/biz/offers/new" className={btnPrimary}>
           Dosje e re
