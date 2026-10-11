@@ -10,10 +10,12 @@ export function ExclusiveStream({
   items,
   lastPage,
   q = "",
+  city = "",
 }: {
   items: ExclusiveItem[];
   lastPage: number;
   q?: string;
+  city?: string;
 }) {
   const [shown, setShown] = useState(items);
   const [page, setPage] = useState(1);
@@ -22,6 +24,7 @@ export function ExclusiveStream({
   const [failed, setFailed] = useState(false);
   const loadingRef = useRef(false);
   const query = q.trim();
+  const place = city.trim();
 
   const loadMore = useCallback(async () => {
     if (loadingRef.current || done) {
@@ -36,6 +39,7 @@ export function ExclusiveStream({
         page: next,
         perPage: EXCLUSIVE_PAGE_SIZE,
         q: query || undefined,
+        city: place || undefined,
       });
       setShown((current) => appendUnique(current, result.data));
       setPage(next);
@@ -46,7 +50,7 @@ export function ExclusiveStream({
       loadingRef.current = false;
       setLoading(false);
     }
-  }, [done, page, query]);
+  }, [done, page, place, query]);
 
   const sentinel = useInfiniteSentinel({
     onLoadMore: loadMore,

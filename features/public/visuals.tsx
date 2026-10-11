@@ -28,6 +28,7 @@ function washIndex(name: string): number {
 }
 
 const LOGO_SIZE = {
+  xs: "size-6 rounded-lg text-[0.55rem]",
   sm: "size-10 rounded-xl text-sm",
   md: "size-12 rounded-2xl text-base",
   lg: "size-16 rounded-[1.25rem] text-xl",

@@ -3,7 +3,7 @@ import { Frame, SeeAll } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import { DiscountBadge, PriceLine } from "@/features/public/price";
 import { kicker } from "@/features/public/tone";
-import { ProductVisual } from "@/features/public/visuals";
+import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateShortSq } from "@/lib/format";
 import type { PublicOffer } from "@/types";
 
@@ -80,9 +80,20 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
               <DiscountBadge percent={offer.discount_percent} />
             </span>
           ) : null}
-          <span className="min-w-0 truncate text-xs text-muted">
-            {offer.business?.name ?? "\u00a0"}
-          </span>
+          {offer.business?.name ? (
+            <span className="flex min-w-0 items-center gap-1.5">
+              <ShopLogo
+                name={offer.business.name}
+                logoUrl={offer.business.logo_url}
+                size="xs"
+              />
+              <span className="min-w-0 truncate text-xs font-extrabold tracking-tight text-ink">
+                {offer.business.name}
+              </span>
+            </span>
+          ) : (
+            <span className="min-w-0 truncate text-xs text-muted">{"\u00a0"}</span>
+          )}
         </span>
       </span>
       <span className="w-28 shrink-0 text-right">
@@ -94,6 +105,7 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
             sale={offer.discounted_price}
             original={offer.original_price ?? 0}
             size="sm"
+            stack
           />
         ) : null}
       </span>

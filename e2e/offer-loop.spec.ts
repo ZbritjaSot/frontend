@@ -16,7 +16,7 @@ async function login(page: Page, path: string, email: string, home: RegExp) {
       page.waitForURL(home).then(() => "ok" as const),
       page.locator("p[role='alert']").waitFor().then(async () => {
         const text = await page.locator("p[role='alert']").innerText();
-        return text.includes("Too Many Attempts") ? ("throttled" as const) : text;
+        return /too many|shumë tentativa/i.test(text) ? ("throttled" as const) : text;
       }),
     ]);
 

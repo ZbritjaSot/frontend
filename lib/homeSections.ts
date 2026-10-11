@@ -9,7 +9,7 @@ export type HomeSection = {
  * Fallback when the API has no saved section order. Keep in sync with HomeSections::defaults().
  *
  * NOTE (homepage overlap): `spotlight` ("Zbritje të forta") and `exclusive` both surface
- * highest-discount deals — Exclusive also mixes flyers and has its own destination.
+ * highest-discount product deals — Exclusive has its own destination page.
  * Consider dropping or retitling spotlight in the next Exclusive redesign so the home
  * page does not tell the same story twice.
  */

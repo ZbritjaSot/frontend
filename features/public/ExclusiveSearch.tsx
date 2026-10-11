@@ -2,13 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent, type KeyboardEvent } from "react";
+import { browsePath } from "@/lib/browse";
 import { EXCLUSIVE_HREF } from "@/lib/exclusive";
 
 export function ExclusiveSearch({
   initialQ = "",
+  city,
   tone = "forest",
 }: {
   initialQ?: string;
+  city?: string;
   /** forest = on olive intro; canvas = on page body. */
   tone?: "forest" | "canvas";
 }) {
@@ -16,8 +19,12 @@ export function ExclusiveSearch({
   const [value, setValue] = useState(initialQ);
 
   function go(next: string) {
-    const q = next.trim();
-    router.push(q === "" ? EXCLUSIVE_HREF : `${EXCLUSIVE_HREF}?q=${encodeURIComponent(q)}`);
+    router.push(
+      browsePath(EXCLUSIVE_HREF, {
+        q: next.trim() || undefined,
+        city: city || undefined,
+      }),
+    );
   }
 
   function onSubmit(event: FormEvent) {
@@ -38,7 +45,7 @@ export function ExclusiveSearch({
       : "h-12 w-full rounded-full border border-line bg-elevated px-5 text-base font-medium text-ink outline-none placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20 dark:border-white/10";
 
   return (
-    <form onSubmit={onSubmit} className="w-full max-w-md sm:min-w-[18rem] lg:min-w-[20rem]" role="search">
+    <form onSubmit={onSubmit} className="w-full max-w-xl sm:min-w-[22rem] lg:min-w-[28rem]" role="search">
       <label className="grid gap-2">
         <span className="sr-only">Kërko</span>
         <input

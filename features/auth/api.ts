@@ -7,9 +7,8 @@ type AuthPayload = {
 };
 
 export async function loginWithCookies(input: LoginInput): Promise<User> {
-  await ensureCsrfCookie();
-
   // No device_name → Sanctum session cookie (web), not Bearer token.
+  // apiFetch(auth) already fetches the CSRF cookie once for this POST.
   const payload = await apiFetch<AuthPayload>("/auth/login", {
     method: "POST",
     auth: true,

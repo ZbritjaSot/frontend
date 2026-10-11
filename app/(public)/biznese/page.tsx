@@ -124,9 +124,11 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
                   href={`/biznese/${shop.id}`}
                   className="flex items-center gap-3 rounded-xl border border-line bg-elevated px-3 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-safe:transition-colors dark:border-white/10 dark:bg-[#1a2420]"
                 >
-                  <ShopLogo name={shop.name} logoUrl={shop.logo_url} size="md" />
+                  <ShopLogo name={shop.name} logoUrl={shop.logo_url} size="lg" />
                   <span className="min-w-0">
-                    <span className="block truncate font-extrabold">{shop.name}</span>
+                    <span className="block truncate text-lg font-extrabold tracking-tight sm:text-xl">
+                      {shop.name}
+                    </span>
                     <span className="block truncate text-sm text-muted">
                       {place ? `${place} · ` : ""}
                       {flyers} {campaignWord(flyers)} · {offers} {productWord(offers)}

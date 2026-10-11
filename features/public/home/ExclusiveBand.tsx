@@ -28,8 +28,6 @@ export function ExclusiveBand({
     return null;
   }
 
-  const [lead, ...rest] = shown;
-
   return (
     <section className="mt-8 bg-forest text-ivory sm:mt-10">
       <Frame className="pt-10 pb-0 sm:pt-12">
@@ -114,10 +112,7 @@ export function ExclusiveBand({
           event.stopPropagation();
         }}
       >
-        {lead ? (
-          <ExclusiveCard key={itemKey(lead)} item={lead} layout="rail" lead />
-        ) : null}
-        {rest.map((item) => (
+        {shown.map((item) => (
           <ExclusiveCard key={itemKey(item)} item={item} layout="rail" />
         ))}
       </div>

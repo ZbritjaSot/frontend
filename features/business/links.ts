@@ -63,7 +63,7 @@ export function safeHttpUrl(value: string | null | undefined): string | null {
 }
 
 export type ShopLink = {
-  key: string;
+  key: "website" | "instagram" | "facebook" | "whatsapp";
   label: string;
   href: string;
 };
@@ -92,4 +92,22 @@ export function shopLinks(
     links.push({ key: "whatsapp", label: "WhatsApp", href: whatsapp });
   }
   return links;
+}
+
+/** Prefer WhatsApp, then website, then other social profiles. */
+export function primaryContactHref(
+  business: Pick<
+    Business | PublicBusiness,
+    "website_url" | "instagram_url" | "facebook_url" | "whatsapp"
+  >,
+): string | null {
+  const links = shopLinks(business);
+  const preferred = ["whatsapp", "website", "facebook", "instagram"] as const;
+  for (const key of preferred) {
+    const match = links.find((link) => link.key === key);
+    if (match) {
+      return match.href;
+    }
+  }
+  return null;
 }

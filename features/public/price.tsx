@@ -17,6 +17,7 @@ export function PriceLine({
   original,
   size = "md",
   tone = "default",
+  stack = false,
 }: {
   sale: number;
   original: number;
@@ -27,6 +28,8 @@ export function PriceLine({
    * hero — olive hero: large lime sale, warm was-price
    */
   tone?: "default" | "inverse" | "hero";
+  /** Sale and was-price on separate lines (e.g. Ending Soon rows). */
+  stack?: boolean;
 }) {
   const saleClass =
     size === "xl"
@@ -52,7 +55,13 @@ export function PriceLine({
         : "text-ink dark:text-accent";
 
   return (
-    <span className="flex min-w-0 flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+    <span
+      className={
+        stack
+          ? "flex min-w-0 flex-col items-end gap-0.5"
+          : "flex min-w-0 flex-wrap items-baseline gap-x-2.5 gap-y-0.5"
+      }
+    >
       <span
         className={`${tone === "hero" ? heroSale : saleClass} leading-none font-extrabold tabular-nums ${saleTone}`}
       >

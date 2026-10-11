@@ -40,9 +40,9 @@ export function ShopDirectory({
                 href={`/biznese/${shop.id}`}
                 className="flex min-h-12 min-w-0 items-center gap-3 border-b border-line px-1 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-safe:transition-colors"
               >
-                <ShopLogo name={shop.name} logoUrl={shop.logo_url} size="sm" />
+                <ShopLogo name={shop.name} logoUrl={shop.logo_url} size="md" />
                 <span className="min-w-0">
-                  <span className="block truncate text-base font-extrabold tracking-tight">
+                  <span className="block truncate text-lg font-extrabold tracking-tight sm:text-xl">
                     {shop.name}
                   </span>
                   <span className="block truncate text-xs text-muted">

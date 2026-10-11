@@ -46,9 +46,22 @@ export function ProductPoster({
           ) : null}
         </span>
         <span className="mt-2 grid gap-0.5">
-          <span className="block h-4 truncate text-[0.68rem] font-bold tracking-[0.12em] text-muted uppercase">
-            {shop ?? "\u00a0"}
-          </span>
+          {shop ? (
+            <span className="flex min-w-0 items-center gap-1.5">
+              <ShopLogo
+                name={shop}
+                logoUrl={offer.business?.logo_url}
+                size="xs"
+              />
+              <span className="min-w-0 truncate text-sm font-extrabold tracking-tight text-ink">
+                {shop}
+              </span>
+            </span>
+          ) : (
+            <span className="block h-5" aria-hidden>
+              {"\u00a0"}
+            </span>
+          )}
           <span
             className={`truncate font-extrabold leading-5 tracking-tight text-ink ${
               resolved === "feature" ? "text-base" : "text-sm"

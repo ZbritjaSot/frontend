@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { OfferPlace } from "@/components/place/OfferPlace";
+import { shopLinks } from "@/features/business/links";
+import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
 import { CampaignGrid, CampaignPoster } from "@/features/public/CampaignPoster";
 import { campaignWord, productWord } from "@/features/public/compose";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
 import { Band, EmptyNote, Frame, Pager } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import { ResultsView } from "@/features/public/ResultsView";
+import { ShopLinksRow } from "@/features/public/ShopLinksRow";
 import { display, kicker, panel } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
-import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
-import { ShopLinksRow } from "@/features/public/ShopLinksRow";
 import {
   fetchPublicBusiness,
   fetchPublicCategories,
@@ -137,47 +137,45 @@ export default async function BusinessPage({
   const hasHere =
     Boolean(here.address?.trim()) ||
     (here.latitude != null && here.longitude != null);
+  const hasLinks = shopLinks(business).length > 0;
 
   return (
     <article>
       <Frame className="pt-8">
-        <header className="grid items-end gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,420px)]">
+        <header className="grid gap-6">
           <div className={`${panel} p-5 sm:p-6`}>
-            <ShopLogo
-              name={business.name}
-              logoUrl={business.logo_url}
-              size="xl"
-            />
-            <div className="mt-6">
-              <p className={kicker}>{place}</p>
+            <div
+              className={
+                hasLinks
+                  ? "grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-12"
+                  : "grid gap-6"
+              }
+            >
+              <div className="min-w-0">
+                <ShopLogo
+                  name={business.name}
+                  logoUrl={business.logo_url}
+                  size="xl"
+                />
+                <div className="mt-6">
+                  <p className={kicker}>{place}</p>
+                </div>
+                <h1 className={`m-0 mt-3 text-[clamp(2.8rem,6vw,4.8rem)] ${display}`}>
+                  {business.name}
+                </h1>
+                <p className="mt-4 mb-0 text-sm font-semibold">
+                  {folderTotal} {campaignWord(folderTotal)} · {offerTotal}{" "}
+                  {productWord(offerTotal)}
+                </p>
+              </div>
+              {hasLinks ? (
+                <div className="min-w-0 w-full sm:max-w-[14rem] lg:justify-self-end lg:pt-2">
+                  <ShopLinksRow business={business} layout="column" />
+                </div>
+              ) : null}
             </div>
-            <h1 className={`m-0 mt-3 text-[clamp(2.8rem,6vw,4.8rem)] ${display}`}>
-              {business.name}
-            </h1>
-            <ShopLinksRow business={business} className="mt-4" />
-            <p className="mt-4 mb-0 text-sm font-semibold">
-              {folderTotal} {campaignWord(folderTotal)} · {offerTotal}{" "}
-              {productWord(offerTotal)}
-            </p>
           </div>
-          <div className="grid w-full gap-3">
-            {hasHere ? (
-              <PlaceBranchRow place={here} linked={false} />
-            ) : null}
-            <OfferPlace
-              surface="plain"
-              showHeading={false}
-              showPin={false}
-              className="w-full"
-              mapClassName="h-72 overflow-hidden rounded-2xl border border-line"
-              name={business.name}
-              place={{
-                address: business.address,
-                latitude: business.latitude,
-                longitude: business.longitude,
-              }}
-            />
-          </div>
+          {hasHere ? <PlaceBranchRow place={here} linked={false} /> : null}
         </header>
         {otherLocations.length > 0 ? (
           <BranchPlaces

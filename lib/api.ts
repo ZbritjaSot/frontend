@@ -115,7 +115,16 @@ export function validationMessage(error: unknown, fallback: string): string {
 
   const body = error.body as { message?: string; errors?: Record<string, string[]> };
   const first = body.errors ? Object.values(body.errors).flat()[0] : undefined;
-  return first ?? body.message ?? fallback;
+  const message = first ?? body.message ?? fallback;
+
+  if (
+    error.status === 429 ||
+    /too many (login )?attempts/i.test(message)
+  ) {
+    return "Shumë tentativa. Prit një minutë dhe provo përsëri.";
+  }
+
+  return message;
 }
 
 export function accountEmailMessage(error: unknown, fallback: string): string {
