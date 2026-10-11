@@ -8,10 +8,8 @@ export type HomeSection = {
 /**
  * Fallback when the API has no saved section order. Keep in sync with HomeSections::defaults().
  *
- * NOTE (homepage overlap): `spotlight` ("Zbritje të forta") and `exclusive` both surface
- * highest-discount product deals — Exclusive has its own destination page.
- * Consider dropping or retitling spotlight in the next Exclusive redesign so the home
- * page does not tell the same story twice.
+ * NOTE: `spotlight` ("Zbritje të forta") is admin-curated (or random when empty).
+ * `exclusive` is a separate placement rail for exclusive shops.
  */
 export const defaultHomeSections: HomeSection[] = [
   { key: "spotlight", title: "Zbritje të forta" },

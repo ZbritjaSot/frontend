@@ -36,6 +36,10 @@ export type HomeCuration = {
     picks: HomeOfferPick[];
     candidates: HomeOfferCandidate[];
   };
+  spotlight: {
+    picks: HomeOfferPick[];
+    candidates: HomeOfferCandidate[];
+  };
   shops: {
     picks: HomeShopPick[];
     candidates: HomeShopPick[];
@@ -67,6 +71,20 @@ export async function saveAdminHero(offerIds: string[]): Promise<HomeCuration["h
     auth: true,
     body: JSON.stringify({ offer_ids: offerIds }),
   });
+  return payload.data;
+}
+
+export async function saveAdminSpotlight(
+  offerIds: string[],
+): Promise<HomeCuration["spotlight"]> {
+  const payload = await apiFetch<{ data: HomeCuration["spotlight"] }>(
+    "/admin/home/spotlight",
+    {
+      method: "PUT",
+      auth: true,
+      body: JSON.stringify({ offer_ids: offerIds }),
+    },
+  );
   return payload.data;
 }
 

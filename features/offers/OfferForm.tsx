@@ -541,13 +541,12 @@ export function OfferForm({
                     gallery={audience === "manager" ? "manager" : audience === "admin" ? "admin" : "biz"}
                     disabled={pending}
                     onPick={(image) => {
-                      const platformTitle = image.title?.trim();
+                      // Business + ZbritjaSot gallery: seed product name from image title (still editable).
+                      const imageTitle = image.title?.trim();
                       patchItem(item.key, {
                         gallery_image_id: image.id,
                         thumb_url: image.thumb_url,
-                        ...(image.source === "platform" && platformTitle
-                          ? { name: platformTitle }
-                          : {}),
+                        ...(imageTitle ? { name: imageTitle } : {}),
                       });
                       setCoverKey((current) => current ?? item.key);
                     }}

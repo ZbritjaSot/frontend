@@ -15,6 +15,7 @@ import {
   saveAdminHero,
   saveAdminHomeShops,
   saveAdminRecommended,
+  saveAdminSpotlight,
 } from "@/features/admin/homeCurationApi";
 import { validationMessage } from "@/lib/api";
 import { btnGhost, checkInput, fieldError, iconButton, inputClass, panelLead } from "@/lib/ui";
@@ -40,19 +41,29 @@ function homeError(error: unknown): string {
 
 export function AdminHome() {
   const queryClient = useQueryClient();
-  const [pane, setPane] = useState<"hero" | "shops" | "flyers" | "recommended">("hero");
+  const [pane, setPane] = useState<"hero" | "spotlight" | "shops" | "flyers" | "recommended">(
+    "hero",
+  );
   const [heroSearch, setHeroSearch] = useState("");
   const [heroQuery, setHeroQuery] = useState("");
+  const [spotlightSearch, setSpotlightSearch] = useState("");
+  const [spotlightQuery, setSpotlightQuery] = useState("");
   const [recommendedSearch, setRecommendedSearch] = useState("");
   const [recommendedQuery, setRecommendedQuery] = useState("");
   const [creatingHero, setCreatingHero] = useState(false);
-  const listQuery = pane === "recommended" ? recommendedQuery : heroQuery;
+  const listQuery =
+    pane === "recommended"
+      ? recommendedQuery
+      : pane === "spotlight"
+        ? spotlightQuery
+        : heroQuery;
   const home = useQuery({
     queryKey: [...homeKey, listQuery],
     queryFn: () => fetchAdminHome(listQuery),
     placeholderData: (previous) => previous,
   });
   const heroes = home.data?.hero.picks ?? [];
+  const spotlight = home.data?.spotlight.picks ?? [];
   const shops = home.data?.shops.picks ?? [];
   const flyers = home.data?.flyers ?? [];
   const recommended = home.data?.recommended.picks ?? [];
@@ -60,6 +71,10 @@ export function AdminHome() {
   const heroIds = new Set(heroes.map((offer) => offer.id));
   const heroCandidates = (home.data?.hero.candidates ?? []).filter(
     (offer) => !heroIds.has(offer.id),
+  );
+  const spotlightIds = new Set(spotlight.map((offer) => offer.id));
+  const spotlightCandidates = (home.data?.spotlight.candidates ?? []).filter(
+    (offer) => !spotlightIds.has(offer.id),
   );
   const recommendedIds = new Set(recommended.map((offer) => offer.id));
   const recommendedCandidates = (home.data?.recommended.candidates ?? []).filter(
@@ -72,6 +87,11 @@ export function AdminHome() {
   }, [heroSearch]);
 
   useEffect(() => {
+    const timer = window.setTimeout(() => setSpotlightQuery(spotlightSearch.trim()), 300);
+    return () => window.clearTimeout(timer);
+  }, [spotlightSearch]);
+
+  useEffect(() => {
     const timer = window.setTimeout(() => setRecommendedQuery(recommendedSearch.trim()), 300);
     return () => window.clearTimeout(timer);
   }, [recommendedSearch]);
@@ -80,12 +100,22 @@ export function AdminHome() {
     setHeroQuery(heroSearch.trim());
   }
 
+  function commitSpotlightSearch() {
+    setSpotlightQuery(spotlightSearch.trim());
+  }
+
   function commitRecommendedSearch() {
     setRecommendedQuery(recommendedSearch.trim());
   }
 
   const saveHero = useMutation({
     mutationFn: (ids: string[]) => saveAdminHero(ids),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: homeKey });
+    },
+  });
+  const saveSpotlight = useMutation({
+    mutationFn: (ids: string[]) => saveAdminSpotlight(ids),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: homeKey });
     },
@@ -114,8 +144,10 @@ export function AdminHome() {
     <div>
       <AdminSections />
       <p className={`${panelLead} mt-6 max-w-2xl`}>
-        Zbritjet e Ditës (Hero) janë zgjedhje manuale nga çdo dyqan publik. Dyqanet,
-        fletushkat dhe të rekomanduarat mbeten te dyqanet ekskluzive.
+        Zbritjet e Ditës dhe Zbritjet e forta janë zgjedhje manuale nga çdo dyqan
+        publik. Zbritjet e forta dalin të parat; vendet e mbetura (deri në 16) mbushen
+        me oferta të rastësishme. Dyqanet, fletushkat dhe të rekomanduarat mbeten te
+        dyqanet ekskluzive.
       </p>
 
       {home.isPending && !home.data ? (
@@ -132,6 +164,7 @@ export function AdminHome() {
             {(
               [
                 ["hero", "Zbritjet e Ditës", heroes.length],
+                ["spotlight", "Zbritjet e forta", spotlight.length],
                 ["shops", "Dyqanet", shops.length],
                 ["flyers", "Fletushkat", flyers.length],
                 ["recommended", "Të rekomanduara", recommended.length],
@@ -271,6 +304,125 @@ export function AdminHome() {
                           disabled={saveHero.isPending}
                           onClick={() =>
                             saveHero.mutate([...heroes.map((item) => item.id), offer.id])
+                          }
+                        >
+                          <AddOutlinedIcon fontSize="small" className="text-accent!" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </section>
+
+            <section hidden={pane !== "spotlight"}>
+              <div className="border-b border-line px-4 py-3">
+                <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Zbritjet e forta</h2>
+                <p className="m-0 mt-1 text-sm text-muted">
+                  Zgjidh dhe rendit produktet që dalin të parat te Zbritje të forta. Deri në
+                  16 vende: zgjedhjet e tua, pastaj oferta të rastësishme (jo ato që ke zgjedhur).
+                </p>
+              </div>
+              {saveSpotlight.isError ? (
+                <p className={`${fieldError} px-4 pt-3`} role="alert">
+                  {homeError(saveSpotlight.error)}
+                </p>
+              ) : null}
+              {spotlight.length === 0 ? (
+                <p className="m-0 px-4 py-6 text-sm text-muted">
+                  Asnjë ofertë e zgjedhur — kryefaqja tregon deri në 16 oferta të rastësishme.
+                </p>
+              ) : (
+                <DragList
+                  items={spotlight}
+                  pending={saveSpotlight.isPending}
+                  label={(offer) => offer.name}
+                  onReorder={(ids) => saveSpotlight.mutate(ids)}
+                  trailing={(offer) => (
+                    <button
+                      className={iconButton}
+                      type="button"
+                      aria-label={`Hiq ${offer.name}`}
+                      disabled={saveSpotlight.isPending}
+                      onClick={() =>
+                        saveSpotlight.mutate(
+                          spotlight.filter((item) => item.id !== offer.id).map((item) => item.id),
+                        )
+                      }
+                    >
+                      <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
+                    </button>
+                  )}
+                >
+                  {(offer) => (
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-sunken">
+                        {offer.thumb_url ? (
+                          <Image
+                            src={offer.thumb_url}
+                            alt=""
+                            fill
+                            unoptimized
+                            className="object-cover"
+                            sizes="48px"
+                          />
+                        ) : null}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate font-semibold">{offer.name}</span>
+                        <span className="block truncate text-sm text-muted">
+                          {[offer.bundle_title, offer.business_name].filter(Boolean).join(" · ")}
+                          {offer.public ? "" : " · nuk shfaqet ende"}
+                        </span>
+                      </span>
+                    </div>
+                  )}
+                </DragList>
+              )}
+              <div className="grid gap-3 px-4 py-4">
+                <input
+                  className={inputClass}
+                  value={spotlightSearch}
+                  placeholder=""
+                  aria-label="Kërko produkt për Zbritjet e forta"
+                  onChange={(event) => setSpotlightSearch(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      commitSpotlightSearch();
+                    }
+                  }}
+                />
+                {spotlightSearch.trim() === "" ? (
+                  <p className="m-0 text-sm text-muted">
+                    Shkruaj për të kërkuar produkte nga të gjitha dyqanet.
+                  </p>
+                ) : home.isFetching && spotlightCandidates.length === 0 ? (
+                  <p className="m-0 text-sm text-muted">Duke kërkuar…</p>
+                ) : spotlightCandidates.length === 0 ? (
+                  <p className="m-0 text-sm text-muted">Nuk u gjet asnjë produkt.</p>
+                ) : (
+                  <ul className="m-0 list-none p-0">
+                    {spotlightCandidates.map((offer) => (
+                      <li key={offer.id} className="flex items-center gap-3 py-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="m-0 truncate text-sm font-semibold">{offer.name}</p>
+                          <p className="m-0 truncate text-sm text-muted">
+                            {[offer.bundle_title, offer.business_name, offer.city]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </p>
+                        </div>
+                        <button
+                          className={iconButton}
+                          type="button"
+                          aria-label={`Shto ${offer.name}`}
+                          disabled={saveSpotlight.isPending}
+                          onClick={() =>
+                            saveSpotlight.mutate([
+                              ...spotlight.map((item) => item.id),
+                              offer.id,
+                            ])
                           }
                         >
                           <AddOutlinedIcon fontSize="small" className="text-accent!" />
