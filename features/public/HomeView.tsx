@@ -1,4 +1,3 @@
-import { Frame } from "@/features/public/Frame";
 import { CampaignSection } from "@/features/public/home/CampaignSection";
 import { CatalogSection } from "@/features/public/home/CatalogSection";
 import { CategoryBand } from "@/features/public/home/CategoryBand";
@@ -13,7 +12,7 @@ import { defaultHomeSections, type HomeSection } from "@/lib/homeSections";
 
 export function HomeView({ home }: { home: PublicHome }) {
   const empty =
-    home.hero === null &&
+    home.heroes.length === 0 &&
     home.featured.length === 0 &&
     home.flyers.length === 0 &&
     home.fresh.length === 0 &&
@@ -28,13 +27,6 @@ export function HomeView({ home }: { home: PublicHome }) {
       <DiscoverBand categories={home.categories} />
       {!empty ? <CategoryBand categories={home.categories} /> : null}
       <HeroSection key={home.heroes.map((offer) => offer.id).join("|")} offers={home.heroes} />
-      {empty ? (
-        <Frame className="pt-6 pb-10">
-          <p className="m-0 max-w-lg text-base leading-relaxed text-muted">
-            Momentalisht nuk ka zbritje publike. Ofertat e skaduara hiqen vetë nga lista.
-          </p>
-        </Frame>
-      ) : null}
       {sections.map((section) => (
         <HomeBlock key={section.key} section={section} home={home} />
       ))}
