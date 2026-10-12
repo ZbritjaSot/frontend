@@ -209,12 +209,16 @@ export type OfferBundle = {
   starts_at: string;
   expires_at: string;
   status: OfferStatus;
+  /** True = product offers (not a public flyer folder). */
+  is_standalone?: boolean;
   rejection_reason: string | null;
   cover_gallery_image_id?: string | null;
   items_count?: number;
   items?: OfferItem[];
   business?: BusinessSummary;
   branches?: Array<{ id: string; name: string; city?: string | null }>;
+  /** Admin pending list: company has an assigned manager. */
+  awaits_manager?: boolean;
   created_at?: string;
   updated_at?: string;
 };
@@ -258,6 +262,7 @@ export type CompanyShop = {
 export type ManagerPendingOffer = {
   id: string;
   title: string;
+  is_standalone?: boolean;
   business_name?: string | null;
 };
 

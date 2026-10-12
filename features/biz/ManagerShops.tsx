@@ -7,7 +7,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { fetchBizShops } from "@/features/branches/api";
 import { ShopLogo } from "@/features/public/visuals";
 import { validationMessage } from "@/lib/api";
-import { btnPrimary, pageTitle, panelLead } from "@/lib/ui";
+import { btnGhost, btnPrimary, pageTitle, panelLead } from "@/lib/ui";
 import type { CompanyShop } from "@/types";
 
 function placeLine(shop: CompanyShop): string {
@@ -95,9 +95,14 @@ export function ManagerShops() {
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h1 className={`${pageTitle} mb-0!`}>Dyqanet</h1>
-        <Link href="/biz/review/new" className={btnPrimary}>
-          Dosje e re
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/biz/review/new" className={btnPrimary}>
+            Fletushkë e re
+          </Link>
+          <Link href="/biz/review/new?kind=offers" className={btnGhost}>
+            Oferta të reja
+          </Link>
+        </div>
       </div>
       <p className={`${panelLead} max-w-2xl`}>
         Kompanitë që ke në ngarkim, me logon, adresën dhe degët. Emailin dhe

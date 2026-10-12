@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { EditOfferScreen } from "@/features/offers/EditOfferScreen";
 
 export const metadata: Metadata = {
-  title: "Ndrysho ofertën",
+  title: "Ndrysho ofertat",
   robots: { index: false, follow: false },
 };
 
@@ -12,5 +12,5 @@ type PageProps = {
 
 export default async function EditBizOfferPage({ params }: PageProps) {
   const { id } = await params;
-  return <EditOfferScreen id={id} />;
+  return <EditOfferScreen id={id} catalog="offers" />;
 }

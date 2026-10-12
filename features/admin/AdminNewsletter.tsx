@@ -35,7 +35,6 @@ const kinds: { kind: Kind; label: string; singular: string }[] = [
 
 function PickSearch({
   kind,
-  label,
   selected,
   onAdd,
 }: {

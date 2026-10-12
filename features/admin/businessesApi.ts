@@ -18,6 +18,18 @@ export async function fetchPendingBusinessLocations(page = 1, perPage = 4) {
   );
 }
 
+export async function fetchPendingBranches(page = 1, perPage = 8) {
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(perPage),
+  });
+
+  return apiFetch<Paginated<Business>>(
+    `/admin/businesses/pending-branches?${params.toString()}`,
+    { auth: true },
+  );
+}
+
 export async function fetchAdminBusiness(id: string) {
   const payload = await apiFetch<BusinessPayload>(`/admin/businesses/${id}`, {
     auth: true,
@@ -30,6 +42,7 @@ export type BusinessCounts = {
   inactive: number;
   exclusive: number;
   address: number;
+  branches: number;
 };
 
 export async function fetchAdminBusinesses(

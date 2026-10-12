@@ -3,7 +3,14 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState, type ClipboardEvent, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ClipboardEvent,
+  type KeyboardEvent,
+} from "react";
 import {
   fetchAdminCompanyShops,
   fetchBizCompanyShops,
@@ -33,6 +40,7 @@ import {
   fieldError,
   inputClass,
 } from "@/lib/ui";
+import type { BundleCatalog } from "@/features/offers/bizApi";
 import { offerBundleFormSchema } from "@/schemas/offer";
 import type { OfferBundle } from "@/types";
 
@@ -59,6 +67,8 @@ type OfferFormProps = {
   businessId?: string;
   /** A main shop can carry the flyer at its other locations. */
   canShare?: boolean;
+  /** Flyers = folder with cover; offers = standalone products (min one). */
+  catalog?: BundleCatalog;
 };
 
 function emptyItem(key: string): ItemDraft {
@@ -121,14 +131,26 @@ export function OfferForm({
   audience = "biz",
   businessId,
   canShare = false,
+  catalog = "flyers",
 }: OfferFormProps) {
   const router = useRouter();
+  const resolvedCatalog: BundleCatalog =
+    offer?.is_standalone === true
+      ? "offers"
+      : offer?.is_standalone === false
+        ? "flyers"
+        : catalog;
+  const isFlyer = resolvedCatalog === "flyers";
+  const listHref = isFlyer ? "/biz/flyers" : "/biz/offers";
   const { data: categories = [], isLoading: categoriesLoading } =
     useActiveCategories();
-  const createBizMutation = useCreateBizOffer();
-  const createManagerMutation = useCreateManagerBundle(businessId ?? "");
+  const createBizMutation = useCreateBizOffer(resolvedCatalog);
+  const createManagerMutation = useCreateManagerBundle(
+    businessId ?? "",
+    resolvedCatalog,
+  );
   const createMutation = audience === "manager" ? createManagerMutation : createBizMutation;
-  const updateBizMutation = useUpdateBizOffer(offer?.id ?? "");
+  const updateBizMutation = useUpdateBizOffer(offer?.id ?? "", resolvedCatalog);
   const updateAdminMutation = useUpdateAdminOffer(offer?.id ?? "");
   const updateManagerMutation = useUpdateManagerBundle(offer?.id ?? "");
   const updateMutation =
@@ -144,7 +166,7 @@ export function OfferForm({
       ? `/admin/offers/${offer.id}`
       : audience === "manager" && offer
         ? `/biz/review/${offer.id}`
-        : "/biz/offers";
+        : listHref;
 
   const defaults = defaultOfferWindow();
   const [title, setTitle] = useState(offer?.title ?? "");
@@ -171,14 +193,17 @@ export function OfferForm({
     }
     return [emptyItem("item-0")];
   });
-  const [branchIds, setBranchIds] = useState<string[]>(
-    () => offer?.branches?.map((branch) => branch.id) ?? [],
-  );
+  const ownerShopId = businessId ?? offer?.business?.id;
+  const [branchIds, setBranchIds] = useState<string[]>(() => {
+    const carriers = offer?.branches?.map((branch) => branch.id) ?? [];
+    if (mode === "edit" && offer?.business?.id) {
+      return Array.from(new Set([offer.business.id, ...carriers]));
+    }
+    return carriers;
+  });
   const companyShopId =
-    audience === "manager" && mode === "create"
-      ? canShare
-        ? businessId
-        : undefined
+    audience === "manager" || audience === "admin"
+      ? ownerShopId
       : offer?.business?.id;
   const companyShops = useQuery({
     queryKey: ["company-shops", audience, companyShopId ?? "biz"],
@@ -193,6 +218,14 @@ export function OfferForm({
     },
     enabled: audience === "biz" || Boolean(companyShopId),
   });
+  const seededBranches = useRef(mode !== "create");
+  useEffect(() => {
+    if (seededBranches.current || !companyShops.data?.length) {
+      return;
+    }
+    seededBranches.current = true;
+    setBranchIds(companyShops.data.map((shop) => shop.id));
+  }, [companyShops.data]);
   const [coverKey, setCoverKey] = useState<string | null>(() => {
     const imageId = offer?.cover_gallery_image_id;
     if (!imageId) {
@@ -212,6 +245,13 @@ export function OfferForm({
     : audience === "biz"
       ? "Dërgo për aprovim"
       : "Përditëso";
+  const kindLabel = isFlyer ? "Fletushkë" : "Oferta";
+  const kindTitle = isFlyer ? "Dosje e re" : "Oferta të reja";
+  const allowShare =
+    canShare ||
+    audience === "biz" ||
+    audience === "admin" ||
+    (audience === "manager" && Boolean(ownerShopId));
 
   const categoryOptions = useMemo(
     () =>
@@ -221,6 +261,77 @@ export function OfferForm({
       })),
     [categories],
   );
+
+  const formPayload = useMemo(() => {
+    const resolvedTitle = isFlyer ? title.trim() : "Oferta individuale";
+
+    return {
+      title: resolvedTitle,
+      starts_at: startsAt,
+      expires_at: expiresAt,
+      items: items.map(
+        ({
+          category_ids,
+          name,
+          original_price,
+          discounted_price,
+          discount_percent,
+          gallery_image_id,
+        }) => ({
+          category_ids,
+          name,
+          original_price: original_price > 0 ? original_price : null,
+          discounted_price: discounted_price > 0 ? discounted_price : null,
+          discount_percent:
+            discount_percent.trim() === "" ? null : Number(discount_percent),
+          gallery_image_id,
+        }),
+      ),
+      cover_gallery_image_id: isFlyer
+        ? items.find((item) => item.key === coverKey)?.gallery_image_id ?? null
+        : null,
+      ...(allowShare && (companyShops.data?.length ?? 0) > 0
+        ? { branch_ids: branchIds }
+        : {}),
+    };
+  }, [
+    allowShare,
+    branchIds,
+    companyShops.data?.length,
+    coverKey,
+    expiresAt,
+    isFlyer,
+    items,
+    startsAt,
+    title,
+  ]);
+
+  const reviewValidationError = useMemo(() => {
+    for (const item of items) {
+      const percent = Number(item.discount_percent);
+      if (
+        item.discount_percent.trim() !== "" &&
+        (!Number.isFinite(percent) || percent < 1 || percent > 99)
+      ) {
+        return "Zbritja duhet të jetë midis 1% dhe 99%.";
+      }
+    }
+
+    if (items.length < 1) {
+      return "Shto të paktën një ofertë.";
+    }
+
+    const parsed = offerBundleFormSchema.safeParse(formPayload);
+
+    if (!parsed.success) {
+      return parsed.error.issues[0]?.message ?? "Të dhënat nuk janë të vlefshme.";
+    }
+
+    return null;
+  }, [formPayload, items]);
+
+  const modalError = reviewValidationError ?? error;
+  const submitBlocked = Boolean(reviewValidationError);
 
   function patchItem(key: string, patch: Partial<ItemDraft>) {
     setItems((prev) =>
@@ -253,7 +364,13 @@ export function OfferForm({
 
   async function save(thenSubmit: boolean) {
     setError(null);
-    setReviewOpen(false);
+    if (!thenSubmit) {
+      setReviewOpen(false);
+    }
+
+    if (thenSubmit && reviewValidationError) {
+      return;
+    }
 
     for (const item of items) {
       const percent = Number(item.discount_percent);
@@ -266,32 +383,7 @@ export function OfferForm({
       }
     }
 
-    const parsed = offerBundleFormSchema.safeParse({
-      title,
-      starts_at: startsAt,
-      expires_at: expiresAt,
-      items: items.map(
-        ({
-          category_ids,
-          name,
-          original_price,
-          discounted_price,
-          discount_percent,
-          gallery_image_id,
-        }) => ({
-          category_ids,
-          name,
-          original_price: original_price > 0 ? original_price : null,
-          discounted_price: discounted_price > 0 ? discounted_price : null,
-          discount_percent:
-            discount_percent.trim() === "" ? null : Number(discount_percent),
-          gallery_image_id,
-        }),
-      ),
-      cover_gallery_image_id:
-        items.find((item) => item.key === coverKey)?.gallery_image_id ?? null,
-      ...((companyShops.data?.length ?? 0) > 0 ? { branch_ids: branchIds } : {}),
-    });
+    const parsed = offerBundleFormSchema.safeParse(formPayload);
 
     if (!parsed.success) {
       setError(
@@ -306,7 +398,9 @@ export function OfferForm({
         if (thenSubmit && audience === "biz") {
           await submitBiz.mutateAsync(created.id);
         }
-        router.replace(audience === "manager" ? `/biz/review/${created.id}` : "/biz/offers");
+        router.replace(
+          audience === "manager" ? `/biz/review/${created.id}` : listHref,
+        );
       } else if (offer) {
         await updateMutation.mutateAsync(parsed.data);
         if (thenSubmit && audience === "biz") {
@@ -316,6 +410,9 @@ export function OfferForm({
       }
     } catch (err) {
       setError(validationMessage(err, "Nuk mundëm ta ruajmë ofertën."));
+      if (thenSubmit) {
+        setReviewOpen(true);
+      }
     }
   }
 
@@ -343,8 +440,10 @@ export function OfferForm({
     >
       <div className="sticky top-0 z-20 -mx-5 flex flex-wrap items-center justify-between gap-3 border-b border-line bg-canvas px-5 py-3 sm:-mx-8 sm:px-8">
         <div className="min-w-0">
-          <p className={`${micro} m-0`}>Fletushkë</p>
-          <p className="m-0 truncate text-lg font-bold">{title.trim() || "Dosje e re"}</p>
+          <p className={`${micro} m-0`}>{kindLabel}</p>
+          <p className="m-0 truncate text-lg font-bold">
+            {isFlyer ? title.trim() || kindTitle : "Oferta individuale"}
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button className={btnGhost} type="button" disabled={pending} onClick={() => router.push(leaveHref)}>
@@ -361,23 +460,31 @@ export function OfferForm({
         </div>
       </div>
       <section>
-        <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Fletushka</h2>
-        <p className="m-0 mt-1 text-sm text-muted">Titulli dhe periudha e kampanjës.</p>
-        <label className="mt-5 flex flex-col gap-2">
-          <span className={micro}>Titulli i fletushkës</span>
-          <input
-            className={`${inputClass} text-2xl! font-bold tracking-[-0.03em]`}
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            disabled={pending}
-            required
-            maxLength={255}
-            placeholder="p.sh. Nëntor 2026"
-            aria-label="Titulli i fletushkës"
-          />
-        </label>
-        <p className={`${micro} mt-6 mb-3`}>Periudha</p>
+        <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">
+          {isFlyer ? "Fletushka" : "Ofertat"}
+        </h2>
+        <p className="m-0 mt-1 text-sm text-muted">
+          {isFlyer
+            ? "Titulli dhe periudha e kampanjës."
+            : "Shto një ose më shumë oferta individuale (jo fletushkë)."}
+        </p>
+        {isFlyer ? (
+          <label className="mt-5 flex flex-col gap-2">
+            <span className={micro}>Titulli i fletushkës</span>
+            <input
+              className={`${inputClass} text-2xl! font-bold tracking-[-0.03em]`}
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              disabled={pending}
+              required
+              maxLength={255}
+              placeholder="p.sh. Nëntor 2026"
+              aria-label="Titulli i fletushkës"
+            />
+          </label>
+        ) : null}
+        <p className={`${micro} ${isFlyer ? "mt-6" : "mt-5"} mb-3`}>Periudha</p>
         <div className="grid gap-5 md:grid-cols-2 md:gap-8">
           <label className="flex flex-col gap-2">
             <span className={micro}>Fillon</span>
@@ -400,12 +507,12 @@ export function OfferForm({
         </div>
       </section>
 
-      {(companyShops.data?.length ?? 0) > 0 ? (
+      {allowShare && (companyShops.data?.length ?? 0) > 0 ? (
         <section>
           <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Ku shfaqet</h2>
           <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
             <p className="m-0 text-sm text-muted">
-              Zgjidh lokacionet e kompanisë. Nuk u shtohet vetë.
+              Të gjitha lokacionet janë zgjedhur. Hiqi ato që nuk duhen.
             </p>
             <button
               type="button"
@@ -425,7 +532,9 @@ export function OfferForm({
           <ul className="m-0 mt-4 grid list-none gap-2 p-0 sm:grid-cols-2">
             {companyShops.data?.map((shop) => {
               const selected = branchIds.includes(shop.id);
-              const place = [shop.street, shop.city].filter(Boolean).join(", ");
+              const place = [shop.street || shop.address, shop.city]
+                .filter(Boolean)
+                .join(", ");
               return (
                 <li key={shop.id}>
                   <button
@@ -444,7 +553,11 @@ export function OfferForm({
                     }
                   >
                     <span className="text-xs font-bold tracking-[0.08em] text-muted uppercase">
-                      {shop.parent_id ? "Degë" : "Dyqan"}
+                      {shop.id === ownerShopId
+                        ? "Aktual"
+                        : shop.parent_id
+                          ? "Degë"
+                          : "Dyqan"}
                     </span>
                     <span className="font-semibold">{shop.name}</span>
                     <span className="text-sm text-muted">{place || "Pa adresë"}</span>
@@ -458,59 +571,70 @@ export function OfferForm({
 
       <section>
         <div className="mb-3 flex items-baseline justify-between gap-3">
-          <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Produktet</h2>
+          <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">
+            {isFlyer ? "Produktet" : "Ofertat"}
+          </h2>
           <p className="m-0 text-sm font-semibold text-muted tabular-nums">
-            {items.length} {items.length === 1 ? "produkt" : "produkte"}
+            {items.length}{" "}
+            {isFlyer
+              ? items.length === 1
+                ? "produkt"
+                : "produkte"
+              : items.length === 1
+                ? "ofertë"
+                : "oferta"}
           </p>
         </div>
 
-        <div className="mb-4 rounded-2xl border border-line p-4">
-          <p className="m-0 text-sm font-semibold">Foto e fletushkës</p>
-          <p className="m-0 mt-1 text-sm text-muted">
-            Opsionale. Zgjidh foton e një produkti. Pa të, fletushka del pa foto.
-          </p>
-          {items.some((item) => item.thumb_url) ? (
-            <ul className="m-0 mt-3 flex list-none flex-wrap gap-3 p-0">
-              {items.map((item) =>
-                item.thumb_url ? (
-                  <li key={item.key}>
-                    <button
-                      type="button"
-                      aria-pressed={coverKey === item.key}
-                      disabled={pending}
-                      className={`flex w-28 cursor-pointer flex-col gap-2 rounded-xl border p-2 text-left ${
-                        coverKey === item.key
-                          ? "border-accent bg-accent/10"
-                          : "border-line bg-transparent hover:bg-sunken"
-                      }`}
-                      onClick={() =>
-                        setCoverKey((current) => (current === item.key ? null : item.key))
-                      }
-                    >
-                      <span className="relative block aspect-square overflow-hidden rounded-lg">
-                        <Image
-                          src={item.thumb_url}
-                          alt=""
-                          fill
-                          unoptimized
-                          className="object-cover"
-                          sizes="112px"
-                        />
-                      </span>
-                      <span className="truncate text-xs font-bold">
-                        {coverKey === item.key ? "E zgjedhur" : item.name || "Produkt"}
-                      </span>
-                    </button>
-                  </li>
-                ) : null,
-              )}
-            </ul>
-          ) : (
-            <p className="m-0 mt-3 text-sm text-muted">
-              Shto një foto te një produkt më poshtë, pastaj zgjidhe këtu.
+        {isFlyer ? (
+          <div className="mb-4 rounded-2xl border border-line p-4">
+            <p className="m-0 text-sm font-semibold">Foto e fletushkës</p>
+            <p className="m-0 mt-1 text-sm text-muted">
+              Opsionale. Zgjidh foton e një produkti. Pa të, fletushka del pa foto.
             </p>
-          )}
-        </div>
+            {items.some((item) => item.thumb_url) ? (
+              <ul className="m-0 mt-3 flex list-none flex-wrap gap-3 p-0">
+                {items.map((item) =>
+                  item.thumb_url ? (
+                    <li key={item.key}>
+                      <button
+                        type="button"
+                        aria-pressed={coverKey === item.key}
+                        disabled={pending}
+                        className={`flex w-28 cursor-pointer flex-col gap-2 rounded-xl border p-2 text-left ${
+                          coverKey === item.key
+                            ? "border-accent bg-accent/10"
+                            : "border-line bg-transparent hover:bg-sunken"
+                        }`}
+                        onClick={() =>
+                          setCoverKey((current) => (current === item.key ? null : item.key))
+                        }
+                      >
+                        <span className="relative block aspect-square overflow-hidden rounded-lg">
+                          <Image
+                            src={item.thumb_url}
+                            alt=""
+                            fill
+                            unoptimized
+                            className="object-cover"
+                            sizes="112px"
+                          />
+                        </span>
+                        <span className="truncate text-xs font-bold">
+                          {coverKey === item.key ? "E zgjedhur" : item.name || "Produkt"}
+                        </span>
+                      </button>
+                    </li>
+                  ) : null,
+                )}
+              </ul>
+            ) : (
+              <p className="m-0 mt-3 text-sm text-muted">
+                Shto një foto te një produkt më poshtë, pastaj zgjidhe këtu.
+              </p>
+            )}
+          </div>
+        ) : null}
 
         <div className="grid gap-3">
           {items.map((item, index) => {
@@ -527,7 +651,7 @@ export function OfferForm({
               <div
                 key={item.key}
                 className={`rounded-2xl border px-4 py-4 ${
-                  coverKey === item.key ? "border-accent" : "border-line"
+                  isFlyer && coverKey === item.key ? "border-accent" : "border-line"
                 }`}
               >
                 <div className="flex items-stretch gap-4">
@@ -548,16 +672,20 @@ export function OfferForm({
                         thumb_url: image.thumb_url,
                         ...(imageTitle ? { name: imageTitle } : {}),
                       });
-                      setCoverKey((current) => current ?? item.key);
+                      if (isFlyer) {
+                        setCoverKey((current) => current ?? item.key);
+                      }
                     }}
                     onClear={() => {
                       patchItem(item.key, {
                         gallery_image_id: null,
                         thumb_url: null,
                       });
-                      setCoverKey((current) =>
-                        current === item.key ? null : current,
-                      );
+                      if (isFlyer) {
+                        setCoverKey((current) =>
+                          current === item.key ? null : current,
+                        );
+                      }
                     }}
                   />
 
@@ -719,12 +847,12 @@ export function OfferForm({
             onClick={addItem}
           >
             <AddOutlinedIcon fontSize="small" />
-            Shto produkt
+            {isFlyer ? "Shto produkt" : "Shto ofertë"}
           </button>
         </div>
       </section>
 
-      {error ? (
+      {error && !reviewOpen ? (
         <p className={fieldError} role="alert">
           {error}
         </p>
@@ -732,22 +860,31 @@ export function OfferForm({
 
       <Modal
         open={reviewOpen}
-        title={title.trim() || "Fletushka"}
+        title={isFlyer ? title.trim() || "Fletushka" : "Oferta individuale"}
         size="lg"
         onClose={() => {
           if (!pending) {
             setReviewOpen(false);
+            setError(null);
           }
         }}
         footer={
           <>
-            <button className={btnGhost} type="button" disabled={pending} onClick={() => setReviewOpen(false)}>
+            <button
+              className={btnGhost}
+              type="button"
+              disabled={pending}
+              onClick={() => {
+                setReviewOpen(false);
+                setError(null);
+              }}
+            >
               Kthehu dhe ndrysho
             </button>
             <button
               className={btnPrimary}
               type="button"
-              disabled={pending}
+              disabled={pending || submitBlocked}
               onClick={() => void save(audience === "biz")}
             >
               {pending ? "Duke u ruajtur…" : primaryLabel}
@@ -755,6 +892,11 @@ export function OfferForm({
           </>
         }
       >
+        {modalError ? (
+          <p className={`${fieldError} mb-4`} role="alert">
+            {modalError}
+          </p>
+        ) : null}
         <p className="m-0 text-sm text-muted">
           {formatDateShortSq(startsAt)} → {formatDateShortSq(expiresAt)}
           {locationNames.length > 0 ? ` · ${locationNames.join(", ")}` : ""}

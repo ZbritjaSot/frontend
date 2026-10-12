@@ -7,6 +7,7 @@ import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Spinner } from "@/components/ui/Spinner";
 import { OfferBundleView } from "@/features/offers/OfferBundleView";
+import { bundleDisplayTitle } from "@/features/offers/status";
 import { useApproveManagerBundle, useManagerBundle } from "@/hooks/useManagerReview";
 import { validationMessage } from "@/lib/api";
 import { btnGhost, btnPrimary, pageTitle, panelLead } from "@/lib/ui";
@@ -59,7 +60,9 @@ export function ManagerInspect({ id }: { id: string }) {
             <ArrowBackIcon fontSize="small" />
             Në pritje
           </Link>
-          <h1 className={`${pageTitle} mt-3 mb-0!`}>{bundle.title}</h1>
+          <h1 className={`${pageTitle} mt-3 mb-0!`}>
+            {bundleDisplayTitle(bundle)}
+          </h1>
           <p className="m-0 mt-1 text-sm text-muted">{bundle.business?.name}</p>
         </div>
         {pending ? (
@@ -78,7 +81,7 @@ export function ManagerInspect({ id }: { id: string }) {
       <ConfirmModal
         open={confirm}
         title="Aprovo dosjen"
-        message={`Aprovo “${bundle.title}”? Del në faqen publike.`}
+        message={`Aprovo “${bundleDisplayTitle(bundle)}”? Del në faqen publike.`}
         confirmLabel="Aprovo"
         pending={approve.isPending}
         onConfirm={() => {

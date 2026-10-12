@@ -14,9 +14,11 @@ import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
 import { hasRole } from "@/features/auth/api";
-import { BIZ_OFFERS_PAGE_SIZE } from "@/features/offers/bizApi";
+import { ManagerReview } from "@/features/biz/ManagerReview";
+import { BIZ_OFFERS_PAGE_SIZE, type BundleCatalog } from "@/features/offers/bizApi";
 import { useMe } from "@/hooks/useAuth";
 import {
+  bundleDisplayTitle,
   canDeleteOffer,
   canEditOffer,
   canSubmitOffer,
@@ -42,8 +44,7 @@ import type { OfferBundle } from "@/types";
 const rowButton =
   "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
 
-
-export function BizOfferList() {
+export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }) {
   const router = useRouter();
   const params = useSearchParams();
   const requested = params.get("status");
@@ -53,7 +54,15 @@ export function BizOfferList() {
   const [q, setQ] = useState("");
   const { data: user } = useMe();
   const manager = !!user && hasRole(user, "manager");
-  const { data, isLoading, isError, error, refetch } = useBizOffers(page, q, !manager, status);
+  const basePath = catalog === "flyers" ? "/biz/flyers" : "/biz/offers";
+  const isFlyer = catalog === "flyers";
+  const { data, isLoading, isError, error, refetch } = useBizOffers(
+    page,
+    q,
+    !manager,
+    status,
+    catalog,
+  );
   const submitMutation = useSubmitBizOffer();
   const deleteMutation = useDeleteBizOffer();
   const [actionError, setActionError] = useState<string | null>(null);
@@ -73,18 +82,7 @@ export function BizOfferList() {
   }, [query]);
 
   if (manager) {
-    return (
-      <div>
-        <h1 className={pageTitle}>Ofertat</h1>
-        <p className={panelLead}>
-          Fletushkat që presin aprovim janë te lista jote. Emailin dhe fjalëkalimin
-          e dyqanit i ndryshon administrata.
-        </p>
-        <Link href="/biz" className={btnPrimary}>
-          Në pritje
-        </Link>
-      </div>
-    );
+    return <ManagerReview catalog={catalog} />;
   }
 
   const bundles = data?.data ?? [];
@@ -96,19 +94,21 @@ export function BizOfferList() {
 
   const header = (
     <>
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-      <h1 className={`${pageTitle} mb-0!`}>Ofertat</h1>
-      <Link href="/biz/offers/new" className={btnPrimary}>
-        Dosje e re
-      </Link>
-    </div>
-    <OfferStatusFilters
-      value={status}
-      onChange={(value) => {
-        setPage(1);
-        router.replace(value === "" ? "/biz/offers" : `/biz/offers?status=${value}`);
-      }}
-    />
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+        <h1 className={`${pageTitle} mb-0!`}>
+          {isFlyer ? "Fletushkat" : "Ofertat"}
+        </h1>
+        <Link href={`${basePath}/new`} className={btnPrimary}>
+          {isFlyer ? "Fletushkë e re" : "Oferta të reja"}
+        </Link>
+      </div>
+      <OfferStatusFilters
+        value={status}
+        onChange={(value) => {
+          setPage(1);
+          router.replace(value === "" ? basePath : `${basePath}?status=${value}`);
+        }}
+      />
     </>
   );
 
@@ -117,7 +117,9 @@ export function BizOfferList() {
       <div>
         {header}
         <IndicatorKey items={bizOfferKey} />
-        <Spinner label="Duke ngarkuar ofertat" />
+        <Spinner
+          label={isFlyer ? "Duke ngarkuar fletushkat" : "Duke ngarkuar ofertat"}
+        />
       </div>
     );
   }
@@ -129,7 +131,12 @@ export function BizOfferList() {
         <IndicatorKey items={bizOfferKey} />
         <div className="max-w-[40rem]">
           <p className={panelLead}>
-            {validationMessage(error, "Nuk mundëm t’i ngarkojmë ofertat.")}
+            {validationMessage(
+              error,
+              isFlyer
+                ? "Nuk mundëm t’i ngarkojmë fletushkat."
+                : "Nuk mundëm t’i ngarkojmë ofertat.",
+            )}
           </p>
           <button className={btnGhost} type="button" onClick={() => refetch()}>
             Provo përsëri
@@ -159,7 +166,12 @@ export function BizOfferList() {
       await deleteMutation.mutateAsync(bundleToDelete.id);
       setBundleToDelete(null);
     } catch (err) {
-      setActionError(validationMessage(err, "Nuk mundëm ta fshijmë ofertën."));
+      setActionError(
+        validationMessage(
+          err,
+          isFlyer ? "Nuk mundëm ta fshijmë fletushkën." : "Nuk mundëm ta fshijmë ofertën.",
+        ),
+      );
       setBundleToDelete(null);
     }
   }
@@ -176,16 +188,30 @@ export function BizOfferList() {
       ) : null}
 
       <div className="overflow-hidden rounded-2xl border border-line">
-        <TableSearch value={query} onChange={setQuery} label="Kërko ofertën" />
+        <TableSearch
+          value={query}
+          onChange={setQuery}
+          label={isFlyer ? "Kërko fletushkën" : "Kërko ofertën"}
+        />
         {bundles.length === 0 ? (
           <p className="m-0 px-4 py-6 text-sm leading-relaxed text-muted">
-            {q === "" ? "Nuk ke oferta ende." : "Nuk u gjet asnjë ofertë."}
+            {q === ""
+              ? isFlyer
+                ? "Nuk ke fletushka ende."
+                : "Nuk ke oferta individuale ende."
+              : isFlyer
+                ? "Nuk u gjet asnjë fletushkë."
+                : "Nuk u gjet asnjë ofertë."}
           </p>
         ) : (
           <div className="overflow-x-auto md:grid md:grid-cols-[minmax(0,1.4fr)_auto_auto_auto_auto] md:gap-x-4">
             <div className="col-span-5 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
-              <span className="whitespace-nowrap">Oferta</span>
-              <span className="whitespace-nowrap md:pl-6">Produkte</span>
+              <span className="whitespace-nowrap">
+                {isFlyer ? "Fletushka" : "Oferta"}
+              </span>
+              <span className="whitespace-nowrap md:pl-6">
+                {isFlyer ? "Produkte" : "Artikuj"}
+              </span>
               <span className="whitespace-nowrap md:pl-6">Skadon</span>
               <span className="whitespace-nowrap md:pl-6">Statusi</span>
               <span className="border-l border-line pl-4 whitespace-nowrap">
@@ -202,10 +228,10 @@ export function BizOfferList() {
                   >
                     <div className="min-w-0">
                       <Link
-                        href={`/biz/offers/${bundle.id}`}
+                        href={`${basePath}/${bundle.id}`}
                         className="truncate text-base font-semibold text-inherit no-underline hover:text-accent"
                       >
-                        {bundle.title}
+                        {bundleDisplayTitle(bundle)}
                       </Link>
                       {bundle.status === "taken_down" && bundle.rejection_reason ? (
                         <p className="m-0 truncate text-sm font-semibold text-danger">
@@ -226,17 +252,17 @@ export function BizOfferList() {
                     </span>
                     <div className="grid grid-cols-4 gap-1.5 border-l border-line pl-4">
                       <Link
-                        href={`/biz/offers/${bundle.id}`}
+                        href={`${basePath}/${bundle.id}`}
                         className={rowButton}
-                        aria-label={`Shiko ${bundle.title}`}
+                        aria-label={`Shiko ${bundleDisplayTitle(bundle)}`}
                       >
                         <VisibilityOutlinedIcon fontSize="small" />
                       </Link>
                       {canEditOffer(bundle.status) ? (
                         <Link
-                          href={`/biz/offers/${bundle.id}/edit`}
+                          href={`${basePath}/${bundle.id}/edit`}
                           className={rowButton}
-                          aria-label={`Ndrysho ${bundle.title}`}
+                          aria-label={`Ndrysho ${bundleDisplayTitle(bundle)}`}
                         >
                           <EditOutlinedIcon fontSize="small" />
                         </Link>
@@ -247,7 +273,7 @@ export function BizOfferList() {
                         <button
                           type="button"
                           className={rowButton}
-                          aria-label={`Dërgo ${bundle.title}`}
+                          aria-label={`Dërgo ${bundleDisplayTitle(bundle)}`}
                           disabled={submitMutation.isPending}
                           onClick={() => onSubmit(bundle)}
                         >
@@ -263,7 +289,7 @@ export function BizOfferList() {
                         <button
                           type="button"
                           className={rowButton}
-                          aria-label={`Fshi ${bundle.title}`}
+                          aria-label={`Fshi ${bundleDisplayTitle(bundle)}`}
                           disabled={deleteMutation.isPending}
                           onClick={() => setBundleToDelete(bundle)}
                         >
@@ -295,12 +321,12 @@ export function BizOfferList() {
 
       <ConfirmModal
         open={bundleToDelete !== null}
-        title="Fshi dosjen"
+        title={isFlyer ? "Fshi fletushkën" : "Fshi ofertat"}
         message={
           bundleToDelete
             ? bundleToDelete.status === "approved"
-              ? `Fshi “${bundleToDelete.title}”? Hiqet nga faqja publike.`
-              : `Fshi “${bundleToDelete.title}”? Produktet në dosje fshihen.`
+              ? `Fshi “${bundleDisplayTitle(bundleToDelete)}”? Hiqet nga faqja publike.`
+              : `Fshi “${bundleDisplayTitle(bundleToDelete)}”?`
             : ""
         }
         confirmLabel="Fshi"

@@ -128,8 +128,8 @@ export function AdminManagers() {
     <div>
       {header}
       <p className={`${panelLead} -mt-2 mb-4`}>
-        Çdo dyqan i caktohet një menaxheri. Fletushkat në pritje shfaqen këtu, jo te
-        lista jote. Aprovoji ose ndryshoji para se ta fshish llogarinë.
+        Çdo dyqan i caktohet një menaxheri. Fletushkat në pritje shfaqen këtu dhe te
+        Në pritje (të etiketuar). Aprovoji këtu ose atje kur menaxheri mungon.
       </p>
       <IndicatorKey items={adminManagerKey} />
 
@@ -238,7 +238,9 @@ export function AdminManagers() {
                             >
                               <span className={offerStatusClass("pending")}>Në pritje</span>
                               <span className="min-w-0 flex-1 truncate text-sm font-semibold">
-                                {offer.title}
+                                {offer.is_standalone
+                                  ? "Oferta individuale"
+                                  : offer.title}
                                 {offer.business_name ? (
                                   <span className="font-medium text-muted">
                                     {" "}
@@ -332,7 +334,7 @@ export function AdminManagers() {
           approve.isError
             ? validationMessage(approve.error, "Nuk mundëm ta aprovojmë fletushkën.")
             : approving
-              ? `${approving.title}${approving.business_name ? ` · ${approving.business_name}` : ""} bëhet publike.`
+              ? `${approving.is_standalone ? "Oferta individuale" : approving.title}${approving.business_name ? ` · ${approving.business_name}` : ""} bëhet publike.`
               : ""
         }
         confirmLabel="Aprovo"

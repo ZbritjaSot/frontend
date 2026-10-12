@@ -1,21 +1,85 @@
 "use client";
 
+import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
 import StarIcon from "@mui/icons-material/Star";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Link from "next/link";
+import { Fragment, useState } from "react";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
 import { PENDING_OFFERS_PAGE_SIZE } from "@/features/admin/offersApi";
-import { OFFER_STATUS_LABEL } from "@/features/offers/status";
-import { usePendingOffers } from "@/hooks/useAdminOffers";
+import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status";
+import { useApproveOffer, usePendingOffers } from "@/hooks/useAdminOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
 import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { btnGhost, offerStatusClass, panelLead } from "@/lib/ui";
+import type { OfferBundle } from "@/types";
 
 const rowButton =
   "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+
+function PendingRow({
+  bundle,
+  pending,
+  onApprove,
+}: {
+  bundle: OfferBundle;
+  pending: boolean;
+  onApprove: (bundle: OfferBundle) => void;
+}) {
+  const count = bundle.items_count ?? bundle.items?.length ?? 0;
+
+  return (
+    <li className="col-span-6 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4">
+      <Link
+        href={`/admin/offers/${bundle.id}`}
+        className="truncate text-base font-semibold text-inherit no-underline hover:text-accent"
+      >
+        {bundleDisplayTitle(bundle)}
+      </Link>
+      <p className="m-0 flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold">
+        <span className="truncate">{bundle.business?.name ?? "Biznes"}</span>
+        {bundle.business?.extra_placement ? (
+          <StarIcon
+            fontSize="inherit"
+            className="shrink-0 text-accent!"
+            aria-label={EXCLUSIVE_LABEL}
+          />
+        ) : null}
+      </p>
+      <p className="m-0 text-sm font-semibold tabular-nums md:pl-6">{count}</p>
+      <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
+        {formatDateShortSq(bundle.expires_at)}
+      </p>
+      <span
+        className={`${offerStatusClass(bundle.status)} mt-0! w-fit self-center! md:ml-6`}
+      >
+        {OFFER_STATUS_LABEL[bundle.status]}
+      </span>
+      <div className="flex items-center gap-1.5 border-l border-line pl-4">
+        <Link
+          href={`/admin/offers/${bundle.id}`}
+          className={rowButton}
+          aria-label={`Shiko ${bundleDisplayTitle(bundle)}`}
+        >
+          <VisibilityOutlinedIcon fontSize="small" />
+        </Link>
+        <button
+          type="button"
+          className={rowButton}
+          aria-label={`Aprovo ${bundleDisplayTitle(bundle)}`}
+          disabled={pending}
+          onClick={() => onApprove(bundle)}
+        >
+          <CheckOutlinedIcon fontSize="small" className="text-accent!" />
+        </button>
+      </div>
+    </li>
+  );
+}
 
 export function AdminPendingOffers({
   query,
@@ -31,6 +95,8 @@ export function AdminPendingOffers({
   onPageChange: (page: number) => void;
 }) {
   const { data, isLoading, isError, error, refetch } = usePendingOffers(page, q);
+  const approve = useApproveOffer();
+  const [confirm, setConfirm] = useState<OfferBundle | null>(null);
 
   if (isLoading) {
     return <Spinner label="Duke ngarkuar listën" />;
@@ -55,6 +121,9 @@ export function AdminPendingOffers({
   if (lastPage !== undefined && page > lastPage) {
     onPageChange(lastPage);
   }
+
+  const direct = bundles.filter((bundle) => bundle.awaits_manager !== true);
+  const managed = bundles.filter((bundle) => bundle.awaits_manager === true);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-line">
@@ -81,52 +150,43 @@ export function AdminPendingOffers({
               </span>
             </div>
             <ul className="col-span-6 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
-              {bundles.map((bundle) => {
-                const count = bundle.items_count ?? bundle.items?.length ?? 0;
-                return (
-                  <li
-                    key={bundle.id}
-                    className="col-span-6 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
-                  >
-                    <Link
-                      href={`/admin/offers/${bundle.id}`}
-                      className="truncate text-base font-semibold text-inherit no-underline hover:text-accent"
-                    >
-                      {bundle.title}
-                    </Link>
-                    <p className="m-0 flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold">
-                      <span className="truncate">{bundle.business?.name ?? "Biznes"}</span>
-                      {bundle.business?.extra_placement ? (
-                        <StarIcon
-                          fontSize="inherit"
-                          className="shrink-0 text-accent!"
-                          aria-label={EXCLUSIVE_LABEL}
-                        />
-                      ) : null}
-                    </p>
-                    <p className="m-0 text-sm font-semibold tabular-nums md:pl-6">
-                      {count}
-                    </p>
-                    <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
-                      {formatDateShortSq(bundle.expires_at)}
-                    </p>
-                    <span
-                      className={`${offerStatusClass(bundle.status)} mt-0! w-fit self-center! md:ml-6`}
-                    >
-                      {OFFER_STATUS_LABEL[bundle.status]}
+              {direct.length > 0 ? (
+                <li className="col-span-6 border-b border-line bg-sunken/60 px-4 py-2.5 text-xs font-bold tracking-[0.08em] text-muted uppercase">
+                  Nga dyqani
+                  <span className="ml-2 tabular-nums font-semibold normal-case tracking-normal">
+                    {direct.length}
+                  </span>
+                </li>
+              ) : null}
+              {direct.map((bundle) => (
+                <PendingRow
+                  key={bundle.id}
+                  bundle={bundle}
+                  pending={approve.isPending}
+                  onApprove={setConfirm}
+                />
+              ))}
+              {managed.length > 0 ? (
+                <Fragment>
+                  <li className="col-span-6 border-b border-line bg-sunken/60 px-4 py-2.5 text-xs font-bold tracking-[0.08em] text-muted uppercase">
+                    Nga menaxheri
+                    <span className="ml-2 font-semibold normal-case tracking-normal text-muted">
+                      (aprovim rezervë)
                     </span>
-                    <div className="flex items-center gap-1.5 border-l border-line pl-4">
-                      <Link
-                        href={`/admin/offers/${bundle.id}`}
-                        className={rowButton}
-                        aria-label={`Shiko ${bundle.title}`}
-                      >
-                        <VisibilityOutlinedIcon fontSize="small" />
-                      </Link>
-                    </div>
+                    <span className="ml-2 tabular-nums font-semibold normal-case tracking-normal">
+                      {managed.length}
+                    </span>
                   </li>
-                );
-              })}
+                  {managed.map((bundle) => (
+                    <PendingRow
+                      key={bundle.id}
+                      bundle={bundle}
+                      pending={approve.isPending}
+                      onApprove={setConfirm}
+                    />
+                  ))}
+                </Fragment>
+              ) : null}
             </ul>
           </div>
           <Pagination
@@ -138,6 +198,35 @@ export function AdminPendingOffers({
           />
         </div>
       )}
+      <ConfirmModal
+        open={confirm !== null}
+        title="Aprovo dosjen"
+        message={
+          approve.isError
+            ? validationMessage(approve.error, "Nuk mundëm ta aprovojmë.")
+            : confirm
+              ? `Aprovo “${bundleDisplayTitle(confirm)}”? Dalin në faqen publike.`
+              : ""
+        }
+        confirmLabel="Aprovo"
+        pending={approve.isPending}
+        onClose={() => {
+          if (!approve.isPending) {
+            approve.reset();
+            setConfirm(null);
+          }
+        }}
+        onConfirm={() => {
+          if (!confirm) {
+            return;
+          }
+          approve.mutate(confirm.id, {
+            onSuccess: () => {
+              setConfirm(null);
+            },
+          });
+        }}
+      />
     </div>
   );
 }

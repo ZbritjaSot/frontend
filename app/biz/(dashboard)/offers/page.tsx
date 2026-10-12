@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function BizOffersPage() {
-  return <BizOfferList />;
+  return <BizOfferList catalog="offers" />;
 }

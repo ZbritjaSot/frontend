@@ -297,6 +297,7 @@ export const adminOfferKey: IndicatorItem[] = [
 export const adminOfferBoardKey: IndicatorItem[] = [
   ...adminOfferKey,
   { mark: "star", text: "Dyqani është ekskluziv." },
+  { mark: "approve", text: "Aprovo dosjen (edhe ato te menaxheri)." },
 ];
 
 export const adminInspectKey: IndicatorItem[] = [

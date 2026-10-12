@@ -15,12 +15,18 @@ type CategoryListPayload = {
 
 type BundlePayload = { data: OfferBundle };
 
-export function toApiBody(input: OfferBundleFormInput) {
+export type BundleCatalog = "flyers" | "offers";
+
+export function toApiBody(
+  input: OfferBundleFormInput,
+  catalog: BundleCatalog = "flyers",
+) {
   return {
     title: input.title,
     starts_at: fromDateTimeLocalValue(input.starts_at),
     expires_at: fromDateTimeLocalValue(input.expires_at),
     cover_gallery_image_id: input.cover_gallery_image_id ?? null,
+    is_standalone: catalog === "offers",
     ...(input.branch_ids ? { branch_ids: input.branch_ids } : {}),
     items: input.items.map((item) => ({
       category_ids: item.category_ids,
@@ -40,11 +46,15 @@ export async function fetchBizOfferBundles(
   perPage = BIZ_OFFERS_PAGE_SIZE,
   status?: string,
   q = "",
+  catalog?: BundleCatalog,
 ): Promise<Paginated<OfferBundle>> {
   const params = new URLSearchParams({
     page: String(page),
     per_page: String(perPage),
   });
+  if (catalog) {
+    params.set("kind", catalog);
+  }
   if (status) {
     params.set("status", status);
   }
@@ -83,11 +93,12 @@ export async function fetchBizOfferBundle(id: string): Promise<OfferBundle> {
 
 export async function createBizOfferBundle(
   input: OfferBundleFormInput,
+  catalog: BundleCatalog = "flyers",
 ): Promise<OfferBundle> {
   const payload = await apiFetch<BundlePayload>("/biz/offer-bundles", {
     method: "POST",
     auth: true,
-    body: JSON.stringify(toApiBody(input)),
+    body: JSON.stringify(toApiBody(input, catalog)),
   });
   return payload.data;
 }
@@ -95,11 +106,12 @@ export async function createBizOfferBundle(
 export async function updateBizOfferBundle(
   id: string,
   input: OfferBundleFormInput,
+  catalog: BundleCatalog = "flyers",
 ): Promise<OfferBundle> {
   const payload = await apiFetch<BundlePayload>(`/biz/offer-bundles/${id}`, {
     method: "PUT",
     auth: true,
-    body: JSON.stringify(toApiBody(input)),
+    body: JSON.stringify(toApiBody(input, catalog)),
   });
   return payload.data;
 }

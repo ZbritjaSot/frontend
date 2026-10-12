@@ -6,10 +6,12 @@ import {
   createBusiness,
   fetchAdminBusiness,
   fetchAdminBusinesses,
+  fetchPendingBranches,
   fetchPendingBusinessLocations,
   rejectBusinessLocation,
   updateBusiness,
 } from "@/features/admin/businessesApi";
+import { approveAdminBranch } from "@/features/branches/api";
 import type { BusinessFormInput } from "@/schemas/business";
 
 export const adminBusinessesQueryKey = ["admin", "businesses"] as const;
@@ -34,6 +36,26 @@ export function usePendingBusinessLocations(page = 1, perPage = 4) {
     queryKey: [...adminBusinessesQueryKey, "pending-locations", page, perPage],
     queryFn: () => fetchPendingBusinessLocations(page, perPage),
     placeholderData: (previous) => previous,
+  });
+}
+
+export function usePendingBranches(page = 1, perPage = 8) {
+  return useQuery({
+    queryKey: [...adminBusinessesQueryKey, "pending-branches", page, perPage],
+    queryFn: () => fetchPendingBranches(page, perPage),
+    placeholderData: (previous) => previous,
+  });
+}
+
+export function useApproveBranch() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => approveAdminBranch(id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: adminBusinessesQueryKey,
+      });
+    },
   });
 }
 

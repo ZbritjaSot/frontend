@@ -7,7 +7,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
 import { PENDING_OFFERS_PAGE_SIZE } from "@/features/admin/offersApi";
-import { OFFER_STATUS_LABEL } from "@/features/offers/status";
+import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status";
 import { useApprovedOffers } from "@/hooks/useAdminOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
@@ -110,7 +110,7 @@ export function AdminLiveOffers({
                       href={`/admin/offers/${bundle.id}`}
                       className="truncate text-base font-semibold text-inherit no-underline hover:text-accent"
                     >
-                      {bundle.title}
+                      {bundleDisplayTitle(bundle)}
                     </Link>
                     <p className="m-0 flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold">
                       <span className="truncate">{bundle.business?.name ?? "Biznes"}</span>
@@ -137,7 +137,7 @@ export function AdminLiveOffers({
                       <Link
                         href={`/admin/offers/${bundle.id}`}
                         className={rowButton}
-                        aria-label={`Shiko ${bundle.title}`}
+                        aria-label={`Shiko ${bundleDisplayTitle(bundle)}`}
                       >
                         <VisibilityOutlinedIcon fontSize="small" />
                       </Link>

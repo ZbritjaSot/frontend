@@ -3,8 +3,12 @@
 import Link from "next/link";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";
 import { Spinner } from "@/components/ui/Spinner";
+import { AdminPendingBranches } from "@/features/admin/AdminPendingBranches";
 import { latestExpiredSubscriptions } from "@/features/admin/expiredSubscriptions";
-import { usePendingBusinessLocations } from "@/hooks/useAdminBusinesses";
+import {
+  usePendingBranches,
+  usePendingBusinessLocations,
+} from "@/hooks/useAdminBusinesses";
 import { usePendingOffers } from "@/hooks/useAdminOffers";
 import { useAdminSubscriptions } from "@/hooks/useAdminSubscriptions";
 import { pageTitle, panelLead } from "@/lib/ui";
@@ -12,9 +16,15 @@ import { pageTitle, panelLead } from "@/lib/ui";
 export function AdminHomePanel() {
   const pending = usePendingOffers(1);
   const addresses = usePendingBusinessLocations(1, 1);
+  const branches = usePendingBranches(1, 1);
   const subscriptions = useAdminSubscriptions();
 
-  if (pending.isLoading || addresses.isLoading || subscriptions.isLoading) {
+  if (
+    pending.isLoading ||
+    addresses.isLoading ||
+    branches.isLoading ||
+    subscriptions.isLoading
+  ) {
     return (
       <div>
         <h1 className={pageTitle}>Paneli</h1>
@@ -25,6 +35,7 @@ export function AdminHomePanel() {
 
   const pendingTotal = pending.data?.meta?.total ?? pending.data?.data?.length ?? 0;
   const addressTotal = addresses.data?.meta?.total ?? addresses.data?.data?.length ?? 0;
+  const branchTotal = branches.data?.meta?.total ?? branches.data?.data?.length ?? 0;
   const expired = latestExpiredSubscriptions(subscriptions.data?.data ?? []);
 
   return (
@@ -34,12 +45,12 @@ export function AdminHomePanel() {
       <p className="m-0 mb-2 text-xs font-bold tracking-[0.08em] text-muted uppercase">
         Kërkon vëmendje
       </p>
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <DashboardKpi
           href="/admin/offers"
           value={pendingTotal}
           label="Në pritje"
-          detail="Fletushka pa menaxher"
+          detail="Fletushka nga dyqani ose menaxheri"
           tone={pendingTotal > 0 ? "pending" : "ink"}
         />
         <DashboardKpi
@@ -50,6 +61,13 @@ export function AdminHomePanel() {
           tone={addressTotal > 0 ? "pending" : "ink"}
         />
         <DashboardKpi
+          href="/admin/businesses?scope=branches"
+          value={branchTotal}
+          label="Degë në pritje"
+          detail="Lokacione të reja"
+          tone={branchTotal > 0 ? "pending" : "ink"}
+        />
+        <DashboardKpi
           href="/admin/subscriptions"
           value={expired.length}
           label="Abonime të skaduara"
@@ -57,7 +75,8 @@ export function AdminHomePanel() {
           tone={expired.length > 0 ? "danger" : "ink"}
         />
       </div>
-      <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
+      <AdminPendingBranches />
+      <nav className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
         <Link href="/admin/businesses" className="text-muted no-underline hover:text-ink">
           Bizneset
         </Link>

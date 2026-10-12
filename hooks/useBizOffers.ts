@@ -10,6 +10,7 @@ import {
   fetchBizOfferViews,
   submitBizOfferBundle,
   updateBizOfferBundle,
+  type BundleCatalog,
 } from "@/features/offers/bizApi";
 import type { OfferBundleFormInput } from "@/schemas/offer";
 import type { OfferViewRange } from "@/types";
@@ -17,28 +18,45 @@ import type { OfferViewRange } from "@/types";
 export const bizOffersQueryKey = ["biz", "offer-bundles"] as const;
 export const categoriesQueryKey = ["categories", "active"] as const;
 
-export function useBizOffers(page = 1, q = "", enabled = true, status = "") {
+export function useBizOffers(
+  page = 1,
+  q = "",
+  enabled = true,
+  status = "",
+  catalog: BundleCatalog = "flyers",
+) {
   return useQuery({
-    queryKey: [...bizOffersQueryKey, page, q, status],
-    queryFn: () => fetchBizOfferBundles(page, undefined, status || undefined, q),
+    queryKey: [...bizOffersQueryKey, catalog, page, q, status],
+    queryFn: () =>
+      fetchBizOfferBundles(page, undefined, status || undefined, q, catalog),
     placeholderData: (previous) => previous,
     enabled,
   });
 }
 
-export function usePendingOfferCount(enabled = true) {
+export function usePendingOfferCount(
+  enabled = true,
+  catalog?: BundleCatalog,
+) {
   return useQuery({
-    queryKey: [...bizOffersQueryKey, "by-status", "pending", 4],
-    queryFn: () => fetchBizOfferBundles(1, 4, "pending"),
+    queryKey: [...bizOffersQueryKey, "by-status", "pending", catalog ?? "all", 4],
+    queryFn: () =>
+      catalog
+        ? fetchBizOfferBundles(1, 4, "pending", "", catalog)
+        : fetchBizOfferBundles(1, 4, "pending"),
     select: (page) => page.meta?.total ?? page.data.length,
     enabled,
   });
 }
 
-export function useBizOffersByStatus(status: string, perPage = 4) {
+export function useBizOffersByStatus(
+  status: string,
+  perPage = 4,
+  catalog: BundleCatalog = "flyers",
+) {
   return useQuery({
-    queryKey: [...bizOffersQueryKey, "by-status", status, perPage],
-    queryFn: () => fetchBizOfferBundles(1, perPage, status),
+    queryKey: [...bizOffersQueryKey, "by-status", catalog, status, perPage],
+    queryFn: () => fetchBizOfferBundles(1, perPage, status, "", catalog),
   });
 }
 
@@ -66,21 +84,25 @@ export function useActiveCategories() {
   });
 }
 
-export function useCreateBizOffer() {
+export function useCreateBizOffer(catalog: BundleCatalog = "flyers") {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: OfferBundleFormInput) => createBizOfferBundle(input),
+    mutationFn: (input: OfferBundleFormInput) =>
+      createBizOfferBundle(input, catalog),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: bizOffersQueryKey });
     },
   });
 }
 
-export function useUpdateBizOffer(id: string) {
+export function useUpdateBizOffer(
+  id: string,
+  catalog: BundleCatalog = "flyers",
+) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: OfferBundleFormInput) =>
-      updateBizOfferBundle(id, input),
+      updateBizOfferBundle(id, input, catalog),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: bizOffersQueryKey });
     },

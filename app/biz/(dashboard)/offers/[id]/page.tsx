@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ViewOfferScreen } from "@/features/offers/ViewOfferScreen";
 
 export const metadata: Metadata = {
-  title: "Dosja",
+  title: "Oferta",
   robots: { index: false, follow: false },
 };
 
@@ -12,5 +12,5 @@ type PageProps = {
 
 export default async function ViewBizOfferPage({ params }: PageProps) {
   const { id } = await params;
-  return <ViewOfferScreen id={id} />;
+  return <ViewOfferScreen id={id} catalog="offers" />;
 }

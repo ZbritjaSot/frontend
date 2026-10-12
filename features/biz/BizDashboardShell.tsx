@@ -4,6 +4,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import StoreIcon from "@mui/icons-material/Store";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import type { ReactNode } from "react";
 import {
   DashboardShell,
@@ -16,6 +17,11 @@ import { useManagerReview } from "@/hooks/useManagerReview";
 
 const shopNav: DashboardNavItem[] = [
   { href: "/biz", label: "Paneli", icon: <DashboardIcon fontSize="small" /> },
+  {
+    href: "/biz/flyers",
+    label: "Fletushkat",
+    icon: <DescriptionOutlinedIcon fontSize="small" />,
+  },
   {
     href: "/biz/offers",
     label: "Ofertat",
@@ -31,6 +37,16 @@ const managerNav: DashboardNavItem[] = [
     icon: <PendingActionsIcon fontSize="small" />,
   },
   {
+    href: "/biz/flyers",
+    label: "Fletushkat",
+    icon: <DescriptionOutlinedIcon fontSize="small" />,
+  },
+  {
+    href: "/biz/offers",
+    label: "Ofertat",
+    icon: <LocalOfferIcon fontSize="small" />,
+  },
+  {
     href: "/biz/shops",
     label: "Dyqanet",
     icon: <StoreIcon fontSize="small" />,
@@ -40,21 +56,43 @@ const managerNav: DashboardNavItem[] = [
 export function BizDashboardShell({ children }: { children: ReactNode }) {
   const { data: user } = useMe();
   const manager = !!user && hasRole(user, "manager");
-  const { data: pendingCount = 0 } = usePendingOfferCount(!manager);
+  const { data: pendingFlyers = 0 } = usePendingOfferCount(!manager, "flyers");
+  const { data: pendingOffers = 0 } = usePendingOfferCount(!manager, "offers");
   const review = useManagerReview(1, manager);
+  const reviewFlyers = useManagerReview(1, manager, "pending", "", "flyers");
+  const reviewOffers = useManagerReview(1, manager, "pending", "", "offers");
 
   if (manager) {
     const waiting = review.data?.meta?.total ?? review.data?.data.length ?? 0;
-    const nav = managerNav.map((item) =>
-      item.href === "/biz"
-        ? {
-            ...item,
-            badge: waiting,
-            badgeTone: "pending" as const,
-            badgeLabel: `${waiting} në pritje`,
-          }
-        : item,
-    );
+    const flyerWaiting =
+      reviewFlyers.data?.meta?.total ?? reviewFlyers.data?.data.length ?? 0;
+    const offerWaiting =
+      reviewOffers.data?.meta?.total ?? reviewOffers.data?.data.length ?? 0;
+    const nav = managerNav.map((item) => {
+      if (item.href === "/biz") {
+        return {
+          ...item,
+          badge: waiting,
+          badgeTone: "pending" as const,
+          badgeLabel: `${waiting} në pritje`,
+        };
+      }
+      if (item.href === "/biz/flyers") {
+        return {
+          ...item,
+          badge: flyerWaiting,
+          badgeTone: "pending" as const,
+        };
+      }
+      if (item.href === "/biz/offers") {
+        return {
+          ...item,
+          badge: offerWaiting,
+          badgeTone: "pending" as const,
+        };
+      }
+      return item;
+    });
 
     return (
       <DashboardShell area="biz" label="Menaxher" nav={nav} showLogout>
@@ -64,12 +102,20 @@ export function BizDashboardShell({ children }: { children: ReactNode }) {
   }
 
   const nav = shopNav.map((item) => {
+    if (item.href === "/biz/flyers") {
+      return {
+        ...item,
+        badge: pendingFlyers,
+        badgeTone: "pending" as const,
+        badgeLabel: `${pendingFlyers} në pritje`,
+      };
+    }
     if (item.href === "/biz/offers") {
       return {
         ...item,
-        badge: pendingCount,
+        badge: pendingOffers,
         badgeTone: "pending" as const,
-        badgeLabel: `${pendingCount} në pritje`,
+        badgeLabel: `${pendingOffers} në pritje`,
       };
     }
     return item;

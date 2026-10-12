@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { BizNewOfferScreen } from "@/features/offers/BizNewOfferScreen";
 
 export const metadata: Metadata = {
-  title: "Dosje e re",
+  title: "Oferta të reja",
   robots: { index: false, follow: false },
 };
 
-export default function NewBizOfferPage() {
-  return <BizNewOfferScreen />;
+export default function BizNewOffersPage() {
+  return <BizNewOfferScreen catalog="offers" />;
 }

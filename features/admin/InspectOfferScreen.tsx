@@ -17,7 +17,7 @@ import {
 } from "@/hooks/useAdminOffers";
 import { validationMessage } from "@/lib/api";
 import { formatDateShortSq } from "@/lib/format";
-import { OFFER_STATUS_LABEL } from "@/features/offers/status";
+import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status";
 import {
   btnDanger,
   btnGhost,
@@ -120,7 +120,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
             <span>{backLabel}</span>
           </Link>
           <div className="col-start-2 mt-3 flex flex-wrap items-center gap-3">
-            <h1 className={`${pageTitle} mb-0!`}>{bundle.title}</h1>
+            <h1 className={`${pageTitle} mb-0!`}>{bundleDisplayTitle(bundle)}</h1>
             <span
               className={`${offerStatusClass(bundle.status)} mt-0! self-center!`}
             >
@@ -191,7 +191,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
       <ConfirmModal
         open={confirmApprove}
         title="Aprovo dosjen"
-        message={`Aprovo “${bundle.title}”? Dalin në faqen publike.`}
+        message={`Aprovo “${bundleDisplayTitle(bundle)}”? Dalin në faqen publike.`}
         confirmLabel="Aprovo"
         cancelLabel="Anulo"
         pending={approveMutation.isPending}
@@ -230,7 +230,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
       >
         <div className="flex flex-col gap-4">
           <p className="m-0 text-sm leading-relaxed text-muted">
-            Hiq “{bundle.title}” nga faqja publike? Biznesi merr email me
+            Hiq “{bundleDisplayTitle(bundle)}” nga faqja publike? Biznesi merr email me
             arsyen.
           </p>
           <label className={fieldLabel}>

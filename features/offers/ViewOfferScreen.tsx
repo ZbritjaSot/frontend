@@ -3,10 +3,14 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { bizOfferDetailKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Spinner } from "@/components/ui/Spinner";
+import type { BundleCatalog } from "@/features/offers/bizApi";
 import { OfferBundleView } from "@/features/offers/OfferBundleView";
 import {
+  bundleDisplayTitle,
   canEditOffer,
   canSubmitOffer,
   OFFER_STATUS_LABEL,
@@ -22,30 +26,43 @@ import {
   pageTitle,
   panelLead,
 } from "@/lib/ui";
-import { useState } from "react";
 
 type ViewOfferScreenProps = {
   id: string;
+  catalog?: BundleCatalog;
 };
 
-export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
+export function ViewOfferScreen({ id, catalog = "flyers" }: ViewOfferScreenProps) {
+  const router = useRouter();
   const { data: bundle, isLoading, isError, error, refetch } = useBizOffer(id);
   const submitMutation = useSubmitBizOffer();
   const [actionError, setActionError] = useState<string | null>(null);
+  const listHref = catalog === "flyers" ? "/biz/flyers" : "/biz/offers";
+  const listLabel = catalog === "flyers" ? "Fletushkat" : "Ofertat";
+
+  useEffect(() => {
+    if (!bundle) {
+      return;
+    }
+    const actual: BundleCatalog = bundle.is_standalone ? "offers" : "flyers";
+    if (actual !== catalog) {
+      router.replace(actual === "flyers" ? `/biz/flyers/${id}` : `/biz/offers/${id}`);
+    }
+  }, [bundle, catalog, id, router]);
 
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar dosjen" />;
+    return <Spinner label="Duke ngarkuar" />;
   }
 
   if (isError || !bundle) {
     return (
       <div className="max-w-[40rem]">
         <p className={panelLead}>
-          {validationMessage(error, "Dosja nuk u gjet.")}
+          {validationMessage(error, "Nuk u gjet.")}
         </p>
-        <Link href="/biz/offers" className={btnGhost}>
+        <Link href={listHref} className={btnGhost}>
           <ArrowBackIcon fontSize="small" />
-          Ofertat
+          {listLabel}
         </Link>
       </div>
     );
@@ -68,20 +85,22 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
     bundle.items?.find((item) => item.image?.id === bundle.cover_gallery_image_id)?.image ??
     bundle.items?.find((item) => item.image)?.image ??
     null;
+  const editHref =
+    catalog === "flyers" ? `/biz/flyers/${bundle.id}/edit` : `/biz/offers/${bundle.id}/edit`;
 
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <div className="grid min-w-0 grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-x-1.5">
           <Link
-            href="/biz/offers"
+            href={listHref}
             className="col-span-2 grid grid-cols-subgrid items-center text-sm font-semibold text-muted no-underline hover:text-ink"
           >
             <ArrowBackIcon fontSize="small" />
-            <span>Ofertat</span>
+            <span>{listLabel}</span>
           </Link>
           <div className="col-start-2 mt-3 flex flex-wrap items-center gap-3">
-            <h1 className={`${pageTitle} mb-0!`}>{bundle.title}</h1>
+            <h1 className={`${pageTitle} mb-0!`}>{bundleDisplayTitle(bundle)}</h1>
             <span
               className={`${offerStatusClass(bundle.status)} mt-0! self-center!`}
             >
@@ -92,12 +111,19 @@ export function ViewOfferScreen({ id }: ViewOfferScreenProps) {
             {formatDateShortSq(bundle.starts_at)} →{" "}
             {formatDateShortSq(bundle.expires_at)}
             {" · "}
-            {count} {count === 1 ? "produkt" : "produkte"}
+            {count}{" "}
+            {catalog === "flyers"
+              ? count === 1
+                ? "produkt"
+                : "produkte"
+              : count === 1
+                ? "ofertë"
+                : "oferta"}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           {canEditOffer(bundle.status) ? (
-            <Link href={`/biz/offers/${bundle.id}/edit`} className={btnGhost}>
+            <Link href={editHref} className={btnGhost}>
               Ndrysho
             </Link>
           ) : null}

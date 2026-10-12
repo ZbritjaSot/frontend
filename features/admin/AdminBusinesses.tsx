@@ -1,6 +1,7 @@
 "use client";
 
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
@@ -19,6 +20,7 @@ import { ShopLogo } from "@/features/public/visuals";
 import { ADMIN_BUSINESSES_PAGE_SIZE } from "@/features/admin/businessesApi";
 import {
   useAdminBusinesses,
+  useApproveBranch,
   useCreateBusiness,
   useUpdateBusiness,
 } from "@/hooks/useAdminBusinesses";
@@ -62,6 +64,7 @@ function ShopLine({
   pending,
   onExclusive,
   onActive,
+  onApprove,
   className = "",
 }: {
   business: Business;
@@ -72,9 +75,11 @@ function ShopLine({
   pending: boolean;
   onExclusive?: () => void;
   onActive: () => void;
+  onApprove?: () => void;
   className?: string;
 }) {
   const place = [business.street, business.city].filter(Boolean).join(", ");
+  const needsBranchApproval = branch && business.is_approved === false;
 
   return (
     <li
@@ -136,6 +141,16 @@ function ShopLine({
               className={open ? "rotate-180 text-accent!" : ""}
             />
           </button>
+        ) : needsBranchApproval && onApprove ? (
+          <button
+            type="button"
+            className={rowButton}
+            aria-label={`Aprovo degën ${business.name}`}
+            disabled={pending}
+            onClick={onApprove}
+          >
+            <CheckOutlinedIcon fontSize="small" className="text-accent!" />
+          </button>
         ) : (
           <span className="size-9" aria-hidden />
         )}
@@ -196,6 +211,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
   const { data, isLoading, isError, error, refetch } = useAdminBusinesses(page, q, scope);
   const createMutation = useCreateBusiness();
   const updateMutation = useUpdateBusiness();
+  const approveBranch = useApproveBranch();
 
   const [openIds, setOpenIds] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
@@ -304,7 +320,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
     <div>
       {header}
       {counts ? (
-        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <DashboardKpi
             value={counts.active}
             label="Aktive"
@@ -336,6 +352,14 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
             active={scope === "address"}
             onClick={() => chooseScope("address")}
           />
+          <DashboardKpi
+            value={counts.branches ?? 0}
+            label="Degë në pritje"
+            detail="Lokacione të reja"
+            tone={(counts.branches ?? 0) > 0 ? "pending" : "ink"}
+            active={scope === "branches"}
+            onClick={() => chooseScope("branches")}
+          />
         </div>
       ) : null}
 
@@ -361,16 +385,23 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
             </div>
             <ul className="col-span-4 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
               {businesses.flatMap((business) => {
-                const branches = business.branches ?? [];
+                const allBranches = business.branches ?? [];
+                const branches =
+                  scope === "branches"
+                    ? allBranches.filter((branch) => branch.is_approved === false)
+                    : allBranches;
                 const open =
-                  q !== "" || scope === "address" || openIds.includes(business.id);
+                  q !== "" ||
+                  scope === "address" ||
+                  scope === "branches" ||
+                  openIds.includes(business.id);
                 const rows = [
                   <ShopLine
                     key={business.id}
                     business={business}
                     open={open}
-                    branchCount={branches.length}
-                    pending={updateMutation.isPending}
+                    branchCount={allBranches.length}
+                    pending={updateMutation.isPending || approveBranch.isPending}
                     onToggle={() =>
                       setOpenIds((current) =>
                         current.includes(business.id)
@@ -400,7 +431,12 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
                         business={branch}
                         branch
                         className="bg-sunken/50"
-                        pending={updateMutation.isPending}
+                        pending={updateMutation.isPending || approveBranch.isPending}
+                        onApprove={
+                          branch.is_approved === false
+                            ? () => approveBranch.mutate(branch.id)
+                            : undefined
+                        }
                         onActive={() =>
                           updateMutation.mutate({
                             id: branch.id,

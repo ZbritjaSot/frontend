@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api";
-import { toApiBody } from "@/features/offers/bizApi";
+import { toApiBody, type BundleCatalog } from "@/features/offers/bizApi";
 import type { OfferBundleFormInput } from "@/schemas/offer";
 import type { CompanyShop, OfferBundle, OfferImage, Paginated } from "@/types";
 
@@ -9,6 +9,7 @@ export async function fetchManagerReview(
   page = 1,
   status: "pending" | "approved" | "all" = "pending",
   q = "",
+  catalog?: BundleCatalog,
 ): Promise<Paginated<OfferBundle>> {
   const params = new URLSearchParams({
     page: String(page),
@@ -20,6 +21,9 @@ export async function fetchManagerReview(
   if (q.trim() !== "") {
     params.set("q", q.trim());
   }
+  if (catalog) {
+    params.set("kind", catalog);
+  }
   return apiFetch<Paginated<OfferBundle>>(`/biz/review?${params.toString()}`, {
     auth: true,
   });
@@ -28,11 +32,12 @@ export async function fetchManagerReview(
 export async function createManagerBundle(
   businessId: string,
   input: OfferBundleFormInput,
+  catalog: BundleCatalog = "flyers",
 ): Promise<OfferBundle> {
   const payload = await apiFetch<BundlePayload>(`/biz/review/companies/${businessId}`, {
     method: "POST",
     auth: true,
-    body: JSON.stringify(toApiBody(input)),
+    body: JSON.stringify(toApiBody(input, catalog)),
   });
   return payload.data;
 }

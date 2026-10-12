@@ -16,20 +16,25 @@ import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
 import { fetchBizShops } from "@/features/branches/api";
-import { OFFER_STATUS_LABEL } from "@/features/offers/status";
+import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status";
 import { useManagerReview } from "@/hooks/useManagerReview";
 import { validationMessage } from "@/lib/api";
 import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { formatDateShortSq } from "@/lib/format";
+import type { BundleCatalog } from "@/features/offers/bizApi";
 import { btnGhost, btnPrimary, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 
 const rowButton =
   "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60";
 
-export function ManagerReview() {
+export function ManagerReview({ catalog }: { catalog?: BundleCatalog } = {}) {
   const router = useRouter();
   const params = useSearchParams();
   const requested = params.get("status");
+  const kindParam = params.get("kind");
+  const resolvedCatalog: BundleCatalog | undefined =
+    catalog ??
+    (kindParam === "offers" || kindParam === "flyers" ? kindParam : undefined);
   const filter: OfferListStatus =
     requested === "all" ? "" : requested === "approved" ? "approved" : "pending";
   const [page, setPage] = useState(1);
@@ -41,9 +46,19 @@ export function ManagerReview() {
     true,
     listStatus,
     q,
+    resolvedCatalog,
   );
-  const waiting = useManagerReview(1);
+  const waiting = useManagerReview(1, true, "pending", "", resolvedCatalog);
   const shops = useQuery({ queryKey: ["biz", "shops"], queryFn: fetchBizShops });
+  const isFlyer = resolvedCatalog !== "offers";
+  const createHref =
+    resolvedCatalog === "offers" ? "/biz/review/new?kind=offers" : "/biz/review/new";
+  const basePath =
+    resolvedCatalog === "flyers"
+      ? "/biz/flyers"
+      : resolvedCatalog === "offers"
+        ? "/biz/offers"
+        : "/biz";
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -69,28 +84,63 @@ export function ManagerReview() {
   const header = (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-        <h1 className={`${pageTitle} mb-0!`}>Ofertat</h1>
-        <Link href="/biz/review/new" className={btnPrimary}>
-          Dosje e re
-        </Link>
+        <h1 className={`${pageTitle} mb-0!`}>
+          {resolvedCatalog === "flyers"
+            ? "Fletushkat"
+            : resolvedCatalog === "offers"
+              ? "Ofertat"
+              : "Në pritje"}
+        </h1>
+        <div className="flex flex-wrap gap-2">
+          {resolvedCatalog ? (
+            <Link href={createHref} className={btnPrimary}>
+              {isFlyer ? "Fletushkë e re" : "Oferta të reja"}
+            </Link>
+          ) : (
+            <>
+              <Link href="/biz/review/new" className={btnPrimary}>
+                Fletushkë e re
+              </Link>
+              <Link href="/biz/review/new?kind=offers" className={btnGhost}>
+                Oferta të reja
+              </Link>
+            </>
+          )}
+        </div>
       </div>
       <OfferStatusFilters
         value={filter}
         onChange={(value) => {
           setPage(1);
+          const kindQuery =
+            resolvedCatalog && basePath === "/biz"
+              ? `kind=${resolvedCatalog}&`
+              : "";
           router.replace(
             value === ""
-              ? "/biz?status=all"
+              ? `${basePath}?${kindQuery}status=all`.replace("?&", "?")
               : value === "approved"
-                ? "/biz?status=approved"
-                : "/biz",
+                ? `${basePath}?${kindQuery}status=approved`.replace("?&", "?")
+                : basePath === "/biz" && resolvedCatalog
+                  ? `${basePath}?kind=${resolvedCatalog}`
+                  : basePath,
           );
         }}
       />
       <div className="mb-6 flex flex-wrap gap-x-8 gap-y-4">
-        <DashboardKpi href="/biz" label="Në pritje" value={waitingTotal} detail="Fletushka që presin aprovimin" tone={waitingTotal > 0 ? "pending" : "ink"} />
-        <DashboardKpi href="/biz/profile" label="Biznese" value={(shops.data ?? []).filter((shop) => !shop.parent_id).length} detail="Kompani në ngarkim" />
-        <DashboardKpi href="/biz/profile" label="Degë" value={(shops.data ?? []).filter((shop) => shop.parent_id).length} detail="Lokacione shtesë" />
+        <DashboardKpi
+          href={basePath}
+          label="Në pritje"
+          value={waitingTotal}
+          detail={
+            resolvedCatalog === "offers"
+              ? "Oferta që presin aprovimin"
+              : "Fletushka që presin aprovimin"
+          }
+          tone={waitingTotal > 0 ? "pending" : "ink"}
+        />
+        <DashboardKpi href="/biz/shops" label="Biznese" value={(shops.data ?? []).filter((shop) => !shop.parent_id).length} detail="Kompani në ngarkim" />
+        <DashboardKpi href="/biz/shops" label="Degë" value={(shops.data ?? []).filter((shop) => shop.parent_id).length} detail="Lokacione shtesë" />
       </div>
     </>
   );
@@ -152,7 +202,7 @@ export function ManagerReview() {
                           href={`/biz/review/${bundle.id}`}
                           className="truncate text-base font-semibold text-inherit no-underline hover:text-accent"
                         >
-                          {bundle.title}
+                          {bundleDisplayTitle(bundle)}
                         </Link>
                         <p className="m-0 flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold">
                           <span className="truncate">{bundle.business?.name ?? "Biznes"}</span>
@@ -179,7 +229,7 @@ export function ManagerReview() {
                           <Link
                             href={`/biz/review/${bundle.id}`}
                             className={rowButton}
-                            aria-label={`Shiko ${bundle.title}`}
+                            aria-label={`Shiko ${bundleDisplayTitle(bundle)}`}
                           >
                             <VisibilityOutlinedIcon fontSize="small" />
                           </Link>

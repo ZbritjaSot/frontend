@@ -2,10 +2,17 @@ import type { Metadata } from "next";
 import { ManagerCreateOffer } from "@/features/biz/ManagerCreateOffer";
 
 export const metadata: Metadata = {
-  title: "Dosje e re",
+  title: "Krijo",
   robots: { index: false, follow: false },
 };
 
-export default function ManagerNewOfferPage() {
-  return <ManagerCreateOffer />;
+export default async function ManagerNewOfferPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ kind?: string }>;
+}) {
+  const params = await searchParams;
+  const catalog = params.kind === "offers" ? "offers" : "flyers";
+
+  return <ManagerCreateOffer catalog={catalog} />;
 }
