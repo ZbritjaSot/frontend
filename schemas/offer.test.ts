@@ -1,14 +1,28 @@
 import { describe, expect, it } from "vitest";
+import {
+  earliestOfferStart,
+  OFFER_START_LEAD_HOURS,
+  toHourLocalValue,
+} from "@/lib/datetime";
 import { MAX_PRICE_CENTS } from "@/lib/format";
 import { offerBundleFormSchema } from "@/schemas/offer";
 
 const categoryId = "018f6b2e-6c3a-7b2a-8f1e-9c0d1e2f3a4b";
 
+function futureWindow() {
+  const start = earliestOfferStart();
+  const end = new Date(start.getTime());
+  end.setDate(end.getDate() + 14);
+  return {
+    starts_at: toHourLocalValue(start),
+    expires_at: toHourLocalValue(end),
+  };
+}
+
 function folder(overrides: Record<string, unknown> = {}) {
   return {
     title: "Kafe e javës",
-    starts_at: "2026-09-01T08:00",
-    expires_at: "2026-09-30T20:00",
+    ...futureWindow(),
     items: [
       {
         category_ids: [categoryId],
@@ -72,9 +86,27 @@ describe("offer form validation", () => {
     expect(messages(folder({ items: [] }))).toContain(
       "Shto të paktën një produkt.",
     );
+    const { starts_at, expires_at } = futureWindow();
     expect(
-      messages(folder({ starts_at: "2026-09-30T20:00", expires_at: "2026-09-01T08:00" })),
+      messages(folder({ starts_at: expires_at, expires_at: starts_at })),
     ).toContain("Skadimi duhet të jetë pas fillimit.");
+  });
+
+  it("requires start at least two hours ahead", () => {
+    const soon = new Date();
+    soon.setHours(soon.getHours() + 1, 0, 0, 0);
+    const end = new Date(soon.getTime());
+    end.setDate(end.getDate() + 7);
+    expect(
+      messages(
+        folder({
+          starts_at: toHourLocalValue(soon),
+          expires_at: toHourLocalValue(end),
+        }),
+      ),
+    ).toContain(
+      `Fillimi duhet të jetë së paku ${OFFER_START_LEAD_HOURS} orë nga tani (kohë për shqyrtim).`,
+    );
   });
 
   it("rejects prices that are not positive integer cents", () => {

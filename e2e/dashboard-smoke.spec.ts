@@ -55,6 +55,8 @@ test("admin dashboard areas load after login", async ({ page }) => {
     "/admin/newsletter",
     "/admin/subscriptions",
     "/admin/audit",
+    "/admin/profile",
+    "/admin/profile/password",
   ]) {
     await page.goto(path);
     await expect(page).toHaveURL(new RegExp(path.replace(/\//g, "\\/")));
@@ -69,5 +71,9 @@ test("manager review area loads after login", async ({ page }) => {
   await page.goto("/biz/review/new");
   await expect(page).toHaveURL(/\/biz\/review/);
   await expect(page.getByText("Diçka shkoi keq")).toHaveCount(0);
+  await page.goto("/biz/profile");
+  await expect(page).toHaveURL(/\/biz\/profile/);
+  await expect(page.getByText("Menaxher")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Ndrysho fjalëkalimin/i })).toBeVisible();
   await logout(page);
 });

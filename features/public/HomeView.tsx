@@ -26,7 +26,7 @@ export function HomeView({ home }: { home: PublicHome }) {
   return (
     <>
       <DiscoverBand categories={home.categories} />
-      <CategoryBand categories={home.categories} />
+      {!empty ? <CategoryBand categories={home.categories} /> : null}
       <HeroSection key={home.heroes.map((offer) => offer.id).join("|")} offers={home.heroes} />
       {empty ? (
         <Frame className="pt-6 pb-10">

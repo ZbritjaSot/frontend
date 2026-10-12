@@ -1,10 +1,11 @@
 "use client";
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import StoreIcon from "@mui/icons-material/Store";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import type { ReactNode } from "react";
 import {
   DashboardShell,
@@ -50,6 +51,11 @@ const managerNav: DashboardNavItem[] = [
     href: "/biz/shops",
     label: "Dyqanet",
     icon: <StoreIcon fontSize="small" />,
+  },
+  {
+    href: "/biz/profile",
+    label: "Profili",
+    icon: <PersonOutlinedIcon fontSize="small" />,
   },
 ];
 

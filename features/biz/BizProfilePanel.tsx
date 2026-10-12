@@ -1,14 +1,13 @@
 "use client";
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/Spinner";
 import { useQueryClient } from "@tanstack/react-query";
+import { AccountProfilePanel } from "@/features/auth/AccountProfilePanel";
 import { hasRole } from "@/features/auth/api";
 import { ManagerNote } from "@/features/biz/ManagerNote";
-import { ManagerShops } from "@/features/biz/ManagerShops";
 import { updateBizLinks } from "@/features/biz/api";
 import { BranchPanel } from "@/features/branches/BranchPanel";
 import { BusinessLinksForm } from "@/features/business/BusinessLinksForm";
@@ -132,7 +131,14 @@ export function BizProfilePanel() {
   }
 
   if (manager) {
-    return <ManagerShops />;
+    return (
+      <div className="rounded-2xl border border-line">
+        <AccountProfilePanel
+          passwordHref="/biz/profile/password"
+          roleLabel="Menaxher"
+        />
+      </div>
+    );
   }
 
   if (businessQuery.isLoading || subscriptionQuery.isLoading) {
@@ -285,24 +291,7 @@ export function BizProfilePanel() {
       ) : null}
 
       {section === "llogaria" ? (
-      <section>
-        <div className="p-5">
-          <p className={`m-0 ${micro}`}>Llogaria</p>
-          <h2 className="m-0 mt-1 text-xl font-bold tracking-[-0.02em] text-ink">
-            {user?.name ?? "—"}
-          </h2>
-          <p className="m-0 mt-1 text-sm text-muted">{user?.email}</p>
-        </div>
-        <Link
-          href="/biz/profile/password"
-          className="flex items-center justify-between gap-4 border-t border-line px-5 py-4 text-inherit no-underline hover:bg-sunken"
-        >
-          <span className="font-bold">Ndrysho fjalëkalimin</span>
-          <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-line bg-sunken text-ink">
-            <LockOutlinedIcon fontSize="small" />
-          </span>
-        </Link>
-      </section>
+        <AccountProfilePanel passwordHref="/biz/profile/password" />
       ) : null}
       {section === "galeria" ? (
       <section className="py-5">

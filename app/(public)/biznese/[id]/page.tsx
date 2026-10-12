@@ -192,6 +192,7 @@ export default async function BusinessPage({
             <DiscoverForm
               basePath={basePath}
               categories={categories}
+              showCategories={folders.length > 0 || offers.length > 0}
             />
           </Band>
           {folders.length > 0 ? (

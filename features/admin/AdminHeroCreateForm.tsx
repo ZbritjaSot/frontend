@@ -11,7 +11,11 @@ import {
   type StandaloneHeroOfferInput,
 } from "@/features/admin/homeCurationApi";
 import { useActiveCategories } from "@/hooks/useBizOffers";
-import { defaultOfferWindow, fromDateTimeLocalValue } from "@/lib/datetime";
+import {
+  defaultOfferWindow,
+  fromHourLocalValue,
+  OFFER_START_LEAD_HOURS,
+} from "@/lib/datetime";
 import { validationMessage } from "@/lib/api";
 import { btnGhost, btnPrimary, fieldError, inputClass } from "@/lib/ui";
 
@@ -75,8 +79,8 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
     const payload: StandaloneHeroOfferInput = {
       business_id: businessId,
       name: name.trim(),
-      starts_at: fromDateTimeLocalValue(startsAt),
-      expires_at: fromDateTimeLocalValue(expiresAt),
+      starts_at: fromHourLocalValue(startsAt),
+      expires_at: fromHourLocalValue(expiresAt),
       original_price: originalPrice > 0 ? originalPrice : null,
       discounted_price: discountedPrice > 0 ? discountedPrice : null,
       discount_percent: percent != null && Number.isFinite(percent) ? percent : null,
@@ -169,6 +173,9 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
         />
       </label>
 
+      <p className="m-0 text-sm leading-relaxed text-muted">
+        Fillimi së paku {OFFER_START_LEAD_HOURS} orë nga tani. Ora vetëm me :00.
+      </p>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="grid gap-1.5 text-sm font-semibold">
           Nga
@@ -176,6 +183,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
             value={startsAt}
             onChange={setStartsAt}
             aria-label="Nga"
+            hourOnly
           />
         </label>
         <label className="grid gap-1.5 text-sm font-semibold">
@@ -184,6 +192,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
             value={expiresAt}
             onChange={setExpiresAt}
             aria-label="Deri më"
+            hourOnly
           />
         </label>
       </div>

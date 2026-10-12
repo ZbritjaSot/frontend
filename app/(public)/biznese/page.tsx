@@ -7,7 +7,7 @@ import { display, kicker } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
 import { campaignWord, locationLabel, productWord } from "@/features/public/compose";
 import { ApiError, fetchPublicBusinesses, fetchPublicCities } from "@/features/offers/api";
-import { browsePath } from "@/lib/browse";
+import { browsePath, showCatalogControls } from "@/lib/browse";
 import { publicPageMetadata } from "@/lib/metadata";
 import type { PublicBusiness } from "@/types";
 
@@ -95,13 +95,19 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
           showCategories={false}
           placeholder=""
         />
-        <CatalogFilters
-          basePath="/biznese"
-          q={q}
-          city={city}
-          cities={cities}
-          showSort={false}
-        />
+        {showCatalogControls({
+          hasResults: shops.length > 0,
+          q,
+          city,
+        }) ? (
+          <CatalogFilters
+            basePath="/biznese"
+            q={q}
+            city={city}
+            cities={cities}
+            showSort={false}
+          />
+        ) : null}
       </div>
       {shops.length === 0 ? (
         <EmptyNote

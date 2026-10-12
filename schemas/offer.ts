@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { earliestOfferStart, OFFER_START_LEAD_HOURS } from "@/lib/datetime";
 import { MAX_PRICE_CENTS } from "@/lib/format";
 
 const optionalCents = z
@@ -71,7 +72,14 @@ export const offerBundleFormSchema = z
   .refine((data) => new Date(data.expires_at) > new Date(data.starts_at), {
     message: "Skadimi duhet të jetë pas fillimit.",
     path: ["expires_at"],
-  });
+  })
+  .refine(
+    (data) => new Date(data.starts_at).getTime() >= earliestOfferStart().getTime(),
+    {
+      message: `Fillimi duhet të jetë së paku ${OFFER_START_LEAD_HOURS} orë nga tani (kohë për shqyrtim).`,
+      path: ["starts_at"],
+    },
+  );
 
 export type OfferBundleFormInput = z.infer<typeof offerBundleFormSchema>;
 export type OfferItemFormInput = z.infer<typeof offerItemSchema>;

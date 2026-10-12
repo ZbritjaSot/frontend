@@ -31,7 +31,11 @@ import {
   useSubmitBizOffer,
   useUpdateBizOffer,
 } from "@/hooks/useBizOffers";
-import { defaultOfferWindow, toDateTimeLocalValue } from "@/lib/datetime";
+import {
+  defaultOfferWindow,
+  OFFER_START_LEAD_HOURS,
+  toHourLocalValue,
+} from "@/lib/datetime";
 import { formatDateShortSq, formatEurFromCents } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
 import {
@@ -171,10 +175,10 @@ export function OfferForm({
   const defaults = defaultOfferWindow();
   const [title, setTitle] = useState(offer?.title ?? "");
   const [startsAt, setStartsAt] = useState(
-    offer ? toDateTimeLocalValue(offer.starts_at) : defaults.starts_at,
+    offer ? toHourLocalValue(offer.starts_at) : defaults.starts_at,
   );
   const [expiresAt, setExpiresAt] = useState(
-    offer ? toDateTimeLocalValue(offer.expires_at) : defaults.expires_at,
+    offer ? toHourLocalValue(offer.expires_at) : defaults.expires_at,
   );
   const [items, setItems] = useState<ItemDraft[]>(() => {
     if (offer?.items?.length) {
@@ -485,6 +489,10 @@ export function OfferForm({
           </label>
         ) : null}
         <p className={`${micro} ${isFlyer ? "mt-6" : "mt-5"} mb-3`}>Periudha</p>
+        <p className="m-0 mb-3 text-sm leading-relaxed text-muted">
+          Fillimi së paku {OFFER_START_LEAD_HOURS} orë nga tani — kohë për shqyrtim
+          nga menaxheri ose admini. Ora vetëm me :00.
+        </p>
         <div className="grid gap-5 md:grid-cols-2 md:gap-8">
           <label className="flex flex-col gap-2">
             <span className={micro}>Fillon</span>
@@ -493,6 +501,7 @@ export function OfferForm({
               onChange={setStartsAt}
               disabled={pending}
               aria-label="Fillon"
+              hourOnly
             />
           </label>
           <label className="flex flex-col gap-2">
@@ -502,6 +511,7 @@ export function OfferForm({
               onChange={setExpiresAt}
               disabled={pending}
               aria-label="Skadon"
+              hourOnly
             />
           </label>
         </div>

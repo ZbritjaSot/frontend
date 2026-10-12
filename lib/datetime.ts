@@ -19,6 +19,15 @@ export function toDateTimeLocalValue(value: string | Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+/** Offer windows: local datetime snapped to the hour (`:00`). */
+export function toHourLocalValue(value: string | Date): string {
+  const local = toDateTimeLocalValue(value);
+  if (!local) {
+    return "";
+  }
+  return `${local.slice(0, 14)}00`;
+}
+
 /** Date → datetime-local at local midnight (00:00). */
 export function toDateTimeLocalMidnight(value: string | Date = new Date()): string {
   return toDateTimeLocalValue(startOfLocalDay(
@@ -35,20 +44,49 @@ export function fromDateTimeLocalValue(value: string): string {
   return date.toISOString();
 }
 
+/** Offer datetime-local → ISO, forced to the start of the local hour. */
+export function fromHourLocalValue(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  date.setMinutes(0, 0, 0);
+  return date.toISOString();
+}
+
+/** Minimum hours between now and offer/flyer start (review buffer). */
+export const OFFER_START_LEAD_HOURS = 2;
+
 /**
- * Default create window: today 00:00 → +14 days 00:00.
- * Time stays editable for minute-precise offers; defaults avoid "now".
+ * Earliest allowed start: now + lead, then ceiled to the next hour if needed
+ * (offer times are hour-only).
  */
+export function earliestOfferStart(from: Date = new Date()): Date {
+  const min = new Date(from.getTime());
+  min.setHours(min.getHours() + OFFER_START_LEAD_HOURS);
+  if (
+    min.getMinutes() > 0 ||
+    min.getSeconds() > 0 ||
+    min.getMilliseconds() > 0
+  ) {
+    min.setHours(min.getHours() + 1, 0, 0, 0);
+  } else {
+    min.setMinutes(0, 0, 0);
+  }
+  return min;
+}
+
+/** Default create window: earliest allowed start → +14 days (same hour). */
 export function defaultOfferWindow(): {
   starts_at: string;
   expires_at: string;
 } {
-  const start = startOfLocalDay();
-  const end = startOfLocalDay();
+  const start = earliestOfferStart();
+  const end = new Date(start.getTime());
   end.setDate(end.getDate() + 14);
   return {
-    starts_at: toDateTimeLocalValue(start),
-    expires_at: toDateTimeLocalValue(end),
+    starts_at: toHourLocalValue(start),
+    expires_at: toHourLocalValue(end),
   };
 }
 

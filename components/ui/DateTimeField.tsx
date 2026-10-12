@@ -34,6 +34,8 @@ type DateTimeFieldProps = {
   /** `card` shows the date, with the clock inside the calendar. */
   variant?: "row" | "card";
   caption?: string;
+  /** Offer windows: hour only (`:00`). Subscriptions keep minutes. */
+  hourOnly?: boolean;
 };
 
 function parseLocal(value: string): {
@@ -85,6 +87,7 @@ export function DateTimeField({
   "aria-label": ariaLabel,
   variant = "row",
   caption,
+  hourOnly = false,
 }: DateTimeFieldProps) {
   const parsed = parseLocal(value);
   const panelId = useId();
@@ -127,19 +130,30 @@ export function DateTimeField({
   }, [open]);
 
   const hour = String(parsed?.hour ?? 0).padStart(2, "0");
-  const minute = String(parsed?.minute ?? 0).padStart(2, "0");
+  const minute = hourOnly
+    ? "00"
+    : String(parsed?.minute ?? 0).padStart(2, "0");
 
   const label = parsed
     ? formatCalendarDateSq(parsed.year, parsed.month, parsed.day)
     : "Zgjidh datën";
 
   function commitDate(year: number, month: number, day: number) {
-    onChange(toValue(year, month, day, parsed?.hour ?? 0, parsed?.minute ?? 0));
+    onChange(
+      toValue(
+        year,
+        month,
+        day,
+        parsed?.hour ?? 0,
+        hourOnly ? 0 : (parsed?.minute ?? 0),
+      ),
+    );
     setOpen(false);
     setCursor(null);
   }
 
   function commitTime(nextHour: string, nextMinute: string) {
+    const minuteValue = hourOnly ? 0 : Number(nextMinute);
     if (!parsed) {
       const d = new Date();
       onChange(
@@ -148,7 +162,7 @@ export function DateTimeField({
           d.getMonth() + 1,
           d.getDate(),
           Number(nextHour),
-          Number(nextMinute),
+          minuteValue,
         ),
       );
       return;
@@ -159,7 +173,7 @@ export function DateTimeField({
         parsed.month,
         parsed.day,
         Number(nextHour),
-        Number(nextMinute),
+        minuteValue,
       ),
     );
   }
@@ -195,7 +209,7 @@ export function DateTimeField({
     >
       <SelectField
         value={hour}
-        onChange={(h) => commitTime(h, minute)}
+        onChange={(h) => commitTime(h, hourOnly ? "00" : minute)}
         options={HOUR_OPTIONS}
         disabled={disabled}
         aria-label="Ora"
@@ -207,8 +221,8 @@ export function DateTimeField({
       <SelectField
         value={minute}
         onChange={(m) => commitTime(hour, m)}
-        options={MINUTE_OPTIONS}
-        disabled={disabled}
+        options={hourOnly ? [{ value: "00", label: "00" }] : MINUTE_OPTIONS}
+        disabled={disabled || hourOnly}
         aria-label="Minutat"
         className="justify-center! px-2! tabular-nums"
       />

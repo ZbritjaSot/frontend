@@ -1,12 +1,11 @@
 "use client";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { changePassword, hasRole } from "@/features/auth/api";
-import { meQueryKey, useMe } from "@/hooks/useAuth";
+import { changePassword } from "@/features/auth/api";
+import { meQueryKey } from "@/hooks/useAuth";
 import { passwordError, validateNewPassword } from "@/lib/passwordErrors";
 import {
   btnPrimary,
@@ -17,26 +16,13 @@ import {
 } from "@/lib/ui";
 
 export function BizPasswordScreen() {
-  const router = useRouter();
   const queryClient = useQueryClient();
-  const { data: user } = useMe();
-  const manager = !!user && hasRole(user, "manager");
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [pending, setPending] = useState(false);
-
-  useEffect(() => {
-    if (manager) {
-      router.replace("/biz");
-    }
-  }, [manager, router]);
-
-  if (manager) {
-    return null;
-  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

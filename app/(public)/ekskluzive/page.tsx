@@ -10,6 +10,7 @@ import { ExclusiveSearch } from "@/features/public/ExclusiveSearch";
 import { ExclusiveStream } from "@/features/public/ExclusiveStream";
 import { ExclusiveMark } from "@/features/public/exclusiveChrome";
 import { EXCLUSIVE_PAGE_SIZE } from "@/features/public/exclusiveConstants";
+import { showCatalogControls } from "@/lib/browse";
 import { publicPageMetadata } from "@/lib/metadata";
 import { EXCLUSIVE_HREF, EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { SITE_NAME } from "@/lib/site";
@@ -79,6 +80,11 @@ export default async function ExclusivePage({ searchParams }: ExclusivePageProps
   }
 
   const streamKey = `${q}|${city}` || "all";
+  const showFilters = showCatalogControls({
+    hasResults: items.length > 0,
+    q,
+    city,
+  });
 
   return (
     <div className="pb-24 sm:pb-28">
@@ -108,7 +114,7 @@ export default async function ExclusivePage({ searchParams }: ExclusivePageProps
       </header>
 
       <Frame className="pt-8 sm:pt-10 lg:pt-12">
-        {cities.length > 0 ? (
+        {showFilters && cities.length > 0 ? (
           <div className="mb-8 sm:mb-10">
             <CatalogFilters
               basePath={EXCLUSIVE_HREF}

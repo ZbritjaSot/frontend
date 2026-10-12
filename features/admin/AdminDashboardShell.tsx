@@ -8,6 +8,7 @@ import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import MailOutlinedIcon from "@mui/icons-material/MailOutlined";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import StarIcon from "@mui/icons-material/Star";
 import StoreIcon from "@mui/icons-material/Store";
 import type { ReactNode } from "react";
@@ -66,6 +67,11 @@ const baseNav: DashboardNavItem[] = [
     href: "/admin/audit",
     label: "Regjistri",
     icon: <HistoryOutlinedIcon fontSize="small" />,
+  },
+  {
+    href: "/admin/profile",
+    label: "Profili",
+    icon: <PersonOutlinedIcon fontSize="small" />,
   },
 ];
 

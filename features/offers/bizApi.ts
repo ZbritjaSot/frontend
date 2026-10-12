@@ -7,7 +7,7 @@ import type {
   OfferViewSummary,
   Paginated,
 } from "@/types";
-import { fromDateTimeLocalValue } from "@/lib/datetime";
+import { fromHourLocalValue } from "@/lib/datetime";
 
 type CategoryListPayload = {
   data: Array<CategorySummary & { is_active?: boolean; sort_order?: number }>;
@@ -23,8 +23,8 @@ export function toApiBody(
 ) {
   return {
     title: input.title,
-    starts_at: fromDateTimeLocalValue(input.starts_at),
-    expires_at: fromDateTimeLocalValue(input.expires_at),
+    starts_at: fromHourLocalValue(input.starts_at),
+    expires_at: fromHourLocalValue(input.expires_at),
     cover_gallery_image_id: input.cover_gallery_image_id ?? null,
     is_standalone: catalog === "offers",
     ...(input.branch_ids ? { branch_ids: input.branch_ids } : {}),

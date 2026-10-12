@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { addLocalMonths, defaultSubscriptionWindow } from "@/lib/datetime";
+import {
+  addLocalMonths,
+  defaultOfferWindow,
+  defaultSubscriptionWindow,
+  earliestOfferStart,
+  OFFER_START_LEAD_HOURS,
+  toHourLocalValue,
+} from "@/lib/datetime";
 
 describe("addLocalMonths", () => {
   it("keeps the day when the next month has it", () => {
@@ -18,5 +25,25 @@ describe("defaultSubscriptionWindow", () => {
     const window = defaultSubscriptionWindow();
     expect(window.starts_at.endsWith("T00:00")).toBe(true);
     expect(window.ends_at).toBe(addLocalMonths(window.starts_at, 1));
+  });
+});
+
+describe("offer hour precision", () => {
+  it("snaps datetime-local values to the hour", () => {
+    expect(toHourLocalValue("2026-09-01T14:37:00")).toBe("2026-09-01T14:00");
+  });
+
+  it("defaults offer windows on the hour", () => {
+    const window = defaultOfferWindow();
+    expect(window.starts_at.endsWith(":00")).toBe(true);
+    expect(window.expires_at.endsWith(":00")).toBe(true);
+  });
+
+  it("earliest start is at least the lead hours ahead", () => {
+    const from = new Date("2026-10-12T09:00:00");
+    const earliest = earliestOfferStart(from);
+    expect(earliest.getTime()).toBe(
+      from.getTime() + OFFER_START_LEAD_HOURS * 60 * 60 * 1000,
+    );
   });
 });

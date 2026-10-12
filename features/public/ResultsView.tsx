@@ -8,7 +8,12 @@ import { ProductGrid } from "@/features/public/ProductPoster";
 import { locationLabel } from "@/features/public/compose";
 import { display, kicker as kickerClass } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
-import { browsePath, type CatalogSort, type Katalog } from "@/lib/browse";
+import {
+  browsePath,
+  showCatalogControls,
+  type CatalogSort,
+  type Katalog,
+} from "@/lib/browse";
 import type { CategorySummary, PublicBusiness, PublicFolder, PublicOffer } from "@/types";
 
 type ResultsViewProps = {
@@ -65,6 +70,15 @@ export function ResultsView({
   const empty = shops.length === 0 && (!showFlyerGrid && !showFlyerRail && !showOffers
     ? true
     : flyerCatalogue && folders.length === 0);
+  const hasResults =
+    shops.length > 0 || offers.length > 0 || folders.length > 0;
+  const showControls = showCatalogControls({
+    hasResults,
+    q,
+    category,
+    city,
+    sort,
+  });
   const lastPage = flyerCatalogue
     ? folderLastPage
     : offers.length > 0 || offerLastPage > 1
@@ -95,16 +109,19 @@ export function ResultsView({
             sort={sort}
             categories={categories}
             catalog
+            showCategories={showControls}
           />
-          <CatalogFilters
-            basePath={basePath}
-            q={q}
-            category={category}
-            katalog={katalog}
-            city={city}
-            sort={sort}
-            cities={cities}
-          />
+          {showControls ? (
+            <CatalogFilters
+              basePath={basePath}
+              q={q}
+              category={category}
+              katalog={katalog}
+              city={city}
+              sort={sort}
+              cities={cities}
+            />
+          ) : null}
         </div>
       ) : (
         <div className="mt-8 max-w-xl">
@@ -116,6 +133,7 @@ export function ResultsView({
             city={city}
             sort={sort}
             categories={categories}
+            showCategories={showControls}
           />
         </div>
       )}
@@ -190,7 +208,11 @@ export function ResultsView({
       {empty ? (
         <EmptyNote
           title="Nuk u gjet asgjë"
-          body="Provo një fjalë tjetër, ose hiq kategorinë dhe shiko të gjitha ofertat."
+          body={
+            showControls
+              ? "Provo një fjalë tjetër, ose hiq kategorinë dhe shiko të gjitha ofertat."
+              : "Momentalisht nuk ka zbritje publike. Ofertat e skaduara hiqen vetë nga lista."
+          }
         />
       ) : null}
 
