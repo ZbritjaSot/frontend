@@ -124,6 +124,16 @@ export function validationMessage(error: unknown, fallback: string): string {
     return "Shumë tentativa. Prit një minutë dhe provo përsëri.";
   }
 
+  if (/already approved or is no longer pending/i.test(message)) {
+    return "Kjo ofertë u aprovua tashmë ose nuk është më në pritje. Rifresko faqen.";
+  }
+  if (/changed while you were editing/i.test(message)) {
+    return "Oferta ndryshoi ndërsa po e punoje. Rifresko faqen dhe provo përsëri.";
+  }
+  if (/no longer approved/i.test(message)) {
+    return "Kjo ofertë nuk është më e aprovuar. Rifresko faqen.";
+  }
+
   return message;
 }
 
