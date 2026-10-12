@@ -17,6 +17,7 @@ export const categoryIconIds = [
   "medical_services",
   "coffee",
   "celebration",
+  "self_improvement",
   "grid_view",
   "category",
 ] as const;
@@ -45,6 +46,7 @@ export const categoryIcons: readonly CategoryIconEntry[] = [
   { id: "medical_services", label: "Shëndet" },
   { id: "coffee", label: "Kafene" },
   { id: "celebration", label: "Sezonale" },
+  { id: "self_improvement", label: "Lifestyle" },
   { id: "grid_view", label: "Të gjitha" },
   { id: "category", label: "Kategori" },
 ];
