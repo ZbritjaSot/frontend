@@ -1,13 +1,5 @@
 export { fetchPublicOffer, fetchPublicOffers, isNotFound } from "./api";
-export {
-  createBizOffer,
-  deleteBizOffer,
-  fetchActiveCategories,
-  fetchBizOffer,
-  fetchBizOffers,
-  submitBizOffer,
-  updateBizOffer,
-} from "./bizApi";
+export { fetchActiveCategories } from "./bizApi";
 export { BizOfferList } from "./BizOfferList";
 export { EditOfferScreen } from "./EditOfferScreen";
 export { OfferBundleView } from "./OfferBundleView";

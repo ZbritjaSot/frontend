@@ -75,8 +75,3 @@ export const offerBundleFormSchema = z
 
 export type OfferBundleFormInput = z.infer<typeof offerBundleFormSchema>;
 export type OfferItemFormInput = z.infer<typeof offerItemSchema>;
-
-/** @deprecated Use offerBundleFormSchema */
-export const offerFormSchema = offerBundleFormSchema;
-/** @deprecated Use OfferBundleFormInput */
-export type OfferFormInput = OfferBundleFormInput;

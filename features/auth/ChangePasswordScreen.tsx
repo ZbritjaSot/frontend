@@ -5,21 +5,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { changePassword } from "@/features/auth/api";
 import { LogoutButton } from "@/features/auth/LogoutButton";
 import { meQueryKey } from "@/hooks/useAuth";
-import { validationMessage } from "@/lib/api";
+import { passwordError, validateNewPassword } from "@/lib/passwordErrors";
 import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
-
-function passwordError(error: unknown): string {
-  const message = validationMessage(
-    error,
-    "Nuk mundëm ta ndryshojmë fjalëkalimin.",
-  );
-
-  if (message === "The new password must be different.") {
-    return "Fjalëkalimi i ri duhet të jetë i ndryshëm.";
-  }
-
-  return message;
-}
 
 export function ChangePasswordScreen() {
   const queryClient = useQueryClient();
@@ -30,12 +17,9 @@ export function ChangePasswordScreen() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    if (password.length < 8) {
-      setError("Fjalëkalimi i ri duhet të ketë të paktën 8 karaktere.");
-      return;
-    }
-    if (password !== confirmation) {
-      setError("Fjalëkalimet nuk përputhen.");
+    const localError = validateNewPassword(password, confirmation);
+    if (localError) {
+      setError(localError);
       return;
     }
     setError(null);
@@ -73,9 +57,10 @@ export function ChangePasswordScreen() {
             {error}
           </p>
         ) : null}
-        <label className={fieldLabel}>
+        <label className={fieldLabel} htmlFor="forced-new-password">
           <span>Fjalëkalimi i ri</span>
           <input
+            id="forced-new-password"
             className={inputClass}
             type="password"
             autoComplete="new-password"
@@ -83,9 +68,10 @@ export function ChangePasswordScreen() {
             onChange={(event) => setPassword(event.target.value)}
           />
         </label>
-        <label className={fieldLabel}>
+        <label className={fieldLabel} htmlFor="forced-confirm-password">
           <span>Përsërit fjalëkalimin e ri</span>
           <input
+            id="forced-confirm-password"
             className={inputClass}
             type="password"
             autoComplete="new-password"

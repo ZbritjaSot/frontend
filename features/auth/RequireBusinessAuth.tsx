@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   isUnauthenticated,
   requireAdminUser,
@@ -16,6 +16,7 @@ type RequireBusinessAuthProps = {
 
 export function RequireBusinessAuth({ children }: RequireBusinessAuthProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: user, error, isLoading, isFetching, isError } = useMe();
 
   useEffect(() => {
@@ -24,7 +25,8 @@ export function RequireBusinessAuth({ children }: RequireBusinessAuthProps) {
     }
 
     if (isUnauthenticated(error) || (isError && !user)) {
-      router.replace("/biz/login");
+      const next = encodeURIComponent(pathname || "/biz");
+      router.replace(`/biz/login?next=${next}`);
       return;
     }
 
@@ -43,7 +45,7 @@ export function RequireBusinessAuth({ children }: RequireBusinessAuthProps) {
     }
 
     router.replace("/biz/login");
-  }, [user, error, isLoading, isFetching, isError, router]);
+  }, [user, error, isLoading, isFetching, isError, router, pathname]);
 
   if (isLoading || isFetching) {
     return <Spinner label="Duke kontrolluar hyrjen" />;

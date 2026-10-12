@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { AdminLoginScreen } from "@/features/auth/AdminLoginScreen";
+import { Spinner } from "@/components/ui/Spinner";
 
 export const metadata: Metadata = {
   title: "Hyrje · Admin",
@@ -7,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function AdminLoginPage() {
-  return <AdminLoginScreen />;
+  return (
+    <Suspense fallback={<Spinner label="Duke ngarkuar" />}>
+      <AdminLoginScreen />
+    </Suspense>
+  );
 }

@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { BizLoginScreen } from "@/features/auth/BizLoginScreen";
+import { Spinner } from "@/components/ui/Spinner";
 
 export const metadata: Metadata = {
   title: "Hyrje · Biznes",
@@ -7,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function BizLoginPage() {
-  return <BizLoginScreen />;
+  return (
+    <Suspense fallback={<Spinner label="Duke ngarkuar" />}>
+      <BizLoginScreen />
+    </Suspense>
+  );
 }

@@ -11,6 +11,12 @@ export DB_DATABASE=zbritjasot_e2e
 export APP_URL=http://localhost:8001
 export FRONTEND_URL=http://localhost:3001
 export SANCTUM_STATEFUL_DOMAINS=localhost,localhost:3001,127.0.0.1,127.0.0.1:3001
+# Avoid SMTP/Resend during password-change and reset e2e (mails are not asserted).
+export MAIL_MAILER=array
+export QUEUE_CONNECTION=sync
+# Keep throttles in a flushable store for e2e (login rate limits).
+export CACHE_STORE=file
+export CACHE_PREFIX=zbritjasot_e2e_
 
 php artisan migrate:fresh --seed --force
 # Serve from public/ so the router finds index.php, and so these exports reach PHP.

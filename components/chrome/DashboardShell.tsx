@@ -70,6 +70,12 @@ export function DashboardShell({
 
   return (
     <div className="grid h-dvh overflow-hidden grid-cols-1 grid-rows-[auto_minmax(0,1fr)] min-[860px]:grid-cols-[15.5rem_minmax(0,1fr)] min-[860px]:grid-rows-1">
+      <a
+        href="#dash-main"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-charcoal"
+      >
+        Kalo te përmbajtja
+      </a>
       <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-5 border-b border-line bg-elevated px-5 py-2.5 min-[860px]:hidden">
         <Link
           href={homeHref}
@@ -87,7 +93,7 @@ export function DashboardShell({
 
         <button
           type="button"
-          className="inline-flex size-11 cursor-pointer appearance-none items-center justify-center rounded-lg border border-line bg-transparent text-ink hover:border-accent/45"
+          className="inline-flex size-11 cursor-pointer appearance-none items-center justify-center rounded-lg border border-line bg-transparent text-ink hover:border-accent/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/55"
           aria-expanded={menuOpen}
           aria-controls="dash-nav"
           onClick={() => setMenuOpen((open) => !open)}
@@ -191,9 +197,13 @@ export function DashboardShell({
         </div>
       </aside>
 
-      <div className="col-start-1 row-start-2 min-h-0 min-w-0 overflow-y-auto min-[860px]:col-start-2 min-[860px]:row-start-1">
+      <main
+        id="dash-main"
+        tabIndex={-1}
+        className="col-start-1 row-start-2 min-h-0 min-w-0 overflow-y-auto min-[860px]:col-start-2 min-[860px]:row-start-1"
+      >
         <div className="p-5 sm:p-8">{children}</div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { imageRemoteHostnames } from "./lib/imageHosts";
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -16,12 +17,11 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     // Photos are already resized WebP on the public bucket. `unoptimized` skips a second pass.
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**.r2.dev",
-      },
-    ],
+    // Add custom CDN hosts via NEXT_PUBLIC_IMAGE_HOSTS (comma-separated hostnames).
+    remotePatterns: imageRemoteHostnames().map((hostname) => ({
+      protocol: "https" as const,
+      hostname,
+    })),
   },
   // Keep production and Playwright builds out of the folder `npm run dev` uses.
   distDir:

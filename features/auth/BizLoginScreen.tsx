@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Link from "next/link";
 import { LogoMark } from "@/components/brand/LogoMark";
@@ -12,9 +12,12 @@ import {
   requireBusinessUser,
   useMe,
 } from "@/hooks/useAuth";
+import { safeNextPath } from "@/lib/safeNextPath";
 
 export function BizLoginScreen() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = safeNextPath(searchParams.get("next"), "/biz", ["/biz"]);
   const { data: user, isLoading, isFetching } = useMe();
 
   useEffect(() => {
@@ -23,14 +26,14 @@ export function BizLoginScreen() {
     }
 
     if (requireBusinessUser(user)) {
-      router.replace("/biz");
+      router.replace(nextPath);
       return;
     }
 
     if (requireAdminUser(user)) {
       router.replace("/admin");
     }
-  }, [user, isLoading, isFetching, router]);
+  }, [user, isLoading, isFetching, router, nextPath]);
 
   return (
     <main className="flex min-h-dvh items-center justify-center p-8">
@@ -53,7 +56,7 @@ export function BizLoginScreen() {
 
         <LoginForm
           requiredRole={["business", "manager"]}
-          nextPath="/biz"
+          nextPath={nextPath}
           wrongRoleMessage="Kjo llogari nuk është llogari biznesi."
           forgotHref="/biz/forgot-password"
         />

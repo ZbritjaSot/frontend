@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Spinner } from "@/components/ui/Spinner";
-import { hasRole, loginWithCookies } from "@/features/auth/api";
+import { hasRole, loginWithCookies, logout } from "@/features/auth/api";
 import { meQueryKey } from "@/hooks/useAuth";
 import { validationMessage } from "@/lib/api";
 import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
@@ -47,6 +47,14 @@ export function LoginForm({
 
       const allowed = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
       if (!allowed.some((role) => hasRole(user, role))) {
+        // Drop the just-created Sanctum session so the UI stays guest-only.
+        try {
+          await logout();
+        } catch {
+          // Best-effort; still clear local auth state below.
+        }
+        queryClient.setQueryData(meQueryKey, null);
+        await queryClient.invalidateQueries({ queryKey: meQueryKey });
         setError(wrongRoleMessage);
         return;
       }

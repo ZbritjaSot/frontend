@@ -240,9 +240,6 @@ export type OfferViewSummary = {
   days: OfferViewDay[];
 };
 
-/** @deprecated Prefer OfferBundle — kept for transitional imports. */
-export type Offer = OfferBundle;
-
 export type CompanyShop = {
   id: string;
   name: string;

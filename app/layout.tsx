@@ -114,7 +114,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full bg-canvas font-sans text-ink">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+          }}
         />
         <AppRouterCacheProvider options={{ key: "mui" }}>
           <Providers>{children}</Providers>

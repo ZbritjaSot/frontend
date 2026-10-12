@@ -4,9 +4,10 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { changePassword, hasRole } from "@/features/auth/api";
-import { useMe } from "@/hooks/useAuth";
-import { validationMessage } from "@/lib/api";
+import { meQueryKey, useMe } from "@/hooks/useAuth";
+import { passwordError, validateNewPassword } from "@/lib/passwordErrors";
 import {
   btnPrimary,
   fieldError,
@@ -15,21 +16,9 @@ import {
   pageTitle,
 } from "@/lib/ui";
 
-function passwordError(error: unknown): string {
-  const message = validationMessage(
-    error,
-    "Nuk mundëm ta ndryshojmë fjalëkalimin.",
-  );
-
-  if (message === "The current password is incorrect.") {
-    return "Fjalëkalimi aktual nuk është i saktë.";
-  }
-
-  return message;
-}
-
 export function BizPasswordScreen() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: user } = useMe();
   const manager = !!user && hasRole(user, "manager");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -53,12 +42,9 @@ export function BizPasswordScreen() {
     event.preventDefault();
     setSaved(false);
 
-    if (password.length < 8) {
-      setError("Fjalëkalimi i ri duhet të ketë të paktën 8 karaktere.");
-      return;
-    }
-    if (password !== confirmation) {
-      setError("Fjalëkalimet nuk përputhen.");
+    const localError = validateNewPassword(password, confirmation);
+    if (localError) {
+      setError(localError);
       return;
     }
     if (password === currentPassword) {
@@ -69,11 +55,12 @@ export function BizPasswordScreen() {
     setError(null);
     setPending(true);
     try {
-      await changePassword({
+      const nextUser = await changePassword({
         current_password: currentPassword,
         password,
         password_confirmation: confirmation,
       });
+      queryClient.setQueryData(meQueryKey, nextUser);
       setCurrentPassword("");
       setPassword("");
       setConfirmation("");
@@ -115,9 +102,10 @@ export function BizPasswordScreen() {
             {error}
           </p>
         ) : null}
-        <label className={fieldLabel}>
+        <label className={fieldLabel} htmlFor="biz-current-password">
           <span>Fjalëkalimi aktual</span>
           <input
+            id="biz-current-password"
             className={inputClass}
             type="password"
             autoComplete="current-password"
@@ -126,9 +114,10 @@ export function BizPasswordScreen() {
             disabled={pending}
           />
         </label>
-        <label className={fieldLabel}>
+        <label className={fieldLabel} htmlFor="biz-new-password">
           <span>Fjalëkalimi i ri</span>
           <input
+            id="biz-new-password"
             className={inputClass}
             type="password"
             autoComplete="new-password"
@@ -137,9 +126,10 @@ export function BizPasswordScreen() {
             disabled={pending}
           />
         </label>
-        <label className={fieldLabel}>
+        <label className={fieldLabel} htmlFor="biz-confirm-password">
           <span>Përsërit fjalëkalimin e ri</span>
           <input
+            id="biz-confirm-password"
             className={inputClass}
             type="password"
             autoComplete="new-password"

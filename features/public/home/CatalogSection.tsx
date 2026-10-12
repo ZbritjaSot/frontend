@@ -35,7 +35,7 @@ export function CatalogSection({
             </div>
             <SeeAll href="/?katalog=oferta">Shiko të gjitha</SeeAll>
           </div>
-          <ProductGrid offers={latest} />
+          <ProductGrid offers={latest} eager />
         </Frame>
       ) : null}
 

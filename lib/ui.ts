@@ -9,7 +9,7 @@ export const fieldLabel =
 export const fieldError = "m-0 text-sm font-semibold text-danger";
 
 export const btn =
-  "inline-flex appearance-none items-center justify-center gap-1.5 rounded-lg border-0 px-4 py-2.5 min-h-11 text-base font-bold no-underline cursor-pointer disabled:cursor-wait disabled:opacity-65";
+  "inline-flex appearance-none items-center justify-center gap-1.5 rounded-lg border-0 px-4 py-2.5 min-h-11 text-base font-bold no-underline cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/55 disabled:cursor-wait disabled:opacity-65";
 
 export const btnPrimary = `${btn} bg-accent text-charcoal hover:brightness-105`;
 

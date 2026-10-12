@@ -141,10 +141,3 @@ export async function fetchActiveCategories(): Promise<CategorySummary[]> {
   }));
 }
 
-/** @deprecated aliases */
-export const fetchBizOffers = fetchBizOfferBundles;
-export const fetchBizOffer = fetchBizOfferBundle;
-export const createBizOffer = createBizOfferBundle;
-export const updateBizOffer = updateBizOfferBundle;
-export const submitBizOffer = submitBizOfferBundle;
-export const deleteBizOffer = deleteBizOfferBundle;

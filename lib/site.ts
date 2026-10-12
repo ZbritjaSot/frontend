@@ -1,4 +1,10 @@
-export const SITE_URL = "https://www.zbritjasot.com";
+const DEFAULT_SITE_URL = "https://www.zbritjasot.com";
+
+/** Canonical public origin (no trailing slash). Override via NEXT_PUBLIC_SITE_URL. */
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || DEFAULT_SITE_URL
+).replace(/\/$/, "");
+
 export const SITE_NAME = "ZbritjaSot";
 export const SITE_WORDMARK = "Zbritja Sot";
 export const SITE_TAGLINE = "Më shumë zbritje. Më shumë kursim.";

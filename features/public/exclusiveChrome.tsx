@@ -56,11 +56,6 @@ export function ExclusivePercent({
   );
 }
 
-/** @deprecated Prefer ExclusivePercent. */
-export function ExclusiveDiscount({ percent }: { percent: number }) {
-  return <ExclusivePercent percent={percent} />;
-}
-
 /**
  * Flat editorial surfaces only — no gradient, no drop shadow.
  * Shared media ratio keeps offers and flyers on one footprint.
