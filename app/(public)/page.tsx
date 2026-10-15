@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { permanentRedirect } from "next/navigation";
 import { HomeView } from "@/features/public/HomeView";
 import { EmptyNote, Frame } from "@/features/public/Frame";
 import { ResultsView } from "@/features/public/ResultsView";
@@ -6,13 +7,12 @@ import {
   ApiError,
   fetchPublicBusinesses,
   fetchPublicCategories,
-  fetchPublicCities,
   fetchPublicFolders,
   fetchPublicHome,
   fetchPublicOffers,
   type PublicHome,
 } from "@/features/offers/api";
-import { readKatalog, readSort } from "@/lib/browse";
+import { legacyKatalogRedirect, readKatalog, readSort } from "@/lib/browse";
 import { publicPageMetadata } from "@/lib/metadata";
 import { SITE_DESCRIPTION } from "@/lib/site";
 import type { CategorySummary, PublicBusiness, PublicFolder, PublicOffer } from "@/types";
@@ -32,25 +32,20 @@ export async function generateMetadata({ searchParams }: HomePageProps): Promise
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
   const katalog = readKatalog(params.katalog);
+
+  // Legacy katalog URLs redirect in the page; keep metadata non-indexable if hit.
+  if (katalog) {
+    return publicPageMetadata({
+      title: katalog === "fletushka" ? "Fletushkat" : "Ofertat",
+      description: SITE_DESCRIPTION,
+      path: "/",
+      index: false,
+    });
+  }
+
   const filtered = Boolean(q || params.category || params.city || params.sort || params.page);
 
-  if (katalog === "oferta" && !filtered) {
-    return publicPageMetadata({
-      title: "Ofertat",
-      description: "Zbritjet aktive nga dyqanet lokale në Kosovë.",
-      path: "/?katalog=oferta",
-    });
-  }
-
-  if (katalog === "fletushka" && !filtered) {
-    return publicPageMetadata({
-      title: "Fletushkat",
-      description: "Fletushkat e dyqaneve lokale në Kosovë.",
-      path: "/?katalog=fletushka",
-    });
-  }
-
-  if (filtered || katalog) {
+  if (filtered) {
     return publicPageMetadata({
       title: q ? `Kërko: ${q}` : "Zbritjet",
       description: SITE_DESCRIPTION,
@@ -68,14 +63,17 @@ export async function generateMetadata({ searchParams }: HomePageProps): Promise
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
+  const legacyKatalog = readKatalog(params.katalog);
+  if (legacyKatalog) {
+    permanentRedirect(legacyKatalogRedirect(legacyKatalog, params));
+  }
+
   const q = params.q?.trim() ?? "";
   const category = params.category?.trim() || undefined;
-  const katalog = readKatalog(params.katalog);
-  const catalogue = katalog === "oferta" || katalog === "fletushka";
-  const city = catalogue ? params.city?.trim() || undefined : undefined;
-  const sort = catalogue ? readSort(params.sort) : "newest";
-  const page = catalogue ? 1 : Math.max(1, Number(params.page) || 1);
-  const browsing = q === "" && !category && page === 1 && !katalog;
+  const city = params.city?.trim() || undefined;
+  const sort = readSort(params.sort);
+  const page = Math.max(1, Number(params.page) || 1);
+  const browsing = q === "" && !category && page === 1;
 
   let folders: PublicFolder[] = [];
   let offers: PublicOffer[] = [];
@@ -85,26 +83,22 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   let folderTotal = 0;
   let offerTotal = 0;
   let categories: CategorySummary[] = [];
-  let cities: string[] = [];
   let home: PublicHome | null = null;
   let errorMessage: string | null = null;
 
-  const loadFolders = katalog !== "oferta";
-  const loadOffers = katalog !== "fletushka";
-
   try {
-    const [folderResult, offerResult, categoryList, cityList, homeResult, shopResult] = await Promise.all([
-      !browsing && loadFolders
+    const [folderResult, offerResult, categoryList, homeResult, shopResult] = await Promise.all([
+      !browsing
         ? fetchPublicFolders({
             q: q || undefined,
             category,
             city,
             sort,
             page,
-            perPage: katalog === "fletushka" ? 12 : 8,
+            perPage: 8,
           })
         : Promise.resolve(null),
-      !browsing && loadOffers
+      !browsing
         ? fetchPublicOffers({
             q: q || undefined,
             category,
@@ -115,7 +109,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           })
         : Promise.resolve(null),
       browsing ? Promise.resolve([]) : fetchPublicCategories().catch(() => []),
-      catalogue ? fetchPublicCities().catch(() => []) : Promise.resolve([]),
       browsing ? fetchPublicHome() : Promise.resolve(null),
       !browsing && q !== ""
         ? fetchPublicBusinesses({ q, perPage: 24 }).catch(() => null)
@@ -129,7 +122,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     folderTotal = folderResult?.meta?.total ?? folders.length;
     offerTotal = offerResult?.meta?.total ?? offers.length;
     categories = categoryList;
-    cities = cityList;
     home = homeResult;
   } catch (error) {
     errorMessage =
@@ -154,10 +146,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         categories={categories}
         q={q}
         category={category}
-        katalog={katalog}
         city={city}
         sort={sort}
-        cities={cities}
         page={page}
         offerLastPage={offerLastPage}
         folderLastPage={folderLastPage}
@@ -168,16 +158,22 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     );
   }
 
-  return <HomeView home={home ?? {
-    hero: null,
-    heroes: [],
-    featured: [],
-    fresh: [],
-    ending_soon: [],
-    flyers: [],
-    shops: [],
-    categories: [],
-    exclusive: [],
-    sections: [],
-  }} />;
+  return (
+    <HomeView
+      home={
+        home ?? {
+          hero: null,
+          heroes: [],
+          featured: [],
+          fresh: [],
+          ending_soon: [],
+          flyers: [],
+          shops: [],
+          categories: [],
+          exclusive: [],
+          sections: [],
+        }
+      }
+    />
+  );
 }

@@ -24,7 +24,7 @@ export function SpotlightSection({
             {title}
           </h2>
         </div>
-        <SeeAll href="/?katalog=oferta">Shiko të gjitha</SeeAll>
+        <SeeAll href="/oferta">Shiko të gjitha</SeeAll>
       </div>
       <ProductGrid offers={offers} eager />
     </Frame>

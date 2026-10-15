@@ -55,7 +55,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                   <span key={category.id}>
                     {index > 0 ? " · " : null}
                     <Link
-                      href={`/?katalog=oferta&category=${category.slug}`}
+                      href={`/oferta?category=${category.slug}`}
                       className="hover:text-ink"
                     >
                       {category.name}

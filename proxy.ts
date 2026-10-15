@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { isSoftGateEnabled, softGateDecision } from "@/lib/authSoftGate";
+import { readKatalog } from "@/lib/browse";
 
 /**
  * Soft dashboard gate (opt-in via AUTH_SOFT_GATE=1).
@@ -18,11 +19,23 @@ const SESSION_COOKIE =
   process.env.SESSION_COOKIE_NAME?.trim() || "zbritjasot-session";
 
 export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Legacy `/?katalog=oferta|fletushka` → dedicated routes (preserve other query params).
+  if (pathname === "/") {
+    const katalog = readKatalog(request.nextUrl.searchParams.get("katalog") ?? undefined);
+    if (katalog) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${katalog}`;
+      url.searchParams.delete("katalog");
+      return NextResponse.redirect(url, 308);
+    }
+  }
+
   if (!isSoftGateEnabled()) {
     return NextResponse.next();
   }
 
-  const { pathname } = request.nextUrl;
   const decision = softGateDecision(
     pathname,
     request.cookies.has(SESSION_COOKIE),
@@ -38,5 +51,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/biz/:path*"],
+  matcher: ["/", "/admin/:path*", "/biz/:path*"],
 };

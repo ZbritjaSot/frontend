@@ -29,7 +29,7 @@ const points = [
   },
   {
     title: "Pa llogari për vizitorin",
-    body: "Një vizitor nuk ka nevojë për llogari që të shohë ofertat. Buletini është zgjedhje: shkruan email-in vetëm nëse do njoftime, dhe mund të ndalosh kur të duash.",
+    body: "Një vizitor nuk ka nevojë për llogari që të shohë ofertat. Të preferuarat ruhen vetëm në shfletuesin e tij dhe nuk janë llogari. Buletini është zgjedhje: shkruan email-in vetëm nëse do njoftime, dhe mund të ndalosh kur të duash.",
   },
   {
     title: "Llogaritë e panelit",

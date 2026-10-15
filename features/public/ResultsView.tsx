@@ -10,6 +10,7 @@ import { display, kicker as kickerClass } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
 import {
   browsePath,
+  catalogPath,
   showCatalogControls,
   type CatalogSort,
   type Katalog,
@@ -51,13 +52,14 @@ export function ResultsView({
   offerTotal = offers.length,
   folderTotal = folders.length,
   shops = [],
-  basePath = "/",
+  basePath,
 }: ResultsViewProps) {
+  const resolvedBasePath = basePath ?? (katalog ? catalogPath(katalog) : "/");
   const categoryName = categories.find((item) => item.slug === category)?.name;
   const title = q
     ? `«${q}»`
     : katalog === "fletushka"
-      ? "Fletushkat"
+      ? (categoryName ?? "Fletushkat")
       : katalog === "oferta"
         ? (categoryName ?? "Ofertat")
         : (categoryName ?? "Zbritjet");
@@ -93,7 +95,7 @@ export function ResultsView({
       </h1>
       <p className="mt-4 mb-0 max-w-xl text-sm leading-relaxed text-muted">
         {flyerCatalogue
-          ? `${folderTotal} fletushka aktive.`
+          ? `${folderTotal} fletushka aktive${categoryName ? ` te ${categoryName}` : ""}.`
           : q
             ? `${offerTotal} produkte · ${folderTotal} fletushka`
             : `${offerTotal} produkte aktive${categoryName ? ` te ${categoryName}` : ""}.`}
@@ -101,7 +103,7 @@ export function ResultsView({
       {catalogue ? (
         <div className="mt-5 flex flex-col gap-3">
           <DiscoverForm
-            basePath={basePath}
+            basePath={resolvedBasePath}
             q={q}
             category={category}
             katalog={katalog}
@@ -113,7 +115,7 @@ export function ResultsView({
           />
           {showControls ? (
             <CatalogFilters
-              basePath={basePath}
+              basePath={resolvedBasePath}
               q={q}
               category={category}
               katalog={katalog}
@@ -126,7 +128,7 @@ export function ResultsView({
       ) : (
         <div className="mt-8 max-w-xl">
           <DiscoverForm
-            basePath={basePath}
+            basePath={resolvedBasePath}
             q={q}
             category={category}
             katalog={katalog}
@@ -220,7 +222,7 @@ export function ResultsView({
         <Pager
           page={page}
           lastPage={lastPage}
-          hrefFor={(next) => browsePath(basePath, { q, category, katalog, page: next })}
+          hrefFor={(next) => browsePath(resolvedBasePath, { q, category, page: next })}
         />
       )}
     </Band>

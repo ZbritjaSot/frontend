@@ -121,21 +121,24 @@ type KosovoParts = {
   minute: string;
 };
 
+/** Shared formatter so SSR and client use the same Kosovo calendar fields. */
+const kosovoDateTime = new Intl.DateTimeFormat("en-GB", {
+  timeZone: KOSOVO_TIME_ZONE,
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+});
+
 function kosovoParts(value: string | Date): KosovoParts | null {
   const date = typeof value === "string" ? new Date(value) : value;
   if (Number.isNaN(date.getTime())) {
     return null;
   }
 
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: KOSOVO_TIME_ZONE,
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(date);
+  const parts = kosovoDateTime.formatToParts(date);
 
   const read = (type: Intl.DateTimeFormatPartTypes) =>
     parts.find((part) => part.type === type)?.value ?? "";

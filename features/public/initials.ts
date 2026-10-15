@@ -1,3 +1,4 @@
+/** Shop mark initials — locale-independent so SSR matches the first client paint. */
 export function shopInitials(name: string): string {
   const parts = name
     .trim()
@@ -7,5 +8,5 @@ export function shopInitials(name: string): string {
     .map((part) => part[0] ?? "")
     .join("");
 
-  return letters.toLocaleUpperCase("sq") || "Z";
+  return letters.toUpperCase() || "Z";
 }

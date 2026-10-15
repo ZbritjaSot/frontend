@@ -16,6 +16,11 @@ export function readKatalog(value: string | undefined): Katalog | undefined {
   return undefined;
 }
 
+/** Dedicated catalogue routes (replaces `/?katalog=`). */
+export function catalogPath(katalog: Katalog): "/oferta" | "/fletushka" {
+  return katalog === "fletushka" ? "/fletushka" : "/oferta";
+}
+
 /**
  * Category chips / city-sort filters: show when there are results, or when the
  * visitor already filtered (so they can clear). Hide on a totally empty catalogue.
@@ -51,12 +56,14 @@ export function browsePath(
     q?: string;
     category?: string | null;
     page?: number;
+    /** When set, path becomes `/oferta` or `/fletushka` (not a query param). */
     katalog?: Katalog | null;
     city?: string | null;
     sort?: CatalogSort | null;
     fp?: number;
   },
 ): string {
+  const path = query.katalog ? catalogPath(query.katalog) : basePath;
   const params = new URLSearchParams();
   const q = query.q?.trim();
   if (q) {
@@ -64,9 +71,6 @@ export function browsePath(
   }
   if (query.category) {
     params.set("category", query.category);
-  }
-  if (query.katalog) {
-    params.set("katalog", query.katalog);
   }
   if (query.city) {
     params.set("city", query.city);
@@ -81,5 +85,25 @@ export function browsePath(
     params.set("fp", String(query.fp));
   }
   const search = params.toString();
-  return search === "" ? basePath : `${basePath}?${search}`;
+  return search === "" ? path : `${path}?${search}`;
+}
+
+/** Build redirect target from legacy `/?katalog=` URLs. */
+export function legacyKatalogRedirect(
+  katalog: Katalog,
+  params: {
+    q?: string;
+    category?: string;
+    city?: string;
+    sort?: string;
+    page?: string;
+  },
+): string {
+  return browsePath(catalogPath(katalog), {
+    q: params.q,
+    category: params.category?.trim() || null,
+    city: params.city?.trim() || null,
+    sort: readSort(params.sort),
+    page: Math.max(1, Number(params.page) || 1),
+  });
 }

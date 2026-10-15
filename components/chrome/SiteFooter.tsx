@@ -22,10 +22,10 @@ export function SiteFooter() {
           </div>
           <nav aria-label="Fundi i faqes" className="flex flex-col gap-3">
             <div className="flex flex-wrap gap-x-5 gap-y-2">
-              <Link href="/?katalog=oferta" className={link}>
+              <Link href="/oferta" className={link}>
                 Ofertat
               </Link>
-              <Link href="/?katalog=fletushka" className={link}>
+              <Link href="/fletushka" className={link}>
                 Fletushkat
               </Link>
               <Link href="/biznese" className={link}>

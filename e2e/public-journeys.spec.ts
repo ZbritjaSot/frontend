@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("public cards open offer, flyer, and shop pages", async ({ page }) => {
-  await page.goto("/?katalog=oferta");
+  await page.goto("/oferta");
   await expect(page.getByText("Diçka shkoi keq")).toHaveCount(0);
 
   const offerLink = page.locator('a[href^="/offers/"]').first();
@@ -11,7 +11,7 @@ test("public cards open offer, flyer, and shop pages", async ({ page }) => {
   await expect(page.getByText("Oferta nuk u gjet")).toHaveCount(0);
   await expect(page.getByText(/Kurse|Deri më|€/).first()).toBeVisible();
 
-  await page.goto("/?katalog=fletushka");
+  await page.goto("/fletushka");
   const flyerLink = page.locator('a[href^="/dosje/"]').first();
   await expect(flyerLink).toBeVisible({ timeout: 20000 });
   await flyerLink.click();
@@ -29,7 +29,7 @@ test("public cards open offer, flyer, and shop pages", async ({ page }) => {
 
 test("city filter comes before sort on the phone catalog", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/?katalog=oferta");
+  await page.goto("/oferta");
   const city = page.getByText("Qyteti", { exact: true }).first();
   const sort = page.getByText("Rendit", { exact: true }).first();
   await expect(city).toBeVisible({ timeout: 20000 });

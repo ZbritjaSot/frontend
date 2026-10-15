@@ -35,6 +35,11 @@ export function placementKey(item: PlacementRef): string {
   return `${item.kind}:${item.id}`;
 }
 
+/**
+ * Admin API for ordering the public `/ekskluzive` stream.
+ * Deferred: no UI is wired yet; public placement remains automatic (`GET /placement`).
+ * See `docs/WEB_MOBILE_IMPROVEMENTS_PLAN.md` Phase 5.
+ */
 export async function fetchAdminPlacement(): Promise<PlacementEditor> {
   const payload = await apiFetch<{ data: PlacementEditor }>("/admin/placement", {
     auth: true,

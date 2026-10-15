@@ -19,7 +19,7 @@ export function CampaignSection({
         <h2 className="m-0 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
           {title}
         </h2>
-        <SeeAll href="/?katalog=fletushka">Shiko të gjitha</SeeAll>
+        <SeeAll href="/fletushka">Shiko të gjitha</SeeAll>
       </div>
       <CampaignPoster folder={folders[0]} layout="editorial" eager />
       {folders.length > 1 ? (

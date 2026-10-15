@@ -43,7 +43,6 @@ export function DiscoverForm({
         {category ? (
           <input type="hidden" name="category" value={category} />
         ) : null}
-        {katalog ? <input type="hidden" name="katalog" value={katalog} /> : null}
         {city ? <input type="hidden" name="city" value={city} /> : null}
         {sort !== "newest" ? <input type="hidden" name="sort" value={sort} /> : null}
         <label className="relative min-w-0 flex-1">

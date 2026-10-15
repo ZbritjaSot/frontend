@@ -89,13 +89,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.4,
     },
     {
-      url: `${SITE_URL}/?katalog=oferta`,
+      url: `${SITE_URL}/oferta`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.9,
     },
     {
-      url: `${SITE_URL}/?katalog=fletushka`,
+      url: `${SITE_URL}/fletushka`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.9,

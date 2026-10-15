@@ -2,18 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { readKatalog } from "@/lib/browse";
 import { EXCLUSIVE_HREF, EXCLUSIVE_LABEL } from "@/lib/exclusive";
 
 const links = [
-  { href: "/?katalog=oferta", label: "Ofertat", match: "oferta" },
-  { href: "/?katalog=fletushka", label: "Fletushkat", match: "fletushka" },
+  { href: "/oferta", label: "Ofertat", match: "oferta" },
+  { href: "/fletushka", label: "Fletushkat", match: "fletushka" },
   { href: "/biznese", label: "Dyqanet", match: "dyqane" },
 ] as const;
 
@@ -22,8 +21,6 @@ const iconHit =
 
 export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }) {
   const pathname = usePathname();
-  const params = useSearchParams();
-  const katalog = readKatalog(params.get("katalog") ?? undefined);
   const menuId = useId();
   const [open, setOpen] = useState(false);
   const onSettings = pathname.startsWith("/cilesimet");
@@ -44,12 +41,12 @@ export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }
 
   function active(match: (typeof links)[number]["match"]): boolean {
     if (match === "oferta") {
-      return katalog === "oferta" || pathname.startsWith("/offers");
+      return pathname === "/oferta" || pathname.startsWith("/oferta/") || pathname.startsWith("/offers");
     }
     if (match === "dyqane") {
-      return pathname === "/biznese";
+      return pathname === "/biznese" || pathname.startsWith("/biznese/");
     }
-    return katalog === "fletushka" || pathname.startsWith("/dosje");
+    return pathname === "/fletushka" || pathname.startsWith("/fletushka/") || pathname.startsWith("/dosje");
   }
 
   const exclusiveActive = pathname === EXCLUSIVE_HREF;

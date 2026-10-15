@@ -33,7 +33,7 @@ export function CatalogSection({
                 {freshTitle}
               </h2>
             </div>
-            <SeeAll href="/?katalog=oferta">Shiko të gjitha</SeeAll>
+            <SeeAll href="/oferta">Shiko të gjitha</SeeAll>
           </div>
           <ProductGrid offers={latest} eager />
         </Frame>

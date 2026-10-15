@@ -37,7 +37,11 @@ const points = [
   },
   {
     title: "Në shfletues",
-    body: "Zgjedhja e temës së çelët ose të errët ruhet në shfletues. Në panelin e dyqanit ruhet edhe dyqani i zgjedhur, që të mos kërkohet përsëri. Këto nuk dërgohen si gjurmim.",
+    body: "Në shfletues ruhen lokalisht: zgjedhja e temës (e çelët / e errët), lista e të preferuarave (oferta dhe fletushka), dhe, në panelin e dyqanit, dyqani i zgjedhur. Këto nuk dërgohen te serveri si gjurmim dhe nuk sinkronizohen mes pajisjeve.",
+  },
+  {
+    title: "Formulare publike",
+    body: "Nëse dërgon formularin e kontaktit ose të partneritetit, ruhen të dhënat që shkruan aty, që ekipi të mund të përgjigjet. Nuk krijohen llogari vizitori nga këto forma.",
   },
   {
     title: "Llogaritë e dyqanit",
