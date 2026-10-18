@@ -56,7 +56,7 @@ const offerItemSchema = z
     },
   );
 
-export const offerBundleFormSchema = z
+const offerBundleBaseSchema = z
   .object({
     title: z
       .string()
@@ -72,14 +72,18 @@ export const offerBundleFormSchema = z
   .refine((data) => new Date(data.expires_at) > new Date(data.starts_at), {
     message: "Skadimi duhet të jetë pas fillimit.",
     path: ["expires_at"],
-  })
-  .refine(
-    (data) => new Date(data.starts_at).getTime() >= earliestOfferStart().getTime(),
-    {
-      message: `Fillimi duhet të jetë së paku ${OFFER_START_LEAD_HOURS} orë nga tani (kohë për shqyrtim).`,
-      path: ["starts_at"],
-    },
-  );
+  });
+
+export const offerBundleFormSchema = offerBundleBaseSchema.refine(
+  (data) => new Date(data.starts_at).getTime() >= earliestOfferStart().getTime(),
+  {
+    message: `Fillimi duhet të jetë së paku ${OFFER_START_LEAD_HOURS} orë nga tani (kohë për shqyrtim).`,
+    path: ["starts_at"],
+  },
+);
+
+/** Admin publish/edit: same folder rules, without the review lead time. */
+export const adminOfferBundleFormSchema = offerBundleBaseSchema;
 
 export type OfferBundleFormInput = z.infer<typeof offerBundleFormSchema>;
 export type OfferItemFormInput = z.infer<typeof offerItemSchema>;

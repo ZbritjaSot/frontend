@@ -8,16 +8,22 @@ const FILTERS = [
 
 export type OfferListStatus = "" | "pending" | "approved";
 
-export function OfferStatusFilters({
+export function OfferStatusFilters<T extends string = OfferListStatus>({
   value,
   onChange,
+  options,
 }: {
-  value: OfferListStatus;
-  onChange: (value: OfferListStatus) => void;
+  value: T;
+  onChange: (value: T) => void;
+  options?: readonly (readonly [T, string])[];
 }) {
+  const items =
+    options ??
+    (FILTERS as unknown as readonly (readonly [T, string])[]);
+
   return (
     <div className="mb-4 flex flex-wrap gap-2">
-      {FILTERS.map(([id, label]) => (
+      {items.map(([id, label]) => (
         <button
           key={id || "all"}
           type="button"

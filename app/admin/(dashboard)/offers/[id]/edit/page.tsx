@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
+import { Spinner } from "@/components/ui/Spinner";
 import { AdminEditOfferScreen } from "@/features/admin/AdminEditOfferScreen";
 
 export const metadata: Metadata = {
@@ -12,5 +14,9 @@ type PageProps = {
 
 export default async function AdminEditOfferPage({ params }: PageProps) {
   const { id } = await params;
-  return <AdminEditOfferScreen id={id} />;
+  return (
+    <Suspense fallback={<Spinner label="Duke ngarkuar dosjen" />}>
+      <AdminEditOfferScreen id={id} />
+    </Suspense>
+  );
 }

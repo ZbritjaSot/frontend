@@ -90,6 +90,21 @@ export function defaultOfferWindow(): {
   };
 }
 
+/** Admin create window: this hour → +14 days. No review lead time. */
+export function immediateOfferWindow(): {
+  starts_at: string;
+  expires_at: string;
+} {
+  const start = new Date();
+  start.setMinutes(0, 0, 0);
+  const end = new Date(start.getTime());
+  end.setDate(end.getDate() + 14);
+  return {
+    starts_at: toHourLocalValue(start),
+    expires_at: toHourLocalValue(end),
+  };
+}
+
 /** Lengths offered when recording a payment. Other spans stay on the calendars. */
 export const SUBSCRIPTION_LENGTHS = [1, 3, 6, 12] as const;
 

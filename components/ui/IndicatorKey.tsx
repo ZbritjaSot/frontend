@@ -306,7 +306,17 @@ export const adminInspectKey: IndicatorItem[] = [
   { mark: "taken_down", text: "Është hequr nga faqja publike." },
   { mark: "expired", text: "Data ka kaluar." },
   { mark: "draft", text: "Biznesi ende s’e ka dërguar." },
-  { mark: "edit", text: "Ndrysho dosjen para se ta aprovosh." },
+  { mark: "edit", text: "Ndrysho dosjen, pavarësisht statusit." },
+];
+
+export const adminBusinessCatalogKey: IndicatorItem[] = [
+  { mark: "draft", text: "Ende nuk është dërguar." },
+  { mark: "pending", text: "Pret aprovimin." },
+  { mark: "approved", text: "Mund të dalë në faqen publike." },
+  { mark: "taken_down", text: "Është hequr nga faqja publike." },
+  { mark: "expired", text: "Data ka kaluar. Nuk shfaqet." },
+  { mark: "view", text: "Hap dosjen." },
+  { mark: "edit", text: "Ndrysho, pavarësisht statusit." },
 ];
 
 export const adminBusinessKey: IndicatorItem[] = [

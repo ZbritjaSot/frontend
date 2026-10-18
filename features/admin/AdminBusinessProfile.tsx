@@ -5,12 +5,14 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import StarIcon from "@mui/icons-material/Star";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Spinner } from "@/components/ui/Spinner";
 import { BranchPanel } from "@/features/branches/BranchPanel";
 import { BusinessLinksForm } from "@/features/business/BusinessLinksForm";
+import { AdminBusinessCatalog } from "@/features/admin/AdminBusinessCatalog";
 import { MailResends } from "@/features/admin/MailResends";
 import { ManagerNote } from "@/features/biz/ManagerNote";
 import { AdminGallery } from "@/features/gallery/AdminGallery";
@@ -89,6 +91,22 @@ function clockLabel(value: string): string {
   return match ? `${match[1]}:${match[2]}` : "";
 }
 
+const PROFILE_SECTIONS = [
+  ["biznesi", "Biznesi"],
+  ["abonimi", "Abonimi"],
+  ["llogaria", "Llogaria"],
+  ["galeria", "Galeria"],
+  ["deget", "Degët"],
+  ["ofertat", "Ofertat"],
+  ["fletushkat", "Fletushkat"],
+] as const;
+
+type ProfileSection = (typeof PROFILE_SECTIONS)[number][0];
+
+function isProfileSection(value: string | null): value is ProfileSection {
+  return PROFILE_SECTIONS.some(([id]) => id === value);
+}
+
 const micro = "text-xs font-bold tracking-[0.08em] text-muted uppercase";
 
 const checkLabelClass =
@@ -152,6 +170,9 @@ function AddressLink({ business }: { business: Business }) {
 }
 
 export function AdminBusinessProfile({ id }: { id: string }) {
+  const router = useRouter();
+  const params = useSearchParams();
+  const requested = params.get("section");
   const queryClient = useQueryClient();
   const businessQuery = useAdminBusiness(id);
   const payerId = businessQuery.data?.parent_id ?? id;
@@ -172,7 +193,9 @@ export function AdminBusinessProfile({ id }: { id: string }) {
   );
 
   const [name, setName] = useState("");
-  const [section, setSection] = useState<"biznesi" | "abonimi" | "llogaria" | "galeria" | "deget">("biznesi");
+  const [section, setSection] = useState<ProfileSection>(
+    isProfileSection(requested) ? requested : "biznesi",
+  );
   const [active, setActive] = useState(true);
   const [ownerName, setOwnerName] = useState("");
   const [ownerEmail, setOwnerEmail] = useState("");
@@ -370,22 +393,19 @@ export function AdminBusinessProfile({ id }: { id: string }) {
     <div>
       {heading}
       <nav className="mb-6 flex flex-wrap gap-x-5 gap-y-2 border-b border-line" aria-label="Seksionet e profilit">
-        {(
-          [
-            ["biznesi", "Biznesi"],
-            ["abonimi", "Abonimi"],
-            ["llogaria", "Llogaria"],
-            ["galeria", "Galeria"],
-            ["deget", "Degët"],
-          ] as const
-        ).map(([id, label]) => (
+        {PROFILE_SECTIONS.map(([sectionId, label]) => (
           <button
-            key={id}
+            key={sectionId}
             type="button"
             className={`cursor-pointer border-0 border-b-2 bg-transparent px-0 py-3 text-sm font-bold ${
-              section === id ? "border-accent text-ink" : "border-transparent text-muted"
+              section === sectionId ? "border-accent text-ink" : "border-transparent text-muted"
             }`}
-            onClick={() => setSection(id)}
+            onClick={() => {
+              setSection(sectionId);
+              router.replace(`/admin/businesses/${business.id}?section=${sectionId}`, {
+                scroll: false,
+              });
+            }}
           >
             {label}
           </button>
@@ -751,6 +771,12 @@ export function AdminBusinessProfile({ id }: { id: string }) {
         <div className={section === "deget" ? "" : "hidden"}>
           <BranchPanel mode="admin" business={business} />
         </div>
+        {section === "ofertat" ? (
+          <AdminBusinessCatalog businessId={business.id} catalog="offers" />
+        ) : null}
+        {section === "fletushkat" ? (
+          <AdminBusinessCatalog businessId={business.id} catalog="flyers" />
+        ) : null}
       </div>
       <ConfirmModal
         open={emailConfirmOpen}

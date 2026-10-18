@@ -23,7 +23,7 @@ import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Modal } from "@/components/ui/Modal";
 import { PosMoneyField } from "@/components/ui/PosMoneyField";
 import { SelectField } from "@/components/ui/SelectField";
-import { useUpdateAdminOffer } from "@/hooks/useAdminOffers";
+import { useCreateAdminOffer, useUpdateAdminOffer } from "@/hooks/useAdminOffers";
 import { useCreateManagerBundle, useUpdateManagerBundle } from "@/hooks/useManagerReview";
 import {
   useActiveCategories,
@@ -33,6 +33,7 @@ import {
 } from "@/hooks/useBizOffers";
 import {
   defaultOfferWindow,
+  immediateOfferWindow,
   OFFER_START_LEAD_HOURS,
   toHourLocalValue,
 } from "@/lib/datetime";
@@ -45,7 +46,10 @@ import {
   inputClass,
 } from "@/lib/ui";
 import type { BundleCatalog } from "@/features/offers/bizApi";
-import { offerBundleFormSchema } from "@/schemas/offer";
+import {
+  adminOfferBundleFormSchema,
+  offerBundleFormSchema,
+} from "@/schemas/offer";
 import type { OfferBundle } from "@/types";
 
 type ItemDraft = {
@@ -73,6 +77,8 @@ type OfferFormProps = {
   canShare?: boolean;
   /** Flyers = folder with cover; offers = standalone products (min one). */
   catalog?: BundleCatalog;
+  /** Where create/cancel returns. Defaults to the audience list or dossier. */
+  doneHref?: string;
 };
 
 function emptyItem(key: string): ItemDraft {
@@ -136,6 +142,7 @@ export function OfferForm({
   businessId,
   canShare = false,
   catalog = "flyers",
+  doneHref,
 }: OfferFormProps) {
   const router = useRouter();
   const resolvedCatalog: BundleCatalog =
@@ -153,7 +160,16 @@ export function OfferForm({
     businessId ?? "",
     resolvedCatalog,
   );
-  const createMutation = audience === "manager" ? createManagerMutation : createBizMutation;
+  const createAdminMutation = useCreateAdminOffer(
+    businessId ?? "",
+    resolvedCatalog,
+  );
+  const createMutation =
+    audience === "manager"
+      ? createManagerMutation
+      : audience === "admin"
+        ? createAdminMutation
+        : createBizMutation;
   const updateBizMutation = useUpdateBizOffer(offer?.id ?? "", resolvedCatalog);
   const updateAdminMutation = useUpdateAdminOffer(offer?.id ?? "");
   const updateManagerMutation = useUpdateManagerBundle(offer?.id ?? "");
@@ -166,13 +182,19 @@ export function OfferForm({
   const submitBiz = useSubmitBizOffer();
   const [reviewOpen, setReviewOpen] = useState(false);
   const leaveHref =
-    audience === "admin" && offer
+    doneHref ??
+    (audience === "admin" && offer
       ? `/admin/offers/${offer.id}`
       : audience === "manager" && offer
         ? `/biz/review/${offer.id}`
-        : listHref;
+        : listHref);
 
-  const defaults = defaultOfferWindow();
+  const defaults =
+    audience === "admin" && mode === "create"
+      ? immediateOfferWindow()
+      : defaultOfferWindow();
+  const formSchema =
+    audience === "admin" ? adminOfferBundleFormSchema : offerBundleFormSchema;
   const [title, setTitle] = useState(offer?.title ?? "");
   const [startsAt, setStartsAt] = useState(
     offer ? toHourLocalValue(offer.starts_at) : defaults.starts_at,
@@ -244,17 +266,20 @@ export function OfferForm({
   const pending =
     createMutation.isPending || updateMutation.isPending || submitBiz.isPending;
   const sendsForApproval = audience === "biz" || (audience === "manager" && mode === "create");
-  const primaryLabel = audience === "manager" && mode === "create"
-    ? "Dërgo në pritje"
-    : audience === "biz"
-      ? "Dërgo për aprovim"
-      : "Përditëso";
+  const confirmsBeforeSave = sendsForApproval || audience === "admin";
+  const primaryLabel =
+    audience === "admin" && mode === "create"
+      ? "Publiko"
+      : audience === "manager" && mode === "create"
+        ? "Dërgo në pritje"
+        : audience === "biz"
+          ? "Dërgo për aprovim"
+          : "Përditëso";
   const kindLabel = isFlyer ? "Fletushkë" : "Oferta";
   const kindTitle = isFlyer ? "Dosje e re" : "Oferta të reja";
   const allowShare =
-    canShare ||
     audience === "biz" ||
-    audience === "admin" ||
+    (audience === "admin" && (mode === "edit" || canShare)) ||
     (audience === "manager" && Boolean(ownerShopId));
 
   const categoryOptions = useMemo(
@@ -325,14 +350,14 @@ export function OfferForm({
       return "Shto të paktën një ofertë.";
     }
 
-    const parsed = offerBundleFormSchema.safeParse(formPayload);
+    const parsed = formSchema.safeParse(formPayload);
 
     if (!parsed.success) {
       return parsed.error.issues[0]?.message ?? "Të dhënat nuk janë të vlefshme.";
     }
 
     return null;
-  }, [formPayload, items]);
+  }, [formPayload, formSchema, items]);
 
   const modalError = reviewValidationError ?? error;
   const submitBlocked = Boolean(reviewValidationError);
@@ -387,7 +412,7 @@ export function OfferForm({
       }
     }
 
-    const parsed = offerBundleFormSchema.safeParse(formPayload);
+    const parsed = formSchema.safeParse(formPayload);
 
     if (!parsed.success) {
       setError(
@@ -403,7 +428,12 @@ export function OfferForm({
           await submitBiz.mutateAsync(created.id);
         }
         router.replace(
-          audience === "manager" ? `/biz/review/${created.id}` : listHref,
+          doneHref ??
+            (audience === "manager"
+              ? `/biz/review/${created.id}`
+              : audience === "admin"
+                ? `/admin/offers/${created.id}`
+                : listHref),
         );
       } else if (offer) {
         await updateMutation.mutateAsync(parsed.data);
@@ -435,7 +465,7 @@ export function OfferForm({
       noValidate
       onSubmit={(event) => {
         event.preventDefault();
-        if (sendsForApproval) {
+        if (confirmsBeforeSave) {
           setReviewOpen(true);
           return;
         }
@@ -490,8 +520,9 @@ export function OfferForm({
         ) : null}
         <p className={`${micro} ${isFlyer ? "mt-6" : "mt-5"} mb-3`}>Periudha</p>
         <p className="m-0 mb-3 text-sm leading-relaxed text-muted">
-          Fillimi së paku {OFFER_START_LEAD_HOURS} orë nga tani — kohë për shqyrtim
-          nga menaxheri ose admini. Ora vetëm me :00.
+          {audience === "admin"
+            ? "Ora vetëm me :00. Mund ta publikosh kur të duash, pa pritjen 2-orëshe."
+            : `Fillimi së paku ${OFFER_START_LEAD_HOURS} orë nga tani — kohë për shqyrtim nga menaxheri ose admini. Ora vetëm me :00.`}
         </p>
         <div className="grid gap-5 md:grid-cols-2 md:gap-8">
           <label className="flex flex-col gap-2">
@@ -902,6 +933,13 @@ export function OfferForm({
           </>
         }
       >
+        {audience === "admin" ? (
+          <p className="m-0 mb-3 text-sm leading-relaxed text-muted">
+            {mode === "create"
+              ? "Ruhet e aprovuar menjëherë. Nuk kalon në pritje."
+              : "Ndryshimet ruhen pa e kthyer dosjen në pritje."}
+          </p>
+        ) : null}
         {modalError ? (
           <p className={`${fieldError} mb-4`} role="alert">
             {modalError}

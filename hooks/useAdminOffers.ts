@@ -3,12 +3,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   approveOffer,
+  createAdminOfferBundle,
+  fetchActiveStores,
+  fetchAdminBusinessBundles,
   fetchAdminOfferBundle,
   fetchApprovedOffers,
   fetchPendingOffers,
   takeDownOffer,
   updateAdminOfferBundle,
 } from "@/features/admin/offersApi";
+import type { BundleCatalog } from "@/features/offers/bizApi";
 import type { OfferBundleFormInput } from "@/schemas/offer";
 
 export const adminPendingOffersQueryKey = [
@@ -52,6 +56,46 @@ export function useApprovedOffers(
   });
 }
 
+export const adminBusinessBundlesQueryKey = (
+  businessId: string,
+  catalog: BundleCatalog,
+) => ["admin", "offer-bundles", "business", businessId, catalog] as const;
+
+export function useAdminBusinessBundles(
+  businessId: string,
+  page = 1,
+  q = "",
+  status = "",
+  catalog: BundleCatalog = "flyers",
+) {
+  return useQuery({
+    queryKey: [...adminBusinessBundlesQueryKey(businessId, catalog), page, q, status],
+    queryFn: () =>
+      fetchAdminBusinessBundles(businessId, page, undefined, q, status, catalog),
+    placeholderData: (previous) => previous,
+    enabled: Boolean(businessId),
+  });
+}
+
+export function useActiveStores() {
+  return useQuery({
+    queryKey: ["admin", "offer-bundles", "stores"] as const,
+    queryFn: fetchActiveStores,
+    staleTime: 60_000,
+  });
+}
+
+export function useCreateAdminOffer(businessId: string, catalog: BundleCatalog) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: OfferBundleFormInput) =>
+      createAdminOfferBundle(businessId, input, catalog),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "offer-bundles"] });
+    },
+  });
+}
+
 export function useAdminOfferBundle(id: string) {
   return useQuery({
     queryKey: adminOfferBundleQueryKey(id),
@@ -87,12 +131,7 @@ export function useUpdateAdminOffer(id: string) {
     mutationFn: (input: OfferBundleFormInput) =>
       updateAdminOfferBundle(id, input),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: adminPendingOffersQueryKey,
-      });
-      await queryClient.invalidateQueries({
-        queryKey: adminOfferBundleQueryKey(id),
-      });
+      await queryClient.invalidateQueries({ queryKey: ["admin", "offer-bundles"] });
     },
   });
 }

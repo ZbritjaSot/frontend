@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
+import { Spinner } from "@/components/ui/Spinner";
 import { AdminBusinessProfile } from "@/features/admin/AdminBusinessProfile";
 
 export const metadata: Metadata = {
@@ -12,5 +14,9 @@ export default async function AdminBusinessProfilePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <AdminBusinessProfile id={id} />;
+  return (
+    <Suspense fallback={<Spinner label="Duke ngarkuar profilin" />}>
+      <AdminBusinessProfile id={id} />
+    </Suspense>
+  );
 }

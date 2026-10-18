@@ -2,7 +2,7 @@
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { adminInspectKey, IndicatorKey } from "@/components/ui/IndicatorKey";
@@ -16,6 +16,7 @@ import {
   useTakeDownOffer,
 } from "@/hooks/useAdminOffers";
 import { validationMessage } from "@/lib/api";
+import { safeNextPath } from "@/lib/safeNextPath";
 import { formatDateShortSq } from "@/lib/format";
 import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status";
 import {
@@ -36,6 +37,8 @@ type InspectOfferScreenProps = {
 
 export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
   const router = useRouter();
+  const params = useSearchParams();
+  const requestedBack = safeNextPath(params.get("back"), "", ["/admin"]);
   const { data: bundle, isLoading, isError, error } = useAdminOfferBundle(id);
   const approveMutation = useApproveOffer();
   const takeDownMutation = useTakeDownOffer();
@@ -64,8 +67,13 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
 
   const isPending = bundle.status === "pending";
   const isApproved = bundle.status === "approved";
-  const backHref = isApproved ? "/admin/offers?status=approved" : "/admin/offers";
-  const backLabel = isApproved ? "Aktive" : "Në pritje";
+  const backHref =
+    requestedBack ||
+    (isApproved ? "/admin/offers?status=approved" : "/admin/offers");
+  const backLabel = requestedBack ? "Kthehu" : isApproved ? "Aktive" : "Në pritje";
+  const editHref = requestedBack
+    ? `/admin/offers/${bundle.id}/edit?back=${encodeURIComponent(requestedBack)}`
+    : `/admin/offers/${bundle.id}/edit`;
 
   async function onApprove() {
     setActionError(null);
@@ -139,11 +147,11 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
               : "produkte"}
           </p>
         </div>
-        {isPending ? (
-          <div className="flex flex-wrap gap-2">
-            <Link href={`/admin/offers/${bundle.id}/edit`} className={btnGhost}>
-              Ndrysho
-            </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href={editHref} className={btnGhost}>
+            Ndrysho
+          </Link>
+          {isPending ? (
             <button
               type="button"
               className={btnPrimary}
@@ -152,21 +160,21 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
             >
               Aprovo
             </button>
-          </div>
-        ) : null}
-        {isApproved ? (
-          <button
-            type="button"
-            className={btnDanger}
-            disabled={takeDownMutation.isPending}
-            onClick={() => {
-              setActionError(null);
-              setConfirmTakeDown(true);
-            }}
-          >
-            Hiq nga faqja
-          </button>
-        ) : null}
+          ) : null}
+          {isApproved ? (
+            <button
+              type="button"
+              className={btnDanger}
+              disabled={takeDownMutation.isPending}
+              onClick={() => {
+                setActionError(null);
+                setConfirmTakeDown(true);
+              }}
+            >
+              Hiq nga faqja
+            </button>
+          ) : null}
+        </div>
       </div>
 
       <IndicatorKey items={adminInspectKey} />

@@ -5,7 +5,10 @@ import {
   toHourLocalValue,
 } from "@/lib/datetime";
 import { MAX_PRICE_CENTS } from "@/lib/format";
-import { offerBundleFormSchema } from "@/schemas/offer";
+import {
+  adminOfferBundleFormSchema,
+  offerBundleFormSchema,
+} from "@/schemas/offer";
 
 const categoryId = "018f6b2e-6c3a-7b2a-8f1e-9c0d1e2f3a4b";
 
@@ -90,6 +93,19 @@ describe("offer form validation", () => {
     expect(
       messages(folder({ starts_at: expires_at, expires_at: starts_at })),
     ).toContain("Skadimi duhet të jetë pas fillimit.");
+  });
+
+  it("lets an admin start sooner than the review lead time", () => {
+    const soon = new Date();
+    soon.setHours(soon.getHours() + 1, 0, 0, 0);
+    const end = new Date(soon.getTime());
+    end.setDate(end.getDate() + 7);
+    const input = folder({
+      starts_at: toHourLocalValue(soon),
+      expires_at: toHourLocalValue(end),
+    });
+    expect(adminOfferBundleFormSchema.safeParse(input).success).toBe(true);
+    expect(offerBundleFormSchema.safeParse(input).success).toBe(false);
   });
 
   it("requires start at least two hours ahead", () => {

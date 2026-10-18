@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   addLocalMonths,
   defaultOfferWindow,
+  immediateOfferWindow,
   defaultSubscriptionWindow,
   earliestOfferStart,
   OFFER_START_LEAD_HOURS,
@@ -37,6 +38,13 @@ describe("offer hour precision", () => {
     const window = defaultOfferWindow();
     expect(window.starts_at.endsWith(":00")).toBe(true);
     expect(window.expires_at.endsWith(":00")).toBe(true);
+  });
+
+  it("lets an admin window start on the current hour", () => {
+    const window = immediateOfferWindow();
+    const start = new Date(window.starts_at);
+    expect(window.starts_at.endsWith(":00")).toBe(true);
+    expect(start.getTime()).toBeLessThan(earliestOfferStart().getTime());
   });
 
   it("earliest start is at least the lead hours ahead", () => {

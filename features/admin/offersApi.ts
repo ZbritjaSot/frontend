@@ -1,4 +1,4 @@
-import { toApiBody } from "@/features/offers/bizApi";
+import { toApiBody, type BundleCatalog } from "@/features/offers/bizApi";
 import { apiFetch } from "@/lib/api";
 import type { OfferBundleFormInput } from "@/schemas/offer";
 import type { OfferBundle, Paginated } from "@/types";
@@ -63,6 +63,64 @@ export async function fetchApprovedOffers(
     `/admin/offer-bundles?${params.toString()}`,
     { auth: true },
   );
+}
+
+export type ActiveStore = {
+  id: string;
+  name: string;
+  city: string | null;
+  parent_id: string | null;
+};
+
+export async function fetchActiveStores(): Promise<ActiveStore[]> {
+  const payload = await apiFetch<{ data: ActiveStore[] }>(
+    "/admin/offer-bundles/stores",
+    { auth: true },
+  );
+  return payload.data;
+}
+
+export async function fetchAdminBusinessBundles(
+  businessId: string,
+  page = 1,
+  perPage = PENDING_OFFERS_PAGE_SIZE,
+  q = "",
+  status = "",
+  catalog: BundleCatalog = "flyers",
+): Promise<Paginated<OfferBundle>> {
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(perPage),
+    business_id: businessId,
+    kind: catalog,
+  });
+  if (status !== "") {
+    params.set("status", status);
+  }
+  if (q.trim() !== "") {
+    params.set("q", q.trim());
+  }
+
+  return apiFetch<Paginated<OfferBundle>>(
+    `/admin/offer-bundles?${params.toString()}`,
+    { auth: true },
+  );
+}
+
+export async function createAdminOfferBundle(
+  businessId: string,
+  input: OfferBundleFormInput,
+  catalog: BundleCatalog = "flyers",
+): Promise<OfferBundle> {
+  const payload = await apiFetch<BundlePayload>("/admin/offer-bundles", {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify({
+      ...toApiBody(input, catalog),
+      business_id: businessId,
+    }),
+  });
+  return payload.data;
 }
 
 export async function updateAdminOfferBundle(
