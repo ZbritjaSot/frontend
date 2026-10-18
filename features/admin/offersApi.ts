@@ -70,6 +70,7 @@ export type ActiveStore = {
   name: string;
   city: string | null;
   parent_id: string | null;
+  logo_url?: string | null;
 };
 
 export async function fetchActiveStores(): Promise<ActiveStore[]> {

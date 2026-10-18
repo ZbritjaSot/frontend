@@ -41,11 +41,19 @@ export type AuditLog = {
 
 export function fetchAuditLogs(filter: {
   importance?: AuditImportance | "";
+  from?: string;
+  to?: string;
   page?: number;
 }): Promise<Paginated<AuditLog>> {
   const params = new URLSearchParams();
   if (filter.importance) {
     params.set("importance", filter.importance);
+  }
+  if (filter.from) {
+    params.set("from", filter.from);
+  }
+  if (filter.to) {
+    params.set("to", filter.to);
   }
   if (filter.page && filter.page > 1) {
     params.set("page", String(filter.page));

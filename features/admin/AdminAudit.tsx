@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import {
@@ -11,8 +12,9 @@ import {
   type AuditLog,
 } from "@/features/admin/auditApi";
 import { validationMessage } from "@/lib/api";
+import { localCalendarDayKey } from "@/lib/datetime";
 import { formatDateTimeShortSq } from "@/lib/format";
-import { btnGhost, pageTitle, panelLead, statusBadge } from "@/lib/ui";
+import { btnGhost, btnSm, pageTitle, panelLead, statusBadge } from "@/lib/ui";
 
 const actionCopy: Record<AuditAction, string> = {
   business_created: "Krijoi dyqanin",
@@ -52,57 +54,148 @@ const importanceClass: Record<AuditImportance, string> = {
   low: "bg-sunken text-ink",
 };
 
-const filters: { id: "" | AuditImportance; label: string }[] = [
+const importanceFilters: { id: "" | AuditImportance; label: string }[] = [
   { id: "", label: "Të gjitha" },
   { id: "high", label: "Lartë" },
   { id: "medium", label: "Mesatare" },
   { id: "low", label: "Ulët" },
 ];
 
+const chipOn =
+  "inline-flex min-h-10 cursor-pointer items-center rounded-full border border-accent bg-accent px-4 text-sm font-bold text-charcoal";
+const chipOff =
+  "inline-flex min-h-10 cursor-pointer items-center rounded-full border border-line bg-transparent px-4 text-sm font-bold text-muted hover:text-ink";
+
+function clampToMax(value: string, max: string): string {
+  if (!value) {
+    return value;
+  }
+  return value > max ? max : value;
+}
+
+function clampRange(
+  from: string,
+  to: string,
+  which: "from" | "to",
+  next: string,
+  max: string,
+): { from: string; to: string } {
+  const day = clampToMax(next, max);
+  if (which === "from") {
+    if (day && to && day > to) {
+      return { from: day, to: day };
+    }
+    return { from: day, to };
+  }
+  if (day && from && day < from) {
+    return { from: day, to: day };
+  }
+  return { from, to: day };
+}
+
 export function AdminAudit() {
   const [importance, setImportance] = useState<"" | AuditImportance>("");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
   const [page, setPage] = useState(1);
+  const today = localCalendarDayKey();
+  const hasRange = Boolean(from || to);
+  const rangeValid =
+    (!from || from <= today) && (!to || to <= today) && (!from || !to || from <= to);
   const logs = useQuery({
-    queryKey: ["admin", "audit-logs", importance, page],
-    queryFn: () => fetchAuditLogs({ importance, page }),
+    queryKey: ["admin", "audit-logs", importance, from, to, page],
+    queryFn: () =>
+      fetchAuditLogs({
+        importance,
+        from: from || undefined,
+        to: to || undefined,
+        page,
+      }),
+    enabled: rangeValid,
   });
 
   return (
     <div className="grid gap-6">
       <div>
-        <h1 className={pageTitle}>Regjistri</h1>
+        <h1 className={pageTitle}>Historiku</h1>
         <p className={panelLead}>Kush e bëri, çfarë ndryshoi, dhe kur.</p>
       </div>
-      <div className="flex flex-wrap gap-2">
-        {filters.map((filter) => (
-          <button
-            key={filter.id || "all"}
-            type="button"
-            className={
-              importance === filter.id
-                ? "inline-flex min-h-10 cursor-pointer items-center rounded-full border border-accent bg-accent px-4 text-sm font-bold text-charcoal"
-                : "inline-flex min-h-10 cursor-pointer items-center rounded-full border border-line bg-transparent px-4 text-sm font-bold text-muted hover:text-ink"
-            }
-            onClick={() => {
-              setImportance(filter.id);
-              setPage(1);
-            }}
-          >
-            {filter.label}
-          </button>
-        ))}
+      <div className="grid gap-3">
+        <div className="grid gap-2">
+          <div className="grid items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+            <DateTimeField
+              variant="card"
+              dateOnly
+              maxDate={today}
+              caption="Nga"
+              value={from}
+              onChange={(value) => {
+                const next = clampRange(from, to, "from", value, today);
+                setFrom(next.from);
+                setTo(next.to);
+                setPage(1);
+              }}
+            />
+            <span className="hidden self-center px-1 text-lg text-muted sm:block" aria-hidden>
+              →
+            </span>
+            <DateTimeField
+              variant="card"
+              dateOnly
+              maxDate={today}
+              caption="Deri"
+              value={to}
+              onChange={(value) => {
+                const next = clampRange(from, to, "to", value, today);
+                setFrom(next.from);
+                setTo(next.to);
+                setPage(1);
+              }}
+            />
+          </div>
+          {hasRange ? (
+            <button
+              type="button"
+              className={`${btnGhost} ${btnSm} w-fit`}
+              onClick={() => {
+                setFrom("");
+                setTo("");
+                setPage(1);
+              }}
+            >
+              Pastro datat
+            </button>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Rëndësia">
+          {importanceFilters.map((filter) => (
+            <button
+              key={filter.id || "all-importance"}
+              type="button"
+              className={importance === filter.id ? chipOn : chipOff}
+              onClick={() => {
+                setImportance(filter.id);
+                setPage(1);
+              }}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
       </div>
       {logs.isLoading ? (
-        <Spinner label="Duke ngarkuar regjistrin" />
+        <Spinner label="Duke ngarkuar historikun" />
       ) : logs.isError ? (
         <div>
-          <p className={panelLead}>{validationMessage(logs.error, "Regjistri nuk u ngarkua.")}</p>
+          <p className={panelLead}>
+            {validationMessage(logs.error, "Historiku nuk u ngarkua.")}
+          </p>
           <button className={btnGhost} type="button" onClick={() => logs.refetch()}>
             Provo përsëri
           </button>
         </div>
       ) : (logs.data?.data.length ?? 0) === 0 ? (
-        <p className={panelLead}>Ende pa veprime.</p>
+        <p className={panelLead}>Ende pa veprime për këtë filtër.</p>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-line">
           <ul className="m-0 list-none p-0">

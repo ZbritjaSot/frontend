@@ -34,6 +34,7 @@ import {
 import {
   defaultOfferWindow,
   immediateOfferWindow,
+  localCalendarDayKey,
   OFFER_START_LEAD_HOURS,
   toHourLocalValue,
 } from "@/lib/datetime";
@@ -533,6 +534,7 @@ export function OfferForm({
               disabled={pending}
               aria-label="Fillon"
               hourOnly
+              minDate={localCalendarDayKey()}
             />
           </label>
           <label className="flex flex-col gap-2">
@@ -543,6 +545,7 @@ export function OfferForm({
               disabled={pending}
               aria-label="Skadon"
               hourOnly
+              minDate={localCalendarDayKey()}
             />
           </label>
         </div>

@@ -10,14 +10,16 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { ShopLogo } from "@/features/public/visuals";
 import { triggerClass } from "@/lib/ui";
 
 const optionClass =
-  "w-full cursor-pointer appearance-none rounded-md border-0 bg-transparent px-3 py-2.5 text-left text-base font-medium text-ink hover:bg-accent/14 hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent/55";
+  "flex w-full cursor-pointer appearance-none items-center gap-3 rounded-md border-0 bg-transparent px-3 py-2.5 text-left text-base font-medium text-ink hover:bg-accent/14 hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent/55";
 
 export type SelectOption = {
   value: string;
   label: string;
+  logoUrl?: string | null;
 };
 
 type SelectFieldProps = {
@@ -184,8 +186,13 @@ export function SelectField({
         }}
         onKeyDown={onTriggerKeyDown}
       >
-        <span className={selected ? undefined : "text-muted"}>
-          {selected?.label ?? placeholder}
+        <span className="flex min-w-0 flex-1 items-center gap-3">
+          {selected && "logoUrl" in selected ? (
+            <ShopLogo name={selected.label} logoUrl={selected.logoUrl} size="sm" />
+          ) : null}
+          <span className={`min-w-0 truncate ${selected ? "" : "text-muted"}`}>
+            {selected?.label ?? placeholder}
+          </span>
         </span>
         <KeyboardArrowDownIcon
           fontSize="small"
@@ -245,7 +252,14 @@ export function SelectField({
                       closeMenu();
                     }}
                     >
-                      {option.label}
+                      {"logoUrl" in option ? (
+                        <ShopLogo
+                          name={option.label}
+                          logoUrl={option.logoUrl}
+                          size="sm"
+                        />
+                      ) : null}
+                      <span className="min-w-0 truncate">{option.label}</span>
                     </button>
                   </li>
                 );

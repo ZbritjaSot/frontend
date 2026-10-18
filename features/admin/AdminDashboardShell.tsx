@@ -1,6 +1,7 @@
 "use client";
 
 import AccountTreeOutlinedIcon from "@mui/icons-material/AccountTreeOutlined";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CategoryIcon from "@mui/icons-material/Category";
 import CollectionsOutlinedIcon from "@mui/icons-material/CollectionsOutlined";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -27,6 +28,11 @@ const baseNav: DashboardNavItem[] = [
     href: "/admin/offers",
     label: "Në pritje",
     icon: <PendingActionsIcon fontSize="small" />,
+  },
+  {
+    href: "/admin/create",
+    label: "Shto përmbajtje",
+    icon: <AddOutlinedIcon fontSize="small" />,
   },
   {
     href: "/admin/subscriptions",
@@ -65,7 +71,7 @@ const baseNav: DashboardNavItem[] = [
   },
   {
     href: "/admin/audit",
-    label: "Regjistri",
+    label: "Historiku",
     icon: <HistoryOutlinedIcon fontSize="small" />,
   },
   {

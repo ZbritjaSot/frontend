@@ -9,6 +9,11 @@ export function startOfLocalDay(value: Date = new Date()): Date {
   return date;
 }
 
+/** Local calendar day as `YYYY-MM-DD` (date picker bounds). */
+export function localCalendarDayKey(value: Date = new Date()): string {
+  return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`;
+}
+
 /** API ISO / Date → value for `<input type="datetime-local" />`. */
 export function toDateTimeLocalValue(value: string | Date): string {
   const date = typeof value === "string" ? new Date(value) : value;

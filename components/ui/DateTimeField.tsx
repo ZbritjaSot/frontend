@@ -36,15 +36,37 @@ type DateTimeFieldProps = {
   caption?: string;
   /** Offer windows: hour only (`:00`). Subscriptions keep minutes. */
   hourOnly?: boolean;
+  /** Calendar day only (`YYYY-MM-DD`); hides the clock. */
+  dateOnly?: boolean;
+  /** Inclusive upper bound as `YYYY-MM-DD` (e.g. today). */
+  maxDate?: string;
+  /** Inclusive lower bound as `YYYY-MM-DD` (e.g. today). */
+  minDate?: string;
 };
 
-function parseLocal(value: string): {
+function parseLocal(
+  value: string,
+  dateOnly: boolean,
+): {
   year: number;
   month: number;
   day: number;
   hour: number;
   minute: number;
 } | null {
+  if (dateOnly) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (!match) {
+      return null;
+    }
+    return {
+      year: Number(match[1]),
+      month: Number(match[2]),
+      day: Number(match[3]),
+      hour: 0,
+      minute: 0,
+    };
+  }
   const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
   if (!match) {
     return null;
@@ -58,15 +80,26 @@ function parseLocal(value: string): {
   };
 }
 
+function pad2(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+function dayKey(year: number, month: number, day: number): string {
+  return `${year}-${pad2(month)}-${pad2(day)}`;
+}
+
 function toValue(
   year: number,
   month: number,
   day: number,
   hour: number,
   minute: number,
+  dateOnly: boolean,
 ): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`;
+  if (dateOnly) {
+    return dayKey(year, month, day);
+  }
+  return `${dayKey(year, month, day)}T${pad2(hour)}:${pad2(minute)}`;
 }
 
 function daysInMonth(year: number, month: number): number {
@@ -88,8 +121,13 @@ export function DateTimeField({
   variant = "row",
   caption,
   hourOnly = false,
+  dateOnly = false,
+  maxDate,
+  minDate,
 }: DateTimeFieldProps) {
-  const parsed = parseLocal(value);
+  const parsed = parseLocal(value, dateOnly);
+  const maxParsed = maxDate ? parseLocal(maxDate, true) : null;
+  const minParsed = minDate ? parseLocal(minDate, true) : null;
   const panelId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -101,6 +139,37 @@ export function DateTimeField({
   const now = new Date();
   const viewYear = cursor?.year ?? parsed?.year ?? now.getFullYear();
   const viewMonth = cursor?.month ?? parsed?.month ?? now.getMonth() + 1;
+
+  function isAfterMax(year: number, month: number, day: number): boolean {
+    return maxDate !== undefined && dayKey(year, month, day) > maxDate;
+  }
+
+  function isBeforeMin(year: number, month: number, day: number): boolean {
+    return minDate !== undefined && dayKey(year, month, day) < minDate;
+  }
+
+  function isOutOfRange(year: number, month: number, day: number): boolean {
+    return isAfterMax(year, month, day) || isBeforeMin(year, month, day);
+  }
+
+  function canShiftMonth(delta: number): boolean {
+    const date = new Date(viewYear, viewMonth - 1 + delta, 1);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    if (delta > 0 && maxParsed) {
+      return (
+        year < maxParsed.year ||
+        (year === maxParsed.year && month <= maxParsed.month)
+      );
+    }
+    if (delta < 0 && minParsed) {
+      return (
+        year > minParsed.year ||
+        (year === minParsed.year && month >= minParsed.month)
+      );
+    }
+    return true;
+  }
 
   useEffect(() => {
     if (!open) {
@@ -139,6 +208,9 @@ export function DateTimeField({
     : "Zgjidh datën";
 
   function commitDate(year: number, month: number, day: number) {
+    if (isOutOfRange(year, month, day)) {
+      return;
+    }
     onChange(
       toValue(
         year,
@@ -146,6 +218,7 @@ export function DateTimeField({
         day,
         parsed?.hour ?? 0,
         hourOnly ? 0 : (parsed?.minute ?? 0),
+        dateOnly,
       ),
     );
     setOpen(false);
@@ -163,6 +236,7 @@ export function DateTimeField({
           d.getDate(),
           Number(nextHour),
           minuteValue,
+          false,
         ),
       );
       return;
@@ -174,11 +248,15 @@ export function DateTimeField({
         parsed.day,
         Number(nextHour),
         minuteValue,
+        false,
       ),
     );
   }
 
   function shiftMonth(delta: number) {
+    if (!canShiftMonth(delta)) {
+      return;
+    }
     const date = new Date(viewYear, viewMonth - 1 + delta, 1);
     setCursor({ year: date.getFullYear(), month: date.getMonth() + 1 });
   }
@@ -202,7 +280,7 @@ export function DateTimeField({
     });
   }
 
-  const timeRow = (
+  const timeRow = dateOnly ? null : (
     <div
       className="grid w-full max-w-[9.5rem] shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-1.5 @min-[17rem]:w-[9.5rem] [&_ul]:min-w-[4.5rem]"
       aria-label="Ora"
@@ -254,9 +332,11 @@ export function DateTimeField({
             </span>
           ) : null}
           <span className="text-base font-semibold text-ink">{label}</span>
-          <span className="text-sm font-semibold text-muted tabular-nums">
-            {hour}:{minute}
-          </span>
+          {!dateOnly ? (
+            <span className="text-sm font-semibold text-muted tabular-nums">
+              {hour}:{minute}
+            </span>
+          ) : null}
         </button>
       ) : (
         <div className="flex flex-col gap-[0.45rem] @min-[17rem]:flex-row @min-[17rem]:items-center">
@@ -293,6 +373,7 @@ export function DateTimeField({
               type="button"
               className={navClass}
               aria-label="Muaji i kaluar"
+              disabled={!canShiftMonth(-1)}
               onClick={() => shiftMonth(-1)}
             >
               <ChevronLeftIcon fontSize="small" />
@@ -304,6 +385,7 @@ export function DateTimeField({
               type="button"
               className={navClass}
               aria-label="Muaji tjetër"
+              disabled={!canShiftMonth(1)}
               onClick={() => shiftMonth(1)}
             >
               <ChevronRightIcon fontSize="small" />
@@ -333,16 +415,23 @@ export function DateTimeField({
                 now.getMonth() + 1 === viewMonth &&
                 now.getDate() === cell.day;
 
+              const blocked = isOutOfRange(viewYear, viewMonth, cell.day);
+
               return (
                 <button
                   key={cell.key}
                   type="button"
+                  disabled={blocked}
+                  aria-disabled={blocked}
                   className={[
                     dayClass,
                     isToday
                       ? "shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-accent)_55%,transparent)]"
                       : "",
                     selected ? "bg-accent text-on-accent" : "",
+                    blocked
+                      ? "cursor-not-allowed text-muted/40 hover:bg-transparent"
+                      : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
@@ -353,7 +442,7 @@ export function DateTimeField({
               );
             })}
           </div>
-          {variant === "card" ? (
+          {variant === "card" && timeRow ? (
             <div className="mt-3 flex justify-center border-t border-line pt-3">
               {timeRow}
             </div>

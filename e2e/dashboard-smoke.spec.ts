@@ -46,6 +46,9 @@ test("admin dashboard areas load after login", async ({ page }) => {
   for (const path of [
     "/admin",
     "/admin/offers",
+    "/admin/create",
+    "/admin/create/offers",
+    "/admin/create/flyers",
     "/admin/businesses",
     "/admin/categories",
     "/admin/gallery",

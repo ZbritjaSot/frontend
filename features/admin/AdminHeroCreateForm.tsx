@@ -14,6 +14,7 @@ import { useActiveCategories } from "@/hooks/useBizOffers";
 import {
   defaultOfferWindow,
   fromHourLocalValue,
+  localCalendarDayKey,
   OFFER_START_LEAD_HOURS,
 } from "@/lib/datetime";
 import { validationMessage } from "@/lib/api";
@@ -184,6 +185,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
             onChange={setStartsAt}
             aria-label="Nga"
             hourOnly
+            minDate={localCalendarDayKey()}
           />
         </label>
         <label className="grid gap-1.5 text-sm font-semibold">
@@ -193,6 +195,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
             onChange={setExpiresAt}
             aria-label="Deri më"
             hourOnly
+            minDate={localCalendarDayKey()}
           />
         </label>
       </div>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AdminAudit } from "@/features/admin/AdminAudit";
 
 export const metadata: Metadata = {
-  title: "Regjistri",
+  title: "Historiku",
   robots: { index: false, follow: false },
 };
 

@@ -1,10 +1,12 @@
 "use client";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import { SelectField } from "@/components/ui/SelectField";
 import { Spinner } from "@/components/ui/Spinner";
+import { fetchAdminBusiness } from "@/features/admin/businessesApi";
 import type { BundleCatalog } from "@/features/offers/bizApi";
 import { OfferForm } from "@/features/offers/OfferForm";
 import { useActiveStores } from "@/hooks/useAdminOffers";
@@ -16,14 +18,32 @@ export function AdminCreateBundle({
   businessId,
 }: {
   catalog: BundleCatalog;
-  businessId: string;
+  /** When set (business profile), preselect that company (main shop). */
+  businessId?: string;
 }) {
   const stores = useActiveStores();
-  const [shopId, setShopId] = useState(businessId);
+  const profile = useQuery({
+    queryKey: ["admin", "businesses", businessId],
+    queryFn: () => fetchAdminBusiness(businessId!),
+    enabled: Boolean(businessId),
+  });
+  const [shopOverride, setShopOverride] = useState<string | null>(null);
+  const preferredShopId = profile.data
+    ? (profile.data.parent_id ?? profile.data.id)
+    : "";
   const isFlyer = catalog === "flyers";
   const section = isFlyer ? "fletushkat" : "ofertat";
-  const backHref = `/admin/businesses/${businessId}?section=${section}`;
+  const fromProfile = Boolean(businessId);
+  const backHref = fromProfile
+    ? `/admin/businesses/${businessId}?section=${section}`
+    : "/admin/create";
+  const backLabel = fromProfile
+    ? isFlyer
+      ? "Fletushkat"
+      : "Ofertat"
+    : "Shto përmbajtje";
   const rows = stores.data ?? [];
+  const shopId = shopOverride ?? preferredShopId;
   const selected = rows.find((shop) => shop.id === shopId) ?? null;
 
   return (
@@ -34,14 +54,14 @@ export function AdminCreateBundle({
           className="col-span-2 grid grid-cols-subgrid items-center text-sm font-semibold text-muted no-underline hover:text-ink"
         >
           <ArrowBackIcon fontSize="small" />
-          <span>{isFlyer ? "Fletushkat" : "Ofertat"}</span>
+          <span>{backLabel}</span>
         </Link>
         <h1 className={`${pageTitle} col-start-2 mt-3 mb-0!`}>
           {isFlyer ? "Fletushkë e re" : "Oferta të reja"}
         </h1>
       </div>
 
-      {stores.isLoading ? (
+      {stores.isLoading || (businessId && profile.isLoading) ? (
         <Spinner label="Duke ngarkuar dyqanet" />
       ) : stores.isError ? (
         <p className={panelLead}>
@@ -58,20 +78,21 @@ export function AdminCreateBundle({
               </span>
               <SelectField
                 value={rows.some((shop) => shop.id === shopId) ? shopId : ""}
-                onChange={setShopId}
+                onChange={setShopOverride}
                 searchable
-                placeholder="Zgjidh dyqanin aktiv"
+                placeholder="Zgjidh dyqanin"
                 aria-label="Dyqani"
                 options={rows.map((shop) => ({
                   value: shop.id,
-                  label: shop.city ? `${shop.name} · ${shop.city}` : shop.name,
+                  label: shop.name,
+                  logoUrl: shop.logo_url ?? null,
                 }))}
               />
             </label>
             <p className="m-0 mt-3 text-sm leading-relaxed text-muted">
               {isFlyer
-                ? "Shkruaj produktet e fletushkës. Ruhet e aprovuar menjëherë për dyqanin aktiv që zgjedh."
-                : "Shto një ose më shumë oferta individuale. Ruhen të aprovuara menjëherë për dyqanin aktiv që zgjedh."}
+                ? "Zgjidh dyqanin kryesor. Lokacionet (edhe degët) zgjidhen te “Ku shfaqet”. Ruhet e aprovuar menjëherë."
+                : "Zgjidh dyqanin kryesor. Lokacionet (edhe degët) zgjidhen te “Ku shfaqet”. Ruhen të aprovuara menjëherë."}
             </p>
           </section>
           {selected ? (
@@ -80,18 +101,12 @@ export function AdminCreateBundle({
               mode="create"
               audience="admin"
               businessId={selected.id}
-              canShare={selected.parent_id === null}
+              canShare
               catalog={catalog}
-              doneHref={
-                selected.id === businessId
-                  ? backHref
-                  : `/admin/businesses/${selected.id}?section=${section}`
-              }
+              doneHref={`/admin/businesses/${selected.id}?section=${section}`}
             />
           ) : (
-            <p className={panelLead}>
-              Ky dyqan nuk është aktiv. Zgjidh një dyqan me abonim të vlefshëm.
-            </p>
+            <p className={panelLead}>Zgjidh një dyqan aktiv me abonim të vlefshëm.</p>
           )}
         </div>
       )}
