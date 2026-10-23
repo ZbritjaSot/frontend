@@ -1,6 +1,7 @@
 "use client";
 
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Image from "next/image";
@@ -16,6 +17,7 @@ import {
   updateAdminPlatformGallery,
   uploadAdminPlatformGallery,
 } from "@/features/gallery/api";
+import { titleFromFilename } from "@/features/gallery/titleFromFilename";
 import { validationMessage } from "@/lib/api";
 import {
   btnGhost,
@@ -31,16 +33,34 @@ import type { OfferImage } from "@/types";
 const PAGE_SIZE = 24;
 export const adminPlatformGalleryQueryKey = ["admin", "platform-gallery"] as const;
 
+type PendingPhoto = {
+  key: string;
+  file: File;
+  title: string;
+  previewUrl: string;
+};
+
+function revokePreviews(photos: PendingPhoto[]) {
+  for (const photo of photos) {
+    URL.revokeObjectURL(photo.previewUrl);
+  }
+}
+
 export function AdminPlatformGallery() {
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
+  const pendingPhotosRef = useRef<PendingPhoto[]>([]);
   const [query, setQuery] = useState("");
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [editor, setEditor] = useState<"new" | OfferImage | null>(null);
   const [title, setTitle] = useState("");
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<{
+    done: number;
+    total: number;
+  } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<OfferImage | null>(null);
 
   useEffect(() => {
@@ -49,6 +69,20 @@ export function AdminPlatformGallery() {
     }, 300);
     return () => window.clearTimeout(timer);
   }, [query]);
+
+  useEffect(() => {
+    pendingPhotosRef.current = pendingPhotos;
+  }, [pendingPhotos]);
+
+  useEffect(() => {
+    return () => revokePreviews(pendingPhotosRef.current);
+  }, []);
+
+  function setPhotos(next: PendingPhoto[]) {
+    revokePreviews(pendingPhotosRef.current);
+    pendingPhotosRef.current = next;
+    setPendingPhotos(next);
+  }
 
   const gallery = useInfiniteQuery({
     queryKey: [...adminPlatformGalleryQueryKey, q],
@@ -69,45 +103,82 @@ export function AdminPlatformGallery() {
   function openCreate() {
     setEditor("new");
     setTitle("");
-    setPendingFile(null);
+    setPhotos([]);
+    setUploadProgress(null);
     setFormError(null);
   }
 
   function openEdit(image: OfferImage) {
     setEditor(image);
     setTitle(image.title ?? "");
-    setPendingFile(null);
+    setPhotos([]);
+    setUploadProgress(null);
     setFormError(null);
   }
 
   function closeEditor() {
     setEditor(null);
-    setPendingFile(null);
+    setPhotos([]);
+    setUploadProgress(null);
     setFormError(null);
   }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
+    setFormError(null);
+
+    if (editor === "new") {
+      if (pendingPhotos.length === 0) {
+        setFormError("Zgjidh të paktën një foto për të ngarkuar.");
+        return;
+      }
+      const untitled = pendingPhotos.find(
+        (photo) => photo.title.trim() === "",
+      );
+      if (untitled) {
+        setFormError(`Skedari “${untitled.file.name}” nuk ka titull të vlefshëm.`);
+        return;
+      }
+      setBusy(true);
+      setUploadProgress({ done: 0, total: pendingPhotos.length });
+      try {
+        for (let index = 0; index < pendingPhotos.length; index += 1) {
+          const photo = pendingPhotos[index];
+          if (!photo) {
+            continue;
+          }
+          await uploadAdminPlatformGallery(photo.file, photo.title.trim());
+          setUploadProgress({ done: index + 1, total: pendingPhotos.length });
+        }
+        await queryClient.invalidateQueries({
+          queryKey: adminPlatformGalleryQueryKey,
+        });
+        closeEditor();
+      } catch (caught) {
+        setFormError(validationMessage(caught, "Nuk mundëm ta ruajmë foton."));
+        await queryClient.invalidateQueries({
+          queryKey: adminPlatformGalleryQueryKey,
+        });
+      } finally {
+        setBusy(false);
+        setUploadProgress(null);
+      }
+      return;
+    }
+
     const cleanTitle = title.trim();
     if (!cleanTitle) {
       setFormError("Titulli është i detyrueshëm.");
       return;
     }
-    setFormError(null);
+    if (!editor) {
+      return;
+    }
     setBusy(true);
     try {
-      if (editor === "new") {
-        if (!pendingFile) {
-          setFormError("Zgjidh një foto për të ngarkuar.");
-          setBusy(false);
-          return;
-        }
-        await uploadAdminPlatformGallery(pendingFile, cleanTitle);
-      } else if (editor) {
-        await updateAdminPlatformGallery(editor.id, {
-          title: cleanTitle,
-        });
-      }
+      await updateAdminPlatformGallery(editor.id, {
+        title: cleanTitle,
+      });
       await queryClient.invalidateQueries({
         queryKey: adminPlatformGalleryQueryKey,
       });
@@ -251,49 +322,110 @@ export function AdminPlatformGallery() {
           ) : null}
 
           {editor === "new" ? (
-            <div className="grid gap-2">
-              <span className={fieldLabel}>Foto</span>
+            <div className="grid min-w-0 gap-2">
               <button
                 type="button"
-                className={`${btnGhost} min-h-11 justify-start`}
+                className={`grid w-full place-items-center gap-1 rounded-2xl border border-dashed border-line bg-sunken px-4 text-center text-ink hover:border-accent/60 ${
+                  pendingPhotos.length === 0 ? "py-7" : "py-3"
+                }`}
                 onClick={() => inputRef.current?.click()}
               >
-                {pendingFile ? pendingFile.name : "Zgjidh skedar…"}
+                <AddPhotoAlternateOutlinedIcon className="text-muted" />
+                <span className="text-base font-bold">
+                  {pendingPhotos.length === 0 ? "Ngarko foto" : "Ndrysho fotot"}
+                </span>
+                <span className="text-xs font-medium text-muted">
+                  {pendingPhotos.length === 0
+                    ? "JPEG, PNG ose WebP. Mund të zgjedhësh disa."
+                    : pendingPhotos.length === 1
+                      ? "1 foto e zgjedhur"
+                      : `${pendingPhotos.length} foto të zgjedhura`}
+                </span>
               </button>
               <input
                 ref={inputRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
+                multiple
                 className="sr-only"
                 onChange={(event) => {
-                  setPendingFile(event.target.files?.[0] ?? null);
+                  const files = Array.from(event.target.files ?? []);
                   event.target.value = "";
+                  setPhotos(
+                    files.map((file, index) => ({
+                      key: `${file.name}-${file.size}-${file.lastModified}-${index}`,
+                      file,
+                      title: titleFromFilename(file.name),
+                      previewUrl: URL.createObjectURL(file),
+                    })),
+                  );
                 }}
               />
+              <p className="m-0 text-xs text-muted">
+                Titulli merret nga emri i fotos. Mund ta ndryshosh para se të
+                ruash.
+              </p>
+              {pendingPhotos.length > 0 ? (
+                <ul className="m-0 max-h-72 w-full min-w-0 list-none overflow-y-auto overscroll-contain rounded-xl border border-line p-0">
+                  {pendingPhotos.map((photo, index) => (
+                    <li
+                      key={photo.key}
+                      className="flex min-w-0 items-center gap-2.5 border-b border-line px-2 py-2 last:border-b-0"
+                    >
+                      {/* Native img: blob previews are local files, not next/image hosts. */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photo.previewUrl}
+                        alt=""
+                        className="size-12 shrink-0 rounded-lg object-cover"
+                      />
+                      <input
+                        className={`${inputClass} min-h-10 min-w-0 flex-1 py-2 text-sm`}
+                        value={photo.title}
+                        maxLength={160}
+                        required
+                        disabled={busy}
+                        aria-label={`Titulli i fotos ${index + 1}`}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setPendingPhotos((current) =>
+                            current.map((item) =>
+                              item.key === photo.key
+                                ? { ...item, title: value }
+                                : item,
+                            ),
+                          );
+                        }}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </div>
           ) : editor && typeof editor !== "string" ? (
-            <div className="relative mx-auto aspect-square w-32 overflow-hidden rounded-xl border border-line">
-              <Image
-                src={editor.thumb_url}
-                alt={editor.title ?? ""}
-                fill
-                unoptimized
-                className="object-cover"
-                sizes="128px"
-              />
-            </div>
+            <>
+              <div className="relative mx-auto aspect-square w-32 overflow-hidden rounded-xl border border-line">
+                <Image
+                  src={editor.thumb_url}
+                  alt={editor.title ?? ""}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                  sizes="128px"
+                />
+              </div>
+              <label className="grid gap-1.5">
+                <span className={fieldLabel}>Titulli</span>
+                <input
+                  className={inputClass}
+                  value={title}
+                  maxLength={160}
+                  required
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+              </label>
+            </>
           ) : null}
-
-          <label className="grid gap-1.5">
-            <span className={fieldLabel}>Titulli</span>
-            <input
-              className={inputClass}
-              value={title}
-              maxLength={160}
-              required
-              onChange={(event) => setTitle(event.target.value)}
-            />
-          </label>
 
           <div className="mt-1 flex flex-wrap gap-2">
             <button
@@ -301,7 +433,11 @@ export function AdminPlatformGallery() {
               disabled={busy}
               className={`${btnPrimary} min-h-10 disabled:opacity-60`}
             >
-              {busy ? "Duke ruajtur…" : "Ruaj"}
+              {busy
+                ? uploadProgress && uploadProgress.total > 1
+                  ? `Duke ngarkuar ${uploadProgress.done}/${uploadProgress.total}…`
+                  : "Duke ruajtur…"
+                : "Ruaj"}
             </button>
             <button
               type="button"

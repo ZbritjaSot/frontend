@@ -11,8 +11,9 @@ import {
   fetchAdminGallery,
   uploadAdminGallery,
 } from "@/features/gallery/api";
+import { titleFromFilename } from "@/features/gallery/titleFromFilename";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, fieldError, fieldLabel, inputClass } from "@/lib/ui";
+import { btnGhost, fieldError, inputClass } from "@/lib/ui";
 
 function galleryKey(businessId: string, q = "") {
   return ["admin", "gallery", businessId, q] as const;
@@ -23,7 +24,6 @@ export function AdminGallery({ businessId }: { businessId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [title, setTitle] = useState("");
   const [search, setSearch] = useState("");
   const [q, setQ] = useState("");
 
@@ -72,31 +72,23 @@ export function AdminGallery({ businessId }: { businessId: string }) {
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-        <label className="grid min-w-0 flex-1 gap-1">
-          <span className={fieldLabel}>Titulli</span>
-          <input
-            className={inputClass}
-            value={title}
-            maxLength={160}
-            required
-            onChange={(event) => setTitle(event.target.value)}
-          />
-        </label>
-        <label className="relative block min-w-0 flex-1">
-          <span className="sr-only">Kërko</span>
-          <SearchIcon
-            fontSize="small"
-            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted"
-          />
-          <input
-            className={`${inputClass} pl-10`}
-            value={search}
-            placeholder=""
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </label>
-      </div>
+      <label className="relative block min-w-0">
+        <span className="sr-only">Kërko</span>
+        <SearchIcon
+          fontSize="small"
+          className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted"
+        />
+        <input
+          className={`${inputClass} pl-10`}
+          value={search}
+          placeholder=""
+          onChange={(event) => setSearch(event.target.value)}
+        />
+      </label>
+      <p className="m-0 text-xs text-muted">
+        Mund të zgjedhësh disa foto. Titulli i produktit merret nga emri i
+        fotos.
+      </p>
 
       <ul className="m-0 grid list-none grid-cols-4 gap-2 p-0 sm:grid-cols-6 md:grid-cols-8">
         <li>
@@ -105,13 +97,7 @@ export function AdminGallery({ businessId }: { businessId: string }) {
             disabled={busy}
             aria-label="Shto foto"
             className="grid aspect-square w-full place-items-center rounded-xl border border-dashed border-line bg-sunken text-muted disabled:opacity-60"
-            onClick={() => {
-              if (!title.trim()) {
-                setError("Titulli është i detyrueshëm.");
-                return;
-              }
-              inputRef.current?.click();
-            }}
+            onClick={() => inputRef.current?.click()}
           >
             <AddOutlinedIcon fontSize="small" />
           </button>
@@ -170,25 +156,34 @@ export function AdminGallery({ businessId }: { businessId: string }) {
         className="sr-only"
         type="file"
         accept="image/jpeg,image/png,image/webp"
+        multiple
         onChange={async (event) => {
-          const file = event.target.files?.[0];
+          const files = Array.from(event.target.files ?? []);
           event.target.value = "";
-          if (!file) {
+          if (files.length === 0) {
             return;
           }
-          const cleanTitle = title.trim();
-          if (!cleanTitle) {
-            setError("Titulli është i detyrueshëm.");
+          const untitled = files.find(
+            (file) => titleFromFilename(file.name) === "",
+          );
+          if (untitled) {
+            setError(`Skedari “${untitled.name}” nuk ka titull të vlefshëm.`);
             return;
           }
           setError(null);
           setBusy(true);
           try {
-            await uploadAdminGallery(businessId, file, cleanTitle);
-            setTitle("");
+            for (const file of files) {
+              await uploadAdminGallery(
+                businessId,
+                file,
+                titleFromFilename(file.name),
+              );
+            }
             await refresh();
           } catch (caught) {
             setError(validationMessage(caught, "Fotoja nuk u ngarkua."));
+            await refresh();
           } finally {
             setBusy(false);
           }

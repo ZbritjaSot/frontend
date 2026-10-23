@@ -21,7 +21,7 @@ import {
   uploadBizGallery,
 } from "@/features/gallery/api";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
+import { btnGhost, fieldError, fieldLabel, inputClass } from "@/lib/ui";
 import type { OfferImage, Paginated } from "@/types";
 
 export const bizGalleryQueryKey = ["biz", "gallery"] as const;
@@ -281,7 +281,7 @@ export function ItemPhoto({
             <button
               type="button"
               disabled={busy}
-              className={`${btnPrimary} inline-flex min-h-11 items-center justify-center gap-2 disabled:opacity-60`}
+              className="grid w-full place-items-center gap-1 rounded-2xl border border-dashed border-line bg-sunken px-4 py-7 text-center text-ink hover:border-accent/60 disabled:opacity-60"
               onClick={() => {
                 if (!title.trim()) {
                   setError("Titulli është i detyrueshëm.");
@@ -290,12 +290,14 @@ export function ItemPhoto({
                 inputRef.current?.click();
               }}
             >
-              <AddPhotoAlternateOutlinedIcon fontSize="small" />
-              {busy ? "Duke ngarkuar…" : "Zgjidh dhe ngarko"}
+              <AddPhotoAlternateOutlinedIcon className="text-muted" />
+              <span className="text-base font-bold">
+                {busy ? "Duke ngarkuar…" : "Ngarko foto"}
+              </span>
+              <span className="text-xs font-medium text-muted">
+                JPEG, PNG ose WebP — deri në 8MB.
+              </span>
             </button>
-            <p className="m-0 text-xs text-muted">
-              JPEG, PNG ose WebP — deri në 8MB.
-            </p>
           </div>
         ) : (
           <div className="grid gap-3">
