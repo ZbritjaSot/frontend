@@ -1,17 +1,17 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
-import { AdminLoginScreen } from "@/features/auth/AdminLoginScreen";
-import { Spinner } from "@/components/ui/Spinner";
+import { redirect } from "next/navigation";
+import { loginHref } from "@/lib/loginPath";
 
 export const metadata: Metadata = {
-  title: "Hyrje · Admin",
+  title: "Login",
   robots: { index: false, follow: false },
 };
 
-export default function AdminLoginPage() {
-  return (
-    <Suspense fallback={<Spinner label="Duke ngarkuar" />}>
-      <AdminLoginScreen />
-    </Suspense>
-  );
+export default async function AdminLoginRedirectPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
+  redirect(loginHref(next));
 }

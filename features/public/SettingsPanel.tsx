@@ -83,7 +83,7 @@ export function SettingsPanel() {
           <h2 className={sectionLabel}>Biznesi</h2>
           <div className={group}>
             <SettingsLink
-              href="/biz/login"
+              href="/login"
               label="Hyr"
               detail="Paneli i biznesit"
               icon={<LoginOutlinedIcon fontSize="small" />}

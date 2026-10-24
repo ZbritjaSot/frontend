@@ -9,6 +9,7 @@ import {
   useMe,
 } from "@/hooks/useAuth";
 import { Spinner } from "@/components/ui/Spinner";
+import { loginHref } from "@/lib/loginPath";
 
 type RequireAdminAuthProps = {
   children: ReactNode;
@@ -25,8 +26,7 @@ export function RequireAdminAuth({ children }: RequireAdminAuthProps) {
     }
 
     if (isUnauthenticated(error) || (isError && !user)) {
-      const next = encodeURIComponent(pathname || "/admin");
-      router.replace(`/admin/login?next=${next}`);
+      router.replace(loginHref(pathname || "/admin"));
       return;
     }
 
@@ -44,7 +44,7 @@ export function RequireAdminAuth({ children }: RequireAdminAuthProps) {
       return;
     }
 
-    router.replace("/admin/login");
+    router.replace(loginHref());
   }, [user, error, isLoading, isFetching, isError, router, pathname]);
 
   if (isLoading || isFetching) {

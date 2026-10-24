@@ -72,5 +72,5 @@ export async function logout(page: Page) {
 
   await button.waitFor();
   await button.click();
-  await page.waitForURL(/\/(admin|biz)\/login/);
+  await page.waitForURL(/\/login/);
 }

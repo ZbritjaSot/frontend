@@ -31,15 +31,15 @@ describe("softGateDecision", () => {
     expect(softGateDecision("/biz/flyers", true)).toEqual({ action: "next" });
   });
 
-  it("redirects unauthenticated dashboard paths", () => {
+  it("redirects unauthenticated dashboard paths to the unified login", () => {
     expect(softGateDecision("/admin/offers", false)).toEqual({
       action: "redirect",
-      loginPath: "/admin/login",
+      loginPath: "/login",
       next: "/admin/offers",
     });
     expect(softGateDecision("/biz/profile", false)).toEqual({
       action: "redirect",
-      loginPath: "/biz/login",
+      loginPath: "/login",
       next: "/biz/profile",
     });
   });
@@ -53,5 +53,6 @@ describe("softGateDecision", () => {
     expect(softGateDecision("/biz/reset-password", false)).toEqual({
       action: "next",
     });
+    expect(softGateDecision("/login", false)).toEqual({ action: "next" });
   });
 });

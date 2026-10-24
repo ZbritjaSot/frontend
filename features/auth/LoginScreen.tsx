@@ -7,17 +7,13 @@ import Link from "next/link";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { LoginForm } from "@/features/auth/LoginForm";
-import {
-  requireAdminUser,
-  requireBusinessUser,
-  useMe,
-} from "@/hooks/useAuth";
-import { safeNextPath } from "@/lib/safeNextPath";
+import { postLoginPath } from "@/features/auth/postLoginPath";
+import { useMe } from "@/hooks/useAuth";
 
-export function BizLoginScreen() {
+export function LoginScreen() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextPath = safeNextPath(searchParams.get("next"), "/biz", ["/biz"]);
+  const next = searchParams.get("next");
   const { data: user, isLoading, isFetching } = useMe();
 
   useEffect(() => {
@@ -25,15 +21,8 @@ export function BizLoginScreen() {
       return;
     }
 
-    if (requireBusinessUser(user)) {
-      router.replace(nextPath);
-      return;
-    }
-
-    if (requireAdminUser(user)) {
-      router.replace("/admin");
-    }
-  }, [user, isLoading, isFetching, router, nextPath]);
+    router.replace(postLoginPath(user, next));
+  }, [user, isLoading, isFetching, router, next]);
 
   return (
     <main className="flex min-h-dvh items-center justify-center p-8">
@@ -44,22 +33,15 @@ export function BizLoginScreen() {
           aria-label="ZbritjaSot"
         >
           <LogoMark size={40} priority />
-          <Wordmark className="text-2xl" as="h1" />
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <Wordmark className="text-2xl" as="h1" />
+            <span className="text-[0.6875rem] font-bold tracking-[0.16em] text-accent uppercase">
+              Login
+            </span>
+          </span>
         </Link>
 
-        <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent uppercase">
-          Biznes
-        </p>
-        <p className="m-0 mt-3 mb-8 text-xl font-semibold">
-          Hyr në panelin e dyqanit
-        </p>
-
-        <LoginForm
-          requiredRole={["business", "manager"]}
-          nextPath={nextPath}
-          wrongRoleMessage="Kjo llogari nuk është llogari biznesi."
-          forgotHref="/biz/forgot-password"
-        />
+        <LoginForm next={next} forgotHref="/biz/forgot-password" />
 
         <Link
           href="/"

@@ -82,7 +82,7 @@ export function ChangePasswordScreen() {
         <button className={btnPrimary} type="submit" disabled={pending}>
           {pending ? "Duke u ruajtur…" : "Ruaj fjalëkalimin"}
         </button>
-        <LogoutButton redirectTo="/biz/login" />
+        <LogoutButton redirectTo="/login" />
       </form>
     </main>
   );

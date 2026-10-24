@@ -1,17 +1,17 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
-import { BizLoginScreen } from "@/features/auth/BizLoginScreen";
-import { Spinner } from "@/components/ui/Spinner";
+import { redirect } from "next/navigation";
+import { loginHref } from "@/lib/loginPath";
 
 export const metadata: Metadata = {
-  title: "Hyrje · Biznes",
+  title: "Login",
   robots: { index: false, follow: false },
 };
 
-export default function BizLoginPage() {
-  return (
-    <Suspense fallback={<Spinner label="Duke ngarkuar" />}>
-      <BizLoginScreen />
-    </Suspense>
-  );
+export default async function BizLoginRedirectPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
+  redirect(loginHref(next));
 }

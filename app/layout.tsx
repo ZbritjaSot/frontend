@@ -72,7 +72,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const themeBoot = `(function(){try{var p=location.pathname||"";var dash=p==="/admin"||p.indexOf("/admin/")===0||p==="/biz"||p.indexOf("/biz/")===0;if(dash){document.documentElement.setAttribute("data-theme","dark");return;}var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else{document.documentElement.setAttribute("data-theme","light");}}catch(e){document.documentElement.setAttribute("data-theme","light");}})();`;
+const themeBoot = `(function(){try{var p=location.pathname||"";var dash=p==="/login"||p==="/admin"||p.indexOf("/admin/")===0||p==="/biz"||p.indexOf("/biz/")===0;if(dash){document.documentElement.setAttribute("data-theme","dark");return;}var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}else{document.documentElement.setAttribute("data-theme","light");}}catch(e){document.documentElement.setAttribute("data-theme","light");}})();`;
 
 const jsonLd = {
   "@context": "https://schema.org",

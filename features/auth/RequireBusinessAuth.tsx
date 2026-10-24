@@ -9,6 +9,7 @@ import {
   useMe,
 } from "@/hooks/useAuth";
 import { Spinner } from "@/components/ui/Spinner";
+import { loginHref } from "@/lib/loginPath";
 
 type RequireBusinessAuthProps = {
   children: ReactNode;
@@ -25,8 +26,7 @@ export function RequireBusinessAuth({ children }: RequireBusinessAuthProps) {
     }
 
     if (isUnauthenticated(error) || (isError && !user)) {
-      const next = encodeURIComponent(pathname || "/biz");
-      router.replace(`/biz/login?next=${next}`);
+      router.replace(loginHref(pathname || "/biz"));
       return;
     }
 
@@ -44,7 +44,7 @@ export function RequireBusinessAuth({ children }: RequireBusinessAuthProps) {
       return;
     }
 
-    router.replace("/biz/login");
+    router.replace(loginHref());
   }, [user, error, isLoading, isFetching, isError, router, pathname]);
 
   if (isLoading || isFetching) {

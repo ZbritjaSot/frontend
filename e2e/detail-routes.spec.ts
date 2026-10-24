@@ -33,7 +33,7 @@ test("biz flyer and offer detail/edit routes load for drafts", async ({
   const created: string[] = [];
 
   try {
-    await login(page, "/biz/login", bizEmail, /\/biz$/);
+    await login(page, "/login", bizEmail, /\/biz$/);
 
     const flyerId = await createDraftBundle(
       page,
@@ -72,7 +72,7 @@ test("biz flyer and offer detail/edit routes load for drafts", async ({
     if (created.length > 0 && !page.isClosed()) {
       clearLaravelCache();
       await logout(page).catch(() => undefined);
-      await login(page, "/biz/login", bizEmail, /\/biz$/);
+      await login(page, "/login", bizEmail, /\/biz$/);
       for (const id of created) {
         await deleteBundle(page, id);
       }
@@ -90,14 +90,14 @@ test("admin business detail/address and pending offer edit load", async ({
   let created: string | null = null;
 
   try {
-    await login(page, "/biz/login", bizEmail, /\/biz$/);
+    await login(page, "/login", bizEmail, /\/biz$/);
     created = await createDraftBundle(page, "flyers", title, product);
     await page.goto("/biz/flyers");
     await submitBundle(page, title);
     await logout(page);
 
     clearLaravelCache();
-    await login(page, "/admin/login", adminEmail, /\/admin$/);
+    await login(page, "/login", adminEmail, /\/admin$/);
 
     const businessId = await firstAdminBusinessId(page);
     await page.goto(`/admin/businesses/${businessId}`);
@@ -121,7 +121,7 @@ test("admin business detail/address and pending offer edit load", async ({
     if (created && !page.isClosed()) {
       clearLaravelCache();
       await logout(page).catch(() => undefined);
-      await login(page, "/biz/login", bizEmail, /\/biz$/);
+      await login(page, "/login", bizEmail, /\/biz$/);
       await deleteBundle(page, created);
     }
   }
@@ -137,14 +137,14 @@ test("manager review detail and edit load for a pending flyer", async ({
   let created: string | null = null;
 
   try {
-    await login(page, "/biz/login", bizEmail, /\/biz$/);
+    await login(page, "/login", bizEmail, /\/biz$/);
     created = await createDraftBundle(page, "flyers", title, product);
     await page.goto("/biz/flyers");
     await submitBundle(page, title);
     await logout(page);
 
     clearLaravelCache();
-    await login(page, "/biz/login", managerEmail, /\/biz$/);
+    await login(page, "/login", managerEmail, /\/biz$/);
     await page.goto(`/biz/review/${created}`);
     await expect(page.getByText("Diçka shkoi keq")).toHaveCount(0);
     await expect(page.getByRole("heading", { name: title })).toBeVisible();
@@ -157,7 +157,7 @@ test("manager review detail and edit load for a pending flyer", async ({
     if (created && !page.isClosed()) {
       clearLaravelCache();
       await logout(page).catch(() => undefined);
-      await login(page, "/biz/login", bizEmail, /\/biz$/);
+      await login(page, "/login", bizEmail, /\/biz$/);
       await deleteBundle(page, created);
     }
   }

@@ -5,25 +5,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Spinner } from "@/components/ui/Spinner";
-import { hasRole, loginWithCookies, logout } from "@/features/auth/api";
+import { loginWithCookies, logout } from "@/features/auth/api";
+import { hasDashboardRole, postLoginPath } from "@/features/auth/postLoginPath";
 import { meQueryKey } from "@/hooks/useAuth";
 import { validationMessage } from "@/lib/api";
 import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
 import { loginSchema } from "@/schemas/login";
 
 type LoginFormProps = {
-  requiredRole: "admin" | "business" | Array<"admin" | "business" | "manager">;
-  nextPath: string;
-  wrongRoleMessage: string;
+  next?: string | null;
   forgotHref?: string;
 };
 
-export function LoginForm({
-  requiredRole,
-  nextPath,
-  wrongRoleMessage,
-  forgotHref,
-}: LoginFormProps) {
+export function LoginForm({ next, forgotHref }: LoginFormProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
@@ -45,9 +39,7 @@ export function LoginForm({
     try {
       const user = await loginWithCookies(parsed.data);
 
-      const allowed = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-      if (!allowed.some((role) => hasRole(user, role))) {
-        // Drop the just-created Sanctum session so the UI stays guest-only.
+      if (!hasDashboardRole(user)) {
         try {
           await logout();
         } catch {
@@ -55,12 +47,12 @@ export function LoginForm({
         }
         queryClient.setQueryData(meQueryKey, null);
         await queryClient.invalidateQueries({ queryKey: meQueryKey });
-        setError(wrongRoleMessage);
+        setError("Kjo llogari nuk ka qasje.");
         return;
       }
 
       queryClient.setQueryData(meQueryKey, user);
-      router.replace(nextPath);
+      router.replace(postLoginPath(user, next));
     } catch (err) {
       setError(validationMessage(err, "Email ose fjalëkalim i pasaktë."));
     } finally {

@@ -26,7 +26,7 @@ test("must_change_password gate blocks the panel until password is changed", asy
   try {
     setMustChangePassword(bizEmail, true);
 
-    await login(page, "/biz/login", bizEmail, /\/biz$/);
+    await login(page, "/login", bizEmail, /\/biz$/);
     await expect(
       page.getByRole("heading", { name: "Ndrysho fjalëkalimin" }),
     ).toBeVisible({ timeout: 20_000 });
@@ -79,7 +79,7 @@ test("voluntary password change validates and persists", async ({ page }) => {
   const nextPassword = `TempVol-${Date.now()}!`;
 
   try {
-    await login(page, "/biz/login", bizEmail, /\/biz$/);
+    await login(page, "/login", bizEmail, /\/biz$/);
     await page.goto("/biz/profile/password");
     await expect(
       page.getByRole("heading", { name: "Ndrysho fjalëkalimin" }),
@@ -105,7 +105,7 @@ test("voluntary password change validates and persists", async ({ page }) => {
 
     await logout(page);
     clearLaravelCache();
-    await page.goto("/biz/login");
+    await page.goto("/login");
     await page.getByLabel("Email").fill(bizEmail);
     await page.getByLabel("Fjalëkalimi").fill(nextPassword);
     await page.getByRole("button", { name: "Hyr" }).click();
@@ -150,7 +150,7 @@ test("password reset submission works with a broker token", async ({ page }) => 
     await expect(page.getByText(/Fjalëkalimi u ruajt/)).toBeVisible();
 
     clearLaravelCache();
-    await page.goto("/biz/login");
+    await page.goto("/login");
     await page.getByLabel("Email").fill(bizEmail);
     await page.getByLabel("Fjalëkalimi").fill(nextPassword);
     await page.getByRole("button", { name: "Hyr" }).click();

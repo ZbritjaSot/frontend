@@ -117,7 +117,7 @@ export function ResetPasswordScreen() {
         )}
 
         <Link
-          href={saved ? "/biz/login" : "/biz/forgot-password"}
+          href={saved ? "/login" : "/biz/forgot-password"}
           className="mt-8 inline-flex text-sm font-semibold text-muted hover:text-accent"
         >
           {saved ? "Hyr" : "Kërko email të ri"}

@@ -96,7 +96,7 @@ export function ForgotPasswordScreen() {
         )}
 
         <Link
-          href="/biz/login"
+          href="/login"
           className="mt-8 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-accent"
         >
           <ArrowBackIcon fontSize="small" />

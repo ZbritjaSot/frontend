@@ -78,7 +78,7 @@ test("a shop offer appears in public after approval, and an expired one stays hi
   try {
     clearLaravelCache();
     setPassword(bizEmail, password);
-    await login(page, "/biz/login", bizEmail, /\/biz$/);
+    await login(page, "/login", bizEmail, /\/biz$/);
     created.push(await createAndSubmit(page, liveTitle, liveProduct, "live"));
     created.push(
       await createAndSubmit(page, expiredTitle, expiredProduct, "expired"),
@@ -86,7 +86,7 @@ test("a shop offer appears in public after approval, and an expired one stays hi
 
     await logout(page);
 
-    await login(page, "/admin/login", adminEmail, /\/admin$/);
+    await login(page, "/login", adminEmail, /\/admin$/);
     await approve(page, created[0]);
     await approve(page, created[1]);
 
@@ -104,7 +104,7 @@ test("a shop offer appears in public after approval, and an expired one stays hi
     if (created.length > 0 && !page.isClosed()) {
       clearLaravelCache();
       await logout(page).catch(() => undefined);
-      await login(page, "/biz/login", bizEmail, /\/biz$/);
+      await login(page, "/login", bizEmail, /\/biz$/);
       for (const id of created) {
         await deleteBundle(page, id);
       }

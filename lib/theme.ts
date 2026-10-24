@@ -3,6 +3,7 @@ export type Theme = "light" | "dark";
 /** Admin and business dashboards stay dark. Public shop URLs start with /biznese. */
 export function isDashboardPath(pathname: string): boolean {
   return (
+    pathname === "/login" ||
     pathname === "/admin" ||
     pathname.startsWith("/admin/") ||
     pathname === "/biz" ||

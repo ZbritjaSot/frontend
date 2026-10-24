@@ -44,8 +44,7 @@ export function DashboardShell({
   const [menuOpen, setMenuOpen] = useState(false);
   const homeHref = area === "admin" ? "/admin" : "/biz";
   const areaLabel = label ?? (area === "admin" ? "Admin" : "Biznes");
-  const logoutTo =
-    logoutRedirectTo ?? (area === "admin" ? "/admin/login" : "/biz/login");
+  const logoutTo = logoutRedirectTo ?? "/login";
 
   useEffect(() => {
     if (!menuOpen) {

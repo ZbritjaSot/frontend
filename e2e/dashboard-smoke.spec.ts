@@ -8,7 +8,7 @@ import {
 } from "./helpers/auth";
 
 test("business dashboard areas load after login", async ({ page }) => {
-  await login(page, "/biz/login", bizEmail, /\/biz$/);
+  await login(page, "/login", bizEmail, /\/biz$/);
   await expect(page.getByRole("navigation", { name: "Biznes" })).toBeVisible();
 
   for (const path of [
@@ -40,7 +40,7 @@ test("business dashboard areas load after login", async ({ page }) => {
 });
 
 test("admin dashboard areas load after login", async ({ page }) => {
-  await login(page, "/admin/login", adminEmail, /\/admin$/);
+  await login(page, "/login", adminEmail, /\/admin$/);
   await expect(page.getByText("Diçka shkoi keq")).toHaveCount(0);
 
   for (const path of [
@@ -70,7 +70,7 @@ test("admin dashboard areas load after login", async ({ page }) => {
 });
 
 test("manager review area loads after login", async ({ page }) => {
-  await login(page, "/biz/login", managerEmail, /\/biz$/);
+  await login(page, "/login", managerEmail, /\/biz$/);
   await page.goto("/biz/review/new");
   await expect(page).toHaveURL(/\/biz\/review/);
   await expect(page.getByText("Diçka shkoi keq")).toHaveCount(0);
