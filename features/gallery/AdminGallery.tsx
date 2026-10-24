@@ -13,6 +13,7 @@ import {
   uploadAdminGallery,
 } from "@/features/gallery/api";
 import { titleFromFilename } from "@/features/gallery/titleFromFilename";
+import { useLeaveGuard } from "@/hooks/useLeaveGuard";
 import { validationMessage } from "@/lib/api";
 import { fieldError, inputClass } from "@/lib/ui";
 
@@ -36,6 +37,7 @@ export function AdminGallery({ businessId }: { businessId: string }) {
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState<(typeof GALLERY_PAGE_SIZES)[number]>(25);
+  useLeaveGuard(busy);
 
   function applySearch(event: FormEvent) {
     event.preventDefault();

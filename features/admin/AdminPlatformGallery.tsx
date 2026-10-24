@@ -19,6 +19,7 @@ import {
   uploadAdminPlatformGallery,
 } from "@/features/gallery/api";
 import { titleFromFilename } from "@/features/gallery/titleFromFilename";
+import { useLeaveGuard } from "@/hooks/useLeaveGuard";
 import { validationMessage } from "@/lib/api";
 import {
   btnGhost,
@@ -65,6 +66,7 @@ export function AdminPlatformGallery() {
     total: number;
   } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<OfferImage | null>(null);
+  useLeaveGuard(busy);
 
   function applySearch(event: FormEvent) {
     event.preventDefault();
