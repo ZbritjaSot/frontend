@@ -3,7 +3,7 @@ import { MAX_PRICE_CENTS } from "@/lib/format";
 
 export const PAYMENT_METHOD_OPTIONS = [
   { value: "cash", label: "Cash" },
-  { value: "card", label: "Kartë" },
+  { value: "card", label: "Kartë", disabled: true },
 ] as const;
 
 export const subscriptionFormSchema = z

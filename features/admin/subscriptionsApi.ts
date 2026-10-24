@@ -1,18 +1,27 @@
 import { apiFetch } from "@/lib/api";
 import { fromDateTimeLocalValue } from "@/lib/datetime";
-import type { SubscriptionFormInput } from "@/schemas/subscription";
 import type { Paginated, Subscription } from "@/types";
 
 type SubscriptionPayload = { data: Subscription };
 
-function toApiBody(input: SubscriptionFormInput) {
+export type SubscriptionWriteInput = {
+  business_id: string;
+  starts_at: string;
+  ends_at: string;
+  is_active?: boolean;
+  payment_method?: "cash" | "card";
+  price?: number;
+  payment_note?: string | null;
+};
+
+function toApiBody(input: SubscriptionWriteInput) {
   return {
     business_id: input.business_id,
     starts_at: fromDateTimeLocalValue(input.starts_at),
     ends_at: fromDateTimeLocalValue(input.ends_at),
-    is_active: input.is_active,
-    payment_method: input.payment_method,
-    price: input.price,
+    is_active: input.is_active ?? true,
+    payment_method: input.payment_method ?? "cash",
+    price: input.price ?? 0,
     payment_note: input.payment_note?.trim() || null,
   };
 }
@@ -39,7 +48,7 @@ export async function fetchAdminSubscriptions(options?: {
   );
 }
 
-export async function createSubscription(input: SubscriptionFormInput) {
+export async function createSubscription(input: SubscriptionWriteInput) {
   const payload = await apiFetch<SubscriptionPayload>("/admin/subscriptions", {
     method: "POST",
     auth: true,

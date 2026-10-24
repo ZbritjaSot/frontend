@@ -41,6 +41,7 @@ export type BusinessCounts = {
   active: number;
   inactive: number;
   exclusive: number;
+  ending_soon: number;
   address: number;
   branches: number;
 };

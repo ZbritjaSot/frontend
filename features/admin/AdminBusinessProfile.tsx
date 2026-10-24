@@ -18,6 +18,16 @@ import { ManagerNote } from "@/features/biz/ManagerNote";
 import { AdminGallery } from "@/features/gallery/AdminGallery";
 import { deleteAdminLogo, uploadAdminLogo } from "@/features/gallery/api";
 import { LogoField } from "@/features/gallery/LogoField";
+import {
+  ENDING_SOON_LABEL,
+  endingSoonClass,
+  isEndingSoon,
+  isTrialSubscription,
+  pickSubscription,
+  subscriptionStatusClass,
+  subscriptionStatusLabel,
+  subscriptionStatusNote,
+} from "@/features/admin/subscriptionDisplay";
 import { fetchAdminSubscriptions } from "@/features/admin/subscriptionsApi";
 import { setBusinessPassword, updateBusiness as saveBusiness } from "@/features/admin/businessesApi";
 import {
@@ -29,11 +39,12 @@ import {
 } from "@/hooks/useAdminBusinesses";
 import {
   adminSubscriptionsQueryKey,
+  useCreateSubscription,
   useUpdateSubscription,
 } from "@/hooks/useAdminSubscriptions";
 import { accountEmailMessage, validationMessage } from "@/lib/api";
 import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
-import { toDateTimeLocalValue } from "@/lib/datetime";
+import { defaultSubscriptionWindow, toDateTimeLocalValue } from "@/lib/datetime";
 import { formatDateSq } from "@/lib/format";
 import {
   btnGhost,
@@ -46,45 +57,7 @@ import {
   pageTitle,
   panelLead,
 } from "@/lib/ui";
-import type { Business, Subscription } from "@/types";
-
-function subscriptionStatus(sub: Subscription): { label: string; note: string } {
-  if (!sub.is_active) {
-    return {
-      label: "Çaktivizuar",
-      note: "Abonimi është çaktivizuar. Ofertat nuk shfaqen publike.",
-    };
-  }
-  if (sub.is_current) {
-    return {
-      label: "Aktive",
-      note: "Ofertat e aprovuara mund të shfaqen publike.",
-    };
-  }
-  if (new Date(sub.ends_at).getTime() <= Date.now()) {
-    return {
-      label: "Skaduar",
-      note: "Ofertat nuk shfaqen publike derisa të rinovohet.",
-    };
-  }
-  return {
-    label: "Në pritje",
-    note: "Abonimi ende nuk ka filluar.",
-  };
-}
-
-function subscriptionTone(sub: Subscription): string {
-  if (!sub.is_active) {
-    return offerStatusClass("rejected");
-  }
-  if (sub.is_current) {
-    return offerStatusClass("approved");
-  }
-  if (new Date(sub.ends_at).getTime() <= Date.now()) {
-    return offerStatusClass("expired");
-  }
-  return offerStatusClass("pending");
-}
+import type { Business } from "@/types";
 
 function clockLabel(value: string): string {
   const match = /T(\d{2}):(\d{2})/.exec(value);
@@ -111,18 +84,6 @@ const micro = "text-xs font-bold tracking-[0.08em] text-muted uppercase";
 
 const checkLabelClass =
   "flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none";
-
-function pickSubscription(list: Subscription[]): Subscription | null {
-  const current = list.find((item) => item.is_current);
-  if (current) {
-    return current;
-  }
-  return (
-    [...list].sort(
-      (a, b) => new Date(b.ends_at).getTime() - new Date(a.ends_at).getTime(),
-    )[0] ?? null
-  );
-}
 
 function AddressLink({ business }: { business: Business }) {
   const lines = [business.street, business.village, business.city].filter(
@@ -182,6 +143,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
     enabled: businessQuery.isSuccess,
   });
   const updateBusiness = useUpdateBusiness();
+  const createSubscription = useCreateSubscription();
   const updateSubscription = useUpdateSubscription();
   const approveLocation = useApproveBusinessLocation();
   const rejectLocation = useRejectBusinessLocation();
@@ -213,6 +175,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
   const [passwordConfirmOpen, setPasswordConfirmOpen] = useState(false);
   const [notifyPassword, setNotifyPassword] = useState(false);
   const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
+  const [addingTrial, setAddingTrial] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const setPasswordMutation = useMutation({
     mutationFn: (input: { password: string; notify: boolean }) =>
@@ -242,11 +205,17 @@ export function AdminBusinessProfile({ id }: { id: string }) {
 
   const dateKey = subscription
     ? `${subscription.id}:${subscription.starts_at}:${subscription.ends_at}`
-    : "";
-  if (subscription && dateSeed !== dateKey) {
+    : `new:${payerId}`;
+  if (dateSeed !== dateKey) {
     setDateSeed(dateKey);
-    setStartsAt(toDateTimeLocalValue(subscription.starts_at));
-    setEndsAt(toDateTimeLocalValue(subscription.ends_at));
+    if (subscription) {
+      setStartsAt(toDateTimeLocalValue(subscription.starts_at));
+      setEndsAt(toDateTimeLocalValue(subscription.ends_at));
+    } else {
+      const window = defaultSubscriptionWindow();
+      setStartsAt(window.starts_at);
+      setEndsAt(window.ends_at);
+    }
   }
 
   const heading = (
@@ -370,17 +339,28 @@ export function AdminBusinessProfile({ id }: { id: string }) {
     setPasswordConfirmOpen(true);
   };
 
+  const savingDates =
+    createSubscription.isPending || updateSubscription.isPending;
+
   const onSubscription = async (event: FormEvent) => {
     event.preventDefault();
-    if (!subscription) {
-      return;
-    }
     setSubscriptionError(null);
     try {
-      await updateSubscription.mutateAsync({
-        id: subscription.id,
+      if (subscription) {
+        await updateSubscription.mutateAsync({
+          id: subscription.id,
+          starts_at: startsAt,
+          ends_at: endsAt,
+        });
+        return;
+      }
+      await createSubscription.mutateAsync({
+        business_id: business.id,
         starts_at: startsAt,
         ends_at: endsAt,
+        is_active: true,
+        payment_method: "cash",
+        price: 0,
       });
     } catch (error) {
       setSubscriptionError(
@@ -555,12 +535,12 @@ export function AdminBusinessProfile({ id }: { id: string }) {
           <div className="flex items-start justify-between gap-4 p-5">
             <div className="min-w-0">
               <h2 className="m-0 text-lg font-bold text-ink">Abonimi</h2>
-              {subscription ? (
+              {subscription && startsAt && endsAt ? (
                 <>
                   <p className="m-0 mt-3 text-lg font-semibold tracking-[-0.02em] text-ink">
-                    {formatDateSq(new Date(startsAt || subscription.starts_at))}
+                    {formatDateSq(new Date(startsAt))}
                     <span className="px-2 font-normal text-muted">→</span>
-                    {formatDateSq(new Date(endsAt || subscription.ends_at))}
+                    {formatDateSq(new Date(endsAt))}
                   </p>
                   <p className="m-0 mt-1 text-sm tabular-nums text-muted">
                     {clockLabel(startsAt)}
@@ -568,17 +548,28 @@ export function AdminBusinessProfile({ id }: { id: string }) {
                     {clockLabel(endsAt)}
                   </p>
                   <p className="m-0 mt-2 text-sm leading-relaxed text-muted">
-                    {subscriptionStatus(subscription).note}
+                    {subscriptionStatusNote(subscription)}
                   </p>
                 </>
-              ) : null}
+              ) : (
+                <p className="m-0 mt-2 text-sm leading-relaxed text-muted">
+                  Nuk ka abonim ende. Shto një provë falas për ta aktivizuar dyqanin pa pagesë.
+                </p>
+              )}
             </div>
             {subscription ? (
-              <span
-                className={`${subscriptionTone(subscription)} mt-0! shrink-0 self-start!`}
-              >
-                {subscriptionStatus(subscription).label}
-              </span>
+              <div className="flex shrink-0 flex-wrap items-start justify-end gap-1.5">
+                <span
+                  className={`${subscriptionStatusClass(subscription)} mt-0! self-start!`}
+                >
+                  {subscriptionStatusLabel(subscription)}
+                </span>
+                {isEndingSoon(subscription) ? (
+                  <span className={`${endingSoonClass()} mt-0! self-start!`}>
+                    {ENDING_SOON_LABEL}
+                  </span>
+                ) : null}
+              </div>
             ) : null}
           </div>
           {subscriptionsQuery.isError ? (
@@ -603,16 +594,22 @@ export function AdminBusinessProfile({ id }: { id: string }) {
                 {business.parent?.name ?? "Dyqani kryesor"}
               </Link>
             </div>
-          ) : subscription === null ? (
-            <div className="border-t border-line px-5 py-4">
-              <p className="m-0 text-lg font-semibold text-ink">Nuk ka abonim</p>
-              <p className="m-0 mt-2 text-sm leading-relaxed text-muted">
-                Regjistro një pagesë te{" "}
+          ) : !subscription && !addingTrial ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line p-5">
+              <p className="m-0 text-sm leading-relaxed text-muted">
+                Datat e provës vendosen këtu. Pagesa e parë regjistrohet te{" "}
                 <Link href="/admin/subscriptions" className="font-semibold text-ink">
                   Abonimet
                 </Link>
-                . Pa abonim aktiv, ofertat nuk shfaqen publike.
+                .
               </p>
+              <button
+                className={btnPrimary}
+                type="button"
+                onClick={() => setAddingTrial(true)}
+              >
+                Shto provë falas
+              </button>
             </div>
           ) : (
             <form
@@ -626,36 +623,58 @@ export function AdminBusinessProfile({ id }: { id: string }) {
                   caption="Fillon"
                   value={startsAt}
                   onChange={setStartsAt}
-                  disabled={updateSubscription.isPending}
+                  disabled={savingDates}
                 />
                 <DateTimeField
                   variant="card"
                   caption="Mbaron"
                   value={endsAt}
                   onChange={setEndsAt}
-                  disabled={updateSubscription.isPending}
+                  disabled={savingDates}
                 />
               </div>
               <p className="m-0 text-sm leading-relaxed text-muted">
-                Zgjatja e datave nuk regjistron një pagesë të re. Pagesa e re
-                regjistrohet te{" "}
+                {subscription && isTrialSubscription(subscription)
+                  ? "Mund t’i zgjatësh datat e provës këtu. Kjo nuk regjistron pagesë. Kur dyqani paguan, regjistro pagesën te "
+                  : subscription
+                    ? "Mund t’i zgjatësh datat këtu, si më parë. Kjo nuk regjistron pagesë të re. Pagesa e re shkon te "
+                    : "Kjo është një provë falas, jo një pagesë. Kur dyqani paguan, regjistro pagesën te "}
                 <Link href="/admin/subscriptions" className="font-semibold text-ink">
                   Abonimet
                 </Link>
-                .
+                {subscription && !isTrialSubscription(subscription)
+                  ? "."
+                  : " — prova ndalon."}
               </p>
               {subscriptionError ? (
                 <p className={fieldError} role="alert">
                   {subscriptionError}
                 </p>
               ) : null}
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
+                {!subscription ? (
+                  <button
+                    className={btnGhost}
+                    type="button"
+                    disabled={savingDates}
+                    onClick={() => {
+                      setAddingTrial(false);
+                      setSubscriptionError(null);
+                    }}
+                  >
+                    Anulo
+                  </button>
+                ) : null}
                 <button
                   className={btnPrimary}
                   type="submit"
-                  disabled={updateSubscription.isPending}
+                  disabled={savingDates}
                 >
-                  {updateSubscription.isPending ? "Duke u ruajtur…" : "Ruaj datat"}
+                  {savingDates
+                    ? "Duke u ruajtur…"
+                    : subscription
+                      ? "Ruaj datat"
+                      : "Shto provë falas"}
                 </button>
               </div>
             </form>

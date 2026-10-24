@@ -37,11 +37,9 @@ import { validationMessage } from "@/lib/api";
 import {
   btnGhost,
   btnPrimary,
-  checkInput,
   fieldError,
   fieldLabel,
   inputClass,
-  offerStatusClass,
   pageTitle,
   panelLead,
 } from "@/lib/ui";
@@ -49,6 +47,16 @@ import {
   PAYMENT_METHOD_OPTIONS,
   subscriptionFormSchema,
 } from "@/schemas/subscription";
+import {
+  ENDING_SOON_LABEL,
+  endingSoonClass,
+  isEndingSoon,
+  isLiveTrial,
+  isTrialSubscription,
+  sortSubscriptionsForGroup,
+  subscriptionStatusClass,
+  subscriptionStatusLabel,
+} from "@/features/admin/subscriptionDisplay";
 import type { PaymentMethod, Subscription } from "@/types";
 
 const textAreaClass = `${inputClass} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`;
@@ -65,32 +73,6 @@ function paymentMethodLabel(method: PaymentMethod): string {
   return (
     PAYMENT_METHOD_OPTIONS.find((o) => o.value === method)?.label ?? method
   );
-}
-
-function statusLabel(sub: Subscription): string {
-  if (!sub.is_active) {
-    return "Çaktivizuar";
-  }
-  if (sub.is_current) {
-    return "Aktive";
-  }
-  if (new Date(sub.ends_at).getTime() <= Date.now()) {
-    return "Skaduar";
-  }
-  return "Në pritje";
-}
-
-function statusClass(sub: Subscription): string {
-  if (!sub.is_active) {
-    return offerStatusClass("rejected");
-  }
-  if (sub.is_current) {
-    return offerStatusClass("approved");
-  }
-  if (new Date(sub.ends_at).getTime() <= Date.now()) {
-    return offerStatusClass("expired");
-  }
-  return offerStatusClass("pending");
 }
 
 type BusinessGroup = {
@@ -115,12 +97,7 @@ function groupByBusiness(subscriptions: Subscription[]): BusinessGroup[] {
 
   const groups: BusinessGroup[] = [];
   for (const [businessId, list] of map) {
-    const sorted = [...list].sort((a, b) => {
-      if (a.is_current !== b.is_current) {
-        return a.is_current ? -1 : 1;
-      }
-      return new Date(b.ends_at).getTime() - new Date(a.ends_at).getTime();
-    });
+    const sorted = sortSubscriptionsForGroup(list);
     const latest = sorted[0]!;
     groups.push({
       businessId,
@@ -169,7 +146,6 @@ export function AdminSubscriptions() {
   const [startsAt, setStartsAt] = useState(defaults.starts_at);
   const [endsAt, setEndsAt] = useState(defaults.ends_at);
   const [lengthMonths, setLengthMonths] = useState<SubscriptionLength | null>(1);
-  const [isActive, setIsActive] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
   const [priceCents, setPriceCents] = useState(0);
   const [paymentNote, setPaymentNote] = useState("");
@@ -196,9 +172,19 @@ export function AdminSubscriptions() {
     () => groupByBusiness(data?.data ?? []),
     [data?.data],
   );
-  const filteredGroups = statusFilter
-    ? groups.filter((group) => statusLabel(group.latest) === statusFilter)
-    : groups;
+  const selectedLiveTrial = useMemo(() => {
+    if (!businessId) {
+      return null;
+    }
+    const latest = groups.find((group) => group.businessId === businessId)?.latest;
+    return latest && isLiveTrial(latest) ? latest : null;
+  }, [businessId, groups]);
+  const filteredGroups =
+    statusFilter === ENDING_SOON_LABEL
+      ? groups.filter((group) => isEndingSoon(group.latest))
+      : statusFilter
+        ? groups.filter((group) => subscriptionStatusLabel(group.latest) === statusFilter)
+        : groups;
   const loadedNote = (data?.meta?.last_page ?? 1) > 1 ? "Nga të ngarkuarat" : "Gjendja e fundit";
   const lastPage = Math.max(1, Math.ceil(filteredGroups.length / SUBSCRIPTIONS_PAGE_SIZE));
   if (page > lastPage) {
@@ -226,7 +212,6 @@ export function AdminSubscriptions() {
     setStartsAt(next.starts_at);
     setEndsAt(next.ends_at);
     setLengthMonths(1);
-    setIsActive(true);
     setPaymentMethod("cash");
     setPriceCents(0);
     setPaymentNote("");
@@ -259,7 +244,9 @@ export function AdminSubscriptions() {
       <div className="mb-5 flex flex-wrap gap-x-8 gap-y-4">
         {(
           [
+            ["Provë falas", "pending"],
             ["Aktive", "accent"],
+            [ENDING_SOON_LABEL, "danger"],
             ["Në pritje", "pending"],
             ["Skaduar", "danger"],
             ["Çaktivizuar", "ink"],
@@ -268,7 +255,11 @@ export function AdminSubscriptions() {
           <DashboardKpi
             key={label}
             label={label}
-            value={groups.filter((group) => statusLabel(group.latest) === label).length}
+            value={
+              label === ENDING_SOON_LABEL
+                ? groups.filter((group) => isEndingSoon(group.latest)).length
+                : groups.filter((group) => subscriptionStatusLabel(group.latest) === label).length
+            }
             detail={loadedNote}
             tone={tone}
             active={statusFilter === label}
@@ -315,7 +306,7 @@ export function AdminSubscriptions() {
       business_id: businessId,
       starts_at: startsAt,
       ends_at: endsAt,
-      is_active: isActive,
+      is_active: true,
       payment_method: paymentMethod,
       price: priceCents,
       payment_note: paymentNote,
@@ -408,16 +399,29 @@ export function AdminSubscriptions() {
                       {formatDateShortSq(group.latest.ends_at)}
                     </p>
                     <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-8">
-                      {formatEurFromCents(group.latest.price)}
+                      {isTrialSubscription(group.latest)
+                        ? "Provë falas"
+                        : formatEurFromCents(group.latest.price)}
                     </p>
                     <p className="m-0 text-sm font-semibold whitespace-nowrap md:pl-8">
-                      {paymentMethodLabel(group.latest.payment_method)}
+                      {isTrialSubscription(group.latest)
+                        ? "Pa pagesë"
+                        : paymentMethodLabel(group.latest.payment_method)}
                     </p>
-                    <span
-                      className={`${statusClass(group.latest)} mt-0! w-fit self-center!`}
-                    >
-                      {statusLabel(group.latest)}
-                    </span>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span
+                        className={`${subscriptionStatusClass(group.latest)} mt-0! w-fit self-center!`}
+                      >
+                        {subscriptionStatusLabel(group.latest)}
+                      </span>
+                      {isEndingSoon(group.latest) ? (
+                        <span
+                          className={`${endingSoonClass()} mt-0! w-fit self-center!`}
+                        >
+                          {ENDING_SOON_LABEL}
+                        </span>
+                      ) : null}
+                    </div>
                     <div className="flex items-center gap-1.5 border-l border-line pl-4">
                       <button
                         className={`${rowButton}${open ? " border-accent/60" : ""}`}
@@ -474,9 +478,13 @@ export function AdminSubscriptions() {
                                 {formatDateTimeShortSq(sub.starts_at)} →{" "}
                                 {formatDateTimeShortSq(sub.ends_at)}
                                 {" · "}
-                                {formatEurFromCents(sub.price)}
+                                {isTrialSubscription(sub)
+                                  ? "Provë falas"
+                                  : formatEurFromCents(sub.price)}
                                 {" · "}
-                                {paymentMethodLabel(sub.payment_method)}
+                                {isTrialSubscription(sub)
+                                  ? "Pa pagesë"
+                                  : paymentMethodLabel(sub.payment_method)}
                               </p>
                               <div className="flex flex-wrap items-center gap-2">
                                 {index === 0 ? (
@@ -485,10 +493,17 @@ export function AdminSubscriptions() {
                                   </span>
                                 ) : null}
                                 <span
-                                  className={`${statusClass(sub)} mt-0! self-center!`}
+                                  className={`${subscriptionStatusClass(sub)} mt-0! self-center!`}
                                 >
-                                  {statusLabel(sub)}
+                                  {subscriptionStatusLabel(sub)}
                                 </span>
+                                {isEndingSoon(sub) ? (
+                                  <span
+                                    className={`${endingSoonClass()} mt-0! self-center!`}
+                                  >
+                                    {ENDING_SOON_LABEL}
+                                  </span>
+                                ) : null}
                               </div>
                             </div>
                             {sub.payment_note ? (
@@ -551,6 +566,9 @@ export function AdminSubscriptions() {
           <p className="m-0 text-sm leading-relaxed text-muted">
             Kjo regjistron një pagesë të marrë. Çmimi, metoda dhe shënimi nuk
             shfaqen te dyqani apo te faqja publike.
+            {selectedLiveTrial
+              ? " Ky dyqan është në provë falas — prova ndalon sapo të ruhet pagesa."
+              : ""}
           </p>
           <dl className="m-0 grid gap-2 rounded-xl border border-line bg-sunken px-3 py-3 text-sm sm:px-4">
             <div className="grid gap-0.5 sm:flex sm:justify-between sm:gap-3">
@@ -572,10 +590,6 @@ export function AdminSubscriptions() {
               <dd className="m-0 font-semibold sm:text-right">
                 {paymentMethodLabel(paymentMethod)} · {formatEurFromCents(priceCents)}
               </dd>
-            </div>
-            <div className="grid gap-0.5 sm:flex sm:justify-between sm:gap-3">
-              <dt className="text-muted">Statusi</dt>
-              <dd className="m-0 font-semibold sm:text-right">{isActive ? "Aktiv" : "Çaktivizuar"}</dd>
             </div>
           </dl>
 
@@ -698,27 +712,6 @@ export function AdminSubscriptions() {
                 />
               </label>
             </div>
-          </section>
-
-          <section className="grid gap-3 border-t border-line pt-4">
-            <h3 className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
-              Statusi
-            </h3>
-            <label className="flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none">
-              <input
-                className={checkInput}
-                type="checkbox"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-                disabled={createMutation.isPending}
-              />
-              <span className="min-w-0 flex-1 pt-px leading-[1.4]">
-                Aktiv
-                <span className="mt-0.5 block text-sm font-normal text-muted">
-                  I çaktivizuar fsheh ofertat e dyqanit nga faqja publike.
-                </span>
-              </span>
-            </label>
           </section>
 
           <section className="grid gap-3 border-t border-line pt-4">

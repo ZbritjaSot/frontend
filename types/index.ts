@@ -62,6 +62,8 @@ export type Business = {
   location_rejection_note?: string | null;
   is_active: boolean;
   is_approved?: boolean;
+  on_trial?: boolean;
+  ending_soon?: boolean;
   extra_placement?: boolean;
   logo_url?: string | null;
   website_url?: string | null;

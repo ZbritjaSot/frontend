@@ -7,7 +7,7 @@ import {
   fetchAdminSubscriptions,
   updateSubscription,
 } from "@/features/admin/subscriptionsApi";
-import type { SubscriptionFormInput } from "@/schemas/subscription";
+import type { SubscriptionWriteInput } from "@/features/admin/subscriptionsApi";
 
 export const adminSubscriptionsQueryKey = [
   "admin",
@@ -32,7 +32,7 @@ export function useAdminBusinesses() {
 export function useCreateSubscription() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: SubscriptionFormInput) => createSubscription(input),
+    mutationFn: (input: SubscriptionWriteInput) => createSubscription(input),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: adminSubscriptionsQueryKey,

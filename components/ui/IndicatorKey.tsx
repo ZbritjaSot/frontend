@@ -23,6 +23,8 @@ export type IndicatorMark =
   | "taken_down"
   | "expired"
   | "active"
+  | "trial"
+  | "ending_soon"
   | "inactive"
   | "disabled"
   | "view"
@@ -88,6 +90,18 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
     case "active":
       return (
         <span className={`${offerStatusClass("approved")} ${pill}`}>Aktive</span>
+      );
+    case "trial":
+      return (
+        <span className={`${offerStatusClass("pending")} ${pill}`}>
+          Provë falas
+        </span>
+      );
+    case "ending_soon":
+      return (
+        <span className={`${offerStatusClass("expired")} ${pill}`}>
+          Skadon së shpejti
+        </span>
       );
     case "inactive":
       return (
@@ -320,6 +334,8 @@ export const adminBusinessCatalogKey: IndicatorItem[] = [
 ];
 
 export const adminBusinessKey: IndicatorItem[] = [
+  { mark: "trial", text: "Provë falas. Ofertat mund të dalin, pa pagesë." },
+  { mark: "ending_soon", text: "Mbaron brenda 7 ditëve. Zgjati datat ose regjistro pagesë." },
   { mark: "active", text: "Biznesi mund të ketë oferta publike." },
   { mark: "inactive", text: "Ofertat e tij nuk shfaqen." },
   { mark: "pending", text: "Adresa e re pret aprovim." },
@@ -380,7 +396,9 @@ export const adminCategoryKey: IndicatorItem[] = [
 ];
 
 export const adminSubscriptionKey: IndicatorItem[] = [
-  { mark: "active", text: "Abonimi lejon ofertat publike." },
+  { mark: "trial", text: "Provë falas. Ofertat mund të dalin, pa pagesë." },
+  { mark: "ending_soon", text: "Mbaron brenda 7 ditëve. Zgjati datat ose regjistro pagesë." },
+  { mark: "active", text: "Abonimi i paguar lejon ofertat publike." },
   { mark: "pending", text: "Ende s’ka filluar." },
   { mark: "expired", text: "Ka mbaruar. Ofertat nuk dalin." },
   { mark: "disabled", text: "E ndalur. Ofertat nuk dalin." },

@@ -118,15 +118,29 @@ function ShopLine({
           <p className="m-0 truncate text-sm text-muted">{business.owner.email}</p>
         ) : null}
       </div>
-      <span
-        className={`${offerStatusClass(business.is_approved === false ? "pending" : business.is_active ? "approved" : "rejected")} mt-0! w-fit self-center! md:ml-6`}
-      >
-        {business.is_approved === false
-          ? "Pret aprovim"
-          : business.is_active
-            ? "Aktive"
-            : "Joaktive"}
-      </span>
+      <div className="flex flex-wrap items-center gap-1.5 md:ml-6">
+        {business.is_approved === false ? (
+          <span className={`${offerStatusClass("pending")} mt-0! w-fit self-center!`}>
+            Pret aprovim
+          </span>
+        ) : (
+          <span
+            className={`${offerStatusClass(business.is_active ? "approved" : "rejected")} mt-0! w-fit self-center!`}
+          >
+            {business.is_active ? "Aktive" : "Joaktive"}
+          </span>
+        )}
+        {business.is_approved !== false && business.on_trial ? (
+          <span className={`${offerStatusClass("pending")} mt-0! w-fit self-center!`}>
+            Provë falas
+          </span>
+        ) : null}
+        {business.is_approved !== false && business.ending_soon ? (
+          <span className={`${offerStatusClass("expired")} mt-0! w-fit self-center!`}>
+            Skadon së shpejti
+          </span>
+        ) : null}
+      </div>
       <div className="grid grid-cols-4 gap-1.5 border-l border-line pl-4">
         {branchCount > 0 ? (
           <button
@@ -320,7 +334,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
     <div>
       {header}
       {counts ? (
-        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <DashboardKpi
             value={counts.active}
             label="Aktive"
@@ -335,6 +349,14 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
             detail="Të fshehura nga faqja"
             active={scope === "inactive"}
             onClick={() => chooseScope("inactive")}
+          />
+          <DashboardKpi
+            value={counts.ending_soon ?? 0}
+            label="Skadon së shpejti"
+            detail="Duhet zgjatje ose pagesë"
+            tone={(counts.ending_soon ?? 0) > 0 ? "danger" : "ink"}
+            active={scope === "ending_soon"}
+            onClick={() => chooseScope("ending_soon")}
           />
           <DashboardKpi
             value={counts.exclusive}
@@ -374,7 +396,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
             {q === "" ? "Nuk ka biznese ende." : "Nuk u gjet asnjë biznes."}
           </p>
         ) : (
-          <div className="overflow-x-auto md:grid md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_auto_auto] md:gap-x-4">
+          <div className="overflow-x-auto md:grid md:grid-cols-[minmax(11rem,1.3fr)_minmax(9rem,1.1fr)_minmax(9rem,13rem)_auto] md:gap-x-4">
             <div className="col-span-4 hidden items-center border-b border-line bg-sunken px-4 py-3 text-xs font-bold tracking-[0.08em] text-muted uppercase md:grid md:grid-cols-subgrid">
               <span className="whitespace-nowrap">Biznesi</span>
               <span className="whitespace-nowrap">Pronari</span>

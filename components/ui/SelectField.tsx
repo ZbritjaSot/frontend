@@ -20,6 +20,7 @@ export type SelectOption = {
   value: string;
   label: string;
   logoUrl?: string | null;
+  disabled?: boolean;
 };
 
 type SelectFieldProps = {
@@ -238,16 +239,26 @@ export function SelectField({
             ) : (
               visible.map((option) => {
                 const isSelected = option.value === value;
+                const isDisabled = option.disabled === true;
                 return (
                   <li key={option.value} role="presentation">
                     <button
                       type="button"
                       role="option"
                       aria-selected={isSelected}
+                      aria-disabled={isDisabled}
+                      disabled={isDisabled}
                       className={
-                        isSelected ? `${optionClass} bg-accent/14 text-accent` : optionClass
+                        isDisabled
+                          ? `${optionClass} cursor-not-allowed text-muted hover:bg-transparent hover:text-muted`
+                          : isSelected
+                            ? `${optionClass} bg-accent/14 text-accent`
+                            : optionClass
                       }
                     onClick={() => {
+                      if (isDisabled) {
+                        return;
+                      }
                       onChange(option.value);
                       closeMenu();
                     }}
