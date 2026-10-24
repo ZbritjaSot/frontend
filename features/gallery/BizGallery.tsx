@@ -4,7 +4,7 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import Image from "next/image";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import {
   fetchBizGallery,
   uploadBizGallery,
@@ -24,12 +24,10 @@ export function BizGallery() {
   const [search, setSearch] = useState("");
   const [q, setQ] = useState("");
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setQ(search.trim());
-    }, 300);
-    return () => window.clearTimeout(timer);
-  }, [search]);
+  function applySearch(event: FormEvent) {
+    event.preventDefault();
+    setQ(search.trim());
+  }
 
   const gallery = useInfiniteQuery({
     queryKey: [...bizGalleryQueryKey, q],
@@ -75,19 +73,27 @@ export function BizGallery() {
             onChange={(event) => setTitle(event.target.value)}
           />
         </label>
-        <label className="relative block min-w-0 flex-1">
-          <span className="sr-only">Kërko</span>
-          <SearchIcon
-            fontSize="small"
-            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted"
-          />
-          <input
-            className={`${inputClass} pl-10`}
-            value={search}
-            placeholder=""
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </label>
+        <form className="relative block min-w-0 flex-1" onSubmit={applySearch}>
+          <label className="block">
+            <span className="sr-only">Kërko</span>
+            <SearchIcon
+              fontSize="small"
+              className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted"
+            />
+            <input
+              type="search"
+              enterKeyHint="search"
+              autoComplete="off"
+              className={`${inputClass} pl-10`}
+              value={search}
+              placeholder=""
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </label>
+          <button type="submit" className="sr-only">
+            Kërko
+          </button>
+        </form>
       </div>
 
       <ul className="m-0 grid list-none grid-cols-3 gap-3 p-0 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">

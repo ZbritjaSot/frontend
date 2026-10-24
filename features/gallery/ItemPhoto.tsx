@@ -6,7 +6,7 @@ import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import Image from "next/image";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { Modal } from "@/components/ui/Modal";
 import {
   fetchManagerGallery,
@@ -83,15 +83,10 @@ export function ItemPhoto({
   const [search, setSearch] = useState("");
   const [q, setQ] = useState("");
 
-  useEffect(() => {
-    if (!open || (tab !== "mine" && tab !== "platform")) {
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      setQ(search.trim());
-    }, 300);
-    return () => window.clearTimeout(timer);
-  }, [search, open, tab]);
+  function applySearch(event: FormEvent) {
+    event.preventDefault();
+    setQ(search.trim());
+  }
 
   const mineKey = mineGalleryKey(gallery, businessId, q);
   const platformKey = platformGalleryKey(gallery, q);
@@ -301,19 +296,27 @@ export function ItemPhoto({
           </div>
         ) : (
           <div className="grid gap-3">
-            <label className="relative block">
-              <span className="sr-only">Kërko</span>
-              <SearchIcon
-                fontSize="small"
-                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted"
-              />
-              <input
-                className={`${inputClass} pl-10`}
-                value={search}
-                placeholder=""
-                onChange={(event) => setSearch(event.target.value)}
-              />
-            </label>
+            <form className="relative block" onSubmit={applySearch}>
+              <label className="block">
+                <span className="sr-only">Kërko</span>
+                <SearchIcon
+                  fontSize="small"
+                  className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted"
+                />
+                <input
+                  type="search"
+                  enterKeyHint="search"
+                  autoComplete="off"
+                  className={`${inputClass} pl-10`}
+                  value={search}
+                  placeholder=""
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </label>
+              <button type="submit" className="sr-only">
+                Kërko
+              </button>
+            </form>
 
             {activePhotos.isError ? (
               <p className={fieldError} role="alert">

@@ -5,10 +5,11 @@ import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternate
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Image from "next/image";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Modal } from "@/components/ui/Modal";
+import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
 import {
@@ -30,7 +31,7 @@ import {
 } from "@/lib/ui";
 import type { OfferImage } from "@/types";
 
-const PAGE_SIZE = 24;
+const GALLERY_PAGE_SIZES = [25, 50, 100] as const;
 export const adminPlatformGalleryQueryKey = ["admin", "platform-gallery"] as const;
 
 type PendingPhoto = {
@@ -52,6 +53,8 @@ export function AdminPlatformGallery() {
   const pendingPhotosRef = useRef<PendingPhoto[]>([]);
   const [query, setQuery] = useState("");
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState<(typeof GALLERY_PAGE_SIZES)[number]>(25);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [editor, setEditor] = useState<"new" | OfferImage | null>(null);
@@ -63,12 +66,16 @@ export function AdminPlatformGallery() {
   } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<OfferImage | null>(null);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setQ(query.trim());
-    }, 300);
-    return () => window.clearTimeout(timer);
-  }, [query]);
+  function applySearch(event: FormEvent) {
+    event.preventDefault();
+    const next = query.trim();
+    setQ((current) => {
+      if (current !== next) {
+        setPage(1);
+      }
+      return next;
+    });
+  }
 
   useEffect(() => {
     pendingPhotosRef.current = pendingPhotos;
@@ -84,21 +91,17 @@ export function AdminPlatformGallery() {
     setPendingPhotos(next);
   }
 
-  const gallery = useInfiniteQuery({
-    queryKey: [...adminPlatformGalleryQueryKey, q],
-    queryFn: ({ pageParam }) =>
-      fetchAdminPlatformGallery({ q, page: pageParam, per_page: PAGE_SIZE }),
-    initialPageParam: 1,
-    getNextPageParam: (last) => {
-      const meta = last.meta;
-      if (!meta || meta.current_page >= meta.last_page) {
-        return undefined;
-      }
-      return meta.current_page + 1;
-    },
+  const gallery = useQuery({
+    queryKey: [...adminPlatformGalleryQueryKey, q, page, perPage],
+    queryFn: () => fetchAdminPlatformGallery({ q, page, per_page: perPage }),
   });
 
-  const images = gallery.data?.pages.flatMap((page) => page.data) ?? [];
+  const images = gallery.data?.data ?? [];
+  const total = gallery.data?.meta?.total ?? images.length;
+  const lastPage = Math.max(1, gallery.data?.meta?.last_page ?? 1);
+  if (gallery.data?.meta && page > lastPage) {
+    setPage(lastPage);
+  }
 
   function openCreate() {
     setEditor("new");
@@ -239,7 +242,17 @@ export function AdminPlatformGallery() {
       {header}
 
       <div className="overflow-hidden rounded-2xl border border-line bg-elevated">
-        <TableSearch value={query} onChange={setQuery} label="Kërko" />
+        <form onSubmit={applySearch}>
+          <TableSearch
+            value={query}
+            onChange={setQuery}
+            label="Kërko"
+            submitOnEnter
+          />
+          <button type="submit" className="sr-only">
+            Kërko
+          </button>
+        </form>
 
         {images.length === 0 ? (
           <p className="m-0 px-4 py-8 text-sm text-muted">
@@ -248,64 +261,65 @@ export function AdminPlatformGallery() {
               : "Nuk u gjet asnjë foto."}
           </p>
         ) : (
-          <ul className="m-0 grid list-none grid-cols-2 gap-3 p-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {images.map((image) => (
-              <li
-                key={image.id}
-                className="group relative overflow-hidden rounded-xl border border-line bg-sunken"
-              >
-                <span className="relative block aspect-square">
-                  <Image
-                    src={image.thumb_url}
-                    alt={image.title ?? ""}
-                    fill
-                    unoptimized
-                    className="object-cover"
-                    sizes="160px"
-                  />
-                </span>
-                <div className="grid gap-1 border-t border-line p-2">
-                  <p className="m-0 truncate text-sm font-semibold text-ink">
-                    {image.title || "Pa titull"}
-                  </p>
-                  <div className="mt-1 flex gap-1">
-                    <button
-                      type="button"
-                      aria-label="Ndrysho"
-                      className="inline-flex size-8 items-center justify-center rounded-lg border border-line bg-elevated text-ink hover:border-accent/60"
-                      onClick={() => openEdit(image)}
-                    >
-                      <EditOutlinedIcon sx={{ fontSize: 16 }} />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Fshi"
-                      className="inline-flex size-8 items-center justify-center rounded-lg border border-line bg-elevated text-danger hover:border-danger/60"
-                      onClick={() => setPendingDelete(image)}
-                    >
-                      <DeleteOutlinedIcon sx={{ fontSize: 16 }} />
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <>
+            <div className="max-h-[min(40rem,calc(100dvh-20rem))] overflow-y-auto overscroll-contain">
+              <ul className="m-0 grid list-none grid-cols-2 gap-3 p-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                {images.map((image) => (
+                  <li
+                    key={image.id}
+                    className="group relative overflow-hidden rounded-xl border border-line bg-sunken"
+                  >
+                    <span className="relative block aspect-square">
+                      <Image
+                        src={image.thumb_url}
+                        alt={image.title ?? ""}
+                        fill
+                        unoptimized
+                        className="object-cover"
+                        sizes="160px"
+                      />
+                    </span>
+                    <div className="grid gap-1 border-t border-line p-2">
+                      <p className="m-0 truncate text-sm font-semibold text-ink">
+                        {image.title || "Pa titull"}
+                      </p>
+                      <div className="mt-1 flex gap-1">
+                        <button
+                          type="button"
+                          aria-label="Ndrysho"
+                          className="inline-flex size-8 items-center justify-center rounded-lg border border-line bg-elevated text-ink hover:border-accent/60"
+                          onClick={() => openEdit(image)}
+                        >
+                          <EditOutlinedIcon sx={{ fontSize: 16 }} />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Fshi"
+                          className="inline-flex size-8 items-center justify-center rounded-lg border border-line bg-elevated text-danger hover:border-danger/60"
+                          onClick={() => setPendingDelete(image)}
+                        >
+                          <DeleteOutlinedIcon sx={{ fontSize: 16 }} />
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <Pagination
+              page={page}
+              lastPage={lastPage}
+              total={total}
+              perPage={perPage}
+              onPageChange={setPage}
+              pageSizes={GALLERY_PAGE_SIZES}
+              onPerPageChange={(next) => {
+                setPerPage(next as (typeof GALLERY_PAGE_SIZES)[number]);
+                setPage(1);
+              }}
+            />
+          </>
         )}
-
-        {gallery.hasNextPage ? (
-          <div className="border-t border-line p-3">
-            <button
-              type="button"
-              disabled={gallery.isFetchingNextPage}
-              className={`${btnGhost} min-h-10 disabled:opacity-60`}
-              onClick={() => void gallery.fetchNextPage()}
-            >
-              {gallery.isFetchingNextPage
-                ? "Duke ngarkuar…"
-                : "Ngarko më shumë"}
-            </button>
-          </div>
-        ) : null}
       </div>
 
       <Modal

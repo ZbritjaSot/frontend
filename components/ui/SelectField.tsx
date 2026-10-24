@@ -204,7 +204,7 @@ export function SelectField({
         ? createPortal(
         <div
           ref={menuRef}
-          className="fixed z-[100] flex flex-col overflow-hidden rounded-lg border border-line bg-elevated p-1.5 shadow-[0_12px_32px_var(--color-shadow)]"
+          className="fixed z-[110] flex flex-col overflow-hidden rounded-lg border border-line bg-elevated p-1.5 shadow-[0_12px_32px_var(--color-shadow)]"
           style={{
             left: menuBox.left,
             width: menuBox.width,

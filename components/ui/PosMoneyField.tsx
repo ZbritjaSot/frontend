@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ClipboardEvent, type KeyboardEvent } from "react";
+import { useId, type ChangeEvent, type ClipboardEvent, type KeyboardEvent } from "react";
 import { inputClass } from "@/lib/ui";
 
 type PosMoneyFieldProps = {
@@ -21,6 +21,11 @@ export function formatPosCents(cents: number): string {
   return `${String(whole).padStart(2, "0")},${String(frac).padStart(2, "0")}`;
 }
 
+function centsFromDigits(raw: string, maxCents: number): number {
+  const digits = raw.replace(/\D/g, "");
+  return Math.min(Number(digits || 0), maxCents);
+}
+
 /**
  * POS-style money input: digits only, decimal fixed at 2 places.
  * Typing `1` → 00,01; typing `0` → 00,10; … → 10,00.
@@ -37,26 +42,11 @@ export function PosMoneyField({
   const fieldId = id ?? autoId;
   const display = formatPosCents(valueCents);
 
-  function pushDigit(digit: number) {
+  function commit(raw: string) {
     if (disabled) {
       return;
     }
-    const next = valueCents * 10 + digit;
-    onChangeCents(Math.min(next, maxCents));
-  }
-
-  function backspace() {
-    if (disabled) {
-      return;
-    }
-    onChangeCents(Math.floor(valueCents / 10));
-  }
-
-  function clear() {
-    if (disabled) {
-      return;
-    }
-    onChangeCents(0);
+    onChangeCents(centsFromDigits(raw, maxCents));
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -64,51 +54,26 @@ export function PosMoneyField({
       return;
     }
 
-    if (event.key >= "0" && event.key <= "9") {
-      event.preventDefault();
-      pushDigit(Number(event.key));
-      return;
-    }
-
-    if (event.key === "Backspace") {
-      event.preventDefault();
-      backspace();
-      return;
-    }
-
     if (event.key === "Delete") {
       event.preventDefault();
-      clear();
+      if (!disabled) {
+        onChangeCents(0);
+      }
       return;
     }
 
-    // Allow navigation / focus keys; block letters, symbols, separators.
-    const allowed = [
-      "Tab",
-      "Escape",
-      "Enter",
-      "ArrowLeft",
-      "ArrowRight",
-      "ArrowUp",
-      "ArrowDown",
-      "Home",
-      "End",
-    ];
-    if (!allowed.includes(event.key)) {
+    if (event.key.length === 1 && (event.key < "0" || event.key > "9")) {
       event.preventDefault();
     }
   }
 
   function onPaste(event: ClipboardEvent<HTMLInputElement>) {
     event.preventDefault();
-    if (disabled) {
-      return;
-    }
-    const raw = event.clipboardData.getData("text").replace(/\D/g, "");
-    if (!raw) {
-      return;
-    }
-    onChangeCents(Math.min(Number(raw), maxCents));
+    commit(event.clipboardData.getData("text"));
+  }
+
+  function onChange(event: ChangeEvent<HTMLInputElement>) {
+    commit(event.target.value);
   }
 
   return (
@@ -122,12 +87,9 @@ export function PosMoneyField({
       disabled={disabled}
       aria-label={ariaLabel}
       value={display}
-      readOnly
       onKeyDown={onKeyDown}
       onPaste={onPaste}
-      onChange={() => {
-        /* controlled via keydown — readOnly suppresses native edits */
-      }}
+      onChange={onChange}
     />
   );
 }

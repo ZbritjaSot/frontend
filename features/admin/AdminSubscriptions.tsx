@@ -544,7 +544,7 @@ export function AdminSubscriptions() {
       >
         <form
           id="admin-sub-create-form"
-          className="flex w-full max-w-none flex-col gap-3"
+          className="flex w-full min-w-0 max-w-none flex-col gap-3"
           onSubmit={onCreate}
           noValidate
         >
@@ -552,28 +552,30 @@ export function AdminSubscriptions() {
             Kjo regjistron një pagesë të marrë. Çmimi, metoda dhe shënimi nuk
             shfaqen te dyqani apo te faqja publike.
           </p>
-          <dl className="m-0 grid gap-2 rounded-xl border border-line bg-sunken px-4 py-3 text-sm">
-            <div className="flex justify-between gap-3">
+          <dl className="m-0 grid gap-2 rounded-xl border border-line bg-sunken px-3 py-3 text-sm sm:px-4">
+            <div className="grid gap-0.5 sm:flex sm:justify-between sm:gap-3">
               <dt className="text-muted">Dyqani</dt>
-              <dd className="m-0 truncate font-semibold">
+              <dd className="m-0 min-w-0 font-semibold sm:truncate sm:text-right">
                 {businessOptions.find((option) => option.value === businessId)?.label ?? "Ende pa zgjedhur"}
               </dd>
             </div>
-            <div className="flex justify-between gap-3">
+            <div className="grid gap-0.5 sm:flex sm:justify-between sm:gap-3">
               <dt className="text-muted">Periudha</dt>
-              <dd className="m-0 text-right font-semibold">
-                {periodLabel(startsAt)} → {periodLabel(endsAt)}
+              <dd className="m-0 min-w-0 font-semibold sm:text-right">
+                <span className="block sm:inline">{periodLabel(startsAt)}</span>
+                <span className="text-muted"> → </span>
+                <span className="block sm:inline">{periodLabel(endsAt)}</span>
               </dd>
             </div>
-            <div className="flex justify-between gap-3">
+            <div className="grid gap-0.5 sm:flex sm:justify-between sm:gap-3">
               <dt className="text-muted">Pagesa</dt>
-              <dd className="m-0 font-semibold">
+              <dd className="m-0 font-semibold sm:text-right">
                 {paymentMethodLabel(paymentMethod)} · {formatEurFromCents(priceCents)}
               </dd>
             </div>
-            <div className="flex justify-between gap-3">
+            <div className="grid gap-0.5 sm:flex sm:justify-between sm:gap-3">
               <dt className="text-muted">Statusi</dt>
-              <dd className="m-0 font-semibold">{isActive ? "Aktiv" : "Çaktivizuar"}</dd>
+              <dd className="m-0 font-semibold sm:text-right">{isActive ? "Aktiv" : "Çaktivizuar"}</dd>
             </div>
           </dl>
 

@@ -3,7 +3,8 @@
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { SelectField } from "@/components/ui/SelectField";
 import { formatCalendarDateSq, formatMonthYearSq } from "@/lib/format";
 import { triggerClass } from "@/lib/ui";
@@ -130,6 +131,14 @@ export function DateTimeField({
   const minParsed = minDate ? parseLocal(minDate, true) : null;
   const panelId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [panelBox, setPanelBox] = useState<{
+    left: number;
+    width: number;
+    maxHeight: number;
+    top?: number;
+    bottom?: number;
+  } | null>(null);
   const [open, setOpen] = useState(false);
   /** null = follow the selected value’s month while the panel is open. */
   const [cursor, setCursor] = useState<{ year: number; month: number } | null>(
@@ -177,7 +186,11 @@ export function DateTimeField({
     }
 
     const onPointerDown = (event: MouseEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        !rootRef.current?.contains(target) &&
+        !panelRef.current?.contains(target)
+      ) {
         setOpen(false);
         setCursor(null);
       }
@@ -197,6 +210,48 @@ export function DateTimeField({
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function place() {
+      const trigger = rootRef.current?.querySelector("button");
+      if (!trigger) {
+        return;
+      }
+      const rect = trigger.getBoundingClientRect();
+      const gap = 6;
+      const edge = 12;
+      const width = Math.min(296, Math.max(rect.width, 248), window.innerWidth - edge * 2);
+      const left = Math.min(
+        Math.max(edge, rect.left),
+        window.innerWidth - width - edge,
+      );
+      const estimatedHeight = panelRef.current?.offsetHeight ?? 360;
+      const spaceBelow = window.innerHeight - rect.bottom - gap - edge;
+      const spaceAbove = rect.top - gap - edge;
+      const openBelow =
+        spaceBelow >= Math.min(estimatedHeight, 260) || spaceBelow >= spaceAbove;
+      const maxHeight = Math.max(200, openBelow ? spaceBelow : spaceAbove);
+      setPanelBox(
+        openBelow
+          ? { left, width, maxHeight, top: rect.bottom + gap }
+          : { left, width, maxHeight, bottom: window.innerHeight - rect.top + gap },
+      );
+    }
+
+    place();
+    const frame = window.requestAnimationFrame(place);
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
+    };
+  }, [open, variant, dateOnly]);
 
   const hour = String(parsed?.hour ?? 0).padStart(2, "0");
   const minute = hourOnly
@@ -361,10 +416,19 @@ export function DateTimeField({
         </div>
       )}
 
-      {open ? (
+      {open && typeof document !== "undefined"
+        ? createPortal(
         <div
+          ref={panelRef}
           id={panelId}
-          className="absolute top-[calc(100%+0.35rem)] left-0 z-[45] w-[min(100%,18.5rem)] rounded-lg border border-line bg-elevated p-3.5 shadow-[0_12px_32px_var(--color-shadow)]"
+          className="fixed z-[105] overflow-y-auto overscroll-contain rounded-lg border border-line bg-elevated p-3.5 shadow-[0_12px_32px_var(--color-shadow)]"
+          style={{
+            left: panelBox?.left ?? 12,
+            width: panelBox?.width ?? 296,
+            maxHeight: panelBox?.maxHeight ?? 360,
+            top: panelBox?.top,
+            bottom: panelBox?.bottom,
+          }}
           role="dialog"
           aria-label="Kalendari"
         >
@@ -447,8 +511,10 @@ export function DateTimeField({
               {timeRow}
             </div>
           ) : null}
-        </div>
-      ) : null}
+        </div>,
+          document.body,
+        )
+        : null}
     </div>
   );
 }

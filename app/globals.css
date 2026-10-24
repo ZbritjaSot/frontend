@@ -113,3 +113,15 @@ html[data-theme="dark"] {
     font-size: 1rem;
   }
 }
+
+@keyframes shop-marquee {
+  to {
+    transform: translateX(calc(-100% / var(--shop-copies, 2)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-shop-clone] {
+    display: none;
+  }
+}

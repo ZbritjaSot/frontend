@@ -73,28 +73,32 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
         className="size-14 shrink-0 rounded-xl"
       />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-extrabold">{offer.name}</span>
-        <span className="mt-1 flex min-w-0 items-center gap-2">
+        <span className="flex min-w-0 items-center gap-2">
+          <span className="min-w-0 truncate text-sm font-extrabold">
+            {offer.name}
+          </span>
           {offer.discount_percent != null && offer.discount_percent > 0 ? (
             <span className="shrink-0">
               <DiscountBadge percent={offer.discount_percent} />
             </span>
           ) : null}
-          {offer.business?.name ? (
-            <span className="flex min-w-0 items-center gap-1.5">
-              <ShopLogo
-                name={offer.business.name}
-                logoUrl={offer.business.logo_url}
-                size="xs"
-              />
-              <span className="min-w-0 truncate text-xs font-extrabold tracking-tight text-ink">
-                {offer.business.name}
-              </span>
-            </span>
-          ) : (
-            <span className="min-w-0 truncate text-xs text-muted">{"\u00a0"}</span>
-          )}
         </span>
+        {offer.business?.name ? (
+          <span className="mt-1.5 flex min-w-0 items-center gap-1.5">
+            <ShopLogo
+              name={offer.business.name}
+              logoUrl={offer.business.logo_url}
+              size="xs"
+            />
+            <span className="min-w-0 truncate text-xs font-extrabold tracking-tight text-ink">
+              {offer.business.name}
+            </span>
+          </span>
+        ) : (
+          <span className="mt-1.5 block min-w-0 truncate text-xs text-muted">
+            {"\u00a0"}
+          </span>
+        )}
       </span>
       <span className="w-28 shrink-0 text-right">
         <span className="block truncate text-xs font-bold text-muted tabular-nums">
