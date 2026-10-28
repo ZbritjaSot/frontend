@@ -903,8 +903,7 @@ export function OfferForm({
                         }
                       />
                       <span className="text-xs font-medium text-muted">
-                        Nëse e plotëson, vizitori mund ta hapë te dyqani online
-                        (p.sh. Gjirafa).
+                        Nëse e plotëson, vizitori mund ta hapë te dyqani online.
                       </span>
                     </label>
                   </div>

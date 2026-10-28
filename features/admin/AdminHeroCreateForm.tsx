@@ -247,7 +247,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
           onChange={(event) => setPurchaseUrl(event.target.value)}
         />
         <span className="font-medium text-muted">
-          Nëse e plotëson, vizitori mund ta hapë te dyqani online (p.sh. Gjirafa).
+          Nëse e plotëson, vizitori mund ta hapë te dyqani online.
         </span>
       </label>
 

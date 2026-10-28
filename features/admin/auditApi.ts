@@ -17,6 +17,8 @@ export type AuditAction =
   | "offer_taken_down"
   | "exclusive_on"
   | "exclusive_off"
+  | "priority_on"
+  | "priority_off"
   | "manager_assigned"
   | "manager_removed"
   | "newsletter_sent"

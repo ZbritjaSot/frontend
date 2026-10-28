@@ -71,6 +71,7 @@ export type Business = {
   on_trial?: boolean;
   ending_soon?: boolean;
   extra_placement?: boolean;
+  is_priority?: boolean;
   logo_url?: string | null;
   website_url?: string | null;
   instagram_url?: string | null;

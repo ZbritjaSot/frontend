@@ -211,9 +211,7 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
                     className="aspect-[4/3] w-full"
                   />
                   {offer.discount_percent != null && offer.discount_percent > 0 ? (
-                    <span className="absolute top-3 left-3 z-10">
-                      <DiscountBadge percent={offer.discount_percent} />
-                    </span>
+                    <DiscountBadge percent={offer.discount_percent} size="lg" />
                   ) : null}
                 </Link>
               ))}

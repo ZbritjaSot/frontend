@@ -13,6 +13,7 @@ import {
 } from "@/features/admin/businessesApi";
 import { approveAdminBranch } from "@/features/branches/api";
 import type { BusinessFormInput } from "@/schemas/business";
+import type { Business } from "@/types";
 
 export const adminBusinessesQueryKey = ["admin", "businesses"] as const;
 
@@ -71,6 +72,38 @@ export function useCreateBusiness() {
   });
 }
 
+function withPriority(business: Business, id: string, isPriority: boolean): Business {
+  if (business.id === id) {
+    return { ...business, is_priority: isPriority };
+  }
+  if (!business.branches?.some((branch) => branch.id === id)) {
+    return business;
+  }
+  return {
+    ...business,
+    branches: business.branches.map((branch) =>
+      branch.id === id ? { ...branch, is_priority: isPriority } : branch,
+    ),
+  };
+}
+
+function patchPriorityCache(current: unknown, id: string, isPriority: boolean): unknown {
+  if (!current || typeof current !== "object") {
+    return current;
+  }
+  if ("data" in current && Array.isArray((current as { data: unknown }).data)) {
+    const page = current as { data: Business[] };
+    return {
+      ...page,
+      data: page.data.map((business) => withPriority(business, id, isPriority)),
+    };
+  }
+  if ("id" in current) {
+    return withPriority(current as Business, id, isPriority);
+  }
+  return current;
+}
+
 export function useUpdateBusiness() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -81,6 +114,7 @@ export function useUpdateBusiness() {
       id: string;
       name?: string;
       is_active?: boolean;
+      is_priority?: boolean;
       street?: string | null;
       neighborhood?: string | null;
       village?: string | null;
@@ -95,6 +129,27 @@ export function useUpdateBusiness() {
       facebook_url?: string | null;
       whatsapp?: string | null;
     }) => updateBusiness(id, data),
+    onMutate: async (variables) => {
+      if (typeof variables.is_priority !== "boolean") {
+        return;
+      }
+      await queryClient.cancelQueries({ queryKey: adminBusinessesQueryKey });
+      const previous = queryClient.getQueriesData({
+        queryKey: adminBusinessesQueryKey,
+      });
+      queryClient.setQueriesData({ queryKey: adminBusinessesQueryKey }, (current) =>
+        patchPriorityCache(current, variables.id, variables.is_priority === true),
+      );
+      return { previous };
+    },
+    onError: (_error, variables, context) => {
+      if (typeof variables.is_priority !== "boolean" || !context?.previous) {
+        return;
+      }
+      for (const [key, data] of context.previous) {
+        queryClient.setQueryData(key, data);
+      }
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: adminBusinessesQueryKey,

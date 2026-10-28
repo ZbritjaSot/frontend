@@ -43,9 +43,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                 className="aspect-[4/3] w-full lg:aspect-auto lg:h-full lg:min-h-[18rem]"
               />
               {offer.discount_percent != null && offer.discount_percent > 0 ? (
-                <span className="absolute top-4 left-4 z-10">
-                  <DiscountBadge percent={offer.discount_percent} />
-                </span>
+                <DiscountBadge percent={offer.discount_percent} size="lg" />
               ) : null}
               <span className="absolute top-4 right-4 z-20">
                 <FavoriteButton kind="offer" id={offer.id} size="md" />

@@ -30,6 +30,8 @@ const actionCopy: Record<AuditAction, string> = {
   offer_taken_down: "Hoqi fletushkën",
   exclusive_on: "Bëri dyqanin ekskluziv",
   exclusive_off: "Hoqi ekskluzivitetin",
+  priority_on: "I dha prioritet biznesit",
+  priority_off: "Hoqi prioritetin",
   manager_assigned: "Caktoi menaxherin",
   manager_removed: "Hoqi menaxherin",
   newsletter_sent: "Dërgoi buletinin",

@@ -10,6 +10,7 @@ import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { offerStatusClass } from "@/lib/ui";
@@ -35,6 +36,7 @@ export type IndicatorMark =
   | "main"
   | "lock"
   | "unlock"
+  | "priority"
   | "drag"
   | "branches"
   | "history"
@@ -163,6 +165,12 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
       return (
         <span className={iconBox}>
           <LockOpenOutlinedIcon fontSize="small" className="text-accent!" />
+        </span>
+      );
+    case "priority":
+      return (
+        <span className={iconBox}>
+          <StarBorderOutlinedIcon fontSize="small" className="text-accent!" />
         </span>
       );
     case "drag":
@@ -335,6 +343,7 @@ export const adminBusinessKey: IndicatorItem[] = [
   { mark: "edit", text: "Ndrysho të dhënat." },
   { mark: "lock", text: "Çaktivizo biznesin." },
   { mark: "unlock", text: "Aktivizo biznesin." },
+  { mark: "priority", text: "Jep ose hiq prioritetin te Zbritjet e forta." },
 ];
 
 export const adminManagerKey: IndicatorItem[] = [

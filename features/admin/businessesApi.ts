@@ -115,6 +115,7 @@ export async function updateBusiness(
   data: {
     name?: string;
     is_active?: boolean;
+    is_priority?: boolean;
     street?: string | null;
     neighborhood?: string | null;
     village?: string | null;

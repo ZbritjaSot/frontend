@@ -231,11 +231,7 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
             imageUrl={flyer.cover?.thumb_url}
             sizes="176px"
           />
-          {percent > 0 ? (
-            <span className="absolute top-2 left-2 z-10">
-              <DiscountBadge percent={percent} />
-            </span>
-          ) : null}
+          {percent > 0 ? <DiscountBadge percent={percent} size="sm" /> : null}
           <span className="absolute top-2 right-2 z-10">
             <FavoriteButton kind="flyer" id={flyer.id} />
           </span>
@@ -271,9 +267,7 @@ function OfferSlide({ offer, inert }: { offer: PublicOffer; inert: boolean }) {
             sizes="176px"
           />
           {offer.discount_percent != null && offer.discount_percent > 0 ? (
-            <span className="absolute top-2 left-2 z-10">
-              <DiscountBadge percent={offer.discount_percent} />
-            </span>
+            <DiscountBadge percent={offer.discount_percent} size="sm" />
           ) : null}
           <span className="absolute top-2 right-2 z-10">
             <FavoriteButton kind="offer" id={offer.id} />

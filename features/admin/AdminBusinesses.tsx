@@ -6,6 +6,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";
@@ -60,6 +61,7 @@ function ShopLine({
   onToggle,
   pending,
   onActive,
+  onPriority,
   onApprove,
   className = "",
 }: {
@@ -70,6 +72,7 @@ function ShopLine({
   onToggle?: () => void;
   pending: boolean;
   onActive: () => void;
+  onPriority: () => void;
   onApprove?: () => void;
   className?: string;
 }) {
@@ -144,7 +147,7 @@ function ShopLine({
           </span>
         ) : null}
       </div>
-      <div className="grid grid-cols-3 gap-1.5 border-l border-line pl-4">
+      <div className="grid grid-cols-4 gap-1.5 border-l border-line pl-4">
         {branchCount > 0 ? (
           <button
             type="button"
@@ -193,6 +196,24 @@ function ShopLine({
             <LockOpenOutlinedIcon fontSize="small" className="text-accent!" />
           )}
         </button>
+        <button
+          className={rowButton}
+          type="button"
+          title={business.is_priority ? "Hiq prioritetin" : "Jepi prioritet"}
+          aria-label={
+            business.is_priority
+              ? `Hiq prioritetin e ${business.name}`
+              : `Jepi prioritet ${business.name}`
+          }
+          aria-pressed={business.is_priority === true}
+          disabled={pending}
+          onClick={onPriority}
+        >
+          <StarBorderOutlinedIcon
+            fontSize="small"
+            className={business.is_priority ? "text-accent!" : undefined}
+          />
+        </button>
       </div>
     </li>
   );
@@ -212,6 +233,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<BusinessFormInput>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
+  const [rowError, setRowError] = useState<string | null>(null);
   const [createdAccount, setCreatedAccount] = useState<{
     name: string;
     email: string;
@@ -306,6 +328,20 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
 
   const counts = data?.counts;
 
+  function onPriority(business: Business) {
+    setRowError(null);
+    updateMutation.mutate(
+      { id: business.id, is_priority: business.is_priority !== true },
+      {
+        onError: (error) => {
+          setRowError(
+            validationMessage(error, "Nuk mundëm ta ndryshojmë prioritetin."),
+          );
+        },
+      },
+    );
+  }
+
   function chooseScope(next: string) {
     setScope((current) => (current === next ? "" : next));
     setPage(1);
@@ -356,6 +392,12 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
             onClick={() => chooseScope("branches")}
           />
         </div>
+      ) : null}
+
+      {rowError ? (
+        <p className={`${fieldError} mb-3`} role="alert">
+          {rowError}
+        </p>
       ) : null}
 
       <div className="overflow-hidden rounded-2xl border border-line">
@@ -410,6 +452,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
                         is_active: !business.is_active,
                       })
                     }
+                    onPriority={() => onPriority(business)}
                   />,
                 ];
                 if (open) {
@@ -432,6 +475,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
                             is_active: !branch.is_active,
                           })
                         }
+                        onPriority={() => onPriority(branch)}
                       />,
                     );
                   }

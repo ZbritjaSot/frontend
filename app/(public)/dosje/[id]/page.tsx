@@ -7,6 +7,7 @@ import { display } from "@/features/public/tone";
 import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
 import { BackLink, Band, EmptyNote, Frame } from "@/features/public/Frame";
 import { ProductList } from "@/features/public/ProductPoster";
+import { DiscountBadge } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { fetchPublicFolder, isNotFound } from "@/features/offers/api";
 import { formatDateSq, formatDiscountPercent, formatEurFromCents } from "@/lib/format";
@@ -128,6 +129,9 @@ export default async function FolderPage({ params }: FolderPageProps) {
                     eager
                     className="aspect-[4/5] w-full"
                   />
+                  {lead.discount_percent != null && lead.discount_percent > 0 ? (
+                    <DiscountBadge percent={lead.discount_percent} size="lg" />
+                  ) : null}
                 </span>
                 <span className="mt-3 line-clamp-2 block font-extrabold tracking-tight text-ivory">
                   {lead.name}
