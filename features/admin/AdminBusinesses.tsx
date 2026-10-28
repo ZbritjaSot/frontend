@@ -78,7 +78,15 @@ function ShopLine({
   onApprove?: () => void;
   className?: string;
 }) {
-  const place = [business.street, business.city].filter(Boolean).join(", ");
+  const place = [
+    business.street,
+    business.neighborhood,
+    business.village,
+    business.municipality,
+    business.city,
+  ]
+    .filter(Boolean)
+    .join(", ");
   const needsBranchApproval = branch && business.is_approved === false;
 
   return (

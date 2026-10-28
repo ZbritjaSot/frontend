@@ -28,7 +28,9 @@ export type BusinessSummary = {
   id: string;
   name: string;
   street?: string | null;
+  neighborhood?: string | null;
   village?: string | null;
+  municipality?: string | null;
   city?: string | null;
   address?: string | null;
   latitude?: number | null;
@@ -47,13 +49,17 @@ export type Business = {
   manager?: { name: string; email: string } | null;
   name: string;
   street?: string | null;
+  neighborhood?: string | null;
   village?: string | null;
+  municipality?: string | null;
   city?: string | null;
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   pending_street?: string | null;
+  pending_neighborhood?: string | null;
   pending_village?: string | null;
+  pending_municipality?: string | null;
   pending_city?: string | null;
   pending_address?: string | null;
   pending_latitude?: number | null;
@@ -146,7 +152,9 @@ export type PublicBusiness = {
   id: string;
   name: string;
   street?: string | null;
+  neighborhood?: string | null;
   village?: string | null;
+  municipality?: string | null;
   city?: string | null;
   address?: string | null;
   latitude?: number | null;
@@ -250,8 +258,10 @@ export type CompanyShop = {
   id: string;
   name: string;
   street?: string | null;
+  neighborhood?: string | null;
   city?: string | null;
   village?: string | null;
+  municipality?: string | null;
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;

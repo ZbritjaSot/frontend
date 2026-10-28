@@ -83,7 +83,9 @@ export function useUpdateBusiness() {
       is_active?: boolean;
       extra_placement?: boolean;
       street?: string | null;
+      neighborhood?: string | null;
       village?: string | null;
+      municipality?: string | null;
       city?: string | null;
       latitude?: number | null;
       longitude?: number | null;

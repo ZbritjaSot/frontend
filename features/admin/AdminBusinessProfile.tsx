@@ -86,9 +86,13 @@ const checkLabelClass =
   "flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none";
 
 function AddressLink({ business }: { business: Business }) {
-  const lines = [business.street, business.village, business.city].filter(
-    (part): part is string => Boolean(part),
-  );
+  const lines = [
+    business.street,
+    business.neighborhood,
+    business.village,
+    business.municipality,
+    business.city,
+  ].filter((part): part is string => Boolean(part));
   const saved = lines.length > 0 ? lines : business.address ? [business.address] : [];
 
   return (

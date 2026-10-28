@@ -12,8 +12,14 @@ import { mapsUrl } from "@/lib/maps";
 import { useWideScreen } from "@/lib/useWideScreen";
 import type { Business } from "@/types";
 
-function composedAddress(street: string, village: string, city: string): string {
-  return [street, village, city]
+function composedAddress(
+  street: string,
+  neighborhood: string,
+  village: string,
+  municipality: string,
+  city: string,
+): string {
+  return [street, neighborhood, village, municipality, city]
     .map((part) => part.trim())
     .filter((part) => part !== "")
     .join(", ");
@@ -24,16 +30,23 @@ function locationSeed(business: Business, liveOnly: boolean) {
 
   return {
     street: (pending ? business.pending_street : business.street) ?? "",
+    neighborhood:
+      (pending ? business.pending_neighborhood : business.neighborhood) ?? "",
     village: (pending ? business.pending_village : business.village) ?? "",
+    municipality:
+      (pending ? business.pending_municipality : business.municipality) ?? "",
     city: (pending ? business.pending_city : business.city) ?? "",
     latitude: (pending ? business.pending_latitude : business.latitude) ?? null,
-    longitude: (pending ? business.pending_longitude : business.longitude) ?? null,
+    longitude:
+      (pending ? business.pending_longitude : business.longitude) ?? null,
   };
 }
 
 type LocationInput = {
   street: string | null;
+  neighborhood: string | null;
   village: string | null;
+  municipality: string | null;
   city: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -60,14 +73,22 @@ export function LocationForm({
   const queryClient = useQueryClient();
   const seed = locationSeed(business, applyNow);
   const [street, setStreet] = useState(seed.street);
+  const [neighborhood, setNeighborhood] = useState(seed.neighborhood);
   const [village, setVillage] = useState(seed.village);
+  const [municipality, setMunicipality] = useState(seed.municipality);
   const [city, setCity] = useState(seed.city);
   const [latitude, setLatitude] = useState<number | null>(seed.latitude);
   const [longitude, setLongitude] = useState<number | null>(seed.longitude);
   const [notice, setNotice] = useState<string | null>(null);
   const [findError, setFindError] = useState<string | null>(null);
 
-  const address = composedAddress(street, village, city);
+  const address = composedAddress(
+    street,
+    neighborhood,
+    village,
+    municipality,
+    city,
+  );
   const place = {
     address: address === "" ? null : address,
     latitude,
@@ -77,9 +98,13 @@ export function LocationForm({
 
   const save = useMutation({
     mutationFn: async (clear: boolean) => {
+      const blank = (value: string) =>
+        clear || value.trim() === "" ? null : value.trim();
       const input: LocationInput = {
         street: clear ? null : street.trim(),
-        village: clear ? null : village.trim() === "" ? null : village.trim(),
+        neighborhood: blank(neighborhood),
+        village: blank(village),
+        municipality: blank(municipality),
         city: clear ? null : city.trim(),
         latitude: clear || address === "" ? null : latitude,
         longitude: clear || address === "" ? null : longitude,
@@ -117,7 +142,7 @@ export function LocationForm({
 
   function requireStreetAndCity(): boolean {
     if (street.trim() === "" || city.trim() === "") {
-      setFindError("Shkruaj rrugën dhe qytetin. Fshati është opsional.");
+      setFindError("Shkruaj rrugën dhe qytetin. Fushat e tjera janë opsionale.");
       setNotice(null);
       return false;
     }
@@ -157,6 +182,20 @@ export function LocationForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-2">
+              <span className={micro}>Lagjja</span>
+              <input
+                className={inputClass}
+                value={neighborhood}
+                maxLength={255}
+                placeholder="Opsional"
+                onChange={(event) => {
+                  setNeighborhood(event.target.value);
+                  setNotice(null);
+                  setFindError(null);
+                }}
+              />
+            </label>
+            <label className="flex flex-col gap-2">
               <span className={micro}>Fshati</span>
               <input
                 className={inputClass}
@@ -165,6 +204,23 @@ export function LocationForm({
                 placeholder="Opsional"
                 onChange={(event) => {
                   setVillage(event.target.value);
+                  setNotice(null);
+                  setFindError(null);
+                }}
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span className={micro}>Qyteza</span>
+              <input
+                className={inputClass}
+                value={municipality}
+                maxLength={255}
+                placeholder="Opsional"
+                onChange={(event) => {
+                  setMunicipality(event.target.value);
                   setNotice(null);
                   setFindError(null);
                 }}
