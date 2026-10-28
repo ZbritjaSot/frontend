@@ -80,8 +80,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
       <p className={kicker}>Partnerë</p>
       <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,4rem)] ${display}`}>Partnerët</h1>
       <p className="mt-3 mb-0 max-w-xl text-sm leading-relaxed text-muted">
-        {total} partnerë me fletushka aktive. Kjo nuk është çdo biznes në Kosovë, vetëm ata
-        që kanë një fletushkë publike tani.
+        {total} partnerë me fletushka aktive.
       </p>
       <div className="mt-6 flex max-w-xl flex-col gap-3">
         <DiscoverForm
