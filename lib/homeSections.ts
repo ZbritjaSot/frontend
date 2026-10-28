@@ -8,8 +8,8 @@ export type HomeSection = {
 /**
  * Fallback when the API has no saved section order. Keep in sync with HomeSections::defaults().
  *
- * NOTE: `spotlight` ("Zbritje të forta") is admin-curated (or random when empty).
- * `exclusive` is a separate placement rail for exclusive shops.
+ * NOTE: `spotlight` ("Zbritje të forta") is filled from admin-selected categories.
+ * `exclusive` is filled automatically by discount.
  */
 export const defaultHomeSections: HomeSection[] = [
   { key: "spotlight", title: "Zbritje të forta" },

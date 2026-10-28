@@ -18,19 +18,6 @@ export type HomeOfferCandidate = {
   thumb_url?: string | null;
 };
 
-export type HomeShopPick = {
-  id: string;
-  name: string;
-  city?: string | null;
-};
-
-export type HomeFlyerItem = {
-  id: string;
-  title: string;
-  business_name?: string | null;
-  city?: string | null;
-};
-
 export type HomeCategoryPick = {
   id: string;
   name: string;
@@ -46,15 +33,6 @@ export type HomeCuration = {
     picks: HomeCategoryPick[];
     candidates: HomeCategoryPick[];
   };
-  exclusive: {
-    picks: HomeOfferPick[];
-    candidates: HomeOfferCandidate[];
-  };
-  shops: {
-    picks: HomeShopPick[];
-    candidates: HomeShopPick[];
-  };
-  flyers: HomeFlyerItem[];
 };
 
 export async function fetchAdminHome(q = ""): Promise<HomeCuration> {
@@ -93,20 +71,6 @@ export async function saveAdminSpotlight(
   return payload.data;
 }
 
-export async function saveAdminExclusive(
-  offerIds: string[],
-): Promise<HomeCuration["exclusive"]> {
-  const payload = await apiFetch<{ data: HomeCuration["exclusive"] }>(
-    "/admin/home/exclusive",
-    {
-      method: "PUT",
-      auth: true,
-      body: JSON.stringify({ offer_ids: offerIds }),
-    },
-  );
-  return payload.data;
-}
-
 export type StandaloneHeroOfferInput = {
   business_id: string;
   name: string;
@@ -136,17 +100,6 @@ export async function createStandaloneHeroOffer(
   return payload.data.hero;
 }
 
-export async function saveAdminHomeShops(
-  businessIds: string[],
-): Promise<HomeCuration["shops"]> {
-  const payload = await apiFetch<{ data: HomeCuration["shops"] }>("/admin/home/shops", {
-    method: "PUT",
-    auth: true,
-    body: JSON.stringify({ business_ids: businessIds }),
-  });
-  return payload.data;
-}
-
 export type AdminHomeSection = {
   key: string;
   title: string;
@@ -168,15 +121,6 @@ export async function saveAdminSections(
     method: "PUT",
     auth: true,
     body: JSON.stringify({ sections }),
-  });
-  return payload.data;
-}
-
-export async function saveAdminFlyers(bundleIds: string[]): Promise<HomeFlyerItem[]> {
-  const payload = await apiFetch<{ data: HomeFlyerItem[] }>("/admin/home/flyers", {
-    method: "PUT",
-    auth: true,
-    body: JSON.stringify({ bundle_ids: bundleIds }),
   });
   return payload.data;
 }
