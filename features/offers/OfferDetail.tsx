@@ -22,15 +22,18 @@ type OfferDetailProps = {
 
 export function OfferDetail({ offer, related = [], recommended = [] }: OfferDetailProps) {
   const shop = offer.business?.name ?? "Dyqan";
-  const backHref = offer.bundle ? `/dosje/${offer.bundle.id}` : "/";
-  const backLabel = offer.bundle?.title ?? "Kreu";
+  const hasFlyerBundle = offer.bundle != null && offer.bundle.title !== "Oferta individuale";
   const saved = savingsCents(offer.original_price, offer.discounted_price);
   const purchaseHref = safeHttpUrl(offer.purchase_url);
 
   return (
     <article>
       <Frame className="pt-8">
-        <BackLink href={backHref}>{backLabel}</BackLink>
+        {hasFlyerBundle ? (
+          <BackLink href={`/dosje/${offer.bundle!.id}`}>
+            {offer.bundle!.title}
+          </BackLink>
+        ) : null}
         <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
           <div className="lg:col-span-7">
             <div className="relative h-full overflow-hidden rounded-[1.35rem] border border-line bg-sunken dark:bg-[#121816]">
@@ -105,7 +108,8 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                 href={offer.business ? `/biznese/${offer.business.id}` : undefined}
                 size="md"
               />
-              {offer.bundle ? (
+              {/* TODO: Revisit how individual offers are associated with bundles and handle this more robustly. */}
+              {offer.bundle && offer.bundle.title !== "Oferta individuale" ? (
                 <Link
                   href={`/dosje/${offer.bundle.id}`}
                   className="mt-4 block text-sm font-extrabold tracking-tight underline-offset-4 hover:underline"
