@@ -40,7 +40,7 @@ export async function fetchAdminBusiness(id: string) {
 export type BusinessCounts = {
   active: number;
   inactive: number;
-  exclusive: number;
+  exclusive?: number;
   ending_soon: number;
   address: number;
   branches: number;
@@ -115,7 +115,6 @@ export async function updateBusiness(
   data: {
     name?: string;
     is_active?: boolean;
-    extra_placement?: boolean;
     street?: string | null;
     neighborhood?: string | null;
     village?: string | null;

@@ -53,7 +53,7 @@ test("admin dashboard areas load after login", async ({ page }) => {
     "/admin/categories",
     "/admin/gallery",
     "/admin/home",
-    "/admin/exclusive",
+    "/admin/home",
     "/admin/managers",
     "/admin/newsletter",
     "/admin/subscriptions",

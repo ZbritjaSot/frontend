@@ -11,7 +11,6 @@ import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
-import StarIcon from "@mui/icons-material/Star";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { offerStatusClass } from "@/lib/ui";
 
@@ -37,7 +36,6 @@ export type IndicatorMark =
   | "lock"
   | "unlock"
   | "drag"
-  | "star"
   | "branches"
   | "history"
   | "count-danger"
@@ -173,12 +171,6 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
           <DragIndicatorIcon fontSize="small" />
         </span>
       );
-    case "star":
-      return (
-        <span className={iconBox}>
-          <StarIcon fontSize="small" className="text-accent!" />
-        </span>
-      );
     case "branches":
       return (
         <span className={iconBox}>
@@ -310,7 +302,6 @@ export const adminOfferKey: IndicatorItem[] = [
 
 export const adminOfferBoardKey: IndicatorItem[] = [
   ...adminOfferKey,
-  { mark: "star", text: "Dyqani është ekskluziv." },
   { mark: "approve", text: "Aprovo dosjen (edhe ato te menaxheri)." },
 ];
 
@@ -341,7 +332,6 @@ export const adminBusinessKey: IndicatorItem[] = [
   { mark: "pending", text: "Adresa e re pret aprovim." },
   { mark: "pending", text: "Degë që pret aprovim." },
   { mark: "branches", text: "Hap degët e kompanisë." },
-  { mark: "star", text: "Bëje ekskluzive." },
   { mark: "edit", text: "Ndrysho të dhënat." },
   { mark: "lock", text: "Çaktivizo biznesin." },
   { mark: "unlock", text: "Aktivizo biznesin." },

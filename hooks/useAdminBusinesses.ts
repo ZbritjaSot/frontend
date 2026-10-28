@@ -81,7 +81,6 @@ export function useUpdateBusiness() {
       id: string;
       name?: string;
       is_active?: boolean;
-      extra_placement?: boolean;
       street?: string | null;
       neighborhood?: string | null;
       village?: string | null;

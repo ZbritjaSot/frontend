@@ -17,20 +17,25 @@ import { formatEurFromCents } from "@/lib/format";
 export function ExclusiveCard({
   item,
   layout,
+  inertClone = false,
 }: {
   item: ExclusiveItem;
   layout: "rail" | "tile";
+  /** Decorative loop clone — hidden from assistive tech / tab order. */
+  inertClone?: boolean;
 }) {
   const meta = cardMeta(item);
   const width =
     layout === "rail"
-      ? "w-[14.5rem] shrink-0 snap-start sm:w-[16rem]"
+      ? "block w-[14.5rem] shrink-0 snap-start sm:w-[16rem]"
       : "flex h-full min-w-0 w-full flex-col";
 
   return (
     <Link
       href={meta.href}
       draggable={layout === "rail" ? false : undefined}
+      tabIndex={inertClone ? -1 : undefined}
+      aria-hidden={inertClone || undefined}
       className={`group ${width} ${exclusiveFocus}`}
     >
       <span className={`${exclusiveShell.tile} ${layout === "tile" ? "h-full" : ""}`}>

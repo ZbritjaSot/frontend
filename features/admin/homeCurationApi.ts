@@ -46,6 +46,10 @@ export type HomeCuration = {
     picks: HomeCategoryPick[];
     candidates: HomeCategoryPick[];
   };
+  exclusive: {
+    picks: HomeOfferPick[];
+    candidates: HomeOfferCandidate[];
+  };
   shops: {
     picks: HomeShopPick[];
     candidates: HomeShopPick[];
@@ -84,6 +88,20 @@ export async function saveAdminSpotlight(
       method: "PUT",
       auth: true,
       body: JSON.stringify({ category_ids: categoryIds }),
+    },
+  );
+  return payload.data;
+}
+
+export async function saveAdminExclusive(
+  offerIds: string[],
+): Promise<HomeCuration["exclusive"]> {
+  const payload = await apiFetch<{ data: HomeCuration["exclusive"] }>(
+    "/admin/home/exclusive",
+    {
+      method: "PUT",
+      auth: true,
+      body: JSON.stringify({ offer_ids: offerIds }),
     },
   );
   return payload.data;

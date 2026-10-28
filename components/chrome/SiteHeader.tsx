@@ -8,8 +8,6 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { EXCLUSIVE_HREF, EXCLUSIVE_LABEL } from "@/lib/exclusive";
-
 const links = [
   { href: "/oferta", label: "Ofertat", match: "oferta" },
   { href: "/fletushka", label: "Fletushkat", match: "fletushka" },
@@ -21,7 +19,7 @@ const PARTNERS_LABEL = "Partnerët";
 const iconHit =
   "inline-flex size-10 items-center justify-center rounded-xl text-chrome-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
-export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }) {
+export function SiteHeader() {
   const pathname = usePathname();
   const menuId = useId();
   const [open, setOpen] = useState(false);
@@ -50,7 +48,6 @@ export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }
 
   const partnersActive =
     pathname === PARTNERS_HREF || pathname.startsWith(`${PARTNERS_HREF}/`);
-  const exclusiveActive = pathname === EXCLUSIVE_HREF;
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-chrome text-chrome-text backdrop-blur-md dark:border-white/8 dark:bg-chrome/90">
@@ -94,14 +91,6 @@ export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }
             pulse={!partnersActive}
             onNavigate={() => setOpen(false)}
           />
-          {showExclusive ? (
-            <NavPill
-              href={EXCLUSIVE_HREF}
-              label={EXCLUSIVE_LABEL}
-              active={exclusiveActive}
-              onNavigate={() => setOpen(false)}
-            />
-          ) : null}
         </nav>
 
         <div className="ml-auto flex items-center gap-0.5 md:ml-0">
@@ -180,14 +169,6 @@ export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }
               pulse={!partnersActive}
               onNavigate={() => setOpen(false)}
             />
-            {showExclusive ? (
-              <NavPill
-                href={EXCLUSIVE_HREF}
-                label={EXCLUSIVE_LABEL}
-                active={exclusiveActive}
-                onNavigate={() => setOpen(false)}
-              />
-            ) : null}
           </span>
         </nav>
       ) : null}

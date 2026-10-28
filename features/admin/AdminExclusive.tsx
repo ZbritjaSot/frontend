@@ -4,18 +4,14 @@ import { AdminHome } from "@/features/admin/AdminHome";
 import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { pageTitle, panelLead } from "@/lib/ui";
 
-/**
- * Homepage curation for hero / shops / flyers.
- * The public Ekskluzive page is automatic and is not curated here.
- */
+/** Homepage content curation (hero, spotlight, exclusive rail, partners, flyers). */
 export function AdminExclusive() {
   return (
     <div>
-      <h1 className={pageTitle}>{EXCLUSIVE_LABEL}</h1>
+      <h1 className={pageTitle}>Kryefaqja</h1>
       <p className={`${panelLead} max-w-2xl`}>
-        Faqja publike {EXCLUSIVE_LABEL} mbushët vetë me zbritjet më të forta. Këtu
-        vendos vetëm kryefaqen: seksionet, heron, dyqanet dhe fletushkat. Dyqanet
-        ekskluzive mbeten te Bizneset.
+        Këtu kuron përmbajtjen e kryefaqes: seksionet, Zbritjet e Ditës, Zbritjet e
+        forta, shinën {EXCLUSIVE_LABEL}, partnerët dhe fletushkat.
       </p>
       <AdminHome />
     </div>

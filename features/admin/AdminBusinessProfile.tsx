@@ -2,7 +2,6 @@
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import StarIcon from "@mui/icons-material/Star";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -43,7 +42,6 @@ import {
   useUpdateSubscription,
 } from "@/hooks/useAdminSubscriptions";
 import { accountEmailMessage, validationMessage } from "@/lib/api";
-import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { defaultSubscriptionWindow, toDateTimeLocalValue } from "@/lib/datetime";
 import { formatDateSq } from "@/lib/format";
 import {
@@ -235,9 +233,6 @@ export function AdminBusinessProfile({ id }: { id: string }) {
         <h1 className={`${pageTitle} mb-0!`}>
           {business?.name ?? "Profili"}
         </h1>
-        {business?.extra_placement ? (
-          <StarIcon fontSize="small" className="shrink-0 text-accent!" aria-label={EXCLUSIVE_LABEL} />
-        ) : null}
         {business ? (
           <Link
             href={`/biznese/${business.id}`}

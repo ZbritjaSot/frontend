@@ -17,7 +17,7 @@ export default function GlobalNotFound() {
           <div className="min-h-16 border-b border-line bg-chrome" aria-hidden />
         }
       >
-        <SiteHeader showExclusive />
+        <SiteHeader />
       </Suspense>
       <main className="flex-1">
         <Frame className="py-16">

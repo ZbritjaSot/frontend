@@ -16,7 +16,7 @@ import { fieldError, inputClass } from "@/lib/ui";
 const sectionKey = ["admin", "sections"] as const;
 
 const hints: Record<string, string> = {
-  exclusive: `${EXCLUSIVE_LABEL} në kryefaqe (faqja /ekskluzive mbetet gjithmonë)`,
+  exclusive: `${EXCLUSIVE_LABEL} në kryefaqe (vetëm shina e kryefaqes)`,
   spotlight: "Zbritjet e forta",
   flyers: "Fletushkat",
   inbox: "Email-i",

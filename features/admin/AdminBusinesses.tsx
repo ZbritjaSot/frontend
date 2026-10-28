@@ -6,8 +6,6 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import StarIcon from "@mui/icons-material/Star";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";
@@ -25,7 +23,6 @@ import {
   useUpdateBusiness,
 } from "@/hooks/useAdminBusinesses";
 import { accountEmailMessage, validationMessage } from "@/lib/api";
-import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import {
   btnGhost,
   btnPrimary,
@@ -62,7 +59,6 @@ function ShopLine({
   branchCount = 0,
   onToggle,
   pending,
-  onExclusive,
   onActive,
   onApprove,
   className = "",
@@ -73,7 +69,6 @@ function ShopLine({
   branchCount?: number;
   onToggle?: () => void;
   pending: boolean;
-  onExclusive?: () => void;
   onActive: () => void;
   onApprove?: () => void;
   className?: string;
@@ -149,7 +144,7 @@ function ShopLine({
           </span>
         ) : null}
       </div>
-      <div className="grid grid-cols-4 gap-1.5 border-l border-line pl-4">
+      <div className="grid grid-cols-3 gap-1.5 border-l border-line pl-4">
         {branchCount > 0 ? (
           <button
             type="button"
@@ -175,28 +170,6 @@ function ShopLine({
           </button>
         ) : (
           <span className="size-9" aria-hidden />
-        )}
-        {branch ? (
-          <span className="size-9" aria-hidden />
-        ) : (
-          <button
-            className={rowButton}
-            type="button"
-            aria-pressed={business.extra_placement === true}
-            aria-label={
-              business.extra_placement
-                ? `Hiq ${business.name} nga ${EXCLUSIVE_LABEL}`
-                : `Shto ${business.name} te ${EXCLUSIVE_LABEL}`
-            }
-            disabled={pending}
-            onClick={onExclusive}
-          >
-            {business.extra_placement ? (
-              <StarIcon fontSize="small" className="text-accent!" />
-            ) : (
-              <StarBorderIcon fontSize="small" />
-            )}
-          </button>
         )}
         <Link
           className={`${rowButton} no-underline`}
@@ -367,14 +340,6 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
             onClick={() => chooseScope("ending_soon")}
           />
           <DashboardKpi
-            value={counts.exclusive}
-            label={EXCLUSIVE_LABEL}
-            detail="Kompani me yll"
-            tone="accent"
-            active={scope === "exclusive"}
-            onClick={() => chooseScope("exclusive")}
-          />
-          <DashboardKpi
             value={counts.address}
             label="Adresa në pritje"
             detail="Presin aprovim"
@@ -438,12 +403,6 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
                           ? current.filter((id) => id !== business.id)
                           : [...current, business.id],
                       )
-                    }
-                    onExclusive={() =>
-                      updateMutation.mutate({
-                        id: business.id,
-                        extra_placement: business.extra_placement !== true,
-                      })
                     }
                     onActive={() =>
                       updateMutation.mutate({
