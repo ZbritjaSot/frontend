@@ -5,7 +5,7 @@ import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { pageTitle, panelLead } from "@/lib/ui";
 
 /**
- * Homepage curation for hero / shops / flyers / recommended.
+ * Homepage curation for hero / shops / flyers.
  * The public Ekskluzive page is automatic and is not curated here.
  */
 export function AdminExclusive() {
@@ -14,8 +14,8 @@ export function AdminExclusive() {
       <h1 className={pageTitle}>{EXCLUSIVE_LABEL}</h1>
       <p className={`${panelLead} max-w-2xl`}>
         Faqja publike {EXCLUSIVE_LABEL} mbushët vetë me zbritjet më të forta. Këtu
-        vendos vetëm kryefaqen: seksionet, heron, dyqanet, fletushkat dhe të
-        rekomanduarat. Dyqanet ekskluzive mbeten te Bizneset.
+        vendos vetëm kryefaqen: seksionet, heron, dyqanet dhe fletushkat. Dyqanet
+        ekskluzive mbeten te Bizneset.
       </p>
       <AdminHome />
     </div>

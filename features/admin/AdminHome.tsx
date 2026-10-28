@@ -14,11 +14,10 @@ import {
   saveAdminFlyers,
   saveAdminHero,
   saveAdminHomeShops,
-  saveAdminRecommended,
   saveAdminSpotlight,
 } from "@/features/admin/homeCurationApi";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, checkInput, fieldError, iconButton, inputClass, panelLead } from "@/lib/ui";
+import { btnGhost, fieldError, iconButton, inputClass, panelLead } from "@/lib/ui";
 
 const homeKey = ["admin", "home"] as const;
 
@@ -26,9 +25,6 @@ function homeError(error: unknown): string {
   const message = validationMessage(error, "Nuk mundëm ta ruajmë.");
   if (message === "Choose a public offer.") {
     return "Zgjidh një produkt publik.";
-  }
-  if (message === "Choose a public offer from a shop marked for extra placement.") {
-    return "Zgjidh një produkt publik nga një dyqan me shfaqje shtesë.";
   }
   if (message === "Choose a public shop marked for extra placement.") {
     return "Zgjidh një dyqan publik me shfaqje shtesë.";
@@ -41,22 +37,13 @@ function homeError(error: unknown): string {
 
 export function AdminHome() {
   const queryClient = useQueryClient();
-  const [pane, setPane] = useState<"hero" | "spotlight" | "shops" | "flyers" | "recommended">(
-    "hero",
-  );
+  const [pane, setPane] = useState<"hero" | "spotlight" | "shops" | "flyers">("hero");
   const [heroSearch, setHeroSearch] = useState("");
   const [heroQuery, setHeroQuery] = useState("");
   const [spotlightSearch, setSpotlightSearch] = useState("");
   const [spotlightQuery, setSpotlightQuery] = useState("");
-  const [recommendedSearch, setRecommendedSearch] = useState("");
-  const [recommendedQuery, setRecommendedQuery] = useState("");
   const [creatingHero, setCreatingHero] = useState(false);
-  const listQuery =
-    pane === "recommended"
-      ? recommendedQuery
-      : pane === "spotlight"
-        ? spotlightQuery
-        : heroQuery;
+  const listQuery = pane === "spotlight" ? spotlightQuery : heroQuery;
   const home = useQuery({
     queryKey: [...homeKey, listQuery],
     queryFn: () => fetchAdminHome(listQuery),
@@ -66,8 +53,6 @@ export function AdminHome() {
   const spotlight = home.data?.spotlight.picks ?? [];
   const shops = home.data?.shops.picks ?? [];
   const flyers = home.data?.flyers ?? [];
-  const recommended = home.data?.recommended.picks ?? [];
-  const shuffle = home.data?.recommended.shuffle ?? true;
   const heroIds = new Set(heroes.map((offer) => offer.id));
   const heroCandidates = (home.data?.hero.candidates ?? []).filter(
     (offer) => !heroIds.has(offer.id),
@@ -75,10 +60,6 @@ export function AdminHome() {
   const spotlightIds = new Set(spotlight.map((offer) => offer.id));
   const spotlightCandidates = (home.data?.spotlight.candidates ?? []).filter(
     (offer) => !spotlightIds.has(offer.id),
-  );
-  const recommendedIds = new Set(recommended.map((offer) => offer.id));
-  const recommendedCandidates = (home.data?.recommended.candidates ?? []).filter(
-    (offer) => !recommendedIds.has(offer.id),
   );
 
   useEffect(() => {
@@ -91,21 +72,12 @@ export function AdminHome() {
     return () => window.clearTimeout(timer);
   }, [spotlightSearch]);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => setRecommendedQuery(recommendedSearch.trim()), 300);
-    return () => window.clearTimeout(timer);
-  }, [recommendedSearch]);
-
   function commitHeroSearch() {
     setHeroQuery(heroSearch.trim());
   }
 
   function commitSpotlightSearch() {
     setSpotlightQuery(spotlightSearch.trim());
-  }
-
-  function commitRecommendedSearch() {
-    setRecommendedQuery(recommendedSearch.trim());
   }
 
   const saveHero = useMutation({
@@ -132,13 +104,6 @@ export function AdminHome() {
       await queryClient.invalidateQueries({ queryKey: homeKey });
     },
   });
-  const saveRecommended = useMutation({
-    mutationFn: (next: { offerIds: string[]; shuffle: boolean }) =>
-      saveAdminRecommended(next.offerIds, next.shuffle),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: homeKey });
-    },
-  });
 
   return (
     <div>
@@ -146,8 +111,8 @@ export function AdminHome() {
       <p className={`${panelLead} mt-6 max-w-2xl`}>
         Zbritjet e Ditës dhe Zbritjet e forta janë zgjedhje manuale nga çdo dyqan
         publik. Zbritjet e forta dalin të parat; vendet e mbetura (deri në 16) mbushen
-        me oferta të rastësishme. Dyqanet, fletushkat dhe të rekomanduarat mbeten te
-        dyqanet ekskluzive.
+        me oferta të rastësishme. Dyqanet dhe fletushkat mbeten te dyqanet ekskluzive.
+        Rekomandimet te faqja e ofertës mbushen automatikisht.
       </p>
 
       {home.isPending && !home.data ? (
@@ -167,7 +132,6 @@ export function AdminHome() {
                 ["spotlight", "Zbritjet e forta", spotlight.length],
                 ["shops", "Partnerët", shops.length],
                 ["flyers", "Fletushkat", flyers.length],
-                ["recommended", "Të rekomanduara", recommended.length],
               ] as const
             ).map(([id, label, count]) => (
               <button
@@ -496,144 +460,6 @@ export function AdminHome() {
                   )}
                 </DragList>
               )}
-            </section>
-
-            <section hidden={pane !== "recommended"}>
-              <div className="border-b border-line px-4 py-3">
-                <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Të rekomanduara</h2>
-                <p className="m-0 mt-1 text-sm text-muted">
-                  Produkte nga dyqanet ekskluzive. Dalin poshtë një oferte, deri në tetë.
-                </p>
-              </div>
-              <label className="flex items-start gap-3 px-4 py-4 text-sm font-semibold">
-                <input
-                  type="checkbox"
-                  className={checkInput}
-                  checked={shuffle}
-                  disabled={saveRecommended.isPending}
-                  onChange={(event) =>
-                    saveRecommended.mutate({
-                      offerIds: recommended.map((item) => item.id),
-                      shuffle: event.target.checked,
-                    })
-                  }
-                />
-                <span>
-                  Përziej në çdo faqe
-                  <span className="mt-1 block font-medium text-muted">
-                    Çdo faqe oferte nis te një vend tjetër i listës, që të mos dalin gjithmonë të
-                    njëjtat.
-                  </span>
-                </span>
-              </label>
-              {saveRecommended.isError ? (
-                <p className={`${fieldError} px-4`} role="alert">
-                  {homeError(saveRecommended.error)}
-                </p>
-              ) : null}
-              {recommended.length === 0 ? (
-                <p className="m-0 px-4 py-6 text-sm text-muted">Asnjë ofertë e zgjedhur.</p>
-              ) : (
-                <DragList
-                  items={recommended}
-                  pending={saveRecommended.isPending}
-                  label={(offer) => offer.name}
-                  onReorder={(ids) => saveRecommended.mutate({ offerIds: ids, shuffle })}
-                  trailing={(offer) => (
-                    <button
-                      className={iconButton}
-                      type="button"
-                      aria-label={`Hiq ${offer.name}`}
-                      disabled={saveRecommended.isPending}
-                      onClick={() =>
-                        saveRecommended.mutate({
-                          offerIds: recommended
-                            .filter((item) => item.id !== offer.id)
-                            .map((item) => item.id),
-                          shuffle,
-                        })
-                      }
-                    >
-                      <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
-                    </button>
-                  )}
-                >
-                  {(offer) => (
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-sunken">
-                        {offer.thumb_url ? (
-                          <Image
-                            src={offer.thumb_url}
-                            alt=""
-                            fill
-                            unoptimized
-                            className="object-cover"
-                            sizes="48px"
-                          />
-                        ) : null}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block truncate font-semibold">{offer.name}</span>
-                        <span className="block truncate text-sm text-muted">
-                          {[offer.bundle_title, offer.business_name].filter(Boolean).join(" · ")}
-                          {offer.public ? "" : " · nuk shfaqet ende"}
-                        </span>
-                      </span>
-                    </div>
-                  )}
-                </DragList>
-              )}
-              <div className="grid gap-3 px-4 py-4">
-                <input
-                  className={inputClass}
-                  value={recommendedSearch}
-                  placeholder=""
-                  aria-label="Kërko te ekskluzivet për të rekomanduara"
-                  onChange={(event) => setRecommendedSearch(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      event.preventDefault();
-                      commitRecommendedSearch();
-                    }
-                  }}
-                />
-                {recommendedCandidates.length === 0 ? (
-                  <p className="m-0 text-sm text-muted">
-                    {recommendedSearch.trim() === ""
-                      ? "Nuk ka produkt publik nga një dyqan ekskluziv."
-                      : "Nuk u gjet asnjë produkt ekskluziv."}
-                  </p>
-                ) : (
-                  <ul className="m-0 list-none p-0">
-                    {recommendedCandidates.map((offer) => (
-                      <li key={offer.id} className="flex items-center gap-3 py-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="m-0 truncate text-sm font-semibold">{offer.name}</p>
-                          <p className="m-0 truncate text-sm text-muted">
-                            {[offer.bundle_title, offer.business_name, offer.city]
-                              .filter(Boolean)
-                              .join(" · ")}
-                          </p>
-                        </div>
-                        <button
-                          className={iconButton}
-                          type="button"
-                          aria-label={`Shto ${offer.name}`}
-                          disabled={saveRecommended.isPending}
-                          onClick={() =>
-                            saveRecommended.mutate({
-                              offerIds: [...recommended.map((item) => item.id), offer.id],
-                              shuffle,
-                            })
-                          }
-                        >
-                          <AddOutlinedIcon fontSize="small" className="text-accent!" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
             </section>
           </div>
         </div>
