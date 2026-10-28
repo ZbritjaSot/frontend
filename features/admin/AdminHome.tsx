@@ -26,6 +26,9 @@ function homeError(error: unknown): string {
   if (message === "Choose a public offer.") {
     return "Zgjidh një produkt publik.";
   }
+  if (message === "Choose an active category.") {
+    return "Zgjidh një kategori aktive.";
+  }
   if (message === "Choose a public shop marked for extra placement.") {
     return "Zgjidh një dyqan publik me shfaqje shtesë.";
   }
@@ -40,13 +43,10 @@ export function AdminHome() {
   const [pane, setPane] = useState<"hero" | "spotlight" | "shops" | "flyers">("hero");
   const [heroSearch, setHeroSearch] = useState("");
   const [heroQuery, setHeroQuery] = useState("");
-  const [spotlightSearch, setSpotlightSearch] = useState("");
-  const [spotlightQuery, setSpotlightQuery] = useState("");
   const [creatingHero, setCreatingHero] = useState(false);
-  const listQuery = pane === "spotlight" ? spotlightQuery : heroQuery;
   const home = useQuery({
-    queryKey: [...homeKey, listQuery],
-    queryFn: () => fetchAdminHome(listQuery),
+    queryKey: [...homeKey, heroQuery],
+    queryFn: () => fetchAdminHome(heroQuery),
     placeholderData: (previous) => previous,
   });
   const heroes = home.data?.hero.picks ?? [];
@@ -57,9 +57,9 @@ export function AdminHome() {
   const heroCandidates = (home.data?.hero.candidates ?? []).filter(
     (offer) => !heroIds.has(offer.id),
   );
-  const spotlightIds = new Set(spotlight.map((offer) => offer.id));
+  const spotlightIds = new Set(spotlight.map((category) => category.id));
   const spotlightCandidates = (home.data?.spotlight.candidates ?? []).filter(
-    (offer) => !spotlightIds.has(offer.id),
+    (category) => !spotlightIds.has(category.id),
   );
 
   useEffect(() => {
@@ -67,17 +67,8 @@ export function AdminHome() {
     return () => window.clearTimeout(timer);
   }, [heroSearch]);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => setSpotlightQuery(spotlightSearch.trim()), 300);
-    return () => window.clearTimeout(timer);
-  }, [spotlightSearch]);
-
   function commitHeroSearch() {
     setHeroQuery(heroSearch.trim());
-  }
-
-  function commitSpotlightSearch() {
-    setSpotlightQuery(spotlightSearch.trim());
   }
 
   const saveHero = useMutation({
@@ -109,10 +100,10 @@ export function AdminHome() {
     <div>
       <AdminSections />
       <p className={`${panelLead} mt-6 max-w-2xl`}>
-        Zbritjet e Ditës dhe Zbritjet e forta janë zgjedhje manuale nga çdo dyqan
-        publik. Zbritjet e forta dalin të parat; vendet e mbetura (deri në 16) mbushen
-        me oferta të rastësishme. Dyqanet dhe fletushkat mbeten te dyqanet ekskluzive.
-        Rekomandimet te faqja e ofertës mbushen automatikisht.
+        Zbritjet e Ditës janë zgjedhje manuale nga çdo dyqan publik. Zbritjet e forta
+        mbushen automatikisht nga kategoritë që zgjedh (deri në 4 produkte për kategori,
+        të përziera). Dyqanet dhe fletushkat mbeten te dyqanet ekskluzive. Rekomandimet
+        te faqja e ofertës mbushen automatikisht.
       </p>
 
       {home.isPending && !home.data ? (
@@ -283,8 +274,9 @@ export function AdminHome() {
               <div className="border-b border-line px-4 py-3">
                 <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Zbritjet e forta</h2>
                 <p className="m-0 mt-1 text-sm text-muted">
-                  Zgjidh dhe rendit produktet që dalin të parat te Zbritje të forta. Deri në
-                  16 vende: zgjedhjet e tua, pastaj oferta të rastësishme (jo ato që ke zgjedhur).
+                  Zgjidh kategoritë. Kryefaqja tregon deri në 4 produkte për kategori,
+                  të përziera. Nëse një kategori s’ka mjaft produkte, vendet mbushen nga
+                  kategoritë e tjera të zgjedhura.
                 </p>
               </div>
               {saveSpotlight.isError ? (
@@ -294,23 +286,25 @@ export function AdminHome() {
               ) : null}
               {spotlight.length === 0 ? (
                 <p className="m-0 px-4 py-6 text-sm text-muted">
-                  Asnjë ofertë e zgjedhur — kryefaqja tregon deri në 16 oferta të rastësishme.
+                  Asnjë kategori e zgjedhur — seksioni fshihet nga kryefaqja.
                 </p>
               ) : (
                 <DragList
                   items={spotlight}
                   pending={saveSpotlight.isPending}
-                  label={(offer) => offer.name}
+                  label={(category) => category.name}
                   onReorder={(ids) => saveSpotlight.mutate(ids)}
-                  trailing={(offer) => (
+                  trailing={(category) => (
                     <button
                       className={iconButton}
                       type="button"
-                      aria-label={`Hiq ${offer.name}`}
+                      aria-label={`Hiq ${category.name}`}
                       disabled={saveSpotlight.isPending}
                       onClick={() =>
                         saveSpotlight.mutate(
-                          spotlight.filter((item) => item.id !== offer.id).map((item) => item.id),
+                          spotlight
+                            .filter((item) => item.id !== category.id)
+                            .map((item) => item.id),
                         )
                       }
                     >
@@ -318,74 +312,42 @@ export function AdminHome() {
                     </button>
                   )}
                 >
-                  {(offer) => (
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-sunken">
-                        {offer.thumb_url ? (
-                          <Image
-                            src={offer.thumb_url}
-                            alt=""
-                            fill
-                            unoptimized
-                            className="object-cover"
-                            sizes="48px"
-                          />
-                        ) : null}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block truncate font-semibold">{offer.name}</span>
-                        <span className="block truncate text-sm text-muted">
-                          {[offer.bundle_title, offer.business_name].filter(Boolean).join(" · ")}
-                          {offer.public ? "" : " · nuk shfaqet ende"}
-                        </span>
-                      </span>
-                    </div>
+                  {(category) => (
+                    <>
+                      <p className="m-0 truncate font-semibold">{category.name}</p>
+                      {category.slug ? (
+                        <p className="m-0 truncate text-sm text-muted">{category.slug}</p>
+                      ) : null}
+                    </>
                   )}
                 </DragList>
               )}
               <div className="grid gap-3 px-4 py-4">
-                <input
-                  className={inputClass}
-                  value={spotlightSearch}
-                  placeholder=""
-                  aria-label="Kërko produkt për Zbritjet e forta"
-                  onChange={(event) => setSpotlightSearch(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      event.preventDefault();
-                      commitSpotlightSearch();
-                    }
-                  }}
-                />
-                {spotlightSearch.trim() === "" ? (
+                {spotlightCandidates.length === 0 ? (
                   <p className="m-0 text-sm text-muted">
-                    Shkruaj për të kërkuar produkte nga të gjitha dyqanet.
+                    {spotlight.length === 0
+                      ? "Nuk ka kategori aktive."
+                      : "Të gjitha kategoritë aktive janë zgjedhur."}
                   </p>
-                ) : home.isFetching && spotlightCandidates.length === 0 ? (
-                  <p className="m-0 text-sm text-muted">Duke kërkuar…</p>
-                ) : spotlightCandidates.length === 0 ? (
-                  <p className="m-0 text-sm text-muted">Nuk u gjet asnjë produkt.</p>
                 ) : (
                   <ul className="m-0 list-none p-0">
-                    {spotlightCandidates.map((offer) => (
-                      <li key={offer.id} className="flex items-center gap-3 py-2">
+                    {spotlightCandidates.map((category) => (
+                      <li key={category.id} className="flex items-center gap-3 py-2">
                         <div className="min-w-0 flex-1">
-                          <p className="m-0 truncate text-sm font-semibold">{offer.name}</p>
-                          <p className="m-0 truncate text-sm text-muted">
-                            {[offer.bundle_title, offer.business_name, offer.city]
-                              .filter(Boolean)
-                              .join(" · ")}
-                          </p>
+                          <p className="m-0 truncate text-sm font-semibold">{category.name}</p>
+                          {category.slug ? (
+                            <p className="m-0 truncate text-sm text-muted">{category.slug}</p>
+                          ) : null}
                         </div>
                         <button
                           className={iconButton}
                           type="button"
-                          aria-label={`Shto ${offer.name}`}
+                          aria-label={`Shto ${category.name}`}
                           disabled={saveSpotlight.isPending}
                           onClick={() =>
                             saveSpotlight.mutate([
                               ...spotlight.map((item) => item.id),
-                              offer.id,
+                              category.id,
                             ])
                           }
                         >

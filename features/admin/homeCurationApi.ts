@@ -31,14 +31,20 @@ export type HomeFlyerItem = {
   city?: string | null;
 };
 
+export type HomeCategoryPick = {
+  id: string;
+  name: string;
+  slug?: string | null;
+};
+
 export type HomeCuration = {
   hero: {
     picks: HomeOfferPick[];
     candidates: HomeOfferCandidate[];
   };
   spotlight: {
-    picks: HomeOfferPick[];
-    candidates: HomeOfferCandidate[];
+    picks: HomeCategoryPick[];
+    candidates: HomeCategoryPick[];
   };
   shops: {
     picks: HomeShopPick[];
@@ -70,14 +76,14 @@ export async function saveAdminHero(offerIds: string[]): Promise<HomeCuration["h
 }
 
 export async function saveAdminSpotlight(
-  offerIds: string[],
+  categoryIds: string[],
 ): Promise<HomeCuration["spotlight"]> {
   const payload = await apiFetch<{ data: HomeCuration["spotlight"] }>(
     "/admin/home/spotlight",
     {
       method: "PUT",
       auth: true,
-      body: JSON.stringify({ offer_ids: offerIds }),
+      body: JSON.stringify({ category_ids: categoryIds }),
     },
   );
   return payload.data;
