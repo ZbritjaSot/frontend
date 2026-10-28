@@ -29,6 +29,12 @@ const offerItemSchema = z
     original_price: optionalCents,
     discounted_price: optionalCents,
     discount_percent: optionalPercent,
+    purchase_url: z
+      .string()
+      .trim()
+      .max(2048, "Linku është shumë i gjatë.")
+      .nullable()
+      .optional(),
     gallery_image_id: z.string().uuid().nullable().optional(),
   })
   .refine(

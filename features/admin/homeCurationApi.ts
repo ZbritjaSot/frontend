@@ -97,6 +97,7 @@ export type StandaloneHeroOfferInput = {
   original_price?: number | null;
   discounted_price?: number | null;
   discount_percent?: number | null;
+  purchase_url?: string | null;
   gallery_image_id?: string | null;
   category_ids?: string[];
   add_to_hero?: boolean;

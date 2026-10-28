@@ -131,6 +131,8 @@ export type OfferItem = {
   /** Integer cents. Empty when the line is percent only. */
   discounted_price: number | null;
   discount_percent: number | null;
+  /** Optional external retailer purchase link. */
+  purchase_url?: string | null;
   /** Public opens of this product. Shop panel only. */
   view_count: number;
   /** Set when admin takes the flyer down. */
@@ -195,6 +197,8 @@ export type PublicOffer = {
   /** Integer cents. Empty when the line is percent only. */
   discounted_price: number | null;
   discount_percent: number | null;
+  /** Optional external retailer purchase link. */
+  purchase_url?: string | null;
   starts_at: string;
   expires_at: string;
   bundle?: OfferBundleSummary | null;
