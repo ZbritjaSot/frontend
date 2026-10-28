@@ -125,7 +125,8 @@ export function AdminHome() {
     <div>
       <AdminSections />
       <p className={`${panelLead} mt-6 max-w-2xl`}>
-        Zbritjet e Ditës janë zgjedhje manuale nga çdo dyqan publik. Zbritjet e forta
+        Zbritjet e Ditës janë zgjedhje manuale nga çdo dyqan publik; kur lista është
+        bosh, kryefaqja mbushët automatikisht me ofertat më të forta. Zbritjet e forta
         mbushen automatikisht nga kategoritë që zgjedh (deri në 4 produkte për kategori,
         të përziera). Shina {EXCLUSIVE_LABEL} është zgjedhje manuale e adminit, me
         mbushje automatike kur është bosh. Partnerët dhe fletushkat janë nga çdo dyqan
@@ -170,7 +171,8 @@ export function AdminHome() {
               <div className="border-b border-line px-4 py-3">
                 <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Zbritjet e Ditës</h2>
                 <p className="m-0 mt-1 text-sm text-muted">
-                  Kërko çdo produkt publik nga çdo dyqan, ose krijo një ofertë të re pa fletushkë.
+                  Kërko çdo produkt publik nga çdo dyqan, ose krijo një ofertë të re pa
+                  fletushkë. Pa zgjedhje, seksioni mbushët automatikisht.
                 </p>
               </div>
               {saveHero.isError ? (
@@ -179,7 +181,9 @@ export function AdminHome() {
                 </p>
               ) : null}
               {heroes.length === 0 ? (
-                <p className="m-0 px-4 py-6 text-sm text-muted">Asnjë ofertë e zgjedhur.</p>
+                <p className="m-0 px-4 py-6 text-sm text-muted">
+                  Asnjë ofertë e zgjedhur — seksioni mbushët automatikisht.
+                </p>
               ) : (
                 <DragList
                   items={heroes}
