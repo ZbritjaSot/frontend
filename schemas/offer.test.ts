@@ -154,4 +154,29 @@ describe("offer form validation", () => {
       messages(folder({ items: [{ ...item, discount_percent: 0 }] })),
     ).toContain("Zbritja duhet të jetë midis 1% dhe 99%.");
   });
+
+  it("accepts an optional purchase url and rejects one that is too long", () => {
+    const item = folder().items[0];
+    expect(
+      offerBundleFormSchema.safeParse(
+        folder({
+          items: [{ ...item, purchase_url: "https://gjirafa.com/item/1" }],
+        }),
+      ).success,
+    ).toBe(true);
+    expect(
+      offerBundleFormSchema.safeParse(
+        folder({
+          items: [{ ...item, purchase_url: null }],
+        }),
+      ).success,
+    ).toBe(true);
+    expect(
+      messages(
+        folder({
+          items: [{ ...item, purchase_url: `https://x.com/${"a".repeat(2100)}` }],
+        }),
+      ),
+    ).toContain("Linku është shumë i gjatë.");
+  });
 });

@@ -36,6 +36,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
   const [originalPrice, setOriginalPrice] = useState(0);
   const [discountedPrice, setDiscountedPrice] = useState(0);
   const [discountPercent, setDiscountPercent] = useState("");
+  const [purchaseUrl, setPurchaseUrl] = useState("");
   const [galleryImageId, setGalleryImageId] = useState<string | null>(null);
   const [thumbUrl, setThumbUrl] = useState<string | null>(null);
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
@@ -85,6 +86,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
       original_price: originalPrice > 0 ? originalPrice : null,
       discounted_price: discountedPrice > 0 ? discountedPrice : null,
       discount_percent: percent != null && Number.isFinite(percent) ? percent : null,
+      purchase_url: purchaseUrl.trim() === "" ? null : purchaseUrl.trim(),
       gallery_image_id: galleryImageId,
       category_ids: categoryIds,
       add_to_hero: addToHero,
@@ -230,6 +232,24 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
           />
         </label>
       </div>
+
+      <label className="grid gap-1.5 text-sm font-semibold">
+        Linku i blerjes (opsional)
+        <input
+          className={inputClass}
+          type="url"
+          inputMode="url"
+          autoComplete="off"
+          spellCheck={false}
+          maxLength={2048}
+          value={purchaseUrl}
+          placeholder="https://…"
+          onChange={(event) => setPurchaseUrl(event.target.value)}
+        />
+        <span className="font-medium text-muted">
+          Nëse e plotëson, vizitori mund ta hapë te dyqani online.
+        </span>
+      </label>
 
       {businessId ? (
         <ItemPhoto

@@ -6,8 +6,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import StarIcon from "@mui/icons-material/Star";
+import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";
@@ -25,7 +24,6 @@ import {
   useUpdateBusiness,
 } from "@/hooks/useAdminBusinesses";
 import { accountEmailMessage, validationMessage } from "@/lib/api";
-import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import {
   btnGhost,
   btnPrimary,
@@ -62,8 +60,8 @@ function ShopLine({
   branchCount = 0,
   onToggle,
   pending,
-  onExclusive,
   onActive,
+  onPriority,
   onApprove,
   className = "",
 }: {
@@ -73,12 +71,20 @@ function ShopLine({
   branchCount?: number;
   onToggle?: () => void;
   pending: boolean;
-  onExclusive?: () => void;
   onActive: () => void;
+  onPriority: () => void;
   onApprove?: () => void;
   className?: string;
 }) {
-  const place = [business.street, business.city].filter(Boolean).join(", ");
+  const place = [
+    business.street,
+    business.neighborhood,
+    business.village,
+    business.municipality,
+    business.city,
+  ]
+    .filter(Boolean)
+    .join(", ");
   const needsBranchApproval = branch && business.is_approved === false;
 
   return (
@@ -168,28 +174,6 @@ function ShopLine({
         ) : (
           <span className="size-9" aria-hidden />
         )}
-        {branch ? (
-          <span className="size-9" aria-hidden />
-        ) : (
-          <button
-            className={rowButton}
-            type="button"
-            aria-pressed={business.extra_placement === true}
-            aria-label={
-              business.extra_placement
-                ? `Hiq ${business.name} nga ${EXCLUSIVE_LABEL}`
-                : `Shto ${business.name} te ${EXCLUSIVE_LABEL}`
-            }
-            disabled={pending}
-            onClick={onExclusive}
-          >
-            {business.extra_placement ? (
-              <StarIcon fontSize="small" className="text-accent!" />
-            ) : (
-              <StarBorderIcon fontSize="small" />
-            )}
-          </button>
-        )}
         <Link
           className={`${rowButton} no-underline`}
           href={`/admin/businesses/${business.id}`}
@@ -212,6 +196,24 @@ function ShopLine({
             <LockOpenOutlinedIcon fontSize="small" className="text-accent!" />
           )}
         </button>
+        <button
+          className={rowButton}
+          type="button"
+          title={business.is_priority ? "Hiq prioritetin" : "Jepi prioritet"}
+          aria-label={
+            business.is_priority
+              ? `Hiq prioritetin e ${business.name}`
+              : `Jepi prioritet ${business.name}`
+          }
+          aria-pressed={business.is_priority === true}
+          disabled={pending}
+          onClick={onPriority}
+        >
+          <StarBorderOutlinedIcon
+            fontSize="small"
+            className={business.is_priority ? "text-accent!" : undefined}
+          />
+        </button>
       </div>
     </li>
   );
@@ -231,6 +233,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState<BusinessFormInput>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
+  const [rowError, setRowError] = useState<string | null>(null);
   const [createdAccount, setCreatedAccount] = useState<{
     name: string;
     email: string;
@@ -325,6 +328,20 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
 
   const counts = data?.counts;
 
+  function onPriority(business: Business) {
+    setRowError(null);
+    updateMutation.mutate(
+      { id: business.id, is_priority: business.is_priority !== true },
+      {
+        onError: (error) => {
+          setRowError(
+            validationMessage(error, "Nuk mundëm ta ndryshojmë prioritetin."),
+          );
+        },
+      },
+    );
+  }
+
   function chooseScope(next: string) {
     setScope((current) => (current === next ? "" : next));
     setPage(1);
@@ -359,14 +376,6 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
             onClick={() => chooseScope("ending_soon")}
           />
           <DashboardKpi
-            value={counts.exclusive}
-            label={EXCLUSIVE_LABEL}
-            detail="Kompani me yll"
-            tone="accent"
-            active={scope === "exclusive"}
-            onClick={() => chooseScope("exclusive")}
-          />
-          <DashboardKpi
             value={counts.address}
             label="Adresa në pritje"
             detail="Presin aprovim"
@@ -383,6 +392,12 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
             onClick={() => chooseScope("branches")}
           />
         </div>
+      ) : null}
+
+      {rowError ? (
+        <p className={`${fieldError} mb-3`} role="alert">
+          {rowError}
+        </p>
       ) : null}
 
       <div className="overflow-hidden rounded-2xl border border-line">
@@ -431,18 +446,13 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
                           : [...current, business.id],
                       )
                     }
-                    onExclusive={() =>
-                      updateMutation.mutate({
-                        id: business.id,
-                        extra_placement: business.extra_placement !== true,
-                      })
-                    }
                     onActive={() =>
                       updateMutation.mutate({
                         id: business.id,
                         is_active: !business.is_active,
                       })
                     }
+                    onPriority={() => onPriority(business)}
                   />,
                 ];
                 if (open) {
@@ -465,6 +475,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
                             is_active: !branch.is_active,
                           })
                         }
+                        onPriority={() => onPriority(branch)}
                       />,
                     );
                   }

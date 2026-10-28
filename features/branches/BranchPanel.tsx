@@ -44,7 +44,9 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
   const [ownerName, setOwnerName] = useState("");
   const [email, setEmail] = useState("");
   const [street, setStreet] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
   const [village, setVillage] = useState("");
+  const [municipality, setMunicipality] = useState("");
   const [city, setCity] = useState("");
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
@@ -55,7 +57,10 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
     { kind: "main" | "delete"; id: string } | null
   >(null);
   const canCreate = !business.parent_id;
-  const address = [street, village, city].map((part) => part.trim()).filter(Boolean).join(", ");
+  const address = [street, neighborhood, village, municipality, city]
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(", ");
 
   async function pointForAddress(): Promise<{ latitude: number; longitude: number } | null> {
     if (latitude != null && longitude != null) {
@@ -101,7 +106,9 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
         owner_name: ownerName.trim() || undefined,
         owner_email: email.trim(),
         street: street.trim(),
+        neighborhood: neighborhood.trim() || null,
         village: village.trim() || null,
+        municipality: municipality.trim() || null,
         city: city.trim(),
         latitude: point.latitude,
         longitude: point.longitude,
@@ -114,7 +121,9 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
       setOwnerName("");
       setEmail("");
       setStreet("");
+      setNeighborhood("");
       setVillage("");
+      setMunicipality("");
       setCity("");
       setLatitude(null);
       setLongitude(null);
@@ -372,18 +381,65 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
               />
             </label>
           </div>
+          <label className={fieldLabel}>
+            <span>Rruga</span>
+            <input
+              className={inputClass}
+              value={street}
+              maxLength={255}
+              placeholder="Rr. Garibaldi"
+              disabled={pending}
+              required
+              onChange={(event) => {
+                setStreet(event.target.value);
+                setLatitude(null);
+                setLongitude(null);
+              }}
+            />
+          </label>
           <div className="grid gap-4 md:grid-cols-2">
             <label className={fieldLabel}>
-              <span>Rruga</span>
+              <span>Lagjja</span>
               <input
                 className={inputClass}
-                value={street}
+                value={neighborhood}
                 maxLength={255}
-                placeholder="Rr. Garibaldi"
+                placeholder="Opsional"
                 disabled={pending}
-                required
                 onChange={(event) => {
-                  setStreet(event.target.value);
+                  setNeighborhood(event.target.value);
+                  setLatitude(null);
+                  setLongitude(null);
+                }}
+              />
+            </label>
+            <label className={fieldLabel}>
+              <span>Fshati</span>
+              <input
+                className={inputClass}
+                value={village}
+                maxLength={255}
+                placeholder="Opsional"
+                disabled={pending}
+                onChange={(event) => {
+                  setVillage(event.target.value);
+                  setLatitude(null);
+                  setLongitude(null);
+                }}
+              />
+            </label>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className={fieldLabel}>
+              <span>Qyteza</span>
+              <input
+                className={inputClass}
+                value={municipality}
+                maxLength={255}
+                placeholder="Opsional"
+                disabled={pending}
+                onChange={(event) => {
+                  setMunicipality(event.target.value);
                   setLatitude(null);
                   setLongitude(null);
                 }}
@@ -406,21 +462,6 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
               />
             </label>
           </div>
-          <label className={fieldLabel}>
-            <span>Fshati</span>
-            <input
-              className={inputClass}
-              value={village}
-              maxLength={255}
-              placeholder="Opsional"
-              disabled={pending}
-              onChange={(event) => {
-                setVillage(event.target.value);
-                setLatitude(null);
-                setLongitude(null);
-              }}
-            />
-          </label>
           <div className="flex justify-end">
             <button
               className={btnGhost}

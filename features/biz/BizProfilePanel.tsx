@@ -28,9 +28,13 @@ import type { BizSubscription, Business } from "@/types";
 const micro = "text-xs font-bold tracking-[0.08em] text-muted uppercase";
 
 function AddressLink({ business }: { business: Business }) {
-  const lines = [business.street, business.village, business.city].filter(
-    (part): part is string => Boolean(part),
-  );
+  const lines = [
+    business.street,
+    business.neighborhood,
+    business.village,
+    business.municipality,
+    business.city,
+  ].filter((part): part is string => Boolean(part));
   const saved = lines.length > 0 ? lines : business.address ? [business.address] : [];
 
   return (

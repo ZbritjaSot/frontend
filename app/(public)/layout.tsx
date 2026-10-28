@@ -16,7 +16,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
           <div className="min-h-16 border-b border-line bg-chrome" aria-hidden />
         }
       >
-        <SiteHeader showExclusive />
+        <SiteHeader />
       </Suspense>
       <main id="main" className="flex-1" tabIndex={-1}>
         {children}

@@ -55,7 +55,7 @@ export async function generateMetadata({ searchParams }: HomePageProps): Promise
   }
 
   return publicPageMetadata({
-    title: "Zbritjet e ditës",
+    title: "Zbritja e ditës",
     description: SITE_DESCRIPTION,
     path: "/",
   });

@@ -66,23 +66,19 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
       href={`/offers/${offer.id}`}
       className="flex min-h-11 items-center gap-3 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
     >
-      <ProductVisual
-        name={offer.name}
-        imageUrl={offer.image?.thumb_url}
-        sizes="56px"
-        className="size-14 shrink-0 rounded-xl"
-      />
+      <span className="relative block size-14 shrink-0 overflow-hidden rounded-xl">
+        <ProductVisual
+          name={offer.name}
+          imageUrl={offer.image?.thumb_url}
+          sizes="56px"
+          className="size-full"
+        />
+        {offer.discount_percent != null && offer.discount_percent > 0 ? (
+          <DiscountBadge percent={offer.discount_percent} size="xs" />
+        ) : null}
+      </span>
       <span className="min-w-0 flex-1">
-        <span className="flex min-w-0 items-center gap-2">
-          <span className="min-w-0 truncate text-sm font-extrabold">
-            {offer.name}
-          </span>
-          {offer.discount_percent != null && offer.discount_percent > 0 ? (
-            <span className="shrink-0">
-              <DiscountBadge percent={offer.discount_percent} />
-            </span>
-          ) : null}
-        </span>
+        <span className="block min-w-0 truncate text-sm font-extrabold">{offer.name}</span>
         {offer.business?.name ? (
           <span className="mt-1.5 flex min-w-0 items-center gap-1.5">
             <ShopLogo

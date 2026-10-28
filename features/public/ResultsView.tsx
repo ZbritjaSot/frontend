@@ -81,6 +81,8 @@ export function ResultsView({
     city,
     sort,
   });
+  const noActiveFlyers =
+    flyerCatalogue && folders.length === 0 && !q && !category && !city;
   const lastPage = flyerCatalogue
     ? folderLastPage
     : offers.length > 0 || offerLastPage > 1
@@ -95,12 +97,14 @@ export function ResultsView({
       </h1>
       <p className="mt-4 mb-0 max-w-xl text-sm leading-relaxed text-muted">
         {flyerCatalogue
-          ? `${folderTotal} fletushka aktive${categoryName ? ` te ${categoryName}` : ""}.`
+          ? noActiveFlyers
+            ? "Momentalisht nuk ka fletushka aktive."
+            : `${folderTotal} fletushka aktive${categoryName ? ` te ${categoryName}` : ""}.`
           : q
             ? `${offerTotal} produkte · ${folderTotal} fletushka`
             : `${offerTotal} produkte aktive${categoryName ? ` te ${categoryName}` : ""}.`}
       </p>
-      {catalogue ? (
+      {catalogue && !noActiveFlyers ? (
         <div className="mt-5 flex flex-col gap-3">
           <DiscoverForm
             basePath={resolvedBasePath}
@@ -125,7 +129,7 @@ export function ResultsView({
             />
           ) : null}
         </div>
-      ) : (
+      ) : !catalogue ? (
         <div className="mt-8 max-w-xl">
           <DiscoverForm
             basePath={resolvedBasePath}
@@ -138,11 +142,11 @@ export function ResultsView({
             showCategories={showControls}
           />
         </div>
-      )}
+      ) : null}
 
       {q && shops.length > 0 ? (
         <div className="mt-10">
-          <SectionHeading kicker="Dyqane" title="Lokacionet" />
+          <SectionHeading kicker="Partnerë" title="Lokacionet" />
           <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2">
             {shops.map((shop) => {
               const place = shop.city ?? shop.village ?? locationLabel(shop.locations_count, shop.address);
@@ -209,11 +213,23 @@ export function ResultsView({
 
       {empty ? (
         <EmptyNote
-          title="Nuk u gjet asgjë"
+          title={noActiveFlyers ? "Nuk ka fletushka aktive" : "Nuk u gjet asgjë"}
           body={
-            showControls
-              ? "Provo një fjalë tjetër, ose hiq kategorinë dhe shiko të gjitha ofertat."
-              : "Momentalisht nuk ka zbritje publike. Ofertat e skaduara hiqen vetë nga lista."
+            noActiveFlyers
+              ? "Shiko ofertat tjera që janë publike tani."
+              : showControls
+                ? "Provo një fjalë tjetër, ose hiq kategorinë dhe shiko të gjitha ofertat."
+                : "Momentalisht nuk ka zbritje publike. Ofertat e skaduara hiqen vetë nga lista."
+          }
+          action={
+            noActiveFlyers ? (
+              <Link
+                href="/oferta"
+                className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 text-sm font-extrabold tracking-tight text-charcoal hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              >
+                Shiko ofertat tjera
+              </Link>
+            ) : undefined
           }
         />
       ) : null}

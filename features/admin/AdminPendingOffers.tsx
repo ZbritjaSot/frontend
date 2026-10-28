@@ -1,7 +1,6 @@
 "use client";
 
 import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
-import StarIcon from "@mui/icons-material/Star";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Link from "next/link";
 import { Fragment, useState } from "react";
@@ -14,7 +13,6 @@ import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status
 import { useApproveOffer, usePendingOffers } from "@/hooks/useAdminOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { btnGhost, offerStatusClass, panelLead } from "@/lib/ui";
 import type { OfferBundle } from "@/types";
 
@@ -40,15 +38,8 @@ function PendingRow({
       >
         {bundleDisplayTitle(bundle)}
       </Link>
-      <p className="m-0 flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold">
-        <span className="truncate">{bundle.business?.name ?? "Biznes"}</span>
-        {bundle.business?.extra_placement ? (
-          <StarIcon
-            fontSize="inherit"
-            className="shrink-0 text-accent!"
-            aria-label={EXCLUSIVE_LABEL}
-          />
-        ) : null}
+      <p className="m-0 truncate text-sm font-semibold">
+        {bundle.business?.name ?? "Biznes"}
       </p>
       <p className="m-0 text-sm font-semibold tabular-nums md:pl-6">{count}</p>
       <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">

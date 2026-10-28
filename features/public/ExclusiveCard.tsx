@@ -17,20 +17,25 @@ import { formatEurFromCents } from "@/lib/format";
 export function ExclusiveCard({
   item,
   layout,
+  inertClone = false,
 }: {
   item: ExclusiveItem;
   layout: "rail" | "tile";
+  /** Decorative loop clone — hidden from assistive tech / tab order. */
+  inertClone?: boolean;
 }) {
   const meta = cardMeta(item);
   const width =
     layout === "rail"
-      ? "w-[14.5rem] shrink-0 snap-start sm:w-[16rem]"
+      ? "block w-[14.5rem] shrink-0 snap-start sm:w-[16rem]"
       : "flex h-full min-w-0 w-full flex-col";
 
   return (
     <Link
       href={meta.href}
       draggable={layout === "rail" ? false : undefined}
+      tabIndex={inertClone ? -1 : undefined}
+      aria-hidden={inertClone || undefined}
       className={`group ${width} ${exclusiveFocus}`}
     >
       <span className={`${exclusiveShell.tile} ${layout === "tile" ? "h-full" : ""}`}>
@@ -44,9 +49,7 @@ export function ExclusiveCard({
             sizes={layout === "rail" ? "256px" : "(max-width: 1024px) 50vw, 280px"}
           />
           {meta.percent != null && meta.percent > 0 ? (
-            <span className="absolute top-3 left-3 z-10">
-              <DiscountBadge percent={meta.percent} />
-            </span>
+            <DiscountBadge percent={meta.percent} />
           ) : null}
           <span className="absolute top-3 right-3 z-10">
             <FavoriteButton kind={meta.favoriteKind} id={meta.favoriteId} />
@@ -138,7 +141,7 @@ function OfferLine({
   return (
     <span className="mt-auto flex flex-wrap items-baseline gap-x-2">
       <span
-        className={`font-extrabold text-charcoal tabular-nums dark:text-ivory ${
+        className={`sale-price-outline font-extrabold text-accent tabular-nums ${
           size === "md" ? "text-base" : "text-[0.95rem]"
         }`}
       >

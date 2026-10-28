@@ -11,7 +11,13 @@ import { btnGhost, btnPrimary, pageTitle, panelLead } from "@/lib/ui";
 import type { CompanyShop } from "@/types";
 
 function placeLine(shop: CompanyShop): string {
-  const parts = [shop.street, shop.village, shop.city].filter(Boolean);
+  const parts = [
+    shop.street,
+    shop.neighborhood,
+    shop.village,
+    shop.municipality,
+    shop.city,
+  ].filter(Boolean);
   if (parts.length > 0) {
     return parts.join(", ");
   }

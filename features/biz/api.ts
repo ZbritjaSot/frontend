@@ -10,7 +10,9 @@ export async function fetchBizBusiness() {
 
 export async function updateBizLocation(body: {
   street: string | null;
+  neighborhood: string | null;
   village: string | null;
+  municipality: string | null;
   city: string | null;
   latitude: number | null;
   longitude: number | null;

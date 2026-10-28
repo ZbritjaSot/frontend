@@ -34,6 +34,7 @@ export function toApiBody(
       original_price: item.original_price,
       discounted_price: item.discounted_price,
       discount_percent: item.discount_percent,
+      purchase_url: item.purchase_url?.trim() ? item.purchase_url.trim() : null,
       gallery_image_id: item.gallery_image_id ?? null,
     })),
   };

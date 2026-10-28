@@ -1,5 +1,11 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { AdminExclusive } from "@/features/admin/AdminExclusive";
+
+export const metadata: Metadata = {
+  title: "Kryefaqja",
+  robots: { index: false, follow: false },
+};
 
 export default function AdminHomePage() {
-  redirect("/admin/exclusive");
+  return <AdminExclusive />;
 }

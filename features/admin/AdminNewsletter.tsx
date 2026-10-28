@@ -30,7 +30,7 @@ type Kind = "offer" | "bundle" | "business";
 const kinds: { kind: Kind; label: string; singular: string }[] = [
   { kind: "offer", label: "Ofertat", singular: "ofertë" },
   { kind: "bundle", label: "Fletushkat", singular: "fletushkë" },
-  { kind: "business", label: "Dyqanet", singular: "dyqan" },
+  { kind: "business", label: "Partnerët", singular: "partner" },
 ];
 
 function PickSearch({

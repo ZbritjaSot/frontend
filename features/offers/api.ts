@@ -54,7 +54,7 @@ export async function fetchPublicHome(): Promise<PublicHome> {
 }
 
 export async function fetchPublicBusinesses(
-  query: { q?: string; city?: string; page?: number; perPage?: number } = {},
+  query: { q?: string; city?: string; page?: number; perPage?: number; rail?: boolean } = {},
 ): Promise<Paginated<PublicBusiness>> {
   const params = new URLSearchParams();
   params.set("per_page", String(query.perPage ?? 24));
@@ -66,6 +66,9 @@ export async function fetchPublicBusinesses(
   }
   if (query.page && query.page > 1) {
     params.set("page", String(query.page));
+  }
+  if (query.rail) {
+    params.set("rail", "1");
   }
 
   return apiFetch<Paginated<PublicBusiness>>(`/businesses?${params.toString()}`, {

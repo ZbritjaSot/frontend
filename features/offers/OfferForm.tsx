@@ -62,6 +62,8 @@ type ItemDraft = {
   /** Integer cents (POS). */
   discounted_price: number;
   discount_percent: string;
+  /** Optional external retailer purchase link. */
+  purchase_url: string;
   gallery_image_id: string | null;
   thumb_url: string | null;
   rejection_note?: string | null;
@@ -90,6 +92,7 @@ function emptyItem(key: string): ItemDraft {
     original_price: 0,
     discounted_price: 0,
     discount_percent: "",
+    purchase_url: "",
     gallery_image_id: null,
     thumb_url: null,
     rejection_note: null,
@@ -213,6 +216,7 @@ export function OfferForm({
         discounted_price: item.discounted_price ?? 0,
         discount_percent:
           item.discount_percent == null ? "" : String(item.discount_percent),
+        purchase_url: item.purchase_url ?? "",
         gallery_image_id: item.image?.id ?? null,
         thumb_url: item.image?.thumb_url ?? null,
         rejection_note: item.rejection_note ?? null,
@@ -306,6 +310,7 @@ export function OfferForm({
           original_price,
           discounted_price,
           discount_percent,
+          purchase_url,
           gallery_image_id,
         }) => ({
           category_ids,
@@ -314,6 +319,7 @@ export function OfferForm({
           discounted_price: discounted_price > 0 ? discounted_price : null,
           discount_percent:
             discount_percent.trim() === "" ? null : Number(discount_percent),
+          purchase_url: purchase_url.trim() === "" ? null : purchase_url.trim(),
           gallery_image_id,
         }),
       ),
@@ -877,6 +883,29 @@ export function OfferForm({
                         {formatEurFromCents(item.original_price)} − {percent}% = {formatEurFromCents(item.discounted_price)}
                       </p>
                     ) : null}
+                    <label className="flex min-w-0 flex-col gap-1.5">
+                      <span className={micro}>Linku i blerjes (opsional)</span>
+                      <input
+                        className={inputClass}
+                        type="url"
+                        inputMode="url"
+                        autoComplete="off"
+                        spellCheck={false}
+                        maxLength={2048}
+                        value={item.purchase_url}
+                        placeholder="https://…"
+                        disabled={pending}
+                        aria-label={`Linku i blerjes i produktit ${index + 1}`}
+                        onChange={(event) =>
+                          patchItem(item.key, {
+                            purchase_url: event.target.value,
+                          })
+                        }
+                      />
+                      <span className="text-xs font-medium text-muted">
+                        Nëse e plotëson, vizitori mund ta hapë te dyqani online.
+                      </span>
+                    </label>
                   </div>
                 </div>
 

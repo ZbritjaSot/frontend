@@ -1,4 +1,2 @@
-/** Public name of the extra-placement page. Change the word here. */
+/** Label for the homepage exclusive rail. */
 export const EXCLUSIVE_LABEL = "Ekskluzive";
-
-export const EXCLUSIVE_HREF = "/ekskluzive";

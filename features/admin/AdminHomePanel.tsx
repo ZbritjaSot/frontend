@@ -83,8 +83,8 @@ export function AdminHomePanel() {
         <Link href="/admin/categories" className="text-muted no-underline hover:text-ink">
           Kategoritë
         </Link>
-        <Link href="/admin/exclusive" className="text-muted no-underline hover:text-ink">
-          Ekskluzive
+        <Link href="/admin/home" className="text-muted no-underline hover:text-ink">
+          Kryefaqja
         </Link>
         <Link href="/admin/managers" className="text-muted no-underline hover:text-ink">
           Menaxherët

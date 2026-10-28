@@ -97,7 +97,7 @@ export function Rail({
 }) {
   return (
     <div
-      className="-mx-5 flex snap-x snap-proximity gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:-mx-8 sm:px-8 [&::-webkit-scrollbar]:hidden"
+      className="flex snap-x snap-proximity gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       aria-label={label}
     >
       {children}
@@ -172,9 +172,11 @@ export function Pager({
 export function EmptyNote({
   title,
   body,
+  action,
 }: {
   title: string;
   body: string;
+  action?: ReactNode;
 }) {
   return (
     <div className="max-w-xl py-6" role="status">
@@ -185,6 +187,7 @@ export function EmptyNote({
         {title}
       </h2>
       <p className="mt-4 mb-0 text-base leading-relaxed text-muted">{body}</p>
+      {action ? <div className="mt-6">{action}</div> : null}
     </div>
   );
 }

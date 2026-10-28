@@ -1,7 +1,9 @@
+import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
 import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { OfferPlace } from "@/components/place/OfferPlace";
 import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
+import { safeHttpUrl } from "@/features/business/links";
 import { savingsCents } from "@/features/public/compose";
 import { BackLink, Band, Frame, SectionHeading } from "@/features/public/Frame";
 import { DiscountBadge, PriceLine } from "@/features/public/price";
@@ -9,6 +11,7 @@ import { display, kicker } from "@/features/public/tone";
 import { ProductGrid, ShopLink } from "@/features/public/ProductPoster";
 import { ProductVisual } from "@/features/public/visuals";
 import { formatDateSq, formatEurFromCents } from "@/lib/format";
+import { btnPrimary } from "@/lib/ui";
 import type { PublicOffer } from "@/types";
 
 type OfferDetailProps = {
@@ -22,25 +25,25 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
   const backHref = offer.bundle ? `/dosje/${offer.bundle.id}` : "/";
   const backLabel = offer.bundle?.title ?? "Kreu";
   const saved = savingsCents(offer.original_price, offer.discounted_price);
+  const purchaseHref = safeHttpUrl(offer.purchase_url);
 
   return (
     <article>
       <Frame className="pt-8">
         <BackLink href={backHref}>{backLabel}</BackLink>
-        <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:gap-10">
+        <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
           <div className="lg:col-span-7">
-            <div className="relative overflow-hidden rounded-[1.35rem] border border-line">
+            <div className="relative h-full overflow-hidden rounded-[1.35rem] border border-line bg-sunken dark:bg-[#121816]">
               <ProductVisual
                 name={offer.name}
                 imageUrl={offer.image?.detail_url}
                 priority
+                fit="contain"
                 sizes="(max-width: 1024px) 100vw, 640px"
-                className="aspect-[4/5] w-full"
+                className="aspect-[4/3] w-full lg:aspect-auto lg:h-full lg:min-h-[18rem]"
               />
               {offer.discount_percent != null && offer.discount_percent > 0 ? (
-                <span className="absolute top-4 left-4 z-10">
-                  <DiscountBadge percent={offer.discount_percent} />
-                </span>
+                <DiscountBadge percent={offer.discount_percent} size="lg" />
               ) : null}
               <span className="absolute top-4 right-4 z-20">
                 <FavoriteButton kind="offer" id={offer.id} size="md" />
@@ -84,6 +87,17 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
             <p className="mt-3 mb-0 text-sm text-muted">
               Deri më {formatDateSq(offer.expires_at)}
             </p>
+            {purchaseHref ? (
+              <a
+                href={purchaseHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${btnPrimary} mt-5 w-full sm:w-auto`}
+              >
+                Bli tani
+                <OpenInNewOutlinedIcon sx={{ fontSize: 18 }} aria-hidden />
+              </a>
+            ) : null}
             <div className="mt-6 border-t border-line pt-5">
               <ShopLink
                 name={shop}

@@ -1,11 +1,10 @@
 import { expect, test, type ConsoleMessage } from "@playwright/test";
 
 const pages = [
-  { path: "/", heading: /Zbritjet e ditës/ },
+  { path: "/", heading: /Zbritja e ditës/ },
   { path: "/oferta", heading: /Zbritjet|Ofertat/ },
   { path: "/fletushka", heading: /Fletushkat/ },
-  { path: "/biznese", heading: /Dyqanet/ },
-  { path: "/ekskluzive", heading: /Ekskluzive|Përfito tani/ },
+  { path: "/biznese", heading: /Partnerët/ },
   { path: "/cilesimet", heading: /Cilësimet/ },
   { path: "/preferuarat", heading: /Të preferuarat/ },
   { path: "/privatesia", heading: /Privatësia/ },
@@ -67,14 +66,11 @@ test("legacy katalog query redirects to dedicated catalogue routes", async ({ pa
   await expect(page).toHaveURL(/\/fletushka\/?$/);
 });
 
-test("the exclusive mark stays on a phone", async ({ page }) => {
+test("homepage exclusive rail is present on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  await page.getByRole("button", { name: "Hap menynë" }).click();
-  const mark = page.getByRole("navigation", { name: "Kryesore" }).getByRole("link", { name: "Ekskluzive" });
-  await expect(mark).toBeVisible();
-  const box = await mark.boundingBox();
-  expect(box).not.toBeNull();
-  expect(box!.x).toBeGreaterThan(0);
-  expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+  await expect(page.getByRole("navigation", { name: "Kryesore" }).getByRole("link", { name: "Ekskluzive" })).toHaveCount(0);
+  await expect(page.getByLabel("Ekskluzive").or(page.getByRole("heading", { name: /Ekskluzive/ }))).toBeVisible({
+    timeout: 20000,
+  });
 });

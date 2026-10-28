@@ -28,7 +28,9 @@ export type BusinessSummary = {
   id: string;
   name: string;
   street?: string | null;
+  neighborhood?: string | null;
   village?: string | null;
+  municipality?: string | null;
   city?: string | null;
   address?: string | null;
   latitude?: number | null;
@@ -47,13 +49,17 @@ export type Business = {
   manager?: { name: string; email: string } | null;
   name: string;
   street?: string | null;
+  neighborhood?: string | null;
   village?: string | null;
+  municipality?: string | null;
   city?: string | null;
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   pending_street?: string | null;
+  pending_neighborhood?: string | null;
   pending_village?: string | null;
+  pending_municipality?: string | null;
   pending_city?: string | null;
   pending_address?: string | null;
   pending_latitude?: number | null;
@@ -65,6 +71,7 @@ export type Business = {
   on_trial?: boolean;
   ending_soon?: boolean;
   extra_placement?: boolean;
+  is_priority?: boolean;
   logo_url?: string | null;
   website_url?: string | null;
   instagram_url?: string | null;
@@ -131,6 +138,8 @@ export type OfferItem = {
   /** Integer cents. Empty when the line is percent only. */
   discounted_price: number | null;
   discount_percent: number | null;
+  /** Optional external retailer purchase link. */
+  purchase_url?: string | null;
   /** Public opens of this product. Shop panel only. */
   view_count: number;
   /** Set when admin takes the flyer down. */
@@ -144,7 +153,9 @@ export type PublicBusiness = {
   id: string;
   name: string;
   street?: string | null;
+  neighborhood?: string | null;
   village?: string | null;
+  municipality?: string | null;
   city?: string | null;
   address?: string | null;
   latitude?: number | null;
@@ -159,6 +170,10 @@ export type PublicBusiness = {
   offers_count?: number;
   /** Public locations in this company. Set on the directory for the main shop. */
   locations_count?: number;
+  /** Capped public products. Set only when the directory is requested with a rail. */
+  offers?: PublicOffer[];
+  /** Capped public flyers. Set only when the directory is requested with a rail. */
+  flyers?: PublicFolder[];
   /** Main shop first, then public branches. Shop page only. */
   locations?: CompanyShop[];
 };
@@ -195,6 +210,8 @@ export type PublicOffer = {
   /** Integer cents. Empty when the line is percent only. */
   discounted_price: number | null;
   discount_percent: number | null;
+  /** Optional external retailer purchase link. */
+  purchase_url?: string | null;
   starts_at: string;
   expires_at: string;
   bundle?: OfferBundleSummary | null;
@@ -246,8 +263,10 @@ export type CompanyShop = {
   id: string;
   name: string;
   street?: string | null;
+  neighborhood?: string | null;
   city?: string | null;
   village?: string | null;
+  municipality?: string | null;
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;

@@ -99,16 +99,13 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
       <Frame className="py-8 sm:py-10">
         <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-12">
           <div className="min-w-0">
-            <p className="m-0 text-[0.68rem] font-bold tracking-[0.2em] text-accent uppercase">
-              Zbritje e fortë
-            </p>
-            <h1 className="m-0 mt-3 max-w-xl text-[clamp(2.2rem,4.6vw,3.6rem)] leading-[0.94] font-extrabold tracking-[-0.045em] text-ivory">
-              Zbritjet e ditës.
+            <h1 className="m-0 max-w-xl text-[clamp(2.4rem,5vw,3.75rem)] leading-[0.92] font-extrabold tracking-[-0.045em] text-ivory">
+              Zbritja e ditës.
             </h1>
             {hero ? (
               <DealCopy key={hero.id} offer={hero} />
             ) : (
-              <p className="mt-4 mb-0 max-w-md text-base leading-relaxed text-ivory/75 dark:text-muted">
+              <p className="mt-5 mb-0 max-w-md text-base leading-relaxed text-ivory/75 dark:text-muted">
                 Momentalisht nuk ka zbritje publike. Ofertat e skaduara hiqen vetë nga lista.
               </p>
             )}
@@ -214,9 +211,7 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
                     className="aspect-[4/3] w-full"
                   />
                   {offer.discount_percent != null && offer.discount_percent > 0 ? (
-                    <span className="absolute top-3 left-3 z-10">
-                      <DiscountBadge percent={offer.discount_percent} />
-                    </span>
+                    <DiscountBadge percent={offer.discount_percent} size="lg" />
                   ) : null}
                 </Link>
               ))}
@@ -252,30 +247,34 @@ function DealCopy({ offer }: { offer: PublicOffer }) {
   const shop = offer.business?.name;
 
   return (
-    <div className="mt-6 max-w-md">
-      {offer.discounted_price != null ? (
-        <PriceLine
-          sale={offer.discounted_price}
-          original={offer.original_price ?? 0}
-          size="xl"
-          tone="hero"
-        />
-      ) : null}
-      <Link
-        href={`/offers/${offer.id}`}
-        className="mt-3 line-clamp-2 block text-2xl leading-tight font-extrabold tracking-[-0.03em] text-inherit no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-      >
-        {offer.name}
-      </Link>
+    <div className="mt-5 max-w-md sm:mt-6">
       {shop ? (
-        <span className="mt-3 flex min-w-0 items-center gap-2">
-          <ShopLogo name={shop} logoUrl={offer.business?.logo_url} size="sm" />
-          <span className="truncate text-base font-extrabold tracking-tight text-ivory">
+        <span className="flex min-w-0 items-center gap-2.5">
+          <ShopLogo name={shop} logoUrl={offer.business?.logo_url} size="md" />
+          <span className="truncate text-lg font-extrabold tracking-tight text-ivory sm:text-xl">
             {shop}
           </span>
         </span>
       ) : null}
-      <p className="mt-2 mb-0 text-sm text-ivory/70 dark:text-muted">
+      <Link
+        href={`/offers/${offer.id}`}
+        className={`line-clamp-2 block text-[clamp(1.65rem,3.2vw,2.35rem)] leading-[1.15] font-extrabold tracking-[-0.035em] text-ivory no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+          shop ? "mt-3 sm:mt-3.5" : "mt-0"
+        }`}
+      >
+        {offer.name}
+      </Link>
+      {offer.discounted_price != null ? (
+        <div className="mt-3 sm:mt-4">
+          <PriceLine
+            sale={offer.discounted_price}
+            original={offer.original_price ?? 0}
+            size="lg"
+            tone="hero"
+          />
+        </div>
+      ) : null}
+      <p className="mt-2.5 mb-0 text-sm text-ivory/70 dark:text-muted">
         Deri më {formatDateSq(offer.expires_at)}
       </p>
     </div>

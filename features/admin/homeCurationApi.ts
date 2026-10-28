@@ -18,17 +18,10 @@ export type HomeOfferCandidate = {
   thumb_url?: string | null;
 };
 
-export type HomeShopPick = {
+export type HomeCategoryPick = {
   id: string;
   name: string;
-  city?: string | null;
-};
-
-export type HomeFlyerItem = {
-  id: string;
-  title: string;
-  business_name?: string | null;
-  city?: string | null;
+  slug?: string | null;
 };
 
 export type HomeCuration = {
@@ -37,18 +30,8 @@ export type HomeCuration = {
     candidates: HomeOfferCandidate[];
   };
   spotlight: {
-    picks: HomeOfferPick[];
-    candidates: HomeOfferCandidate[];
-  };
-  shops: {
-    picks: HomeShopPick[];
-    candidates: HomeShopPick[];
-  };
-  flyers: HomeFlyerItem[];
-  recommended: {
-    shuffle: boolean;
-    picks: HomeOfferPick[];
-    candidates: HomeOfferCandidate[];
+    picks: HomeCategoryPick[];
+    candidates: HomeCategoryPick[];
   };
 };
 
@@ -75,14 +58,14 @@ export async function saveAdminHero(offerIds: string[]): Promise<HomeCuration["h
 }
 
 export async function saveAdminSpotlight(
-  offerIds: string[],
+  categoryIds: string[],
 ): Promise<HomeCuration["spotlight"]> {
   const payload = await apiFetch<{ data: HomeCuration["spotlight"] }>(
     "/admin/home/spotlight",
     {
       method: "PUT",
       auth: true,
-      body: JSON.stringify({ offer_ids: offerIds }),
+      body: JSON.stringify({ category_ids: categoryIds }),
     },
   );
   return payload.data;
@@ -97,6 +80,7 @@ export type StandaloneHeroOfferInput = {
   original_price?: number | null;
   discounted_price?: number | null;
   discount_percent?: number | null;
+  purchase_url?: string | null;
   gallery_image_id?: string | null;
   category_ids?: string[];
   add_to_hero?: boolean;
@@ -114,17 +98,6 @@ export async function createStandaloneHeroOffer(
     },
   );
   return payload.data.hero;
-}
-
-export async function saveAdminHomeShops(
-  businessIds: string[],
-): Promise<HomeCuration["shops"]> {
-  const payload = await apiFetch<{ data: HomeCuration["shops"] }>("/admin/home/shops", {
-    method: "PUT",
-    auth: true,
-    body: JSON.stringify({ business_ids: businessIds }),
-  });
-  return payload.data;
 }
 
 export type AdminHomeSection = {
@@ -148,30 +121,6 @@ export async function saveAdminSections(
     method: "PUT",
     auth: true,
     body: JSON.stringify({ sections }),
-  });
-  return payload.data;
-}
-
-export async function saveAdminRecommended(
-  offerIds: string[],
-  shuffle: boolean,
-): Promise<HomeCuration["recommended"]> {
-  const payload = await apiFetch<{ data: HomeCuration["recommended"] }>(
-    "/admin/home/recommended",
-    {
-      method: "PUT",
-      auth: true,
-      body: JSON.stringify({ offer_ids: offerIds, shuffle }),
-    },
-  );
-  return payload.data;
-}
-
-export async function saveAdminFlyers(bundleIds: string[]): Promise<HomeFlyerItem[]> {
-  const payload = await apiFetch<{ data: HomeFlyerItem[] }>("/admin/home/flyers", {
-    method: "PUT",
-    auth: true,
-    body: JSON.stringify({ bundle_ids: bundleIds }),
   });
   return payload.data;
 }

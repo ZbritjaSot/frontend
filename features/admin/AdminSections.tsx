@@ -1,5 +1,6 @@
 "use client";
 
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Spinner } from "@/components/ui/Spinner";
@@ -16,13 +17,13 @@ import { fieldError, inputClass } from "@/lib/ui";
 const sectionKey = ["admin", "sections"] as const;
 
 const hints: Record<string, string> = {
-  exclusive: `${EXCLUSIVE_LABEL} në kryefaqe (faqja /ekskluzive mbetet gjithmonë)`,
+  exclusive: `${EXCLUSIVE_LABEL} në kryefaqe`,
   spotlight: "Zbritjet e forta",
   flyers: "Fletushkat",
   inbox: "Email-i",
   fresh: "Të rejat",
   ending: "Afatshkurtra",
-  shops: "Dyqanet",
+  shops: "Partnerët",
 };
 
 export function AdminSections() {
@@ -56,14 +57,17 @@ export function AdminSections() {
   }
 
   return (
-    <section className="mt-6 overflow-hidden rounded-2xl border border-line">
-      <div className="border-b border-line px-4 py-3">
-        <h2 className="m-0 text-sm font-bold tracking-[0.08em] text-muted uppercase">
-          Seksionet
-        </h2>
-        <p className="m-0 mt-1 text-sm text-muted">
-          Ndrysho titullin, ndizi ose fik, dhe tërhiqi. Kërkimi qëndron në krye.
-          Kategoritë qëndrojnë gjithmonë poshtë kokës dhe nuk renditen këtu.
+    <section className="overflow-hidden rounded-2xl border border-line">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-line px-4 py-4">
+        <div>
+          <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Seksionet</h2>
+          <p className="m-0 mt-1 max-w-xl text-sm leading-relaxed text-muted">
+            Ndrysho titullin, ndize ose fike, dhe tërhiq për ta renditur. Ndryshimet
+            ruhen menjëherë.
+          </p>
+        </div>
+        <p className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase" aria-live="polite">
+          {save.isPending ? "Duke u ruajtur…" : "Ruhet vetë"}
         </p>
       </div>
       {sections.isLoading ? (
@@ -81,6 +85,8 @@ export function AdminSections() {
               {validationMessage(save.error, "Nuk mundëm t’i ruajmë seksionet.")}
             </p>
           ) : null}
+          <ul className="m-0 list-none border-b border-line p-0">
+          </ul>
           <DragList
             items={rows}
             pending={save.isPending}
@@ -98,16 +104,22 @@ export function AdminSections() {
                 type="button"
                 role="switch"
                 aria-checked={row.is_visible}
-                aria-label={row.is_visible ? "Fike" : "Ndize"}
+                aria-label={
+                  row.is_visible
+                    ? `Fike ${hints[row.key] ?? row.key}`
+                    : `Ndize ${hints[row.key] ?? row.key}`
+                }
                 disabled={row.can_enable === false}
                 title={
                   row.can_enable === false
                     ? "Ky seksion nuk mund të ndizet tani."
-                    : undefined
+                    : row.is_visible
+                      ? "Fike"
+                      : "Ndize"
                 }
-                className={`relative h-7 w-12 shrink-0 rounded-full border-0 p-0 motion-safe:transition-colors motion-safe:duration-200 motion-safe:ease-out ${
+                className={`inline-flex items-center gap-2 border-0 bg-transparent p-0 ${
                   row.can_enable === false ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-                } ${row.is_visible ? "bg-accent" : "bg-line"}`}
+                }`}
                 onClick={() => {
                   if (row.can_enable === false) {
                     return;
@@ -122,11 +134,17 @@ export function AdminSections() {
                 }}
               >
                 <span
-                  aria-hidden
-                  className={`absolute top-0.5 left-0.5 size-6 rounded-full bg-charcoal motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out ${
-                    row.is_visible ? "translate-x-5" : "translate-x-0"
+                  className={`relative h-7 w-12 shrink-0 rounded-full motion-safe:transition-colors motion-safe:duration-200 motion-safe:ease-out ${
+                    row.is_visible ? "bg-accent" : "bg-line"
                   }`}
-                />
+                >
+                  <span
+                    aria-hidden
+                    className={`absolute top-0.5 left-0.5 size-6 rounded-full bg-charcoal motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out ${
+                      row.is_visible ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </span>
               </button>
             )}
           >
@@ -138,6 +156,7 @@ export function AdminSections() {
                 <input
                   className={inputClass}
                   value={row.title}
+                  maxLength={80}
                   aria-label={`Titulli i ${hints[row.key] ?? row.key}`}
                   onChange={(event) => {
                     const title = event.target.value;
@@ -155,6 +174,11 @@ export function AdminSections() {
                       setDraft(null);
                       return;
                     }
+                    const saved = sections.data?.find((section) => section.key === row.key);
+                    if (saved?.title === title) {
+                      setDraft(null);
+                      return;
+                    }
                     persist(
                       rows.map(({ key, title: current, is_visible }) => ({
                         key,
@@ -162,6 +186,11 @@ export function AdminSections() {
                         is_visible,
                       })),
                     );
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.currentTarget.blur();
+                    }
                   }}
                 />
               </label>

@@ -22,7 +22,9 @@ export type BranchInput = {
   owner_name?: string;
   owner_email: string;
   street: string;
+  neighborhood?: string | null;
   village?: string | null;
+  municipality?: string | null;
   city: string;
   latitude: number;
   longitude: number;

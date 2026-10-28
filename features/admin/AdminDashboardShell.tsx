@@ -10,7 +10,7 @@ import MailOutlinedIcon from "@mui/icons-material/MailOutlined";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import StarIcon from "@mui/icons-material/Star";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import StoreIcon from "@mui/icons-material/Store";
 import type { ReactNode } from "react";
 import {
@@ -20,7 +20,6 @@ import {
 import { latestExpiredSubscriptions } from "@/features/admin/expiredSubscriptions";
 import { usePendingOffers } from "@/hooks/useAdminOffers";
 import { useAdminSubscriptions } from "@/hooks/useAdminSubscriptions";
-import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 
 const baseNav: DashboardNavItem[] = [
   { href: "/admin", label: "Paneli", icon: <DashboardIcon fontSize="small" /> },
@@ -45,9 +44,9 @@ const baseNav: DashboardNavItem[] = [
     icon: <StoreIcon fontSize="small" />,
   },
   {
-    href: "/admin/exclusive",
-    label: EXCLUSIVE_LABEL,
-    icon: <StarIcon fontSize="small" className="text-accent!" />,
+    href: "/admin/home",
+    label: "Kryefaqja",
+    icon: <HomeOutlinedIcon fontSize="small" />,
   },
   {
     href: "/admin/categories",

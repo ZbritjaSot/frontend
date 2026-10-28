@@ -75,6 +75,7 @@ export function ProductVisual({
   eager = false,
   sizes = "(max-width: 768px) 100vw, 640px",
   wash = "default",
+  fit = "cover",
 }: {
   name: string;
   imageUrl?: string | null;
@@ -88,6 +89,8 @@ export function ProductVisual({
   sizes?: string;
   /** plain = solid wash only (Exclusive — no stripe gradients). */
   wash?: "default" | "plain";
+  /** cover crops to fill; contain shows the full photo inside the slot. */
+  fit?: "cover" | "contain";
 }) {
   const frame = `${fill ? "absolute inset-0" : "relative"} block overflow-hidden ${className ?? ""}`;
 
@@ -101,7 +104,11 @@ export function ProductVisual({
           unoptimized
           priority={priority}
           {...(priority ? {} : { loading: eager ? "eager" as const : "lazy" as const })}
-          className="object-cover motion-safe:transition motion-safe:duration-700 motion-safe:ease-out motion-safe:group-hover:scale-[1.04]"
+          className={
+            fit === "contain"
+              ? "object-contain"
+              : "object-cover motion-safe:transition motion-safe:duration-700 motion-safe:ease-out motion-safe:group-hover:scale-[1.04]"
+          }
           sizes={sizes}
         />
       </span>

@@ -42,18 +42,12 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="(max-width: 640px) 100vw, 420px"
           />
+          {percent > 0 ? <DiscountBadge percent={percent} /> : null}
           {heart}
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-2 px-4 py-4 sm:px-6">
-          <span className="flex min-w-0 items-center gap-2">
-            {percent > 0 ? (
-              <span className="shrink-0">
-                <DiscountBadge percent={percent} />
-              </span>
-            ) : null}
-            <span className="min-w-0 truncate text-sm font-semibold text-ivory/80 dark:text-muted">
-              {shop}
-            </span>
+          <span className="min-w-0 truncate text-sm font-semibold text-ivory/80 dark:text-muted">
+            {shop}
           </span>
           <span className="line-clamp-2 text-2xl leading-tight font-extrabold tracking-[-0.03em]">
             {folder.title}
@@ -78,19 +72,13 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="108px"
           />
+          {percent > 0 ? <DiscountBadge percent={percent} size="sm" /> : null}
           <span className="absolute top-1 right-1 z-20 scale-90">
             <FavoriteButton kind="flyer" id={folder.id} />
           </span>
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-1.5 px-3 py-3">
-          <span className="flex min-w-0 items-center gap-2">
-            {percent > 0 ? (
-              <span className="shrink-0">
-                <DiscountBadge percent={percent} />
-              </span>
-            ) : null}
-            <span className="min-w-0 truncate text-xs font-semibold text-muted">{shop}</span>
-          </span>
+          <span className="min-w-0 truncate text-xs font-semibold text-muted">{shop}</span>
           <span className="line-clamp-2 text-base leading-5 font-extrabold tracking-tight">
             {folder.title}
           </span>
@@ -116,11 +104,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="(max-width: 1024px) 100vw, 640px"
           />
-          {percent > 0 ? (
-            <span className="absolute top-4 left-4 z-10">
-              <DiscountBadge percent={percent} />
-            </span>
-          ) : null}
+          {percent > 0 ? <DiscountBadge percent={percent} size="lg" /> : null}
           <span className="absolute top-4 right-4 z-20">
             <FavoriteButton kind="flyer" id={folder.id} size="md" />
           </span>
@@ -159,11 +143,7 @@ export function CampaignPoster({
               eager={eager}
               sizes="(max-width: 640px) 100vw, 50vw"
             />
-            {percent > 0 ? (
-              <span className="absolute top-3 left-3 z-10">
-                <DiscountBadge percent={percent} />
-              </span>
-            ) : null}
+            {percent > 0 ? <DiscountBadge percent={percent} /> : null}
           </span>
           <span className="flex flex-1 flex-col p-5">
             <span className="flex items-center gap-2.5">
@@ -201,11 +181,7 @@ export function CampaignPoster({
       </span>
       <span className="relative w-[42%] shrink-0 self-stretch overflow-hidden">
         <ProductVisual fill name={coverName} imageUrl={coverUrl} eager={eager} sizes="240px" />
-        {percent > 0 ? (
-          <span className="absolute top-3 left-3 z-10">
-            <DiscountBadge percent={percent} />
-          </span>
-        ) : null}
+        {percent > 0 ? <DiscountBadge percent={percent} /> : null}
         {heart}
       </span>
     </Link>

@@ -8,18 +8,18 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { EXCLUSIVE_HREF, EXCLUSIVE_LABEL } from "@/lib/exclusive";
-
 const links = [
   { href: "/oferta", label: "Ofertat", match: "oferta" },
   { href: "/fletushka", label: "Fletushkat", match: "fletushka" },
-  { href: "/biznese", label: "Dyqanet", match: "dyqane" },
 ] as const;
+
+const PARTNERS_HREF = "/biznese";
+const PARTNERS_LABEL = "Partnerët";
 
 const iconHit =
   "inline-flex size-10 items-center justify-center rounded-xl text-chrome-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
-export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }) {
+export function SiteHeader() {
   const pathname = usePathname();
   const menuId = useId();
   const [open, setOpen] = useState(false);
@@ -43,13 +43,11 @@ export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }
     if (match === "oferta") {
       return pathname === "/oferta" || pathname.startsWith("/oferta/") || pathname.startsWith("/offers");
     }
-    if (match === "dyqane") {
-      return pathname === "/biznese" || pathname.startsWith("/biznese/");
-    }
     return pathname === "/fletushka" || pathname.startsWith("/fletushka/") || pathname.startsWith("/dosje");
   }
 
-  const exclusiveActive = pathname === EXCLUSIVE_HREF;
+  const partnersActive =
+    pathname === PARTNERS_HREF || pathname.startsWith(`${PARTNERS_HREF}/`);
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-chrome text-chrome-text backdrop-blur-md dark:border-white/8 dark:bg-chrome/90">
@@ -86,9 +84,13 @@ export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }
               </Link>
             );
           })}
-          {showExclusive ? (
-            <ExclusiveMark active={exclusiveActive} onNavigate={() => setOpen(false)} />
-          ) : null}
+          <NavPill
+            href={PARTNERS_HREF}
+            label={PARTNERS_LABEL}
+            active={partnersActive}
+            pulse={!partnersActive}
+            onNavigate={() => setOpen(false)}
+          />
         </nav>
 
         <div className="ml-auto flex items-center gap-0.5 md:ml-0">
@@ -159,21 +161,37 @@ export function SiteHeader({ showExclusive = true }: { showExclusive?: boolean }
               </Link>
             );
           })}
-          {showExclusive ? (
-            <span className="pt-3">
-              <ExclusiveMark active={exclusiveActive} onNavigate={() => setOpen(false)} />
-            </span>
-          ) : null}
+          <span className="flex flex-wrap gap-3 pt-3">
+            <NavPill
+              href={PARTNERS_HREF}
+              label={PARTNERS_LABEL}
+              active={partnersActive}
+              pulse={!partnersActive}
+              onNavigate={() => setOpen(false)}
+            />
+          </span>
         </nav>
       ) : null}
     </header>
   );
 }
 
-function ExclusiveMark({ active, onNavigate }: { active: boolean; onNavigate: () => void }) {
+function NavPill({
+  href,
+  label,
+  active,
+  pulse = false,
+  onNavigate,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+  pulse?: boolean;
+  onNavigate: () => void;
+}) {
   return (
     <Link
-      href={EXCLUSIVE_HREF}
+      href={href}
       aria-current={active ? "page" : undefined}
       onClick={onNavigate}
       className={`group inline-flex min-h-9 w-fit shrink-0 items-center gap-2 rounded-full border px-3 text-[0.68rem] font-extrabold tracking-[0.14em] uppercase transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:px-3.5 sm:tracking-[0.18em] ${
@@ -185,10 +203,14 @@ function ExclusiveMark({ active, onNavigate }: { active: boolean; onNavigate: ()
       <span
         aria-hidden
         className={`size-1.5 rounded-[2px] ${
-          active ? "bg-charcoal" : "bg-accent group-hover:bg-charcoal"
+          active
+            ? "bg-charcoal"
+            : pulse
+              ? "bg-accent partner-dot-pulse group-hover:bg-charcoal group-hover:[animation:none]"
+              : "bg-accent group-hover:bg-charcoal"
         }`}
       />
-      {EXCLUSIVE_LABEL}
+      {label}
     </Link>
   );
 }

@@ -2,7 +2,6 @@
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import StarIcon from "@mui/icons-material/Star";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -43,7 +42,6 @@ import {
   useUpdateSubscription,
 } from "@/hooks/useAdminSubscriptions";
 import { accountEmailMessage, validationMessage } from "@/lib/api";
-import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { defaultSubscriptionWindow, toDateTimeLocalValue } from "@/lib/datetime";
 import { formatDateSq } from "@/lib/format";
 import {
@@ -86,9 +84,13 @@ const checkLabelClass =
   "flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none";
 
 function AddressLink({ business }: { business: Business }) {
-  const lines = [business.street, business.village, business.city].filter(
-    (part): part is string => Boolean(part),
-  );
+  const lines = [
+    business.street,
+    business.neighborhood,
+    business.village,
+    business.municipality,
+    business.city,
+  ].filter((part): part is string => Boolean(part));
   const saved = lines.length > 0 ? lines : business.address ? [business.address] : [];
 
   return (
@@ -231,9 +233,6 @@ export function AdminBusinessProfile({ id }: { id: string }) {
         <h1 className={`${pageTitle} mb-0!`}>
           {business?.name ?? "Profili"}
         </h1>
-        {business?.extra_placement ? (
-          <StarIcon fontSize="small" className="shrink-0 text-accent!" aria-label={EXCLUSIVE_LABEL} />
-        ) : null}
         {business ? (
           <Link
             href={`/biznese/${business.id}`}
