@@ -95,15 +95,15 @@ export function ResultsView({
       <h1 className={`m-0 mt-2 max-w-4xl text-[clamp(2.4rem,6vw,4rem)] ${display}`}>
         {title}
       </h1>
-      <p className="mt-4 mb-0 max-w-xl text-sm leading-relaxed text-muted">
-        {flyerCatalogue
-          ? noActiveFlyers
-            ? "Momentalisht nuk ka fletushka aktive."
-            : `${folderTotal} fletushka aktive${categoryName ? ` te ${categoryName}` : ""}.`
-          : q
-            ? `${offerTotal} produkte · ${folderTotal} fletushka`
-            : `${offerTotal} produkte aktive${categoryName ? ` te ${categoryName}` : ""}.`}
-      </p>
+      {!noActiveFlyers ? (
+        <p className="mt-4 mb-0 max-w-xl text-sm leading-relaxed text-muted">
+          {flyerCatalogue
+            ? `${folderTotal} fletushka aktive${categoryName ? ` te ${categoryName}` : ""}.`
+            : q
+              ? `${offerTotal} produkte · ${folderTotal} fletushka`
+              : `${offerTotal} produkte aktive${categoryName ? ` te ${categoryName}` : ""}.`}
+        </p>
+      ) : null}
       {catalogue && !noActiveFlyers ? (
         <div className="mt-5 flex flex-col gap-3">
           <DiscoverForm
