@@ -165,7 +165,7 @@ export function AdminHome() {
               [
                 ["hero", "Zbritjet e Ditës", heroes.length],
                 ["spotlight", "Zbritjet e forta", spotlight.length],
-                ["shops", "Dyqanet", shops.length],
+                ["shops", "Partnerët", shops.length],
                 ["flyers", "Fletushkat", flyers.length],
                 ["recommended", "Të rekomanduara", recommended.length],
               ] as const
@@ -436,9 +436,9 @@ export function AdminHome() {
 
             <section hidden={pane !== "shops"}>
               <div className="border-b border-line px-4 py-3">
-                <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Dyqanet</h2>
+                <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">Partnerët</h2>
                 <p className="m-0 mt-1 text-sm text-muted">
-                  Vetëm dyqanet ekskluzive. Dalin të parët, në këtë rend.
+                  Vetëm partnerët ekskluzivë. Dalin të parët, në këtë rend.
                 </p>
               </div>
               {saveShops.isError ? (

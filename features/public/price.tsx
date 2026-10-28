@@ -48,11 +48,8 @@ export function PriceLine({
         : saleClass;
 
   const saleTone =
-    tone === "hero"
-      ? "text-accent"
-      : tone === "inverse"
-        ? "text-ivory"
-        : "text-ink dark:text-accent";
+    tone === "inverse" ? "text-ivory" : "text-accent";
+  const saleOutline = tone === "inverse" ? "" : "sale-price-outline";
 
   return (
     <span
@@ -63,7 +60,7 @@ export function PriceLine({
       }
     >
       <span
-        className={`${tone === "hero" ? heroSale : saleClass} leading-none font-extrabold tabular-nums ${saleTone}`}
+        className={`${tone === "hero" ? heroSale : saleClass} leading-none font-extrabold tabular-nums ${saleTone} ${saleOutline}`}
       >
         {formatEurFromCents(sale)}
       </span>

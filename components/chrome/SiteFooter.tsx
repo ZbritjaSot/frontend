@@ -29,7 +29,7 @@ export function SiteFooter() {
                 Fletushkat
               </Link>
               <Link href="/biznese" className={link}>
-                Dyqanet
+                Partnerët
               </Link>
             </div>
             <div className="flex flex-wrap gap-x-5 gap-y-2">

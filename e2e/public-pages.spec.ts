@@ -4,7 +4,7 @@ const pages = [
   { path: "/", heading: /Zbritjet e ditës/ },
   { path: "/oferta", heading: /Zbritjet|Ofertat/ },
   { path: "/fletushka", heading: /Fletushkat/ },
-  { path: "/biznese", heading: /Dyqanet/ },
+  { path: "/biznese", heading: /Partnerët/ },
   { path: "/ekskluzive", heading: /Ekskluzive|Përfito tani/ },
   { path: "/cilesimet", heading: /Cilësimet/ },
   { path: "/preferuarat", heading: /Të preferuarat/ },

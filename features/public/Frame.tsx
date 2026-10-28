@@ -172,9 +172,11 @@ export function Pager({
 export function EmptyNote({
   title,
   body,
+  action,
 }: {
   title: string;
   body: string;
+  action?: ReactNode;
 }) {
   return (
     <div className="max-w-xl py-6" role="status">
@@ -185,6 +187,7 @@ export function EmptyNote({
         {title}
       </h2>
       <p className="mt-4 mb-0 text-base leading-relaxed text-muted">{body}</p>
+      {action ? <div className="mt-6">{action}</div> : null}
     </div>
   );
 }

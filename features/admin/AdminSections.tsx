@@ -22,7 +22,7 @@ const hints: Record<string, string> = {
   inbox: "Email-i",
   fresh: "Të rejat",
   ending: "Afatshkurtra",
-  shops: "Dyqanet",
+  shops: "Partnerët",
 };
 
 export function AdminSections() {

@@ -27,15 +27,16 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
     <article>
       <Frame className="pt-8">
         <BackLink href={backHref}>{backLabel}</BackLink>
-        <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:gap-10">
+        <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
           <div className="lg:col-span-7">
-            <div className="relative overflow-hidden rounded-[1.35rem] border border-line">
+            <div className="relative h-full overflow-hidden rounded-[1.35rem] border border-line bg-sunken dark:bg-[#121816]">
               <ProductVisual
                 name={offer.name}
                 imageUrl={offer.image?.detail_url}
                 priority
+                fit="contain"
                 sizes="(max-width: 1024px) 100vw, 640px"
-                className="aspect-[4/5] w-full"
+                className="aspect-[4/3] w-full lg:aspect-auto lg:h-full lg:min-h-[18rem]"
               />
               {offer.discount_percent != null && offer.discount_percent > 0 ? (
                 <span className="absolute top-4 left-4 z-10">

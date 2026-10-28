@@ -114,14 +114,38 @@ html[data-theme="dark"] {
   }
 }
 
+/* Light mode only: thin charcoal edge so lime sale prices stay readable on cream. */
+html[data-theme="light"] .sale-price-outline {
+  -webkit-text-stroke: 1px var(--color-charcoal);
+  paint-order: stroke fill;
+}
+
 @keyframes shop-marquee {
   to {
     transform: translateX(calc(-100% / var(--shop-copies, 2)));
   }
 }
 
+@keyframes partner-dot {
+  0%,
+  100% {
+    background-color: var(--color-accent);
+  }
+  50% {
+    background-color: var(--color-charcoal);
+  }
+}
+
+.partner-dot-pulse {
+  animation: partner-dot 2.4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-shop-clone] {
     display: none;
+  }
+
+  .partner-dot-pulse {
+    animation: none;
   }
 }

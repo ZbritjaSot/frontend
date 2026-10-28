@@ -18,5 +18,5 @@ export const defaultHomeSections: HomeSection[] = [
   { key: "exclusive", title: EXCLUSIVE_LABEL },
   { key: "fresh", title: "Sapo u shtuan" },
   { key: "ending", title: "Mbaron së shpejti" },
-  { key: "shops", title: "Dyqanet" },
+  { key: "shops", title: "Partnerët" },
 ];

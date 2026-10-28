@@ -23,16 +23,16 @@ export async function generateMetadata({
   const city = params.city?.trim() ?? "";
   if (q || city || params.page) {
     return publicPageMetadata({
-      title: city ? `Dyqanet në ${city}` : q ? `Dyqanet: ${q}` : "Dyqanet",
-      description: "Dyqanet lokale me fletushka aktive në Kosovë.",
+      title: city ? `Partnerët në ${city}` : q ? `Partnerët: ${q}` : "Partnerët",
+      description: "Partnerët lokalë me fletushka aktive në Kosovë.",
       path: "/biznese",
       index: false,
     });
   }
 
   return publicPageMetadata({
-    title: "Dyqanet",
-    description: "Dyqanet lokale me fletushka aktive në Kosovë.",
+    title: "Partnerët",
+    description: "Partnerët lokalë me fletushka aktive në Kosovë.",
     path: "/biznese",
   });
 }
@@ -66,8 +66,8 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
   } catch (error) {
     errorMessage =
       error instanceof ApiError
-        ? "Nuk mundëm t’i ngarkojmë dyqanet tani. Provo përsëri së shpejti."
-        : "Nuk mundëm t’i ngarkojmë dyqanet tani. Provo përsëri së shpejti.";
+        ? "Nuk mundëm t’i ngarkojmë partnerët tani. Provo përsëri së shpejti."
+        : "Nuk mundëm t’i ngarkojmë partnerët tani. Provo përsëri së shpejti.";
   }
 
   if (errorMessage) {
@@ -80,10 +80,10 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
 
   return (
     <Band pad="page">
-      <p className={kicker}>Dyqane</p>
-      <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,4rem)] ${display}`}>Dyqanet</h1>
+      <p className={kicker}>Partnerë</p>
+      <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,4rem)] ${display}`}>Partnerët</h1>
       <p className="mt-3 mb-0 max-w-xl text-sm leading-relaxed text-muted">
-        {total} dyqane me fletushka aktive. Kjo nuk është çdo biznes në Kosovë, vetëm ata
+        {total} partnerë me fletushka aktive. Kjo nuk është çdo biznes në Kosovë, vetëm ata
         që kanë një fletushkë publike tani.
       </p>
       <div className="mt-6 flex max-w-xl flex-col gap-3">
@@ -114,8 +114,8 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
           title="Nuk u gjet asgjë"
           body={
             city
-              ? `Nuk ka dyqan në ${city}.`
-              : "Provo një emër tjetër, ose kthehu te të gjithë dyqanet."
+              ? `Nuk ka partner në ${city}.`
+              : "Provo një emër tjetër, ose kthehu te të gjithë partnerët."
           }
         />
       ) : (

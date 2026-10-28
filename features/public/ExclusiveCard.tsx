@@ -138,7 +138,7 @@ function OfferLine({
   return (
     <span className="mt-auto flex flex-wrap items-baseline gap-x-2">
       <span
-        className={`font-extrabold text-charcoal tabular-nums dark:text-ivory ${
+        className={`sale-price-outline font-extrabold text-accent tabular-nums ${
           size === "md" ? "text-base" : "text-[0.95rem]"
         }`}
       >
