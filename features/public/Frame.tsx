@@ -97,7 +97,7 @@ export function Rail({
 }) {
   return (
     <div
-      className="-mx-5 flex snap-x snap-proximity gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:-mx-8 sm:px-8 [&::-webkit-scrollbar]:hidden"
+      className="flex snap-x snap-proximity gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       aria-label={label}
     >
       {children}

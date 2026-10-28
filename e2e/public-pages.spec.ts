@@ -1,7 +1,7 @@
 import { expect, test, type ConsoleMessage } from "@playwright/test";
 
 const pages = [
-  { path: "/", heading: /Zbritjet e ditës/ },
+  { path: "/", heading: /Zbritja e ditës/ },
   { path: "/oferta", heading: /Zbritjet|Ofertat/ },
   { path: "/fletushka", heading: /Fletushkat/ },
   { path: "/biznese", heading: /Partnerët/ },

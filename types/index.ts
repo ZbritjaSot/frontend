@@ -169,6 +169,10 @@ export type PublicBusiness = {
   offers_count?: number;
   /** Public locations in this company. Set on the directory for the main shop. */
   locations_count?: number;
+  /** Capped public products. Set only when the directory is requested with a rail. */
+  offers?: PublicOffer[];
+  /** Capped public flyers. Set only when the directory is requested with a rail. */
+  flyers?: PublicFolder[];
   /** Main shop first, then public branches. Shop page only. */
   locations?: CompanyShop[];
 };
