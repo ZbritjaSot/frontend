@@ -29,6 +29,8 @@ export function toApiBody(
     is_standalone: catalog === "offers",
     ...(input.branch_ids ? { branch_ids: input.branch_ids } : {}),
     items: input.items.map((item) => ({
+      // Existing offers keep their id so edits update them in place.
+      ...(item.id ? { id: item.id } : {}),
       category_ids: item.category_ids,
       name: item.name,
       original_price: item.original_price,

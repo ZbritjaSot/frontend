@@ -48,26 +48,16 @@ import {
 } from "@/lib/ui";
 import type { BundleCatalog } from "@/features/offers/bizApi";
 import {
+  emptyItem,
+  itemDraftsFromOffer,
+  itemDraftToPayload,
+  type ItemDraft,
+} from "@/features/offers/itemDrafts";
+import {
   adminOfferBundleFormSchema,
   offerBundleFormSchema,
 } from "@/schemas/offer";
 import type { OfferBundle } from "@/types";
-
-type ItemDraft = {
-  key: string;
-  category_ids: string[];
-  name: string;
-  /** Integer cents (POS). */
-  original_price: number;
-  /** Integer cents (POS). */
-  discounted_price: number;
-  discount_percent: string;
-  /** Optional external retailer purchase link. */
-  purchase_url: string;
-  gallery_image_id: string | null;
-  thumb_url: string | null;
-  rejection_note?: string | null;
-};
 
 type OfferFormProps = {
   mode: "create" | "edit";
@@ -83,21 +73,6 @@ type OfferFormProps = {
   /** Where create/cancel returns. Defaults to the audience list or dossier. */
   doneHref?: string;
 };
-
-function emptyItem(key: string): ItemDraft {
-  return {
-    key,
-    category_ids: [],
-    name: "",
-    original_price: 0,
-    discounted_price: 0,
-    discount_percent: "",
-    purchase_url: "",
-    gallery_image_id: null,
-    thumb_url: null,
-    rejection_note: null,
-  };
-}
 
 /** Keep % as integer digits only, clamped to 1–99 while typing. */
 function sanitizeDiscountPercentInput(raw: string): string {
@@ -208,19 +183,7 @@ export function OfferForm({
   );
   const [items, setItems] = useState<ItemDraft[]>(() => {
     if (offer?.items?.length) {
-      return offer.items.map((item, index) => ({
-        key: item.id ?? `item-${index}`,
-        category_ids: item.categories?.map((category) => category.id) ?? [],
-        name: item.name,
-        original_price: item.original_price ?? 0,
-        discounted_price: item.discounted_price ?? 0,
-        discount_percent:
-          item.discount_percent == null ? "" : String(item.discount_percent),
-        purchase_url: item.purchase_url ?? "",
-        gallery_image_id: item.image?.id ?? null,
-        thumb_url: item.image?.thumb_url ?? null,
-        rejection_note: item.rejection_note ?? null,
-      }));
+      return itemDraftsFromOffer(offer.items);
     }
     return [emptyItem("item-0")];
   });
@@ -303,26 +266,7 @@ export function OfferForm({
       title: resolvedTitle,
       starts_at: startsAt,
       expires_at: expiresAt,
-      items: items.map(
-        ({
-          category_ids,
-          name,
-          original_price,
-          discounted_price,
-          discount_percent,
-          purchase_url,
-          gallery_image_id,
-        }) => ({
-          category_ids,
-          name,
-          original_price: original_price > 0 ? original_price : null,
-          discounted_price: discounted_price > 0 ? discounted_price : null,
-          discount_percent:
-            discount_percent.trim() === "" ? null : Number(discount_percent),
-          purchase_url: purchase_url.trim() === "" ? null : purchase_url.trim(),
-          gallery_image_id,
-        }),
-      ),
+      items: items.map(itemDraftToPayload),
       cover_gallery_image_id: isFlyer
         ? items.find((item) => item.key === coverKey)?.gallery_image_id ?? null
         : null,

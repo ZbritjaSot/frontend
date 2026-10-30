@@ -18,6 +18,8 @@ const optionalPercent = z
 
 const offerItemSchema = z
   .object({
+    /** Existing offer id (edit only); omitted for new products. */
+    id: z.string().uuid().optional(),
     category_ids: z
       .array(z.string().uuid())
       .min(1, "Zgjidh të paktën një kategori."),
