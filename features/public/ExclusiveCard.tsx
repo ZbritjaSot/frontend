@@ -5,7 +5,7 @@ import {
   exclusiveMedia,
   exclusiveShell,
 } from "@/features/public/exclusiveChrome";
-import { DiscountBadge } from "@/features/public/price";
+import { DiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import type { ExclusiveItem } from "@/features/offers/api";
 import { formatEurFromCents } from "@/lib/format";
@@ -49,7 +49,7 @@ export function ExclusiveCard({
             sizes={layout === "rail" ? "256px" : "(max-width: 1024px) 50vw, 280px"}
           />
           {meta.percent != null && meta.percent > 0 ? (
-            <DiscountBadge percent={meta.percent} />
+            <DiscountRail percent={meta.percent} />
           ) : null}
           <span className="absolute top-3 right-3 z-10">
             <FavoriteButton kind={meta.favoriteKind} id={meta.favoriteId} />
@@ -141,7 +141,7 @@ function OfferLine({
   return (
     <span className="mt-auto flex flex-wrap items-baseline gap-x-2">
       <span
-        className={`sale-price-outline font-extrabold text-accent tabular-nums ${
+        className={`font-extrabold text-sale tabular-nums ${
           size === "md" ? "text-base" : "text-[0.95rem]"
         }`}
       >

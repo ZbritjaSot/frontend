@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
-import { DiscountBadge, PriceLine } from "@/features/public/price";
+import { DiscountRail, PriceLine } from "@/features/public/price";
 import { media } from "@/features/public/tone";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateShortSq } from "@/lib/format";
@@ -40,7 +40,7 @@ export function ProductPoster({
             className="aspect-square w-full"
           />
           {offer.discount_percent != null && offer.discount_percent > 0 ? (
-            <DiscountBadge percent={offer.discount_percent} />
+            <DiscountRail percent={offer.discount_percent} />
           ) : null}
         </span>
         <span className="mt-2 grid gap-0.5">
@@ -132,7 +132,7 @@ export function ProductList({ offers }: { offers: PublicOffer[] }) {
                   className="size-full"
                 />
                 {offer.discount_percent != null && offer.discount_percent > 0 ? (
-                  <DiscountBadge percent={offer.discount_percent} size="sm" />
+                  <DiscountRail percent={offer.discount_percent} size="sm" />
                 ) : null}
               </span>
               <span className="grid min-w-0 flex-1 gap-1">

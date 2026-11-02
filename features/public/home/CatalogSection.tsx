@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Frame, SeeAll } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
-import { DiscountBadge, PriceLine } from "@/features/public/price";
+import { DiscountRail, PriceLine } from "@/features/public/price";
 import { kicker } from "@/features/public/tone";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateShortSq } from "@/lib/format";
@@ -74,7 +74,7 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
           className="size-full"
         />
         {offer.discount_percent != null && offer.discount_percent > 0 ? (
-          <DiscountBadge percent={offer.discount_percent} size="xs" />
+          <DiscountRail percent={offer.discount_percent} size="xs" />
         ) : null}
       </span>
       <span className="min-w-0 flex-1">

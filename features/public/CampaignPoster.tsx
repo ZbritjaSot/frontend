@@ -2,7 +2,7 @@ import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { folderCount, leadProduct, productWord } from "@/features/public/compose";
 import { Rail } from "@/features/public/Frame";
-import { DiscountBadge } from "@/features/public/price";
+import { DiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateShortSq, formatDateSq } from "@/lib/format";
 import type { PublicFolder } from "@/types";
@@ -42,7 +42,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="(max-width: 640px) 100vw, 420px"
           />
-          {percent > 0 ? <DiscountBadge percent={percent} /> : null}
+          {percent > 0 ? <DiscountRail percent={percent} /> : null}
           {heart}
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-2 px-4 py-4 sm:px-6">
@@ -72,7 +72,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="108px"
           />
-          {percent > 0 ? <DiscountBadge percent={percent} size="sm" /> : null}
+          {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
           <span className="absolute top-1 right-1 z-20 scale-90">
             <FavoriteButton kind="flyer" id={folder.id} />
           </span>
@@ -104,7 +104,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="(max-width: 1024px) 100vw, 640px"
           />
-          {percent > 0 ? <DiscountBadge percent={percent} size="lg" /> : null}
+          {percent > 0 ? <DiscountRail percent={percent} size="lg" /> : null}
           <span className="absolute top-4 right-4 z-20">
             <FavoriteButton kind="flyer" id={folder.id} size="md" />
           </span>
@@ -143,7 +143,7 @@ export function CampaignPoster({
               eager={eager}
               sizes="(max-width: 640px) 100vw, 50vw"
             />
-            {percent > 0 ? <DiscountBadge percent={percent} /> : null}
+            {percent > 0 ? <DiscountRail percent={percent} /> : null}
           </span>
           <span className="flex flex-1 flex-col p-5">
             <span className="flex items-center gap-2.5">
@@ -181,7 +181,7 @@ export function CampaignPoster({
       </span>
       <span className="relative w-[42%] shrink-0 self-stretch overflow-hidden">
         <ProductVisual fill name={coverName} imageUrl={coverUrl} eager={eager} sizes="240px" />
-        {percent > 0 ? <DiscountBadge percent={percent} /> : null}
+        {percent > 0 ? <DiscountRail percent={percent} /> : null}
         {heart}
       </span>
     </Link>

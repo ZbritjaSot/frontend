@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { DiscountBadge, PriceLine } from "@/features/public/price";
+import { DiscountRail, PriceLine } from "@/features/public/price";
 import { Frame } from "@/features/public/Frame";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateSq } from "@/lib/format";
@@ -211,7 +211,7 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
                     className="aspect-[4/3] w-full"
                   />
                   {offer.discount_percent != null && offer.discount_percent > 0 ? (
-                    <DiscountBadge percent={offer.discount_percent} size="lg" />
+                    <DiscountRail percent={offer.discount_percent} size="lg" />
                   ) : null}
                 </Link>
               ))}

@@ -20,6 +20,7 @@
   --color-muted: var(--color-text-muted);
   --color-accent: var(--color-accent);
   --color-on-accent: var(--color-on-accent);
+  --color-sale: var(--color-sale);
   --color-danger: var(--color-danger);
   --color-danger-soft: var(--color-danger-soft);
   --color-was: var(--color-was);
@@ -52,6 +53,8 @@
   --color-text-muted: #5c6558;
   --color-accent: var(--color-lime);
   --color-on-accent: var(--color-charcoal);
+  /* Sale price on cream. Deep green from the discount rail — readable, no outline. */
+  --color-sale: #08752d;
   --color-danger: #d32f2f;
   --color-danger-soft: #e57373;
   /* Struck “was” price — warm brick that sits with cream + olive, not traffic-light red. */
@@ -77,6 +80,7 @@ html[data-theme="dark"] {
   --color-border: color-mix(in srgb, var(--color-off-white) 12%, transparent);
   --color-text: var(--color-off-white);
   --color-text-muted: #8a9388;
+  --color-sale: var(--color-lime);
   --color-danger: #ff8e8e;
   --color-danger-soft: #ff8e8e;
   --color-was: #e09286;
@@ -112,12 +116,6 @@ html[data-theme="dark"] {
   select {
     font-size: 1rem;
   }
-}
-
-/* Light mode only: thin charcoal edge so lime sale prices stay readable on cream. */
-html[data-theme="light"] .sale-price-outline {
-  -webkit-text-stroke: 1px var(--color-charcoal);
-  paint-order: stroke fill;
 }
 
 @keyframes shop-marquee {
