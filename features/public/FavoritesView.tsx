@@ -4,7 +4,9 @@ import { useEffect, useRef } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { CampaignPoster } from "@/features/public/CampaignPoster";
 import { Band, EmptyNote } from "@/features/public/Frame";
+import { OfflineNote } from "@/features/public/OfflineNote";
 import { ProductPoster } from "@/features/public/ProductPoster";
+import { FavoritesSkeleton } from "@/features/public/skeletons";
 import { display, kicker } from "@/features/public/tone";
 import {
   fetchPublicFolder,
@@ -12,6 +14,7 @@ import {
   isNotFound,
 } from "@/features/offers/api";
 import { useFavorites } from "@/hooks/useFavorites";
+import { isNetworkError } from "@/lib/api";
 import { removeFavoriteStored } from "@/lib/favorites";
 import type { PublicFolder, PublicOffer } from "@/types";
 
@@ -78,8 +81,11 @@ export function FavoritesView() {
     .map((query) => query.data)
     .filter((folder): folder is PublicFolder => folder != null);
 
+  const queries = [...offerQueries, ...flyerQueries];
+  const networkFailed = queries.some((query) => query.isError && isNetworkError(query.error));
+  const unresolved = queries.some((query) => query.isError && !isNotFound(query.error));
   const empty = refs.length === 0;
-  const nothingLeft = !empty && !loading && offers.length === 0 && flyers.length === 0;
+  const nothingLeft = !empty && !loading && !unresolved && offers.length === 0 && flyers.length === 0;
 
   return (
     <Band pad="page">
@@ -100,9 +106,17 @@ export function FavoritesView() {
         </div>
       ) : null}
 
-      {loading && offers.length === 0 && flyers.length === 0 ? (
-        <p className="mt-10 mb-0 text-sm font-semibold text-muted">Duke ngarkuar…</p>
+      {networkFailed && offers.length === 0 && flyers.length === 0 ? (
+        <OfflineNote
+          onRetry={() => {
+            queries.forEach((query) => {
+              void query.refetch();
+            });
+          }}
+        />
       ) : null}
+
+      {loading && !networkFailed && offers.length === 0 && flyers.length === 0 ? <FavoritesSkeleton /> : null}
 
       {nothingLeft ? (
         <div className="mt-12">

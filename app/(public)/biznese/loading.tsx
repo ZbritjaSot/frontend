@@ -1,10 +1,5 @@
-import { Frame } from "@/features/public/Frame";
-import { Spinner } from "@/components/ui/Spinner";
+import { PartnerDirectorySkeleton } from "@/features/public/skeletons";
 
 export default function BizneseLoading() {
-  return (
-    <Frame className="flex min-h-[50vh] items-center justify-center">
-      <Spinner label="Duke ngarkuar partnerët" size="lg" />
-    </Frame>
-  );
+  return <PartnerDirectorySkeleton />;
 }

@@ -1,10 +1,5 @@
-import { Frame } from "@/features/public/Frame";
-import { Spinner } from "@/components/ui/Spinner";
+import { OfferDetailSkeleton } from "@/features/public/skeletons";
 
 export default function OfferDetailLoading() {
-  return (
-    <Frame className="flex min-h-[50vh] items-center justify-center">
-      <Spinner label="Duke ngarkuar ofertën" size="lg" />
-    </Frame>
-  );
+  return <OfferDetailSkeleton />;
 }

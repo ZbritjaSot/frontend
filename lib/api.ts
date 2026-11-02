@@ -108,6 +108,17 @@ export async function apiFetch<T>(
   return (await response.json()) as T;
 }
 
+export function isNetworkError(error: unknown): boolean {
+  if (error instanceof ApiError) {
+    return false;
+  }
+  if (error instanceof TypeError) {
+    return true;
+  }
+  const message = error instanceof Error ? error.message : "";
+  return /failed to fetch|network request failed|offline|load failed|internet/i.test(message);
+}
+
 export function validationMessage(error: unknown, fallback: string): string {
   if (!(error instanceof ApiError) || !error.body || typeof error.body !== "object") {
     return fallback;
