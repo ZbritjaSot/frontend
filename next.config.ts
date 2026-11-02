@@ -35,6 +35,18 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: "/.well-known/apple-app-site-association",
+        destination: "/well-known/apple-app-site-association",
+      },
+      {
+        source: "/.well-known/assetlinks.json",
+        destination: "/well-known/assetlinks",
+      },
+    ];
+  },
   async redirects() {
     return [
       { source: "/admin/login", destination: "/login", permanent: false },
