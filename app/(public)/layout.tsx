@@ -1,4 +1,5 @@
 import { Suspense, type ReactNode } from "react";
+import { FlyerScrollListener } from "@/components/chrome/ResetFlyerScroll";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { SiteHeader } from "@/components/chrome/SiteHeader";
 
@@ -18,6 +19,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       >
         <SiteHeader />
       </Suspense>
+      <FlyerScrollListener />
       <main id="main" className="flex-1" tabIndex={-1}>
         {children}
       </main>
