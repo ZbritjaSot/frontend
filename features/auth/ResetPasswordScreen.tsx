@@ -62,7 +62,7 @@ export function ResetPasswordScreen() {
           <Wordmark className="text-2xl" as="h1" />
         </Link>
 
-        <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent-fg uppercase">
+        <p className="m-0 text-kicker text-accent-fg uppercase">
           Biznes
         </p>
         <p className="m-0 mt-3 mb-8 text-xl font-semibold">Fjalëkalim i ri</p>

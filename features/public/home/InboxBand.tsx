@@ -63,10 +63,10 @@ export function InboxBand({
       <Frame className="relative py-14 sm:py-16 lg:py-20">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(16rem,0.85fr)] lg:gap-16">
           <div className="min-w-0 max-w-xl">
-            <p className="m-0 text-[0.68rem] font-bold tracking-[0.2em] text-accent uppercase">
+            <p className="m-0 text-kicker text-accent uppercase">
               ZbritjaSot në inbox
             </p>
-            <h2 className="m-0 mt-3 max-w-lg text-[clamp(2rem,4vw,3.25rem)] leading-[0.94] font-extrabold tracking-[-0.045em]">
+            <h2 className="m-0 mt-3 max-w-lg text-title-1 break-words line-clamp-2">
               {title}
             </h2>
             <p className="mt-4 mb-6 max-w-md text-base leading-relaxed text-ivory/75 dark:text-muted">
@@ -92,7 +92,7 @@ export function InboxBand({
                   index === 1 ? "lg:mr-8" : index === 2 ? "lg:mr-2" : ""
                 }`}
               >
-                <p className="m-0 text-[0.65rem] font-bold tracking-[0.16em] text-accent uppercase">
+                <p className="m-0 text-kicker text-accent uppercase">
                   {preview.kind}
                 </p>
                 {preview.title !== preview.kind ? (

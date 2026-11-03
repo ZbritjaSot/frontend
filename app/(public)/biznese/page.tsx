@@ -3,7 +3,7 @@ import { CatalogFilters } from "@/features/public/CatalogFilters";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
 import { Band, EmptyNote, Frame } from "@/features/public/Frame";
 import { PartnerBoard } from "@/features/public/PartnerBoard";
-import { display, kicker } from "@/features/public/tone";
+import { kicker } from "@/features/public/tone";
 import { ApiError, fetchPublicBusinesses, fetchPublicCities } from "@/features/offers/api";
 import { showCatalogControls } from "@/lib/browse";
 import { publicPageMetadata } from "@/lib/metadata";
@@ -78,7 +78,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
   return (
     <Band pad="page">
       <p className={kicker}>Partnerë</p>
-      <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,4rem)] ${display}`}>Partnerët</h1>
+      <h1 className="m-0 mt-2 text-title-1">Partnerët</h1>
       <p className="mt-3 mb-0 max-w-xl text-sm leading-relaxed text-muted">
         {total} partnerë me fletushka aktive.
       </p>

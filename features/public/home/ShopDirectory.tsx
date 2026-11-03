@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { campaignWord, locationLabel } from "@/features/public/compose";
-import { Frame, SeeAll } from "@/features/public/Frame";
-import { kicker } from "@/features/public/tone";
+import { Frame, SeeAll, SectionHeading } from "@/features/public/Frame";
 import { ShopLogo } from "@/features/public/visuals";
 import type { PublicBusiness } from "@/types";
 
@@ -38,19 +37,12 @@ export function ShopDirectory({
 
   return (
     <Frame className="pt-10 pb-14 sm:pt-12">
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className={kicker}>Partnerë</p>
-          <h2 className="m-0 mt-1 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
-            {title}
-          </h2>
-          <p className="mt-2 mb-0 max-w-xl text-sm leading-relaxed text-muted">
-            Një përzgjedhje e partnerëve me fletushka aktive. Lista e plotë është te
-            Partnerët.
-          </p>
-        </div>
-        <SeeAll href="/biznese">Shiko të gjitha</SeeAll>
-      </div>
+      <SectionHeading
+        kicker="Partnerë"
+        title={title}
+        note="Një përzgjedhje e partnerëve me fletushka aktive. Lista e plotë është te Partnerët."
+        action={<SeeAll href="/biznese">Shiko të gjitha</SeeAll>}
+      />
       <div
         className={`group -mx-1 overflow-hidden ${sliding ? "motion-reduce:overflow-x-auto motion-reduce:[scrollbar-width:none] motion-reduce:[&::-webkit-scrollbar]:hidden" : ""}`}
       >

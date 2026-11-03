@@ -7,7 +7,7 @@ import { safeHttpUrl } from "@/features/business/links";
 import { savingsCents } from "@/features/public/compose";
 import { BackLink, Band, Frame, SectionHeading } from "@/features/public/Frame";
 import { DiscountRail, PriceLine } from "@/features/public/price";
-import { display, kicker } from "@/features/public/tone";
+import { kicker } from "@/features/public/tone";
 import { ProductGrid, ShopLink } from "@/features/public/ProductPoster";
 import { ProductVisual } from "@/features/public/visuals";
 import { formatDateSq, formatEurFromCents } from "@/lib/format";
@@ -70,7 +70,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                 ))}
               </p>
             ) : null}
-            <h1 className={`m-0 mt-3 text-[clamp(2.2rem,4vw,3.4rem)] ${display}`}>
+            <h1 className="m-0 mt-3 text-title-1 break-words line-clamp-4">
               {offer.name}
             </h1>
             {offer.discounted_price != null ? (
@@ -124,9 +124,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
 
       {offer.business ? (
         <Band pad="compact">
-          <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
-            Ku e gjen
-          </p>
+          <p className={kicker}>Ku e gjen</p>
           <div className="mt-3 max-w-xl grid gap-3">
             <PlaceBranchRow place={offer.business} />
             <OfferPlace

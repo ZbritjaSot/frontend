@@ -6,7 +6,7 @@ import { DiscoverForm } from "@/features/public/DiscoverForm";
 import { Band, EmptyNote, Pager, SectionHeading } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import { locationLabel } from "@/features/public/compose";
-import { display, kicker as kickerClass } from "@/features/public/tone";
+import { kicker as kickerClass } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
 import {
   browsePath,
@@ -92,7 +92,7 @@ export function ResultsView({
   return (
     <Band pad="page">
       <p className={kickerClass}>{kicker}</p>
-      <h1 className={`m-0 mt-2 max-w-4xl text-[clamp(2.4rem,6vw,4rem)] ${display}`}>
+      <h1 className="m-0 mt-2 max-w-4xl text-title-1 break-words line-clamp-2">
         {title}
       </h1>
       {!noActiveFlyers ? (

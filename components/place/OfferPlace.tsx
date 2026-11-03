@@ -114,7 +114,7 @@ export function OfferPlace({
       aria-label="Vendndodhja"
     >
       {showHeading ? (
-        <p className="m-0 flex items-center gap-1 text-xs font-bold tracking-[0.14em] text-muted uppercase">
+        <p className="m-0 flex items-center gap-1 text-kicker text-muted uppercase">
           <PinIcon className="size-[15px] fill-current" />
           Ku e gjen
         </p>

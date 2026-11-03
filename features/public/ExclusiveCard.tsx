@@ -105,7 +105,7 @@ function BrandRow({
       ) : null}
       <span className="min-w-0 flex flex-col gap-0.5">
         {kindLabel ? (
-          <span className="text-[0.62rem] font-bold tracking-[0.16em] text-forest/55 uppercase dark:text-accent/80">
+          <span className="text-kicker text-muted uppercase dark:text-accent/80">
             {kindLabel}
           </span>
         ) : null}

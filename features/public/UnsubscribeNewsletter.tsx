@@ -48,7 +48,7 @@ export function UnsubscribeNewsletter({ token }: { token: string }) {
           <Invalid />
         ) : (
           <>
-            <h1 className="m-0 mt-3 text-[clamp(1.85rem,6vw,2.35rem)] leading-[1.05] font-extrabold tracking-[-0.045em]">
+            <h1 className="m-0 mt-3 text-title-1">
               Po largohesh nga ZbritjaSot?
             </h1>
             <p className="mt-4 mb-0 text-base leading-relaxed text-muted">
@@ -85,7 +85,7 @@ export function UnsubscribeNewsletter({ token }: { token: string }) {
 function Done() {
   return (
     <>
-      <h1 className="m-0 mt-3 text-[clamp(1.85rem,6vw,2.35rem)] leading-[1.05] font-extrabold tracking-[-0.045em]">
+      <h1 className="m-0 mt-3 text-title-1">
         U çregjistrove.
       </h1>
       <p className="mt-4 mb-0 text-base leading-relaxed text-muted">
@@ -103,7 +103,7 @@ function Done() {
 function Invalid() {
   return (
     <>
-      <h1 className="m-0 mt-3 text-[clamp(1.85rem,6vw,2.35rem)] leading-[1.05] font-extrabold tracking-[-0.045em]">
+      <h1 className="m-0 mt-3 text-title-1">
         Ky link nuk është i vlefshëm.
       </h1>
       <p className="mt-4 mb-0 text-base leading-relaxed text-muted">

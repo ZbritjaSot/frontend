@@ -115,7 +115,7 @@ export function CampaignPoster({
               <ShopLogo name={shop} logoUrl={folder.business?.logo_url} size="sm" />
               <span className="truncate text-sm font-semibold">{shop}</span>
             </span>
-            <span className="mt-4 line-clamp-3 block text-2xl leading-tight font-extrabold tracking-[-0.04em] sm:text-3xl">
+            <span className="mt-4 line-clamp-3 block text-title-2 break-words">
               {folder.title}
             </span>
           </span>
@@ -173,7 +173,7 @@ export function CampaignPoster({
             <ShopLogo name={shop} logoUrl={folder.business?.logo_url} size="sm" />
             <span className="truncate text-sm font-semibold">{shop}</span>
           </span>
-          <span className="mt-6 line-clamp-3 block text-[clamp(1.55rem,2.6vw,2rem)] leading-[1.02] font-extrabold tracking-[-0.045em]">
+          <span className="mt-6 line-clamp-3 block text-title-2 break-words">
             {folder.title}
           </span>
         </span>

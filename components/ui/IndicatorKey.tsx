@@ -214,7 +214,7 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
 export function IndicatorKey({ items }: { items: IndicatorItem[] }) {
   return (
     <section aria-label="Çelësi" className="mb-6">
-      <p className="m-0 mb-2.5 flex items-center gap-2 text-[0.6875rem] font-extrabold tracking-[0.18em] text-accent-fg uppercase">
+      <p className="m-0 mb-2.5 flex items-center gap-2 text-kicker text-accent-fg uppercase">
         <span className="size-1.5 rounded-full bg-accent" aria-hidden />
         Çelësi
       </p>

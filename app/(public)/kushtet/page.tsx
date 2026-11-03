@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Band } from "@/features/public/Frame";
-import { display, kicker } from "@/features/public/tone";
+import { kicker } from "@/features/public/tone";
 import { publicPageMetadata } from "@/lib/metadata";
 import { SITE_EMAIL } from "@/lib/site";
 
@@ -45,7 +45,7 @@ export default function TermsPage() {
   return (
     <Band pad="page">
       <p className={kicker}>ZbritjaSot</p>
-      <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,4rem)] ${display}`}>Kushtet</h1>
+      <h1 className="m-0 mt-2 text-title-1">Kushtet</h1>
       <p className="mt-4 mb-0 max-w-xl text-sm leading-relaxed text-muted">
         Pyetje për këto rregulla:{" "}
         <a href={`mailto:${SITE_EMAIL}`} className="font-semibold text-ink underline-offset-4 hover:underline">

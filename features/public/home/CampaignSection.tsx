@@ -1,5 +1,5 @@
 import { CampaignPoster } from "@/features/public/CampaignPoster";
-import { Frame, SeeAll } from "@/features/public/Frame";
+import { Frame, SeeAll, SectionHeading } from "@/features/public/Frame";
 import type { PublicFolder } from "@/types";
 
 export function CampaignSection({
@@ -15,12 +15,7 @@ export function CampaignSection({
 
   return (
     <Frame className="pt-10 pb-12 sm:pt-12 sm:pb-16">
-      <div className="mb-4 flex items-end justify-between gap-3">
-        <h2 className="m-0 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
-          {title}
-        </h2>
-        <SeeAll href="/fletushka">Shiko të gjitha</SeeAll>
-      </div>
+      <SectionHeading title={title} action={<SeeAll href="/fletushka">Shiko të gjitha</SeeAll>} />
       <CampaignPoster folder={folders[0]} layout="editorial" eager />
       {folders.length > 1 ? (
         <ul className="m-0 mt-3 grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">

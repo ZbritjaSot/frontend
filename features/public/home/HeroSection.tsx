@@ -99,7 +99,7 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
       <Frame className="py-8 sm:py-10">
         <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-12">
           <div className="min-w-0">
-            <h1 className="m-0 max-w-xl text-[clamp(2.4rem,5vw,3.75rem)] leading-[0.92] font-extrabold tracking-[-0.045em] text-ivory">
+            <h1 className="m-0 max-w-xl text-display text-ivory">
               Zbritja e ditës.
             </h1>
             {hero ? (
@@ -258,7 +258,7 @@ function DealCopy({ offer }: { offer: PublicOffer }) {
       ) : null}
       <Link
         href={`/offers/${offer.id}`}
-        className={`line-clamp-2 block text-[clamp(1.65rem,3.2vw,2.35rem)] leading-[1.15] font-extrabold tracking-[-0.035em] text-ivory no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${
+        className={`line-clamp-2 block text-title-1 break-words text-ivory no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${
           shop ? "mt-3 sm:mt-3.5" : "mt-0"
         }`}
       >

@@ -7,6 +7,7 @@ import { campaignWord, productWord } from "@/features/public/compose";
 import { fetchPublicBusinesses } from "@/features/offers/api";
 import { DiscountRail, PriceLine } from "@/features/public/price";
 import { StepRail, type RailNav } from "@/features/public/StepRail";
+import { kicker } from "@/features/public/tone";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { useInfiniteSentinel } from "@/lib/useInfiniteSentinel";
 import type { PublicBusiness, PublicFolder, PublicOffer } from "@/types";
@@ -237,9 +238,7 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
           </span>
         </span>
         <span className="grid gap-0.5 px-2.5 py-2">
-          <span className="text-[0.6rem] font-bold tracking-[0.14em] text-muted uppercase">
-            Fletushkë
-          </span>
+          <span className={kicker}>Fletushkë</span>
           <span className="truncate text-sm font-extrabold tracking-tight">{flyer.title}</span>
         </span>
       </span>

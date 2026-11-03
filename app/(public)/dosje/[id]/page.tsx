@@ -3,9 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { leadProduct, productWord, withCampaign } from "@/features/public/compose";
-import { display } from "@/features/public/tone";
 import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
-import { BackLink, Band, EmptyNote, Frame } from "@/features/public/Frame";
+import { BackLink, Band, EmptyNote, Frame, SectionHeading } from "@/features/public/Frame";
 import { ProductList } from "@/features/public/ProductPoster";
 import { DiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
@@ -104,7 +103,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
                   <span className="min-w-0 truncate">{shop}</span>
                 )}
               </p>
-              <h1 className={`m-0 mt-5 max-w-3xl text-[clamp(3rem,8vw,5.8rem)] ${display}`}>
+              <h1 className="m-0 mt-5 max-w-3xl text-title-1 break-words line-clamp-3">
                 {folder.title}
               </h1>
               <p className="mt-5 mb-0 max-w-xl text-lg leading-relaxed text-ivory/75 dark:text-muted">
@@ -155,9 +154,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
       </section>
 
       <Band>
-        <h2 className="m-0 mb-8 text-[clamp(1.65rem,3vw,2.35rem)] leading-[0.95] font-extrabold tracking-[-0.04em]">
-          Produktet
-        </h2>
+        <SectionHeading title="Produktet" />
         {count > 0 ? (
           <ProductList offers={withCampaign(folder)} />
         ) : (

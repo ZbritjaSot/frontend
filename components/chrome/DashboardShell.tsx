@@ -84,7 +84,7 @@ export function DashboardShell({
           <LogoMark size={28} />
           <div className="flex min-w-0 flex-col gap-0.5">
             <Wordmark className="text-[1.05rem]" />
-            <span className="text-[0.6875rem] font-bold tracking-[0.16em] text-accent-fg uppercase">
+            <span className="text-kicker text-accent-fg uppercase">
               {areaLabel}
             </span>
           </div>
@@ -127,7 +127,7 @@ export function DashboardShell({
           <LogoMark size={32} />
           <div className="flex min-w-0 flex-col gap-0.5">
             <Wordmark className="text-[1.05rem]" />
-            <span className="text-[0.6875rem] font-bold tracking-[0.16em] text-accent-fg uppercase">
+            <span className="text-kicker text-accent-fg uppercase">
               {areaLabel}
             </span>
           </div>

@@ -10,7 +10,7 @@ export function OfflineNote({ onRetry }: { onRetry: () => void }) {
           <path d="M80 70h12M86 64v12" stroke="#0b0f0e" strokeWidth="2.4" strokeLinecap="round" />
         </svg>
       </div>
-      <h2 className="m-0 text-3xl font-extrabold tracking-tight">Nuk ka lidhje</h2>
+      <h2 className="m-0 text-title-2">Nuk ka lidhje</h2>
       <p className="m-0 max-w-sm text-muted">Kontrollo internetin dhe provo përsëri.</p>
       <button
         type="button"

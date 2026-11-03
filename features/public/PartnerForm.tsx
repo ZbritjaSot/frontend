@@ -14,6 +14,7 @@ import {
   inquiryPanel,
   inquirySubmit,
 } from "@/features/public/inquiry/styles";
+import { kicker } from "@/features/public/tone";
 import { apiFetch, validationMessage } from "@/lib/api";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
@@ -111,9 +112,7 @@ export function PartnerForm() {
   return (
     <div className="grid gap-4">
       <div className={inquiryPanel}>
-        <p className="m-0 text-[0.7rem] font-bold tracking-[0.16em] text-muted uppercase">
-          Aplikimi
-        </p>
+        <p className={kicker}>Aplikimi</p>
         <form className={`${inquiryForm} mt-5`} onSubmit={onSubmit} noValidate>
           <div className="grid gap-5 sm:grid-cols-2">
             <InquiryField label="Emri" required htmlFor="partner-name">

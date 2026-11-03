@@ -5,11 +5,11 @@ import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
 import { CampaignGrid, CampaignPoster } from "@/features/public/CampaignPoster";
 import { campaignWord, productWord } from "@/features/public/compose";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
-import { Band, EmptyNote, Frame, Pager } from "@/features/public/Frame";
+import { Band, EmptyNote, Frame, Pager, SectionHeading } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import { ResultsView } from "@/features/public/ResultsView";
 import { ShopLinksRow } from "@/features/public/ShopLinksRow";
-import { display, kicker, panel } from "@/features/public/tone";
+import { kicker, panel } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
 import {
   fetchPublicBusiness,
@@ -160,7 +160,7 @@ export default async function BusinessPage({
                 <div className="mt-6">
                   <p className={kicker}>{place}</p>
                 </div>
-                <h1 className={`m-0 mt-3 text-[clamp(2.8rem,6vw,4.8rem)] ${display}`}>
+                <h1 className="m-0 mt-3 text-title-1 break-words line-clamp-2">
                   {business.name}
                 </h1>
                 <p className="mt-4 mb-0 text-sm font-semibold">
@@ -197,9 +197,7 @@ export default async function BusinessPage({
           </Band>
           {folders.length > 0 ? (
             <Band>
-              <h2 className="m-0 mb-8 text-[clamp(1.65rem,3vw,2.35rem)] leading-[0.95] font-extrabold tracking-[-0.04em]">
-                Fletushkat
-              </h2>
+              <SectionHeading title="Fletushkat" />
               <div className="grid gap-4">
                 {flyerPage === 1 ? (
                   <CampaignPoster folder={folders[0]} layout="feature" eager />
@@ -215,9 +213,7 @@ export default async function BusinessPage({
           ) : null}
           {offers.length > 0 ? (
             <Band>
-              <h2 className="m-0 mb-8 text-[clamp(1.65rem,3vw,2.35rem)] leading-[0.95] font-extrabold tracking-[-0.04em]">
-                {page > 1 ? "Më shumë produkte" : "Zbritjet aktive"}
-              </h2>
+              <SectionHeading title={page > 1 ? "Më shumë produkte" : "Zbritjet aktive"} />
               <ProductGrid offers={offers} />
               <Pager
                 page={page}

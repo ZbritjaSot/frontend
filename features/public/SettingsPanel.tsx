@@ -10,14 +10,13 @@ import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import { Band } from "@/features/public/Frame";
-import { display, kicker } from "@/features/public/tone";
+import { kicker } from "@/features/public/tone";
 import type { ReactNode } from "react";
 
 const group =
   "overflow-hidden rounded-2xl border border-line bg-elevated dark:border-white/10";
 
-const sectionLabel =
-  "m-0 mb-2.5 text-[0.68rem] font-bold tracking-[0.18em] text-muted uppercase";
+const sectionLabel = `${kicker} mb-2.5`;
 
 export function SettingsPanel() {
   const { theme, toggleTheme } = useTheme();
@@ -27,7 +26,7 @@ export function SettingsPanel() {
     <Band pad="page">
       <div className="max-w-xl">
         <p className={kicker}>Aplikacioni</p>
-        <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,3.6rem)] ${display}`}>
+        <h1 className="m-0 mt-2 text-title-1">
           Cilësimet
         </h1>
         <p className="mt-3 mb-0 text-base leading-relaxed text-muted">

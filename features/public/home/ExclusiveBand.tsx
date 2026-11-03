@@ -27,7 +27,7 @@ export function ExclusiveBand({
       <Frame className="pt-10 pb-0 sm:pt-12">
         <div className="min-w-0 max-w-xl">
           <ExclusiveMark size="md" />
-          <h2 className="m-0 mt-4 text-[clamp(2rem,4vw,2.85rem)] leading-[0.95] font-extrabold tracking-[-0.045em] text-ivory">
+          <h2 className="m-0 mt-4 text-title-1 break-words line-clamp-2 text-ivory">
             {title}
           </h2>
           <p className="mt-3 mb-0 max-w-sm text-sm leading-relaxed text-ivory/60">

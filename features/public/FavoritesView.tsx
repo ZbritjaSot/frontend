@@ -3,11 +3,11 @@
 import { useEffect, useRef } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { CampaignPoster } from "@/features/public/CampaignPoster";
-import { Band, EmptyNote } from "@/features/public/Frame";
+import { Band, EmptyNote, SectionHeading } from "@/features/public/Frame";
 import { OfflineNote } from "@/features/public/OfflineNote";
 import { ProductPoster } from "@/features/public/ProductPoster";
 import { FavoritesSkeleton } from "@/features/public/skeletons";
-import { display, kicker } from "@/features/public/tone";
+import { kicker } from "@/features/public/tone";
 import {
   fetchPublicFolder,
   fetchPublicOffer,
@@ -90,7 +90,7 @@ export function FavoritesView() {
   return (
     <Band pad="page">
       <p className={kicker}>Ruajtjet e tua</p>
-      <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,4rem)] ${display}`}>
+      <h1 className="m-0 mt-2 text-title-1">
         Të preferuarat
       </h1>
       <p className="mt-4 mb-0 max-w-xl text-sm leading-relaxed text-muted">
@@ -129,10 +129,8 @@ export function FavoritesView() {
 
       {flyers.length > 0 ? (
         <section className="mt-12">
-          <h2 className="m-0 text-sm font-bold tracking-[0.18em] text-muted uppercase">
-            Fletushkat
-          </h2>
-          <ul className="m-0 mt-4 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2">
+          <SectionHeading title="Fletushkat" />
+          <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2">
             {flyers.map((folder) => (
               <li key={folder.id} className="min-w-0">
                 <CampaignPoster folder={folder} layout="card" />
@@ -144,10 +142,8 @@ export function FavoritesView() {
 
       {offers.length > 0 ? (
         <section className="mt-12">
-          <h2 className="m-0 text-sm font-bold tracking-[0.18em] text-muted uppercase">
-            Ofertat
-          </h2>
-          <ul className="m-0 mt-4 grid list-none grid-cols-2 gap-x-3 gap-y-5 p-0 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-4">
+          <SectionHeading title="Ofertat" />
+          <ul className="m-0 grid list-none grid-cols-2 gap-x-3 gap-y-5 p-0 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-4">
             {offers.map((offer) => (
               <li key={offer.id} className="min-w-0">
                 <ProductPoster offer={offer} />
