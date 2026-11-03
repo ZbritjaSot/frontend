@@ -69,7 +69,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
 
   return (
     <article>
-      <section className="bg-forest text-ivory">
+      <section className="bg-forest text-ivory [--color-focus:var(--color-lime)]">
         <Frame className="py-10 sm:py-14">
           <div className="flex items-center justify-between gap-3">
             <BackLink

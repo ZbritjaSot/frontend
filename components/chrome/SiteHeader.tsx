@@ -17,7 +17,7 @@ const PARTNERS_HREF = "/biznese";
 const PARTNERS_LABEL = "Partnerët";
 
 const iconHit =
-  "inline-flex size-10 items-center justify-center rounded-xl text-chrome-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+  "inline-flex size-10 items-center justify-center rounded-xl text-chrome-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -54,7 +54,7 @@ export function SiteHeader() {
       <div className="mx-auto flex min-h-16 w-full max-w-7xl items-center gap-4 px-5 sm:gap-8 sm:px-8">
         <Link
           href="/"
-          className="inline-flex shrink-0 items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          className="inline-flex shrink-0 items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
           aria-label="ZbritjaSot — kryefaqja"
           onClick={() => setOpen(false)}
         >
@@ -74,7 +74,7 @@ export function SiteHeader() {
                 href={link.href}
                 aria-current={current ? "page" : undefined}
                 onClick={() => setOpen(false)}
-                className={`inline-flex min-h-11 shrink-0 items-center border-b-2 text-sm font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent ${
+                className={`inline-flex min-h-11 shrink-0 items-center border-b-2 text-sm font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus ${
                   current
                     ? "border-accent text-chrome-text"
                     : "border-transparent text-chrome-muted hover:text-chrome-text"
@@ -153,7 +153,7 @@ export function SiteHeader() {
                 href={link.href}
                 aria-current={current ? "page" : undefined}
                 onClick={() => setOpen(false)}
-                className={`flex min-h-12 items-center border-b border-line/70 text-base font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent ${
+                className={`flex min-h-12 items-center border-b border-line/70 text-base font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus ${
                   current ? "text-chrome-text" : "text-chrome-muted"
                 }`}
               >
@@ -194,7 +194,7 @@ function NavPill({
       href={href}
       aria-current={active ? "page" : undefined}
       onClick={onNavigate}
-      className={`group inline-flex min-h-9 w-fit shrink-0 items-center gap-2 rounded-full border px-3 text-[0.68rem] font-extrabold tracking-[0.14em] uppercase transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:px-3.5 sm:tracking-[0.18em] ${
+      className={`group inline-flex min-h-9 w-fit shrink-0 items-center gap-2 rounded-full border px-3 text-[0.68rem] font-extrabold tracking-[0.14em] uppercase transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus sm:px-3.5 sm:tracking-[0.18em] ${
         active
           ? "border-accent bg-accent text-charcoal"
           : "border-accent/80 text-chrome-text hover:bg-accent hover:text-charcoal"

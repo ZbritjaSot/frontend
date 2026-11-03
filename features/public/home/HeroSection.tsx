@@ -88,7 +88,7 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
 
   return (
     <section
-      className="overflow-x-clip bg-forest text-ivory"
+      className="overflow-x-clip bg-forest text-ivory [--color-focus:var(--color-lime)]"
       onMouseEnter={() => {
         hovering.current = true;
       }}
@@ -258,7 +258,7 @@ function DealCopy({ offer }: { offer: PublicOffer }) {
       ) : null}
       <Link
         href={`/offers/${offer.id}`}
-        className={`line-clamp-2 block text-[clamp(1.65rem,3.2vw,2.35rem)] leading-[1.15] font-extrabold tracking-[-0.035em] text-ivory no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+        className={`line-clamp-2 block text-[clamp(1.65rem,3.2vw,2.35rem)] leading-[1.15] font-extrabold tracking-[-0.035em] text-ivory no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${
           shop ? "mt-3 sm:mt-3.5" : "mt-0"
         }`}
       >

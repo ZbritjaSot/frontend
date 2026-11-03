@@ -64,7 +64,7 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
   return (
     <Link
       href={`/offers/${offer.id}`}
-      className="flex min-h-11 items-center gap-3 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="flex min-h-11 items-center gap-3 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
     >
       <span className="relative block size-14 shrink-0 overflow-hidden rounded-xl">
         <ProductVisual

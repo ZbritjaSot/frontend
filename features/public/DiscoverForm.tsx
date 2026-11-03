@@ -36,8 +36,8 @@ export function DiscoverForm({
         method="get"
         className={
           catalog
-            ? "flex w-full max-w-xl items-center rounded-full border border-line bg-elevated pr-1 transition-[border-color,box-shadow] duration-150 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/40 dark:border-white/10 dark:bg-white/[0.04]"
-            : "flex items-center rounded-full border border-line bg-elevated focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/50 dark:border-white/10 dark:bg-[#141c18]"
+            ? "flex w-full max-w-xl items-center rounded-full border border-line bg-elevated pr-1 transition-[border-color,box-shadow] duration-150 focus-within:border-accent focus-within:ring-2 focus-within:ring-focus dark:border-white/10 dark:bg-white/[0.04]"
+            : "flex items-center rounded-full border border-line bg-elevated focus-within:border-accent focus-within:ring-2 focus-within:ring-focus dark:border-white/10 dark:bg-[#141c18]"
         }
       >
         {category ? (

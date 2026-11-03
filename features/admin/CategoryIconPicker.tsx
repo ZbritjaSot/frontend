@@ -26,7 +26,7 @@ export function CategoryIconPicker({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <span className="inline-flex size-12 items-center justify-center rounded-xl bg-sunken text-accent">
+        <span className="inline-flex size-12 items-center justify-center rounded-xl bg-sunken text-accent-fg">
           <CategoryGlyph name={value} active size={30} />
         </span>
         <div className="min-w-0">
@@ -55,7 +55,7 @@ export function CategoryIconPicker({
               aria-pressed={active}
               className={`flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-1 py-2 ${
                 active
-                  ? "border-accent bg-accent/15 text-accent"
+                  ? "border-accent bg-accent/15 text-accent-fg"
                   : "border-line bg-elevated text-muted hover:text-ink"
               }`}
               onClick={() => onChange(icon.id)}

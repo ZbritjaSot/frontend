@@ -440,7 +440,7 @@ export function AdminSubscriptions() {
                       >
                         <HistoryOutlinedIcon
                           fontSize="small"
-                          className={open ? "text-accent!" : undefined}
+                          className={open ? "text-accent-fg!" : undefined}
                         />
                       </button>
                       <button
@@ -459,7 +459,7 @@ export function AdminSubscriptions() {
                         ) : (
                           <LockOpenOutlinedIcon
                             fontSize="small"
-                            className="text-accent!"
+                            className="text-accent-fg!"
                           />
                         )}
                       </button>
@@ -488,7 +488,7 @@ export function AdminSubscriptions() {
                               </p>
                               <div className="flex flex-wrap items-center gap-2">
                                 {index === 0 ? (
-                                  <span className="text-[0.6875rem] font-bold tracking-wide text-accent uppercase">
+                                  <span className="text-[0.6875rem] font-bold tracking-wide text-accent-fg uppercase">
                                     Fundit
                                   </span>
                                 ) : null}

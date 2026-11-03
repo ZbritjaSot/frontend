@@ -270,7 +270,7 @@ export function LocationForm({
           </p>
         ) : null}
         {notice ? (
-          <p className="m-0 mt-4 text-sm font-semibold text-accent">{notice}</p>
+          <p className="m-0 mt-4 text-sm font-semibold text-accent-fg">{notice}</p>
         ) : null}
 
         {wide ? (
@@ -306,7 +306,7 @@ export function LocationForm({
         {place.address || (latitude != null && longitude != null) ? (
           <div className="mt-4">
             <a
-              className="text-sm font-semibold text-muted no-underline hover:text-accent"
+              className="text-sm font-semibold text-muted no-underline hover:text-accent-fg"
               href={mapsUrl(place)}
               target="_blank"
               rel="noopener noreferrer"

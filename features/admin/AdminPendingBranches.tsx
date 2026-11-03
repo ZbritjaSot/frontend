@@ -80,7 +80,7 @@ export function AdminPendingBranches() {
                 disabled={approve.isPending}
                 onClick={() => approve.mutate(branch.id)}
               >
-                <CheckOutlinedIcon fontSize="small" className="text-accent!" />
+                <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
               </button>
               <Link
                 href={`/admin/businesses/${branch.parent_id ?? branch.id}`}

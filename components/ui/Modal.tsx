@@ -97,7 +97,7 @@ export function Modal({
               : "max-h-[min(90dvh,40rem)] max-w-sm"
         } ${
           danger
-            ? "border-2 border-[#e53935] bg-[#4a1212] text-white"
+            ? "border-2 border-[#e53935] bg-[#4a1212] text-white [--color-focus:var(--color-lime)]"
             : "border-line bg-elevated"
         }`}
         role="dialog"

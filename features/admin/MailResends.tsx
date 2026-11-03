@@ -118,7 +118,7 @@ export function MailResends({ businessId, offerBundleId, templates }: MailResend
                 setPendingTemplate(template);
               }}
             >
-              <SendOutlinedIcon fontSize="small" className="text-accent!" />
+              <SendOutlinedIcon fontSize="small" className="text-accent-fg!" />
             </button>
           </li>
         ))}

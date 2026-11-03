@@ -16,7 +16,7 @@ export function CategoryChip({
     <Link
       href={href}
       aria-current={active ? "true" : undefined}
-      className="flex w-[4.75rem] shrink-0 flex-col items-center gap-1.5 px-1 py-1 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="flex w-[4.75rem] shrink-0 flex-col items-center gap-1.5 px-1 py-1 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
     >
       <span
         className={`flex size-12 items-center justify-center rounded-full ${

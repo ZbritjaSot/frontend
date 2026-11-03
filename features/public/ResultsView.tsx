@@ -154,7 +154,7 @@ export function ResultsView({
                 <li key={shop.id}>
                   <Link
                     href={`/biznese/${shop.id}`}
-                    className="flex min-h-12 min-w-0 items-center gap-3 border-b border-line px-1 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    className="flex min-h-12 min-w-0 items-center gap-3 border-b border-line px-1 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                   >
                     <ShopLogo name={shop.name} logoUrl={shop.logo_url} size="sm" />
                     <span className="min-w-0">

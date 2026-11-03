@@ -27,7 +27,7 @@ export function LogoutButton({ redirectTo }: LogoutButtonProps) {
   return (
     <button
       type="button"
-      className="inline-flex min-h-10 cursor-pointer appearance-none items-center gap-1.5 border-0 bg-transparent px-0 py-2 text-sm font-semibold text-muted hover:text-accent disabled:cursor-wait disabled:opacity-60"
+      className="inline-flex min-h-10 cursor-pointer appearance-none items-center gap-1.5 border-0 bg-transparent px-0 py-2 text-sm font-semibold text-muted hover:text-accent-fg disabled:cursor-wait disabled:opacity-60"
       onClick={onClick}
       disabled={pending}
     >

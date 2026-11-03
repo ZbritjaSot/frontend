@@ -14,7 +14,7 @@ import { ShopLogo } from "@/features/public/visuals";
 import { triggerClass } from "@/lib/ui";
 
 const optionClass =
-  "flex w-full cursor-pointer appearance-none items-center gap-3 rounded-md border-0 bg-transparent px-3 py-2.5 text-left text-base font-medium text-ink hover:bg-accent/14 hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent/55";
+  "flex w-full cursor-pointer appearance-none items-center gap-3 rounded-md border-0 bg-transparent px-3 py-2.5 text-left text-base font-medium text-ink hover:bg-accent/14 hover:text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus";
 
 export type SelectOption = {
   value: string;
@@ -252,7 +252,7 @@ export function SelectField({
                         isDisabled
                           ? `${optionClass} cursor-not-allowed text-muted hover:bg-transparent hover:text-muted`
                           : isSelected
-                            ? `${optionClass} bg-accent/14 text-accent`
+                            ? `${optionClass} bg-accent/14 text-accent-fg`
                             : optionClass
                       }
                     onClick={() => {

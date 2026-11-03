@@ -155,7 +155,7 @@ export function AdminBusinessCatalog({
                       <div className="min-w-0">
                         <Link
                           href={viewHref}
-                          className="truncate text-base font-semibold text-inherit no-underline hover:text-accent"
+                          className="truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg"
                         >
                           {title}
                         </Link>

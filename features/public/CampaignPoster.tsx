@@ -32,9 +32,9 @@ export function CampaignPoster({
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className="group grid overflow-hidden rounded-2xl bg-forest text-ivory focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:grid-cols-[minmax(8.5rem,0.8fr)_minmax(0,1.2fr)]"
+        className="group grid overflow-hidden rounded-2xl bg-forest text-ivory focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus sm:grid-cols-[minmax(8.5rem,0.8fr)_minmax(0,1.2fr)]"
       >
-        <span className="relative block min-h-36 sm:min-h-44">
+        <span className="relative block min-h-36 sm:min-h-44 [--color-focus:var(--color-lime)]">
           <ProductVisual
             fill
             eager={eager}
@@ -62,7 +62,7 @@ export function CampaignPoster({
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className="group grid h-full min-h-24 grid-cols-[5.75rem_minmax(0,1fr)] overflow-hidden rounded-xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:border-white/10 dark:bg-[#1a2420]"
+        className="group grid h-full min-h-24 grid-cols-[5.75rem_minmax(0,1fr)] overflow-hidden rounded-xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 dark:bg-[#1a2420]"
       >
         <span className="relative h-full min-h-24">
           <ProductVisual
@@ -94,7 +94,7 @@ export function CampaignPoster({
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className="group grid overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:grid-cols-2 dark:border-white/10 dark:bg-[#1a2420]"
+        className="group grid overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus sm:grid-cols-2 dark:border-white/10 dark:bg-[#1a2420]"
       >
         <span className="relative block min-h-40 overflow-hidden sm:h-full">
           <ProductVisual
@@ -133,7 +133,7 @@ export function CampaignPoster({
       <div className="relative h-full min-w-0">
         <Link
           href={`/dosje/${folder.id}`}
-          className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420]"
+          className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420]"
         >
           <span className="relative block aspect-[5/4] overflow-hidden">
             <ProductVisual
@@ -165,7 +165,7 @@ export function CampaignPoster({
   return (
     <Link
       href={`/dosje/${folder.id}`}
-      className="group flex min-h-44 w-[min(88vw,32rem)] shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420]"
+      className="group flex min-h-44 w-[min(88vw,32rem)] shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420]"
     >
       <span className="flex min-w-0 flex-1 flex-col justify-between p-5 sm:p-6">
         <span>

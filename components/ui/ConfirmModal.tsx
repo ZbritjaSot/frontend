@@ -51,7 +51,7 @@ export function ConfirmModal({
             type="button"
             className={
               danger
-                ? `${btn} bg-[#ff5252] text-white hover:brightness-110`
+                ? `${btn} bg-[#d32f2f] text-white hover:brightness-90`
                 : btnPrimary
             }
             onClick={onConfirm}

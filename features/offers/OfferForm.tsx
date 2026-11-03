@@ -511,7 +511,7 @@ export function OfferForm({
             <button
               type="button"
               disabled={pending}
-              className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-ink hover:text-accent"
+              className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-ink hover:text-accent-fg"
               onClick={() => {
                 const ids = companyShops.data?.map((shop) => shop.id) ?? [];
                 const allOn = ids.every((id) => branchIds.includes(id));
@@ -810,7 +810,7 @@ export function OfferForm({
                       </label>
                       <label className="flex min-w-0 flex-col gap-1.5">
                         <span className={micro}>Çmimi i ri</span>
-                        <div className={hasDeal ? "[&_input]:text-accent!" : ""}>
+                        <div className={hasDeal ? "[&_input]:text-accent-fg!" : ""}>
                           <PosMoneyField
                             valueCents={item.discounted_price}
                             onChangeCents={(cents) =>
@@ -823,7 +823,7 @@ export function OfferForm({
                       </label>
                     </div>
                     {hasDeal ? (
-                      <p className="m-0 text-sm font-semibold text-accent">
+                      <p className="m-0 text-sm font-semibold text-accent-fg">
                         {formatEurFromCents(item.original_price)} − {percent}% = {formatEurFromCents(item.discounted_price)}
                       </p>
                     ) : null}

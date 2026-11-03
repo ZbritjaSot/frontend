@@ -2,13 +2,13 @@ import { formatDiscountPercent, formatEurFromCents } from "@/lib/format";
 
 /** Four fixed families. -25% stays green and -26% is orange. */
 const DISCOUNT_BANDS = [
-  { max: 25, from: "#49C447", to: "#08752D" },
-  { max: 50, from: "#FFC02E", to: "#E96800" },
-  { max: 75, from: "#FF494F", to: "#D91F35" },
-  { max: 100, from: "#C91835", to: "#870D25" },
+  { max: 25, from: "#2C862B", to: "#08752D", text: "text-white" },
+  { max: 50, from: "#FFC02E", to: "#E96800", text: "text-charcoal" },
+  { max: 75, from: "#E0263B", to: "#C21A31", text: "text-white" },
+  { max: 100, from: "#C91835", to: "#870D25", text: "text-white" },
 ] as const;
 
-function discountBand(percent: number): { from: string; to: string } {
+function discountBand(percent: number): { from: string; to: string; text: string } {
   const shown = Math.min(100, Math.max(0, Math.round(percent)));
   return DISCOUNT_BANDS.find((band) => shown <= band.max) ?? DISCOUNT_BANDS[3];
 }
@@ -42,11 +42,11 @@ export function DiscountRail({
 
   const band = discountBand(percent);
   const label = formatDiscountPercent(percent);
-  const { height, text } = railSize[size];
+  const { height, text: textSize } = railSize[size];
 
   return (
     <span
-      className={`pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-center font-extrabold text-white tracking-[0.03em] ${height} ${text}`}
+      className={`pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-center font-extrabold tracking-[0.03em] ${height} ${textSize} ${band.text}`}
       style={{ background: `linear-gradient(135deg, ${band.from}, ${band.to})` }}
       role="img"
       aria-label={label}
@@ -110,7 +110,7 @@ export function PriceLine({
 
       {original > sale ? (
         <span
-          className={`text-was line-through tabular-nums ${tone === "hero" ? "text-lg sm:text-xl" : "text-sm"
+          className={`${tone === "hero" ? "text-[#e09286]" : "text-was"} line-through tabular-nums ${tone === "hero" ? "text-lg sm:text-xl" : "text-sm"
             }`}
         >
           {formatEurFromCents(original)}

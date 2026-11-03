@@ -229,7 +229,7 @@ export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }
                     <div className="min-w-0">
                       <Link
                         href={`${basePath}/${bundle.id}`}
-                        className="truncate text-base font-semibold text-inherit no-underline hover:text-accent"
+                        className="truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg"
                       >
                         {bundleDisplayTitle(bundle)}
                       </Link>
@@ -279,7 +279,7 @@ export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }
                         >
                           <SendOutlinedIcon
                             fontSize="small"
-                            className="text-accent!"
+                            className="text-accent-fg!"
                           />
                         </button>
                       ) : (

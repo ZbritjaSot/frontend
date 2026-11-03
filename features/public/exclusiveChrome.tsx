@@ -71,4 +71,4 @@ export const exclusiveShell = {
 } as const;
 
 export const exclusiveFocus =
-  "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent";
+  "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus";

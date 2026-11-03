@@ -40,7 +40,7 @@ export function SettingsPanel() {
             <button
               type="button"
               onClick={toggleTheme}
-              className="flex min-h-[4.25rem] w-full cursor-pointer items-center gap-3.5 border-0 bg-transparent px-4 py-3.5 text-left text-ink focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
+              className="flex min-h-[4.25rem] w-full cursor-pointer items-center gap-3.5 border-0 bg-transparent px-4 py-3.5 text-left text-ink focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus"
             >
               <IconWell>
                 {isDark ? <DarkModeIcon fontSize="small" /> : <LightModeIcon fontSize="small" />}
@@ -118,7 +118,7 @@ function SettingsLink({
       href={href}
       aria-current={current ? "page" : undefined}
       className={[
-        "flex w-full items-center gap-3.5 px-4 py-3.5 text-left no-underline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent",
+        "flex w-full items-center gap-3.5 px-4 py-3.5 text-left no-underline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus",
         emphasis ? "min-h-[4.5rem]" : "min-h-[4.25rem]",
         muted ? "text-muted" : "text-ink",
       ].join(" ")}

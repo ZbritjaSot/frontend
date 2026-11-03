@@ -62,7 +62,7 @@ export function ResetPasswordScreen() {
           <Wordmark className="text-2xl" as="h1" />
         </Link>
 
-        <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent uppercase">
+        <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent-fg uppercase">
           Biznes
         </p>
         <p className="m-0 mt-3 mb-8 text-xl font-semibold">Fjalëkalim i ri</p>
@@ -118,7 +118,7 @@ export function ResetPasswordScreen() {
 
         <Link
           href={saved ? "/login" : "/biz/forgot-password"}
-          className="mt-8 inline-flex text-sm font-semibold text-muted hover:text-accent"
+          className="mt-8 inline-flex text-sm font-semibold text-muted hover:text-accent-fg"
         >
           {saved ? "Hyr" : "Kërko email të ri"}
         </Link>

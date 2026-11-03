@@ -91,7 +91,7 @@ function ViewsTooltip({ active, payload }: TooltipContentProps) {
           </p>
         </>
       ) : null}
-      <p className="m-0 mt-1 text-lg leading-none font-extrabold text-accent tabular-nums">
+      <p className="m-0 mt-1 text-lg leading-none font-extrabold text-accent-fg tabular-nums">
         {day.views}
       </p>
       <p className="m-0 mt-0.5 text-xs text-muted">hapje</p>

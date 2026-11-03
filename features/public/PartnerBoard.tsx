@@ -124,7 +124,7 @@ function PartnerRow({ shop }: { shop: PublicBusiness }) {
       <header className="mb-3 flex min-w-0 items-center gap-3">
         <Link
           href={`/biznese/${shop.id}`}
-          className="flex min-w-0 flex-1 items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          className="flex min-w-0 flex-1 items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
         >
           <ShopLogo name={shop.name} logoUrl={shop.logo_url} size="md" />
           <span className="min-w-0">
@@ -192,7 +192,7 @@ function RailButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-line bg-elevated text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-35 dark:border-white/10 dark:bg-[#1a2420]"
+      className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-line bg-elevated text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-default disabled:opacity-35 dark:border-white/10 dark:bg-[#1a2420]"
     >
       <svg viewBox="0 0 20 20" className="size-4" aria-hidden="true" fill="none">
         <path
@@ -219,7 +219,7 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
       draggable={false}
       tabIndex={inert ? -1 : undefined}
       aria-hidden={inert || undefined}
-      className={`${slideWidth} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent`}
+      className={`${slideWidth} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
     >
       <span className="flex flex-col overflow-hidden rounded-xl border border-line bg-elevated dark:border-white/10 dark:bg-[#1a2420]">
         <span className="relative aspect-[5/4] overflow-hidden bg-[#1a2420]">
@@ -254,7 +254,7 @@ function OfferSlide({ offer, inert }: { offer: PublicOffer; inert: boolean }) {
       draggable={false}
       tabIndex={inert ? -1 : undefined}
       aria-hidden={inert || undefined}
-      className={`${slideWidth} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent`}
+      className={`${slideWidth} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
     >
       <span className="flex flex-col overflow-hidden rounded-xl border border-line bg-elevated dark:border-white/10 dark:bg-[#1a2420]">
         <span className="relative aspect-[5/4] overflow-hidden bg-[#1a2420]">

@@ -7,7 +7,7 @@ import { formatDateShortSq } from "@/lib/format";
 import type { PublicOffer } from "@/types";
 
 const cardLink =
-  "group block min-w-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent";
+  "group block min-w-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus";
 
 type PosterTone = "standard" | "feature";
 
@@ -186,7 +186,7 @@ export function ShopLink({
   return (
     <Link
       href={href}
-      className="inline-flex min-h-11 min-w-0 items-center gap-3 rounded-full px-1 py-1 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="inline-flex min-h-11 min-w-0 items-center gap-3 rounded-full px-1 py-1 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
     >
       {inner}
     </Link>

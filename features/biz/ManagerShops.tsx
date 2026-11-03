@@ -55,7 +55,7 @@ function LocationRow({
           {waiting > 0 ? (
             <>
               <span aria-hidden="true"> · </span>
-              <Link href="/biz" className="font-semibold text-ink no-underline hover:text-accent">
+              <Link href="/biz" className="font-semibold text-ink no-underline hover:text-accent-fg">
                 {waiting} në pritje
               </Link>
             </>
@@ -66,7 +66,7 @@ function LocationRow({
         href={`/biznese/${shop.id}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="shrink-0 text-sm font-semibold text-muted no-underline hover:text-accent"
+        className="shrink-0 text-sm font-semibold text-muted no-underline hover:text-accent-fg"
       >
         Faqja publike
       </Link>

@@ -250,12 +250,12 @@ export function AdminManagers() {
                               </span>
                               <Link
                                 href={`/admin/offers/${offer.id}/edit`}
-                                className="text-sm font-semibold text-ink no-underline hover:text-accent"
+                                className="text-sm font-semibold text-ink no-underline hover:text-accent-fg"
                               >
                                 Ndrysho
                               </Link>
                               <button
-                                className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-accent hover:underline"
+                                className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-accent-fg hover:underline"
                                 type="button"
                                 onClick={() => setApproving(offer)}
                               >

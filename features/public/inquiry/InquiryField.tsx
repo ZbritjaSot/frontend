@@ -21,7 +21,7 @@ export function InquiryField({ label, required = false, htmlFor, children }: Inq
       <div className={inquiryLabelRow}>
         <label htmlFor={htmlFor} className={inquiryLabel}>
           {label}
-          {required ? <span className="text-accent"> *</span> : null}
+          {required ? <span className="text-accent-fg"> *</span> : null}
         </label>
         {!required ? <span className={inquiryOptional}>Opsionale</span> : null}
       </div>

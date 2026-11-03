@@ -84,7 +84,7 @@ export function DashboardShell({
           <LogoMark size={28} />
           <div className="flex min-w-0 flex-col gap-0.5">
             <Wordmark className="text-[1.05rem]" />
-            <span className="text-[0.6875rem] font-bold tracking-[0.16em] text-accent uppercase">
+            <span className="text-[0.6875rem] font-bold tracking-[0.16em] text-accent-fg uppercase">
               {areaLabel}
             </span>
           </div>
@@ -92,7 +92,7 @@ export function DashboardShell({
 
         <button
           type="button"
-          className="inline-flex size-11 cursor-pointer appearance-none items-center justify-center rounded-lg border border-line bg-transparent text-ink hover:border-accent/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent/55"
+          className="inline-flex size-11 cursor-pointer appearance-none items-center justify-center rounded-lg border border-line bg-transparent text-ink hover:border-accent/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
           aria-expanded={menuOpen}
           aria-controls="dash-nav"
           onClick={() => setMenuOpen((open) => !open)}
@@ -127,7 +127,7 @@ export function DashboardShell({
           <LogoMark size={32} />
           <div className="flex min-w-0 flex-col gap-0.5">
             <Wordmark className="text-[1.05rem]" />
-            <span className="text-[0.6875rem] font-bold tracking-[0.16em] text-accent uppercase">
+            <span className="text-[0.6875rem] font-bold tracking-[0.16em] text-accent-fg uppercase">
               {areaLabel}
             </span>
           </div>
@@ -187,7 +187,7 @@ export function DashboardShell({
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-muted hover:text-accent"
+            className="inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-muted hover:text-accent-fg"
             onClick={() => setMenuOpen(false)}
           >
             <ArrowBackIcon fontSize="small" />

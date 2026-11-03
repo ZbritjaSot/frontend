@@ -128,13 +128,13 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
     case "send":
       return (
         <span className={iconBox}>
-          <SendOutlinedIcon fontSize="small" className="text-accent!" />
+          <SendOutlinedIcon fontSize="small" className="text-accent-fg!" />
         </span>
       );
     case "add":
       return (
         <span className={iconBox}>
-          <AddOutlinedIcon fontSize="small" className="text-accent!" />
+          <AddOutlinedIcon fontSize="small" className="text-accent-fg!" />
         </span>
       );
     case "delete":
@@ -146,7 +146,7 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
     case "approve":
       return (
         <span className={iconBox}>
-          <CheckOutlinedIcon fontSize="small" className="text-accent!" />
+          <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
         </span>
       );
     case "main":
@@ -164,13 +164,13 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
     case "unlock":
       return (
         <span className={iconBox}>
-          <LockOpenOutlinedIcon fontSize="small" className="text-accent!" />
+          <LockOpenOutlinedIcon fontSize="small" className="text-accent-fg!" />
         </span>
       );
     case "priority":
       return (
         <span className={iconBox}>
-          <StarBorderOutlinedIcon fontSize="small" className="text-accent!" />
+          <StarBorderOutlinedIcon fontSize="small" className="text-accent-fg!" />
         </span>
       );
     case "drag":
@@ -214,7 +214,7 @@ function Mark({ mark, count }: { mark: IndicatorMark; count?: number }) {
 export function IndicatorKey({ items }: { items: IndicatorItem[] }) {
   return (
     <section aria-label="Çelësi" className="mb-6">
-      <p className="m-0 mb-2.5 flex items-center gap-2 text-[0.6875rem] font-extrabold tracking-[0.18em] text-accent uppercase">
+      <p className="m-0 mb-2.5 flex items-center gap-2 text-[0.6875rem] font-extrabold tracking-[0.18em] text-accent-fg uppercase">
         <span className="size-1.5 rounded-full bg-accent" aria-hidden />
         Çelësi
       </p>

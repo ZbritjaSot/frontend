@@ -10,9 +10,9 @@ import { formatCalendarDateSq, formatMonthYearSq } from "@/lib/format";
 import { triggerClass } from "@/lib/ui";
 
 const dayClass =
-  "aspect-square cursor-pointer appearance-none rounded-md border-0 bg-transparent text-[0.8125rem] font-semibold text-ink hover:bg-slate/12 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent/55";
+  "aspect-square cursor-pointer appearance-none rounded-md border-0 bg-transparent text-[0.8125rem] font-semibold text-ink hover:bg-slate/12 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus";
 const navClass =
-  "inline-flex size-8 cursor-pointer appearance-none items-center justify-center rounded-lg border border-line bg-elevated text-lg leading-none text-ink hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent/55";
+  "inline-flex size-8 cursor-pointer appearance-none items-center justify-center rounded-lg border border-line bg-elevated text-lg leading-none text-ink hover:border-accent hover:text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus";
 
 const WEEKDAYS = ["H", "M", "M", "E", "P", "S", "D"] as const;
 
@@ -371,7 +371,7 @@ export function DateTimeField({
         <button
           type="button"
           id={id}
-          className={`flex w-full cursor-pointer flex-col items-start gap-0.5 rounded-xl border bg-elevated px-4 py-3 text-left outline-2 outline-offset-1 hover:border-accent/40 focus-visible:outline-accent/55 disabled:cursor-not-allowed disabled:opacity-55 ${
+          className={`flex w-full cursor-pointer flex-col items-start gap-0.5 rounded-xl border bg-elevated px-4 py-3 text-left outline-2 outline-offset-1 hover:border-accent/40 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-55 ${
             open ? "border-accent/60" : "border-line"
           }`}
           aria-haspopup="dialog"

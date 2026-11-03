@@ -23,7 +23,7 @@ export function ExclusiveBand({
   }
 
   return (
-    <section className="mt-8 overflow-x-clip bg-forest text-ivory sm:mt-10">
+    <section className="mt-8 overflow-x-clip bg-forest text-ivory [--color-focus:var(--color-lime)] sm:mt-10">
       <Frame className="pt-10 pb-0 sm:pt-12">
         <div className="min-w-0 max-w-xl">
           <ExclusiveMark size="md" />

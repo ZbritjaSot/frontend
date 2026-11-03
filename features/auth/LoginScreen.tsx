@@ -35,7 +35,7 @@ export function LoginScreen() {
           <LogoMark size={40} priority />
           <span className="flex min-w-0 flex-col gap-0.5">
             <Wordmark className="text-2xl" as="h1" />
-            <span className="text-[0.6875rem] font-bold tracking-[0.16em] text-accent uppercase">
+            <span className="text-[0.6875rem] font-bold tracking-[0.16em] text-accent-fg uppercase">
               Login
             </span>
           </span>
@@ -45,7 +45,7 @@ export function LoginScreen() {
 
         <Link
           href="/"
-          className="mt-8 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-accent"
+          className="mt-8 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-accent-fg"
         >
           <ArrowBackIcon fontSize="small" />
           Faqja publike

@@ -10,7 +10,7 @@ export function InquirySuccess({
 }) {
   return (
     <div className={inquiryPanel} role="status">
-      <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-accent uppercase">
+      <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-accent-fg uppercase">
         U dërgua
       </p>
       <h2 className="m-0 mt-3 text-2xl font-extrabold tracking-tight text-ink">{title}</h2>

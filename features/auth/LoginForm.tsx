@@ -93,7 +93,7 @@ export function LoginForm({ next, forgotHref }: LoginFormProps) {
       {forgotHref ? (
         <Link
           href={forgotHref}
-          className="-mt-2 self-start text-sm font-semibold text-muted hover:text-accent"
+          className="-mt-2 self-start text-sm font-semibold text-muted hover:text-accent-fg"
         >
           Ke harruar fjalëkalimin?
         </Link>

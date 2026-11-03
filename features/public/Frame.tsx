@@ -81,7 +81,7 @@ export function SeeAll({ href, children }: { href: string; children: ReactNode }
   return (
     <Link
       href={href}
-      className="inline-flex min-h-11 shrink-0 items-center text-sm font-extrabold tracking-tight text-ink underline-offset-4 hover:underline hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+      className="inline-flex min-h-11 shrink-0 items-center text-sm font-extrabold tracking-tight text-ink underline-offset-4 hover:underline hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
     >
       {children}
     </Link>
@@ -145,7 +145,7 @@ export function Pager({
       {page > 1 ? (
         <Link
           href={hrefFor(page - 1)}
-          className="inline-flex min-h-11 items-center rounded-full px-4 text-ink ring-1 ring-line hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          className="inline-flex min-h-11 items-center rounded-full px-4 text-ink ring-1 ring-line hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
         >
           Prapa
         </Link>
