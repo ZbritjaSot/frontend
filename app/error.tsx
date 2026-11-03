@@ -24,7 +24,7 @@ export default function AppError({
         </button>
         <Link
           href="/"
-          className="inline-flex min-h-11 items-center text-sm font-bold text-muted no-underline hover:text-accent"
+          className="inline-flex min-h-11 items-center text-sm font-bold text-muted no-underline hover:text-accent-fg"
         >
           Faqja kryesore
         </Link>

@@ -106,7 +106,7 @@ export function AdminLiveOffers({
                   >
                     <Link
                       href={`/admin/offers/${bundle.id}`}
-                      className="truncate text-base font-semibold text-inherit no-underline hover:text-accent"
+                      className="truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg"
                     >
                       {bundleDisplayTitle(bundle)}
                     </Link>

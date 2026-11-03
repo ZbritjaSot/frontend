@@ -25,8 +25,8 @@ export function ShopLinksRow({
       : "m-0 flex list-none flex-wrap gap-2 p-0";
   const chipClass =
     layout === "column"
-      ? "inline-flex w-full items-center gap-2.5 rounded-xl border border-line bg-elevated px-3.5 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:border-white/10"
-      : "inline-flex items-center gap-2 rounded-full border border-line bg-elevated px-3 py-1.5 text-sm font-semibold text-ink transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:border-white/10";
+      ? "inline-flex w-full items-center gap-2.5 rounded-xl border border-line bg-elevated px-3.5 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10"
+      : "inline-flex items-center gap-2 rounded-full border border-line bg-elevated px-3 py-1.5 text-sm font-semibold text-ink transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10";
 
   return (
     <ul className={`${listClass} ${className}`.trim()}>

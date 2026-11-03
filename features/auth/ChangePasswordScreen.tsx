@@ -44,7 +44,7 @@ export function ChangePasswordScreen() {
         onSubmit={onSubmit}
         noValidate
       >
-        <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent uppercase">
+        <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent-fg uppercase">
           Biznes
         </p>
         <h1 className="m-0 text-xl font-semibold">Ndrysho fjalëkalimin</h1>

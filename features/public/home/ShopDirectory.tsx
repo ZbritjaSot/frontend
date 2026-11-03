@@ -7,7 +7,7 @@ import type { PublicBusiness } from "@/types";
 
 /** Fixed card width so one shop matches a shop in a multi-shop row. */
 const SHOP_CARD =
-  "flex min-h-12 w-[17.5rem] shrink-0 items-center gap-3 rounded-xl px-2 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-safe:transition-colors";
+  "flex min-h-12 w-[17.5rem] shrink-0 items-center gap-3 rounded-xl px-2 py-3 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus motion-safe:transition-colors";
 
 function shopCopies(count: number): number {
   if (count <= 1) {

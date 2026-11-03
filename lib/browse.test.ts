@@ -47,6 +47,16 @@ describe("browsePath", () => {
     );
   });
 
+  it("opens each homepage category on /oferta with no leftover filters", () => {
+    expect(browsePath("/", { katalog: "oferta", category: "ushqim" })).toBe(
+      "/oferta?category=ushqim",
+    );
+    expect(browsePath("/", { katalog: "oferta", category: "pije" })).toBe(
+      "/oferta?category=pije",
+    );
+    expect(browsePath("/", { katalog: "oferta" })).toBe("/oferta");
+  });
+
   it("omits default sort and page 1", () => {
     expect(browsePath("/oferta", { sort: "newest", page: 1 })).toBe("/oferta");
     expect(browsePath("/oferta", { sort: "oldest", page: 2 })).toBe(

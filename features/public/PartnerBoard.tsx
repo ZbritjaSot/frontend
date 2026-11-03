@@ -5,7 +5,7 @@ import { useCallback, useRef, useState } from "react";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { campaignWord, productWord } from "@/features/public/compose";
 import { fetchPublicBusinesses } from "@/features/offers/api";
-import { DiscountBadge, PriceLine } from "@/features/public/price";
+import { DiscountRail, PriceLine } from "@/features/public/price";
 import { StepRail, type RailNav } from "@/features/public/StepRail";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { useInfiniteSentinel } from "@/lib/useInfiniteSentinel";
@@ -124,7 +124,7 @@ function PartnerRow({ shop }: { shop: PublicBusiness }) {
       <header className="mb-3 flex min-w-0 items-center gap-3">
         <Link
           href={`/biznese/${shop.id}`}
-          className="flex min-w-0 flex-1 items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          className="flex min-w-0 flex-1 items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
         >
           <ShopLogo name={shop.name} logoUrl={shop.logo_url} size="md" />
           <span className="min-w-0">
@@ -192,7 +192,7 @@ function RailButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-line bg-elevated text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-35 dark:border-white/10 dark:bg-[#1a2420]"
+      className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-line bg-elevated text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-default disabled:opacity-35 dark:border-white/10 dark:bg-[#1a2420]"
     >
       <svg viewBox="0 0 20 20" className="size-4" aria-hidden="true" fill="none">
         <path
@@ -219,7 +219,7 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
       draggable={false}
       tabIndex={inert ? -1 : undefined}
       aria-hidden={inert || undefined}
-      className={`${slideWidth} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent`}
+      className={`${slideWidth} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
     >
       <span className="flex flex-col overflow-hidden rounded-xl border border-line bg-elevated dark:border-white/10 dark:bg-[#1a2420]">
         <span className="relative aspect-[5/4] overflow-hidden bg-[#1a2420]">
@@ -231,7 +231,7 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
             imageUrl={flyer.cover?.thumb_url}
             sizes="176px"
           />
-          {percent > 0 ? <DiscountBadge percent={percent} size="sm" /> : null}
+          {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
           <span className="absolute top-2 right-2 z-10">
             <FavoriteButton kind="flyer" id={flyer.id} />
           </span>
@@ -254,7 +254,7 @@ function OfferSlide({ offer, inert }: { offer: PublicOffer; inert: boolean }) {
       draggable={false}
       tabIndex={inert ? -1 : undefined}
       aria-hidden={inert || undefined}
-      className={`${slideWidth} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent`}
+      className={`${slideWidth} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
     >
       <span className="flex flex-col overflow-hidden rounded-xl border border-line bg-elevated dark:border-white/10 dark:bg-[#1a2420]">
         <span className="relative aspect-[5/4] overflow-hidden bg-[#1a2420]">
@@ -267,7 +267,7 @@ function OfferSlide({ offer, inert }: { offer: PublicOffer; inert: boolean }) {
             sizes="176px"
           />
           {offer.discount_percent != null && offer.discount_percent > 0 ? (
-            <DiscountBadge percent={offer.discount_percent} size="sm" />
+            <DiscountRail percent={offer.discount_percent} size="sm" />
           ) : null}
           <span className="absolute top-2 right-2 z-10">
             <FavoriteButton kind="offer" id={offer.id} />

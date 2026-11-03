@@ -6,7 +6,7 @@ import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
 import { safeHttpUrl } from "@/features/business/links";
 import { savingsCents } from "@/features/public/compose";
 import { BackLink, Band, Frame, SectionHeading } from "@/features/public/Frame";
-import { DiscountBadge, PriceLine } from "@/features/public/price";
+import { DiscountRail, PriceLine } from "@/features/public/price";
 import { display, kicker } from "@/features/public/tone";
 import { ProductGrid, ShopLink } from "@/features/public/ProductPoster";
 import { ProductVisual } from "@/features/public/visuals";
@@ -46,7 +46,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                 className="aspect-[4/3] w-full lg:aspect-auto lg:h-full lg:min-h-[18rem]"
               />
               {offer.discount_percent != null && offer.discount_percent > 0 ? (
-                <DiscountBadge percent={offer.discount_percent} size="lg" />
+                <DiscountRail percent={offer.discount_percent} size="lg" />
               ) : null}
               <span className="absolute top-4 right-4 z-20">
                 <FavoriteButton kind="offer" id={offer.id} size="md" />

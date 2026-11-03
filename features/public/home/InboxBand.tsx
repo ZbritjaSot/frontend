@@ -46,7 +46,7 @@ export function InboxBand({
   const previews = previewsFrom(home);
 
   return (
-    <section className="relative overflow-hidden bg-forest text-ivory">
+    <section className="relative overflow-hidden bg-forest text-ivory [--color-focus:var(--color-lime)]">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-40"

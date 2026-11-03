@@ -2,7 +2,7 @@ import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { folderCount, leadProduct, productWord } from "@/features/public/compose";
 import { Rail } from "@/features/public/Frame";
-import { DiscountBadge } from "@/features/public/price";
+import { DiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateShortSq, formatDateSq } from "@/lib/format";
 import type { PublicFolder } from "@/types";
@@ -32,9 +32,9 @@ export function CampaignPoster({
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className="group grid overflow-hidden rounded-2xl bg-forest text-ivory focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:grid-cols-[minmax(8.5rem,0.8fr)_minmax(0,1.2fr)]"
+        className="group grid overflow-hidden rounded-2xl bg-forest text-ivory focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus sm:grid-cols-[minmax(8.5rem,0.8fr)_minmax(0,1.2fr)]"
       >
-        <span className="relative block min-h-36 sm:min-h-44">
+        <span className="relative block min-h-36 sm:min-h-44 [--color-focus:var(--color-lime)]">
           <ProductVisual
             fill
             eager={eager}
@@ -42,7 +42,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="(max-width: 640px) 100vw, 420px"
           />
-          {percent > 0 ? <DiscountBadge percent={percent} /> : null}
+          {percent > 0 ? <DiscountRail percent={percent} /> : null}
           {heart}
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-2 px-4 py-4 sm:px-6">
@@ -62,7 +62,7 @@ export function CampaignPoster({
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className="group grid h-full min-h-24 grid-cols-[5.75rem_minmax(0,1fr)] overflow-hidden rounded-xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:border-white/10 dark:bg-[#1a2420]"
+        className="group grid h-full min-h-24 grid-cols-[5.75rem_minmax(0,1fr)] overflow-hidden rounded-xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 dark:bg-[#1a2420]"
       >
         <span className="relative h-full min-h-24">
           <ProductVisual
@@ -72,7 +72,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="108px"
           />
-          {percent > 0 ? <DiscountBadge percent={percent} size="sm" /> : null}
+          {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
           <span className="absolute top-1 right-1 z-20 scale-90">
             <FavoriteButton kind="flyer" id={folder.id} />
           </span>
@@ -94,7 +94,7 @@ export function CampaignPoster({
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className="group grid overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:grid-cols-2 dark:border-white/10 dark:bg-[#1a2420]"
+        className="group grid overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus sm:grid-cols-2 dark:border-white/10 dark:bg-[#1a2420]"
       >
         <span className="relative block min-h-40 overflow-hidden sm:h-full">
           <ProductVisual
@@ -104,7 +104,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="(max-width: 1024px) 100vw, 640px"
           />
-          {percent > 0 ? <DiscountBadge percent={percent} size="lg" /> : null}
+          {percent > 0 ? <DiscountRail percent={percent} size="lg" /> : null}
           <span className="absolute top-4 right-4 z-20">
             <FavoriteButton kind="flyer" id={folder.id} size="md" />
           </span>
@@ -133,7 +133,7 @@ export function CampaignPoster({
       <div className="relative h-full min-w-0">
         <Link
           href={`/dosje/${folder.id}`}
-          className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420]"
+          className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420]"
         >
           <span className="relative block aspect-[5/4] overflow-hidden">
             <ProductVisual
@@ -143,7 +143,7 @@ export function CampaignPoster({
               eager={eager}
               sizes="(max-width: 640px) 100vw, 50vw"
             />
-            {percent > 0 ? <DiscountBadge percent={percent} /> : null}
+            {percent > 0 ? <DiscountRail percent={percent} /> : null}
           </span>
           <span className="flex flex-1 flex-col p-5">
             <span className="flex items-center gap-2.5">
@@ -165,7 +165,7 @@ export function CampaignPoster({
   return (
     <Link
       href={`/dosje/${folder.id}`}
-      className="group flex min-h-44 w-[min(88vw,32rem)] shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420]"
+      className="group flex min-h-44 w-[min(88vw,32rem)] shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420]"
     >
       <span className="flex min-w-0 flex-1 flex-col justify-between p-5 sm:p-6">
         <span>
@@ -181,7 +181,7 @@ export function CampaignPoster({
       </span>
       <span className="relative w-[42%] shrink-0 self-stretch overflow-hidden">
         <ProductVisual fill name={coverName} imageUrl={coverUrl} eager={eager} sizes="240px" />
-        {percent > 0 ? <DiscountBadge percent={percent} /> : null}
+        {percent > 0 ? <DiscountRail percent={percent} /> : null}
         {heart}
       </span>
     </Link>

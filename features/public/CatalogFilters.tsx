@@ -22,7 +22,7 @@ type CatalogFiltersProps = {
 };
 
 const sortLink =
-  "inline-flex h-7 shrink-0 items-center rounded-full px-3 text-xs whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+  "inline-flex h-7 shrink-0 items-center rounded-full px-3 text-xs whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export function CatalogFilters({
   basePath = "/",
@@ -184,7 +184,7 @@ function CityMenu({
       <button
         ref={buttonRef}
         type="button"
-        className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-transparent pr-2.5 pl-3 text-xs font-semibold text-ink transition-colors duration-150 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:border-white/10"
+        className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-transparent pr-2.5 pl-3 text-xs font-semibold text-ink transition-colors duration-150 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10"
         aria-labelledby={`${labelId} ${valueId}`}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -234,7 +234,7 @@ function CityMenu({
                   className={
                     selected
                       ? "flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border-0 bg-accent px-3 py-2 text-left text-xs font-semibold text-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-                      : "flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border-0 bg-transparent px-3 py-2 text-left text-xs font-medium text-ink transition-colors duration-150 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                      : "flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border-0 bg-transparent px-3 py-2 text-left text-xs font-medium text-ink transition-colors duration-150 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                   }
                   onClick={() => choose(option.value)}
                   onKeyDown={(event) => onOptionKeyDown(event, index)}

@@ -282,7 +282,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
                       disabled={pending}
                       onClick={() => void onApprove(branch.id)}
                     >
-                      <CheckOutlinedIcon fontSize="small" className="text-accent!" />
+                      <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
                     </button>
                   ) : (
                     <span className="size-9" aria-hidden />
@@ -333,7 +333,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
                 setPanel((current) => (current === "create" ? "none" : "create"));
               }}
             >
-              <AddOutlinedIcon fontSize="small" className="text-accent!" />
+              <AddOutlinedIcon fontSize="small" className="text-accent-fg!" />
             </button>
           ) : (
             <button
@@ -527,7 +527,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
               disabled={pending}
               onClick={() => void onApprove(business.id)}
             >
-              <CheckOutlinedIcon fontSize="small" className="text-accent!" />
+              <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
             </button>
           ) : (
             <span className="size-9" aria-hidden />

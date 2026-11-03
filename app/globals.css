@@ -19,7 +19,10 @@
   --color-ink: var(--color-text);
   --color-muted: var(--color-text-muted);
   --color-accent: var(--color-accent);
+  --color-accent-fg: var(--color-accent-fg);
   --color-on-accent: var(--color-on-accent);
+  --color-focus: var(--color-focus);
+  --color-sale: var(--color-sale);
   --color-danger: var(--color-danger);
   --color-danger-soft: var(--color-danger-soft);
   --color-was: var(--color-was);
@@ -50,12 +53,20 @@
   --color-border: rgba(24, 32, 24, 0.1);
   --color-text: #182018;
   --color-text-muted: #5c6558;
+  /* Lime is a fill color only (buttons, chips, badges) — never text and never a
+     1px line/border on a light surface. It measures ~1.1:1 on cream, effectively
+     invisible. Use --color-accent-fg for lime-intent text/icons and --color-focus
+     for focus rings; both resolve back to lime automatically in dark mode. */
   --color-accent: var(--color-lime);
+  --color-accent-fg: var(--color-forest);
   --color-on-accent: var(--color-charcoal);
-  --color-danger: #d32f2f;
+  --color-focus: #182018;
+  /* Sale price on cream. Deep green from the discount rail — readable, no outline. */
+  --color-sale: #08752d;
+  --color-danger: #b42318;
   --color-danger-soft: #e57373;
   /* Struck “was” price — warm brick that sits with cream + olive, not traffic-light red. */
-  --color-was: #b45345;
+  --color-was: #a3463a;
   --color-shadow: rgba(24, 32, 24, 0.08);
   --color-surface-hover: rgba(24, 32, 24, 0.045);
   --color-chrome: rgba(244, 241, 232, 0.9);
@@ -77,6 +88,9 @@ html[data-theme="dark"] {
   --color-border: color-mix(in srgb, var(--color-off-white) 12%, transparent);
   --color-text: var(--color-off-white);
   --color-text-muted: #8a9388;
+  --color-sale: var(--color-lime);
+  --color-accent-fg: var(--color-lime);
+  --color-focus: var(--color-lime);
   --color-danger: #ff8e8e;
   --color-danger-soft: #ff8e8e;
   --color-was: #e09286;
@@ -112,12 +126,6 @@ html[data-theme="dark"] {
   select {
     font-size: 1rem;
   }
-}
-
-/* Light mode only: thin charcoal edge so lime sale prices stay readable on cream. */
-html[data-theme="light"] .sale-price-outline {
-  -webkit-text-stroke: 1px var(--color-charcoal);
-  paint-order: stroke fill;
 }
 
 @keyframes shop-marquee {

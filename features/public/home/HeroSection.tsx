@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { DiscountBadge, PriceLine } from "@/features/public/price";
+import { DiscountRail, PriceLine } from "@/features/public/price";
 import { Frame } from "@/features/public/Frame";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateSq } from "@/lib/format";
@@ -88,7 +88,7 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
 
   return (
     <section
-      className="overflow-x-clip bg-forest text-ivory"
+      className="overflow-x-clip bg-forest text-ivory [--color-focus:var(--color-lime)]"
       onMouseEnter={() => {
         hovering.current = true;
       }}
@@ -211,7 +211,7 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
                     className="aspect-[4/3] w-full"
                   />
                   {offer.discount_percent != null && offer.discount_percent > 0 ? (
-                    <DiscountBadge percent={offer.discount_percent} size="lg" />
+                    <DiscountRail percent={offer.discount_percent} size="lg" />
                   ) : null}
                 </Link>
               ))}
@@ -258,7 +258,7 @@ function DealCopy({ offer }: { offer: PublicOffer }) {
       ) : null}
       <Link
         href={`/offers/${offer.id}`}
-        className={`line-clamp-2 block text-[clamp(1.65rem,3.2vw,2.35rem)] leading-[1.15] font-extrabold tracking-[-0.035em] text-ivory no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+        className={`line-clamp-2 block text-[clamp(1.65rem,3.2vw,2.35rem)] leading-[1.15] font-extrabold tracking-[-0.035em] text-ivory no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${
           shop ? "mt-3 sm:mt-3.5" : "mt-0"
         }`}
       >

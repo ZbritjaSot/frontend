@@ -323,7 +323,7 @@ export function AdminCategories() {
                     ) : (
                       <LockOpenOutlinedIcon
                         fontSize="small"
-                        className="text-accent!"
+                        className="text-accent-fg!"
                       />
                     )}
                   </button>

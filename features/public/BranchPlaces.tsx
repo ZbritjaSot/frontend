@@ -87,7 +87,7 @@ export function PlaceBranchRow({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Shiko lokacionin: ${address ?? place.name}`}
-          className="inline-grid size-8 shrink-0 place-items-center rounded-full bg-accent text-on-accent transition-transform duration-150 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          className="inline-grid size-8 shrink-0 place-items-center rounded-full bg-accent text-on-accent transition-transform duration-150 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
         >
           <PinIcon />
         </a>

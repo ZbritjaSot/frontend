@@ -198,7 +198,7 @@ export function ManagerReview({ catalog }: { catalog?: BundleCatalog } = {}) {
                       >
                         <Link
                           href={`/biz/review/${bundle.id}`}
-                          className="truncate text-base font-semibold text-inherit no-underline hover:text-accent"
+                          className="truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg"
                         >
                           {bundleDisplayTitle(bundle)}
                         </Link>

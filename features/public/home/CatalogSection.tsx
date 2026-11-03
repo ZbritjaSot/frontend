@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Frame, SeeAll } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
-import { DiscountBadge, PriceLine } from "@/features/public/price";
+import { DiscountRail, PriceLine } from "@/features/public/price";
 import { kicker } from "@/features/public/tone";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateShortSq } from "@/lib/format";
@@ -64,7 +64,7 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
   return (
     <Link
       href={`/offers/${offer.id}`}
-      className="flex min-h-11 items-center gap-3 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="flex min-h-11 items-center gap-3 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
     >
       <span className="relative block size-14 shrink-0 overflow-hidden rounded-xl">
         <ProductVisual
@@ -74,7 +74,7 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
           className="size-full"
         />
         {offer.discount_percent != null && offer.discount_percent > 0 ? (
-          <DiscountBadge percent={offer.discount_percent} size="xs" />
+          <DiscountRail percent={offer.discount_percent} size="xs" />
         ) : null}
       </span>
       <span className="min-w-0 flex-1">

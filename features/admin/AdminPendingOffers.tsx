@@ -34,7 +34,7 @@ function PendingRow({
     <li className="col-span-6 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4">
       <Link
         href={`/admin/offers/${bundle.id}`}
-        className="truncate text-base font-semibold text-inherit no-underline hover:text-accent"
+        className="truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg"
       >
         {bundleDisplayTitle(bundle)}
       </Link>
@@ -65,7 +65,7 @@ function PendingRow({
           disabled={pending}
           onClick={() => onApprove(bundle)}
         >
-          <CheckOutlinedIcon fontSize="small" className="text-accent!" />
+          <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
         </button>
       </div>
     </li>

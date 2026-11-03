@@ -4,10 +4,10 @@ import { useState, type FormEvent } from "react";
 import { apiFetch, validationMessage } from "@/lib/api";
 
 const field =
-  "min-w-0 w-full border border-ivory/20 bg-black/30 text-sm font-medium text-ivory outline-none placeholder:text-ivory/40 transition-[border-color,box-shadow] duration-150 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/40 disabled:opacity-60";
+  "min-w-0 w-full border border-ivory/20 bg-black/30 text-sm font-medium text-ivory outline-none placeholder:text-ivory/40 transition-[border-color,box-shadow] duration-150 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-60";
 
 const submit =
-  "inline-flex shrink-0 cursor-pointer items-center justify-center border-0 bg-accent font-bold text-charcoal transition-[filter] duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-wait disabled:opacity-65";
+  "inline-flex shrink-0 cursor-pointer items-center justify-center border-0 bg-accent font-bold text-charcoal transition-[filter] duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-wait disabled:opacity-65";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 

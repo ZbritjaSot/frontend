@@ -41,7 +41,7 @@ export function FavoriteButton({
       title={active ? "Hiq nga të preferuarat" : "Shto te të preferuarat"}
       onClick={onClick}
       className={[
-        "inline-flex cursor-pointer items-center justify-center rounded-full border-0 p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "inline-flex cursor-pointer items-center justify-center rounded-full border-0 p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
         dim,
         tone === "on-media"
           ? "bg-charcoal/45 text-ivory backdrop-blur-sm hover:bg-charcoal/60"

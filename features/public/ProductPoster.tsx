@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
-import { DiscountBadge, PriceLine } from "@/features/public/price";
+import { DiscountRail, PriceLine } from "@/features/public/price";
 import { media } from "@/features/public/tone";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateShortSq } from "@/lib/format";
 import type { PublicOffer } from "@/types";
 
 const cardLink =
-  "group block min-w-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent";
+  "group block min-w-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus";
 
 type PosterTone = "standard" | "feature";
 
@@ -40,7 +40,7 @@ export function ProductPoster({
             className="aspect-square w-full"
           />
           {offer.discount_percent != null && offer.discount_percent > 0 ? (
-            <DiscountBadge percent={offer.discount_percent} />
+            <DiscountRail percent={offer.discount_percent} />
           ) : null}
         </span>
         <span className="mt-2 grid gap-0.5">
@@ -132,7 +132,7 @@ export function ProductList({ offers }: { offers: PublicOffer[] }) {
                   className="size-full"
                 />
                 {offer.discount_percent != null && offer.discount_percent > 0 ? (
-                  <DiscountBadge percent={offer.discount_percent} size="sm" />
+                  <DiscountRail percent={offer.discount_percent} size="sm" />
                 ) : null}
               </span>
               <span className="grid min-w-0 flex-1 gap-1">
@@ -186,7 +186,7 @@ export function ShopLink({
   return (
     <Link
       href={href}
-      className="inline-flex min-h-11 min-w-0 items-center gap-3 rounded-full px-1 py-1 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="inline-flex min-h-11 min-w-0 items-center gap-3 rounded-full px-1 py-1 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
     >
       {inner}
     </Link>

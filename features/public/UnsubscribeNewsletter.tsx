@@ -8,7 +8,7 @@ import { kicker } from "@/features/public/tone";
 type Phase = "confirm" | "done" | "invalid";
 
 const primary =
-  "inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border-0 bg-accent px-5 text-sm font-bold text-charcoal transition-[filter] duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-wait disabled:opacity-65";
+  "inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border-0 bg-accent px-5 text-sm font-bold text-charcoal transition-[filter] duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-wait disabled:opacity-65";
 
 const secondary =
   "inline-flex h-12 w-full items-center justify-center rounded-xl border border-line bg-transparent px-5 text-sm font-bold text-ink transition-colors duration-150 hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:border-white/15 dark:hover:bg-white/5";

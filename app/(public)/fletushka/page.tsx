@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ResetFlyerScroll } from "@/components/chrome/ResetFlyerScroll";
 import {
   CataloguePage,
   catalogueMetadata,
@@ -14,5 +15,10 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 }
 
 export default function FletushkaPage({ searchParams }: PageProps) {
-  return <CataloguePage katalog="fletushka" searchParams={searchParams} />;
+  return (
+    <>
+      <ResetFlyerScroll />
+      <CataloguePage katalog="fletushka" searchParams={searchParams} />
+    </>
+  );
 }

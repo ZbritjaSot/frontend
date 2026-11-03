@@ -29,7 +29,7 @@ export function AccountProfilePanel({
         <p className="m-0 text-sm text-muted">Nuk mundëm ta ngarkojmë profilin.</p>
         <button
           type="button"
-          className="mt-3 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-accent"
+          className="mt-3 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-accent-fg"
           onClick={() => refetch()}
         >
           Provo përsëri

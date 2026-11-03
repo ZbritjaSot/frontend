@@ -158,7 +158,7 @@ function ShopLine({
           >
             <ExpandMoreIcon
               fontSize="small"
-              className={open ? "rotate-180 text-accent!" : ""}
+              className={open ? "rotate-180 text-accent-fg!" : ""}
             />
           </button>
         ) : needsBranchApproval && onApprove ? (
@@ -169,7 +169,7 @@ function ShopLine({
             disabled={pending}
             onClick={onApprove}
           >
-            <CheckOutlinedIcon fontSize="small" className="text-accent!" />
+            <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
           </button>
         ) : (
           <span className="size-9" aria-hidden />
@@ -193,7 +193,7 @@ function ShopLine({
           {business.is_active ? (
             <LockOutlinedIcon fontSize="small" />
           ) : (
-            <LockOpenOutlinedIcon fontSize="small" className="text-accent!" />
+            <LockOpenOutlinedIcon fontSize="small" className="text-accent-fg!" />
           )}
         </button>
         <button
@@ -211,7 +211,7 @@ function ShopLine({
         >
           <StarBorderOutlinedIcon
             fontSize="small"
-            className={business.is_priority ? "text-accent!" : undefined}
+            className={business.is_priority ? "text-accent-fg!" : undefined}
           />
         </button>
       </div>

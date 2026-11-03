@@ -588,7 +588,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
               </p>
               <Link
                 href={`/admin/businesses/${business.parent_id}`}
-                className="mt-3 inline-block text-sm font-semibold text-ink no-underline hover:text-accent"
+                className="mt-3 inline-block text-sm font-semibold text-ink no-underline hover:text-accent-fg"
               >
                 {business.parent?.name ?? "Dyqani kryesor"}
               </Link>

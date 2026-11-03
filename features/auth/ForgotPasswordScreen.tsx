@@ -49,7 +49,7 @@ export function ForgotPasswordScreen() {
           <Wordmark className="text-2xl" as="h1" />
         </Link>
 
-        <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent uppercase">
+        <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent-fg uppercase">
           Biznes
         </p>
         <p className="m-0 mt-3 mb-8 text-xl font-semibold">
@@ -97,7 +97,7 @@ export function ForgotPasswordScreen() {
 
         <Link
           href="/login"
-          className="mt-8 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-accent"
+          className="mt-8 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-accent-fg"
         >
           <ArrowBackIcon fontSize="small" />
           Kthehu te hyrja

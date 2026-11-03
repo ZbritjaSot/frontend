@@ -212,7 +212,7 @@ export function AdminHome() {
                           saveHero.mutate([...heroes.map((item) => item.id), offer.id])
                         }
                       >
-                        <AddOutlinedIcon fontSize="small" className="text-accent!" />
+                        <AddOutlinedIcon fontSize="small" className="text-accent-fg!" />
                       </button>
                     </li>
                   ))}
@@ -302,7 +302,7 @@ export function AdminHome() {
                           ])
                         }
                       >
-                        <AddOutlinedIcon fontSize="small" className="text-accent!" />
+                        <AddOutlinedIcon fontSize="small" className="text-accent-fg!" />
                       </button>
                     </li>
                   ))}
