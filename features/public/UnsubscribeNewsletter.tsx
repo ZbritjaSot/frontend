@@ -4,14 +4,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { kicker } from "@/features/public/tone";
+import { button } from "@/lib/ui";
 
 type Phase = "confirm" | "done" | "invalid";
 
-const primary =
-  "inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border-0 bg-accent px-5 text-sm font-bold text-charcoal transition-[filter] duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-wait disabled:opacity-65";
+const primary = `${button({ size: "lg", shape: "pill" })} w-full`;
 
-const secondary =
-  "inline-flex h-12 w-full items-center justify-center rounded-xl border border-line bg-transparent px-5 text-sm font-bold text-ink transition-colors duration-150 hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:border-white/15 dark:hover:bg-white/5";
+const secondary = `${button({ variant: "secondary", size: "lg", shape: "pill" })} w-full`;
 
 export function UnsubscribeNewsletter({ token }: { token: string }) {
   const [phase, setPhase] = useState<Phase>(token === "" ? "invalid" : "confirm");
@@ -40,7 +39,7 @@ export function UnsubscribeNewsletter({ token }: { token: string }) {
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-col justify-center px-5 py-12 sm:min-h-[32rem] sm:py-20">
-      <div className="rounded-3xl border border-line bg-elevated px-5 py-8 sm:px-8 sm:py-10 dark:border-white/10">
+      <div className="rounded-2xl border border-line bg-elevated px-5 py-8 sm:px-8 sm:py-10 dark:border-white/10">
         <p className={kicker}>ZbritjaSot në inbox</p>
         {phase === "done" ? (
           <Done />

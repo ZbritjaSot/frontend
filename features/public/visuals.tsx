@@ -29,10 +29,10 @@ function washIndex(name: string): number {
 
 const LOGO_SIZE = {
   xs: "size-6 rounded-lg text-[0.55rem]",
-  sm: "size-10 rounded-xl text-sm",
+  sm: "size-10 rounded-lg text-sm",
   md: "size-12 rounded-2xl text-base",
-  lg: "size-16 rounded-[1.25rem] text-xl",
-  xl: "size-24 rounded-[1.6rem] text-3xl",
+  lg: "size-16 rounded-2xl text-xl",
+  xl: "size-24 rounded-hero text-3xl",
 } as const;
 
 /** Shop mark. Initials until the shop has a logo. The name sits beside it, so the image stays decorative. */

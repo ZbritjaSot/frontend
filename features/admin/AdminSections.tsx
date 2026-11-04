@@ -12,7 +12,7 @@ import {
 } from "@/features/admin/homeCurationApi";
 import { validationMessage } from "@/lib/api";
 import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
-import { fieldError, inputClass } from "@/lib/ui";
+import { fieldError, input } from "@/lib/ui";
 
 const sectionKey = ["admin", "sections"] as const;
 
@@ -154,7 +154,7 @@ export function AdminSections() {
                   {hints[row.key] ?? row.key}
                 </span>
                 <input
-                  className={inputClass}
+                  className={input()}
                   value={row.title}
                   maxLength={80}
                   aria-label={`Titulli i ${hints[row.key] ?? row.key}`}

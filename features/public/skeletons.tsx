@@ -24,12 +24,12 @@ export function HomePageSkeleton() {
         <div className="mx-auto grid w-full max-w-6xl gap-4">
           <Bone className="h-10 w-3/5 bg-white/15" />
           <div className="flex items-center gap-3">
-            <Bone className="size-12 rounded-xl bg-white/15" />
+            <Bone className="size-12 rounded-2xl bg-white/15" />
             <Bone className="h-5 w-40 bg-white/15" />
           </div>
           <Bone className="h-8 w-4/5 bg-white/15" />
           <Bone className="h-5 w-28 bg-white/15" />
-          <Bone className="aspect-[4/3] w-full rounded-[1.75rem] bg-white/10" />
+          <Bone className="aspect-[4/3] w-full rounded-hero bg-white/10" />
           <div className="flex h-11 items-center gap-2">
             <Bone className="h-2.5 w-8 rounded-full bg-accent/80" />
             <Bone className="size-2.5 rounded-full bg-white/30" />
@@ -46,11 +46,11 @@ export function HomePageSkeleton() {
       <div className="mx-auto mt-10 w-full max-w-6xl px-5 sm:px-8">
         <Bone className="h-8 w-40" />
         <Bone className="mt-4 h-36 w-full rounded-2xl" />
-        <Bone className="mt-3 h-24 w-full rounded-xl" />
+        <Bone className="mt-3 h-24 w-full rounded-2xl" />
       </div>
       <div className="mx-auto mt-10 flex w-full max-w-6xl gap-3 overflow-hidden px-5 sm:px-8">
-        <Bone className="h-[4.5rem] w-[17.5rem] shrink-0 rounded-xl" />
-        <Bone className="h-[4.5rem] w-[17.5rem] shrink-0 rounded-xl" />
+        <Bone className="h-[4.5rem] w-[17.5rem] shrink-0 rounded-lg" />
+        <Bone className="h-[4.5rem] w-[17.5rem] shrink-0 rounded-lg" />
       </div>
     </div>
   );
@@ -78,7 +78,7 @@ export function OfferCatalogueSkeleton() {
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }, (_, index) => (
           <div key={index} className="grid gap-2">
-            <Bone className="aspect-square rounded-3xl" />
+            <Bone className="aspect-square rounded-2xl" />
             <Bone className="h-3 w-1/2 rounded-full" />
             <Bone className="h-4 w-5/6" />
             <Bone className="h-4 w-2/5" />
@@ -106,8 +106,8 @@ export function FlyerCatalogueSkeleton() {
         <Bone className="h-11 w-36 rounded-full" />
       </div>
       <Bone className="mt-8 h-44 w-full rounded-2xl" />
-      <Bone className="mt-3 h-24 w-full rounded-xl" />
-      <Bone className="mt-3 h-24 w-full rounded-xl" />
+      <Bone className="mt-3 h-24 w-full rounded-2xl" />
+      <Bone className="mt-3 h-24 w-full rounded-2xl" />
     </div>
   );
 }
@@ -123,15 +123,15 @@ export function PartnerDirectorySkeleton() {
         {Array.from({ length: 4 }, (_, index) => (
           <div key={index} className="grid gap-3 border-b border-line pb-4">
             <div className="flex items-center gap-3">
-              <Bone className="size-12 rounded-xl" />
+              <Bone className="size-12 rounded-2xl" />
               <div className="grid flex-1 gap-2">
                 <Bone className="h-5 w-1/2" />
                 <Bone className="h-3 w-1/3" />
               </div>
             </div>
             <div className="flex gap-2.5 overflow-hidden">
-              <Bone className="h-36 w-[9.5rem] shrink-0 rounded-xl" />
-              <Bone className="h-36 w-[9.5rem] shrink-0 rounded-xl" />
+              <Bone className="h-36 w-[9.5rem] shrink-0 rounded-2xl" />
+              <Bone className="h-36 w-[9.5rem] shrink-0 rounded-2xl" />
             </div>
           </div>
         ))}
@@ -144,14 +144,14 @@ export function OfferDetailSkeleton() {
   return (
     <div aria-busy="true" aria-label="Duke ngarkuar ofertën" className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8">
       <div className="grid items-start gap-8 lg:grid-cols-12">
-        <Bone className="aspect-[4/3] w-full rounded-[1.35rem] lg:col-span-7" />
+        <Bone className="aspect-[4/3] w-full rounded-2xl lg:col-span-7" />
         <div className="grid gap-3 lg:col-span-5">
           <Bone className="h-3 w-24 rounded-full" />
           <Bone className="h-10 w-4/5" />
           <Bone className="h-7 w-32" />
           <Bone className="h-4 w-40" />
           <div className="mt-2 flex items-center gap-3">
-            <Bone className="size-11 rounded-xl" />
+            <Bone className="size-11 rounded-lg" />
             <Bone className="h-5 w-40" />
           </div>
         </div>
@@ -159,7 +159,7 @@ export function OfferDetailSkeleton() {
       <Bone className="mt-10 h-6 w-48" />
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {Array.from({ length: 4 }, (_, index) => (
-          <Bone key={index} className="aspect-square rounded-3xl" />
+          <Bone key={index} className="aspect-square rounded-2xl" />
         ))}
       </div>
     </div>
@@ -177,7 +177,7 @@ export function FlyerDetailSkeleton() {
           </div>
           <Bone className="h-12 w-4/5 bg-white/15" />
           <Bone className="h-4 w-2/3 bg-white/15" />
-          <Bone className="aspect-[4/5] w-full max-w-xs rounded-[1.35rem] bg-white/10" />
+          <Bone className="aspect-[4/5] w-full max-w-xs rounded-hero bg-white/10" />
         </div>
       </div>
       <div className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8">
@@ -218,7 +218,7 @@ export function ShopDetailSkeleton() {
       <Bone className="mt-8 h-7 w-48" />
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {Array.from({ length: 4 }, (_, index) => (
-          <Bone key={index} className="aspect-square rounded-3xl" />
+          <Bone key={index} className="aspect-square rounded-2xl" />
         ))}
       </div>
     </div>
@@ -240,7 +240,7 @@ export function FavoritesSkeleton() {
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 4 }, (_, index) => (
             <div key={index} className="grid gap-2">
-              <Bone className="aspect-square rounded-3xl" />
+              <Bone className="aspect-square rounded-2xl" />
               <Bone className="h-4 w-3/4" />
             </div>
           ))}

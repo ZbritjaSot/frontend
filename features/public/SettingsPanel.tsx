@@ -157,7 +157,7 @@ function IconWell({ children, muted = false }: { children: ReactNode; muted?: bo
   return (
     <span
       className={[
-        "inline-grid size-10 shrink-0 place-items-center rounded-xl",
+        "inline-grid size-10 shrink-0 place-items-center rounded-lg",
         muted
           ? "bg-sunken text-muted dark:bg-white/5"
           : "bg-sunken text-ink dark:bg-white/8",

@@ -20,7 +20,7 @@ import { useManagerReview } from "@/hooks/useManagerReview";
 import { validationMessage } from "@/lib/api";
 import { formatDateShortSq } from "@/lib/format";
 import type { BundleCatalog } from "@/features/offers/bizApi";
-import { btnGhost, btnPrimary, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
+import { button, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 
 const rowButton =
   "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60";
@@ -91,15 +91,15 @@ export function ManagerReview({ catalog }: { catalog?: BundleCatalog } = {}) {
         </h1>
         <div className="flex flex-wrap gap-2">
           {resolvedCatalog ? (
-            <Link href={createHref} className={btnPrimary}>
+            <Link href={createHref} className={button()}>
               {isFlyer ? "Fletushkë e re" : "Oferta të reja"}
             </Link>
           ) : (
             <>
-              <Link href="/biz/review/new" className={btnPrimary}>
+              <Link href="/biz/review/new" className={button()}>
                 Fletushkë e re
               </Link>
-              <Link href="/biz/review/new?kind=offers" className={btnGhost}>
+              <Link href="/biz/review/new?kind=offers" className={button({ variant: "secondary" })}>
                 Oferta të reja
               </Link>
             </>
@@ -154,7 +154,7 @@ export function ManagerReview({ catalog }: { catalog?: BundleCatalog } = {}) {
           <p className={panelLead}>
             {validationMessage(error, "Nuk mundëm t’i ngarkojmë fletushkat.")}
           </p>
-          <button className={btnGhost} type="button" onClick={() => refetch()}>
+          <button className={button({ variant: "secondary" })} type="button" onClick={() => refetch()}>
             Provo përsëri
           </button>
         </div>

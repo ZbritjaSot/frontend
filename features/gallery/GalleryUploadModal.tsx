@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { titleFromFilename } from "@/features/gallery/titleFromFilename";
 import { useLeaveGuard } from "@/hooks/useLeaveGuard";
-import { btnGhost, btnPrimary, fieldError, inputClass } from "@/lib/ui";
+import { button, fieldError, input } from "@/lib/ui";
 
 export type PendingGalleryPhoto = {
   key: string;
@@ -166,7 +166,7 @@ function GalleryUploadForm({
           Titulli merret nga emri i fotos. Mund ta ndryshosh para se të ruash.
         </p>
         {photos.length > 0 ? (
-          <ul className="m-0 max-h-72 w-full min-w-0 list-none overflow-y-auto overscroll-contain rounded-xl border border-line p-0">
+          <ul className="m-0 max-h-72 w-full min-w-0 list-none overflow-y-auto overscroll-contain rounded-2xl border border-line p-0">
             {photos.map((photo, index) => (
               <li
                 key={photo.key}
@@ -180,7 +180,7 @@ function GalleryUploadForm({
                   className="size-12 shrink-0 rounded-lg object-cover"
                 />
                 <input
-                  className={`${inputClass} min-h-10 min-w-0 flex-1 py-2 text-sm`}
+                  className={`${input({ size: "sm" })} flex-1`}
                   value={photo.title}
                   maxLength={160}
                   required
@@ -207,7 +207,8 @@ function GalleryUploadForm({
         <button
           type="submit"
           disabled={busy}
-          className={`${btnPrimary} min-h-10 disabled:opacity-60`}
+          aria-busy={busy}
+          className={button({ size: "sm" })}
         >
           {busy
             ? progress && progress.total > 1
@@ -217,7 +218,7 @@ function GalleryUploadForm({
         </button>
         <button
           type="button"
-          className={btnGhost}
+          className={button({ variant: "secondary" })}
           disabled={busy}
           onClick={onClose}
         >

@@ -40,12 +40,7 @@ import {
 } from "@/lib/datetime";
 import { formatDateShortSq, formatEurFromCents } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import {
-  btnGhost,
-  btnPrimary,
-  fieldError,
-  inputClass,
-} from "@/lib/ui";
+import { button, fieldError, input } from "@/lib/ui";
 import type { BundleCatalog } from "@/features/offers/bizApi";
 import {
   emptyItem,
@@ -431,15 +426,15 @@ export function OfferForm({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button className={btnGhost} type="button" disabled={pending} onClick={() => router.push(leaveHref)}>
+          <button className={button({ variant: "secondary" })} type="button" disabled={pending} onClick={() => router.push(leaveHref)}>
             Anulo
           </button>
           {audience === "biz" ? (
-            <button className={btnGhost} type="button" disabled={pending} onClick={() => void save(false)}>
+            <button className={button({ variant: "secondary" })} type="button" disabled={pending} aria-busy={pending} onClick={() => void save(false)}>
               {pending ? "Duke u ruajtur…" : "Ruaj draft"}
             </button>
           ) : null}
-          <button className={btnPrimary} type="submit" disabled={pending}>
+          <button className={button()} type="submit" disabled={pending} aria-busy={pending}>
             {pending ? "Duke u ruajtur…" : primaryLabel}
           </button>
         </div>
@@ -457,7 +452,7 @@ export function OfferForm({
           <label className="mt-5 flex flex-col gap-2">
             <span className={micro}>Titulli i fletushkës</span>
             <input
-              className={`${inputClass} text-2xl! font-bold tracking-[-0.03em]`}
+              className={`${input()} text-2xl! font-bold tracking-[-0.03em]`}
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -535,7 +530,7 @@ export function OfferForm({
                     type="button"
                     aria-pressed={selected}
                     disabled={pending}
-                    className={`flex w-full cursor-pointer flex-col gap-1 rounded-xl border px-4 py-3 text-left ${
+                    className={`flex w-full cursor-pointer flex-col gap-1 rounded-2xl border px-4 py-3 text-left ${
                       selected ? "border-accent bg-accent/10" : "border-line bg-transparent hover:bg-sunken"
                     }`}
                     onClick={() =>
@@ -595,7 +590,7 @@ export function OfferForm({
                         type="button"
                         aria-pressed={coverKey === item.key}
                         disabled={pending}
-                        className={`flex w-28 cursor-pointer flex-col gap-2 rounded-xl border p-2 text-left ${
+                        className={`flex w-28 cursor-pointer flex-col gap-2 rounded-2xl border p-2 text-left ${
                           coverKey === item.key
                             ? "border-accent bg-accent/10"
                             : "border-line bg-transparent hover:bg-sunken"
@@ -687,7 +682,7 @@ export function OfferForm({
                     <div className="flex items-start gap-3">
                       <div className="grid min-w-0 flex-1 gap-3 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
                         <input
-                          className={inputClass}
+                          className={input()}
                           type="text"
                           value={item.name}
                           onChange={(e) =>
@@ -778,7 +773,7 @@ export function OfferForm({
                         <span className={micro}>Zbritja %</span>
                         <div className="relative">
                           <input
-                            className={`${inputClass} pr-8 text-right tabular-nums`}
+                            className={`${input()} pr-8 text-right tabular-nums`}
                             type="text"
                             inputMode="numeric"
                             autoComplete="off"
@@ -830,7 +825,7 @@ export function OfferForm({
                     <label className="flex min-w-0 flex-col gap-1.5">
                       <span className={micro}>Linku i blerjes (opsional)</span>
                       <input
-                        className={inputClass}
+                        className={input()}
                         type="url"
                         inputMode="url"
                         autoComplete="off"
@@ -888,7 +883,7 @@ export function OfferForm({
         footer={
           <>
             <button
-              className={btnGhost}
+              className={button({ variant: "secondary" })}
               type="button"
               disabled={pending}
               onClick={() => {
@@ -899,9 +894,10 @@ export function OfferForm({
               Kthehu dhe ndrysho
             </button>
             <button
-              className={btnPrimary}
+              className={button()}
               type="button"
               disabled={pending || submitBlocked}
+              aria-busy={pending}
               onClick={() => void save(audience === "biz")}
             >
               {pending ? "Duke u ruajtur…" : primaryLabel}

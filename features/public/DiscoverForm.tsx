@@ -1,5 +1,6 @@
 import { CategoryChip } from "@/features/public/CategoryChip";
 import { browsePath, type CatalogSort, type Katalog } from "@/lib/browse";
+import { button } from "@/lib/ui";
 import type { CategorySummary } from "@/types";
 
 type DiscoverFormProps = {
@@ -36,8 +37,8 @@ export function DiscoverForm({
         method="get"
         className={
           catalog
-            ? "flex w-full max-w-xl items-center rounded-full border border-line bg-elevated pr-1 transition-[border-color,box-shadow] duration-150 focus-within:border-accent focus-within:ring-2 focus-within:ring-focus dark:border-white/10 dark:bg-white/[0.04]"
-            : "flex items-center rounded-full border border-line bg-elevated focus-within:border-accent focus-within:ring-2 focus-within:ring-focus dark:border-white/10 dark:bg-[#141c18]"
+            ? "flex w-full max-w-xl items-center rounded-full border border-line bg-elevated pr-1 transition-[border-color,box-shadow] duration-150 has-[input:focus]:border-focus has-[input:focus]:ring-1 has-[input:focus]:ring-focus dark:border-white/10 dark:bg-white/[0.04]"
+            : "flex items-center rounded-full border border-line bg-elevated transition-[border-color,box-shadow] duration-150 has-[input:focus]:border-focus has-[input:focus]:ring-1 has-[input:focus]:ring-focus dark:border-white/10 dark:bg-[#141c18]"
         }
       >
         {category ? (
@@ -72,8 +73,8 @@ export function DiscoverForm({
             placeholder={placeholder}
             className={
               catalog
-                ? "h-11 w-full min-w-0 border-0 bg-transparent pr-3 pl-10 text-sm text-ink outline-none placeholder:text-muted"
-                : "h-14 w-full border-0 bg-transparent pr-3 pl-12 text-base text-ink outline-none placeholder:text-muted"
+                ? "h-11 w-full min-w-0 border-0 bg-transparent pr-3 pl-10 text-base text-ink outline-hidden placeholder:text-muted/70"
+                : "h-14 w-full border-0 bg-transparent pr-3 pl-12 text-base text-ink outline-hidden placeholder:text-muted/70"
             }
           />
         </label>
@@ -81,8 +82,8 @@ export function DiscoverForm({
           type="submit"
           className={
             catalog
-              ? "my-1.5 inline-flex h-8 shrink-0 cursor-pointer appearance-none items-center rounded-full border-0 bg-accent px-3.5 text-[0.8125rem] font-bold text-charcoal transition-opacity duration-150 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-              : "m-1.5 inline-flex min-h-11 shrink-0 cursor-pointer appearance-none items-center rounded-full border-0 bg-accent px-5 text-sm font-extrabold text-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              ? `${button({ size: "sm", shape: "pill" })} my-1`
+              : `${button({ shape: "pill" })} m-1.5`
           }
         >
           Kërko

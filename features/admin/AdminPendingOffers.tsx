@@ -13,7 +13,7 @@ import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status
 import { useApproveOffer, usePendingOffers } from "@/hooks/useAdminOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, offerStatusClass, panelLead } from "@/lib/ui";
+import { button, offerStatusClass, panelLead } from "@/lib/ui";
 import type { OfferBundle } from "@/types";
 
 const rowButton =
@@ -99,7 +99,7 @@ export function AdminPendingOffers({
         <p className={panelLead}>
           {validationMessage(error, "Nuk mundëm t’i ngarkojmë ofertat.")}
         </p>
-        <button className={btnGhost} type="button" onClick={() => refetch()}>
+        <button className={button({ variant: "secondary" })} type="button" onClick={() => refetch()}>
           Provo përsëri
         </button>
       </div>

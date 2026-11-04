@@ -15,6 +15,7 @@ import {
   type CatalogSort,
   type Katalog,
 } from "@/lib/browse";
+import { button } from "@/lib/ui";
 import type { CategorySummary, PublicBusiness, PublicFolder, PublicOffer } from "@/types";
 
 type ResultsViewProps = {
@@ -223,10 +224,7 @@ export function ResultsView({
           }
           action={
             noActiveFlyers ? (
-              <Link
-                href="/oferta"
-                className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 text-sm font-extrabold tracking-tight text-charcoal hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-              >
+              <Link href="/oferta" className={button({ shape: "pill" })}>
                 Shiko ofertat tjera
               </Link>
             ) : undefined

@@ -250,7 +250,7 @@ function ProductThumb({
   large?: boolean;
 }) {
   return (
-    <div className={`relative shrink-0 overflow-hidden rounded-xl bg-sunken ${large ? "aspect-square w-full sm:size-32" : "size-14"}`}>
+    <div className={`relative shrink-0 overflow-hidden rounded-2xl bg-sunken ${large ? "aspect-square w-full sm:size-32" : "size-14"}`}>
       {url ? (
         <Image src={url} alt="" fill unoptimized className="object-cover" sizes={large ? "136px" : "56px"} />
       ) : (

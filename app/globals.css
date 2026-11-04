@@ -52,6 +52,8 @@
   --text-kicker--line-height: 1.4;
   --text-kicker--font-weight: 700;
   --text-kicker--letter-spacing: 0.16em;
+
+  --radius-hero: 1.75rem;
 }
 
 :root {

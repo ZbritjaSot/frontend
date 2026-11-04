@@ -15,7 +15,7 @@ import {
   saveAdminSpotlight,
 } from "@/features/admin/homeCurationApi";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, fieldError, iconButton, inputClass, panelLead } from "@/lib/ui";
+import { button, fieldError, iconButton, input, panelLead } from "@/lib/ui";
 
 const homeKey = ["admin", "home"] as const;
 
@@ -116,6 +116,7 @@ export function AdminHome() {
                     type="button"
                     aria-label={`Hiq ${offer.name}`}
                     disabled={saveHero.isPending}
+                    aria-busy={saveHero.isPending}
                     onClick={() =>
                       saveHero.mutate(
                         heroes.filter((item) => item.id !== offer.id).map((item) => item.id),
@@ -154,7 +155,7 @@ export function AdminHome() {
             <div className="grid gap-3 border-t border-line px-4 py-4">
               <div className="flex flex-wrap items-center gap-3">
                 <input
-                  className={`${inputClass} min-w-0 flex-1`}
+                  className={`${input()} min-w-0 flex-1`}
                   value={heroSearch}
                   placeholder=""
                   aria-label="Kërko produkt, dyqan ose qytet"
@@ -168,7 +169,7 @@ export function AdminHome() {
                 />
                 <button
                   type="button"
-                  className={btnGhost}
+                  className={button({ variant: "secondary" })}
                   onClick={() => setCreatingHero((open) => !open)}
                 >
                   {creatingHero ? "Mbyll formularin" : "Krijo ofertë"}
@@ -208,6 +209,7 @@ export function AdminHome() {
                         type="button"
                         aria-label={`Shto ${offer.name}`}
                         disabled={saveHero.isPending}
+                        aria-busy={saveHero.isPending}
                         onClick={() =>
                           saveHero.mutate([...heroes.map((item) => item.id), offer.id])
                         }
@@ -251,6 +253,7 @@ export function AdminHome() {
                     type="button"
                     aria-label={`Hiq ${category.name}`}
                     disabled={saveSpotlight.isPending}
+                    aria-busy={saveSpotlight.isPending}
                     onClick={() =>
                       saveSpotlight.mutate(
                         spotlight
@@ -295,6 +298,7 @@ export function AdminHome() {
                         type="button"
                         aria-label={`Shto ${category.name}`}
                         disabled={saveSpotlight.isPending}
+                        aria-busy={saveSpotlight.isPending}
                         onClick={() =>
                           saveSpotlight.mutate([
                             ...spotlight.map((item) => item.id),

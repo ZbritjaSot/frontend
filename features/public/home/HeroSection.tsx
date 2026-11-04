@@ -113,7 +113,7 @@ export function HeroSection({ offers }: { offers: PublicOffer[] }) {
           {count > 0 ? (
             <div
               ref={scroller}
-              className="flex aspect-[4/3] w-full cursor-grab touch-pan-y overflow-x-hidden overflow-y-hidden rounded-[1.75rem] ring-1 ring-white/10 [scrollbar-width:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+              className="flex aspect-[4/3] w-full cursor-grab touch-pan-y overflow-x-hidden overflow-y-hidden rounded-hero ring-1 ring-white/10 [scrollbar-width:none] active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
               onScroll={syncFromScroll}
               onPointerDown={(event) => {
                 if (!scroller.current || (event.pointerType === "mouse" && event.button !== 0)) {

@@ -22,11 +22,10 @@ import { titleFromFilename } from "@/features/gallery/titleFromFilename";
 import { useLeaveGuard } from "@/hooks/useLeaveGuard";
 import { validationMessage } from "@/lib/api";
 import {
-  btnGhost,
-  btnPrimary,
+  button,
   fieldError,
   fieldLabel,
-  inputClass,
+  input,
   pageTitle,
   panelLead,
 } from "@/lib/ui";
@@ -203,7 +202,7 @@ export function AdminPlatformGallery() {
           Foto të përbashkëta që bizneset mund t’i përdorin te ofertat.
         </p>
       </div>
-      <button className={btnPrimary} type="button" onClick={openCreate}>
+      <button className={button()} type="button" onClick={openCreate}>
         <AddOutlinedIcon fontSize="small" />
         Shto foto
       </button>
@@ -228,7 +227,7 @@ export function AdminPlatformGallery() {
             {validationMessage(gallery.error, "Nuk mundëm ta ngarkojmë galerinë.")}
           </p>
           <button
-            className={btnGhost}
+            className={button({ variant: "secondary" })}
             type="button"
             onClick={() => void gallery.refetch()}
           >
@@ -269,7 +268,7 @@ export function AdminPlatformGallery() {
                 {images.map((image) => (
                   <li
                     key={image.id}
-                    className="group relative overflow-hidden rounded-xl border border-line bg-sunken"
+                    className="group relative overflow-hidden rounded-2xl border border-line bg-sunken"
                   >
                     <span className="relative block aspect-square">
                       <Image
@@ -382,7 +381,7 @@ export function AdminPlatformGallery() {
                 ruash.
               </p>
               {pendingPhotos.length > 0 ? (
-                <ul className="m-0 max-h-72 w-full min-w-0 list-none overflow-y-auto overscroll-contain rounded-xl border border-line p-0">
+                <ul className="m-0 max-h-72 w-full min-w-0 list-none overflow-y-auto overscroll-contain rounded-2xl border border-line p-0">
                   {pendingPhotos.map((photo, index) => (
                     <li
                       key={photo.key}
@@ -396,7 +395,7 @@ export function AdminPlatformGallery() {
                         className="size-12 shrink-0 rounded-lg object-cover"
                       />
                       <input
-                        className={`${inputClass} min-h-10 min-w-0 flex-1 py-2 text-sm`}
+                        className={`${input({ size: "sm" })} flex-1`}
                         value={photo.title}
                         maxLength={160}
                         required
@@ -420,7 +419,7 @@ export function AdminPlatformGallery() {
             </div>
           ) : editor && typeof editor !== "string" ? (
             <>
-              <div className="relative mx-auto aspect-square w-32 overflow-hidden rounded-xl border border-line">
+              <div className="relative mx-auto aspect-square w-32 overflow-hidden rounded-2xl border border-line">
                 <Image
                   src={editor.thumb_url}
                   alt={editor.title ?? ""}
@@ -433,7 +432,7 @@ export function AdminPlatformGallery() {
               <label className="grid gap-1.5">
                 <span className={fieldLabel}>Titulli</span>
                 <input
-                  className={inputClass}
+                  className={input()}
                   value={title}
                   maxLength={160}
                   required
@@ -447,7 +446,8 @@ export function AdminPlatformGallery() {
             <button
               type="submit"
               disabled={busy}
-              className={`${btnPrimary} min-h-10 disabled:opacity-60`}
+              aria-busy={busy}
+              className={button({ size: "sm" })}
             >
               {busy
                 ? uploadProgress && uploadProgress.total > 1
@@ -457,7 +457,7 @@ export function AdminPlatformGallery() {
             </button>
             <button
               type="button"
-              className={btnGhost}
+              className={button({ variant: "secondary" })}
               disabled={busy}
               onClick={closeEditor}
             >

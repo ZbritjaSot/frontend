@@ -1,28 +1,7 @@
 /** Shared inquiry form classes — Kontakt & Partner. Keep within public design tokens. */
 
-export const inquiryField =
-  "flex flex-col gap-2";
-
-export const inquiryLabelRow =
-  "flex items-baseline justify-between gap-3";
-
-export const inquiryLabel =
-  "text-sm font-bold tracking-tight text-ink";
-
-export const inquiryOptional =
-  "text-xs font-semibold text-muted";
-
-export const inquiryInput =
-  "w-full min-h-12 appearance-none rounded-xl border border-line bg-canvas px-4 py-3 text-base font-medium text-ink outline-none transition-[border-color,box-shadow] placeholder:text-muted/70 focus:border-focus focus:ring-2 focus:ring-focus/20 disabled:cursor-wait disabled:opacity-60 dark:bg-elevated dark:border-white/10";
-
-export const inquiryTextarea =
-  `${inquiryInput} min-h-36 resize-y leading-relaxed`;
-
 export const inquiryError =
-  "m-0 rounded-xl border border-danger/25 bg-danger-soft/20 px-3.5 py-3 text-sm font-semibold text-danger dark:bg-danger-soft/15";
-
-export const inquirySubmit =
-  "inline-flex min-h-12 w-full cursor-pointer items-center justify-center rounded-xl border-0 bg-accent px-5 text-base font-extrabold tracking-tight text-charcoal transition-[filter,transform] duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus active:scale-[0.99] disabled:cursor-wait disabled:opacity-65 sm:w-auto sm:min-w-[11rem]";
+  "m-0 rounded-lg border border-danger/25 bg-danger-soft/20 px-3.5 py-3 text-sm font-semibold text-danger dark:bg-danger-soft/15";
 
 export const inquiryForm =
   "grid gap-5";

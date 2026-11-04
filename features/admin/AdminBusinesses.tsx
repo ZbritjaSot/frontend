@@ -24,17 +24,7 @@ import {
   useUpdateBusiness,
 } from "@/hooks/useAdminBusinesses";
 import { accountEmailMessage, validationMessage } from "@/lib/api";
-import {
-  btnGhost,
-  btnPrimary,
-  checkInput,
-  fieldError,
-  fieldLabel,
-  inputClass,
-  offerStatusClass,
-  pageTitle,
-  panelLead,
-} from "@/lib/ui";
+import { button, checkInput, fieldError, fieldLabel, input, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 import { businessFormSchema, type BusinessFormInput } from "@/schemas/business";
 import type { Business } from "@/types";
 
@@ -292,7 +282,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h1 className={`${pageTitle} mb-0!`}>Bizneset</h1>
-        <button className={btnPrimary} type="button" onClick={openCreate}>
+        <button className={button()} type="button" onClick={openCreate}>
           <AddOutlinedIcon fontSize="small" />
           Shto biznes
         </button>
@@ -318,7 +308,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
           <p className={panelLead}>
             {validationMessage(error, "Nuk mundëm t’i ngarkojmë bizneset.")}
           </p>
-          <button className={btnGhost} type="button" onClick={() => refetch()}>
+          <button className={button({ variant: "secondary" })} type="button" onClick={() => refetch()}>
             Provo përsëri
           </button>
         </div>
@@ -502,7 +492,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
         onClose={() => setCreatedAccount(null)}
         footer={
           <button
-            className={btnPrimary}
+            className={button()}
             type="button"
             onClick={() => setCreatedAccount(null)}
           >
@@ -530,7 +520,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
         footer={
           <>
             <button
-              className={btnGhost}
+              className={button({ variant: "secondary" })}
               type="button"
               disabled={createMutation.isPending}
               onClick={() => setCreating(false)}
@@ -538,10 +528,11 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
               Anulo
             </button>
             <button
-              className={btnPrimary}
+              className={button()}
               type="submit"
               form="admin-business-create"
               disabled={createMutation.isPending}
+              aria-busy={createMutation.isPending}
             >
               {createMutation.isPending ? "Duke u ruajtur…" : "Krijo llogarinë"}
             </button>
@@ -566,7 +557,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
           <label className={fieldLabel}>
             <span>Emri i biznesit</span>
             <input
-              className={inputClass}
+              className={input()}
               value={form.name}
               maxLength={255}
               onChange={(event) =>
@@ -577,7 +568,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
           <label className={fieldLabel}>
             <span>Emri i pronarit (opsional)</span>
             <input
-              className={inputClass}
+              className={input()}
               value={form.owner_name}
               maxLength={255}
               onChange={(event) =>
@@ -591,7 +582,7 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
           <label className={fieldLabel}>
             <span>Email</span>
             <input
-              className={inputClass}
+              className={input()}
               type="email"
               value={form.owner_email}
               maxLength={255}

@@ -1,7 +1,9 @@
+import { button } from "@/lib/ui";
+
 export function OfflineNote({ onRetry }: { onRetry: () => void }) {
   return (
     <div role="alert" className="mt-10 flex flex-col items-center gap-3 px-4 py-8 text-center">
-      <div className="flex h-36 w-44 items-center justify-center rounded-[1.75rem] bg-forest">
+      <div className="flex h-36 w-44 items-center justify-center rounded-hero bg-forest">
         <svg viewBox="0 0 120 96" className="h-24 w-28" aria-hidden="true">
           <rect x="28" y="8" width="64" height="80" rx="14" fill="#f6f3ea" />
           <rect x="36" y="18" width="48" height="36" rx="8" fill="#243528" />
@@ -15,7 +17,7 @@ export function OfflineNote({ onRetry }: { onRetry: () => void }) {
       <button
         type="button"
         onClick={onRetry}
-        className="mt-1 inline-flex min-h-11 cursor-pointer items-center rounded-full bg-accent px-4 font-extrabold text-charcoal"
+        className={`${button({ shape: "pill" })} mt-1`}
       >
         Provo përsëri
       </button>

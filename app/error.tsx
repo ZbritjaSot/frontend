@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { btnPrimary } from "@/lib/ui";
+import { button } from "@/lib/ui";
 
 export default function AppError({
   reset,
@@ -19,13 +19,10 @@ export default function AppError({
         kryesore.
       </p>
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <button className={btnPrimary} type="button" onClick={reset}>
+        <button className={button()} type="button" onClick={reset}>
           Provo përsëri
         </button>
-        <Link
-          href="/"
-          className="inline-flex min-h-11 items-center text-sm font-bold text-muted no-underline hover:text-accent-fg"
-        >
+        <Link href="/" className={button({ variant: "ghost" })}>
           Faqja kryesore
         </Link>
       </div>

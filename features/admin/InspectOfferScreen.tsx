@@ -20,12 +20,10 @@ import { safeNextPath } from "@/lib/safeNextPath";
 import { formatDateShortSq } from "@/lib/format";
 import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status";
 import {
-  btnDanger,
-  btnGhost,
-  btnPrimary,
+  button,
   fieldError,
   fieldLabel,
-  inputClass,
+  input,
   offerStatusClass,
   pageTitle,
   panelLead,
@@ -57,7 +55,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
         <p className={panelLead}>
           {validationMessage(error, "Dosja nuk u gjet.")}
         </p>
-        <Link href="/admin/offers" className={btnGhost}>
+        <Link href="/admin/offers" className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
           Në pritje
         </Link>
@@ -148,14 +146,15 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href={editHref} className={btnGhost}>
+          <Link href={editHref} className={button({ variant: "secondary" })}>
             Ndrysho
           </Link>
           {isPending ? (
             <button
               type="button"
-              className={btnPrimary}
+              className={button()}
               disabled={approveMutation.isPending}
+              aria-busy={approveMutation.isPending}
               onClick={() => setConfirmApprove(true)}
             >
               Aprovo
@@ -164,8 +163,9 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
           {isApproved ? (
             <button
               type="button"
-              className={btnDanger}
+              className={button({ variant: "danger" })}
               disabled={takeDownMutation.isPending}
+              aria-busy={takeDownMutation.isPending}
               onClick={() => {
                 setActionError(null);
                 setConfirmTakeDown(true);
@@ -219,7 +219,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
           <>
             <button
               type="button"
-              className={btnGhost}
+              className={button({ variant: "secondary" })}
               disabled={takeDownMutation.isPending}
               onClick={closeTakeDown}
             >
@@ -227,8 +227,9 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
             </button>
             <button
               type="button"
-              className={btnDanger}
+              className={button({ variant: "danger" })}
               disabled={takeDownMutation.isPending || takeDownReason.trim() === ""}
+              aria-busy={takeDownMutation.isPending}
               onClick={onTakeDown}
             >
               {takeDownMutation.isPending ? "Duke u hequr…" : "Hiq"}
@@ -244,7 +245,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
           <label className={fieldLabel}>
             <span>Arsye</span>
             <textarea
-              className={`${inputClass} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`}
+              className={`${input({ multiline: true })} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`}
               rows={4}
               value={takeDownReason}
               maxLength={1000}

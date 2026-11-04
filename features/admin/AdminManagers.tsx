@@ -24,17 +24,7 @@ import {
 } from "@/features/branches/api";
 import { useApproveOffer } from "@/hooks/useAdminOffers";
 import { validationMessage } from "@/lib/api";
-import {
-  btnGhost,
-  btnPrimary,
-  offerStatusClass,
-  checkInput,
-  fieldError,
-  fieldLabel,
-  inputClass,
-  pageTitle,
-  panelLead,
-} from "@/lib/ui";
+import { button, checkInput, fieldError, fieldLabel, input, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 import type { ManagerAccount, ManagerPendingOffer } from "@/types";
 
 const managersKey = ["admin", "managers"] as const;
@@ -117,7 +107,7 @@ export function AdminManagers() {
   const header = (
     <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
       <h1 className={`${pageTitle} mb-0!`}>Menaxherët</h1>
-      <button className={btnPrimary} type="button" onClick={() => setCreating(true)}>
+      <button className={button()} type="button" onClick={() => setCreating(true)}>
         <AddOutlinedIcon fontSize="small" />
         Shto menaxher
       </button>
@@ -156,7 +146,7 @@ export function AdminManagers() {
           <p className={panelLead}>
             {validationMessage(managers.error, "Nuk mundëm t’i ngarkojmë menaxherët.")}
           </p>
-          <button className={btnGhost} type="button" onClick={() => managers.refetch()}>
+          <button className={button({ variant: "secondary" })} type="button" onClick={() => managers.refetch()}>
             Provo përsëri
           </button>
         </div>
@@ -386,7 +376,7 @@ export function AdminManagers() {
         onClose={() => setCreatedAccount(null)}
         footer={
           <button
-            className={btnPrimary}
+            className={button()}
             type="button"
             onClick={() => setCreatedAccount(null)}
           >
@@ -487,7 +477,7 @@ function ManagerFormModal({
       footer={
         <>
           <button
-            className={btnGhost}
+            className={button({ variant: "secondary" })}
             type="button"
             disabled={save.isPending}
             onClick={onClose}
@@ -495,10 +485,11 @@ function ManagerFormModal({
             Anulo
           </button>
           <button
-            className={btnPrimary}
+            className={button()}
             type="submit"
             form="admin-manager-form"
             disabled={save.isPending}
+            aria-busy={save.isPending}
           >
             {save.isPending ? pendingLabel : submitLabel}
           </button>
@@ -526,7 +517,7 @@ function ManagerFormModal({
             <label className={fieldLabel}>
               <span>Emri</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={name}
                 maxLength={255}
                 onChange={(event) => setName(event.target.value)}
@@ -537,7 +528,7 @@ function ManagerFormModal({
             <label className={fieldLabel}>
               <span>Email</span>
               <input
-                className={inputClass}
+                className={input()}
                 type="email"
                 value={email}
                 maxLength={255}
@@ -593,7 +584,7 @@ function ShopPicker({
       <legend className="mb-1 text-xs font-bold tracking-[0.08em] text-muted uppercase">
         Dyqanet
       </legend>
-      <div className="overflow-hidden rounded-xl border border-line">
+      <div className="overflow-hidden rounded-2xl border border-line">
         <TableSearch value={filter} onChange={setFilter} label="Kërko dyqanin" />
         {loading ? (
           <p className="m-0 px-4 py-5 text-sm text-muted">Duke ngarkuar dyqanet…</p>

@@ -31,14 +31,7 @@ import {
 } from "@/hooks/useBizOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import {
-  btnGhost,
-  btnPrimary,
-  fieldError,
-  offerStatusClass,
-  pageTitle,
-  panelLead,
-} from "@/lib/ui";
+import { button, fieldError, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 import type { OfferBundle } from "@/types";
 
 const rowButton =
@@ -98,7 +91,7 @@ export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }
         <h1 className={`${pageTitle} mb-0!`}>
           {isFlyer ? "Fletushkat" : "Ofertat"}
         </h1>
-        <Link href={`${basePath}/new`} className={btnPrimary}>
+        <Link href={`${basePath}/new`} className={button()}>
           {isFlyer ? "Fletushkë e re" : "Oferta të reja"}
         </Link>
       </div>
@@ -138,7 +131,7 @@ export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }
                 : "Nuk mundëm t’i ngarkojmë ofertat.",
             )}
           </p>
-          <button className={btnGhost} type="button" onClick={() => refetch()}>
+          <button className={button({ variant: "secondary" })} type="button" onClick={() => refetch()}>
             Provo përsëri
           </button>
         </div>

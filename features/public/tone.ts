@@ -1,4 +1,4 @@
-/** Shared public radii and type. Editorial surfaces are 24px, cards and photos are 16px. */
+/** Radius roles: rounded-lg controls · rounded-2xl cards/media · rounded-hero (28px) hero/editorial only. */
 
 export const media = "overflow-hidden rounded-2xl";
 export const panel =

@@ -121,7 +121,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
             </div>
             {lead ? (
               <Link href={`/offers/${lead.id}`} className="group block max-w-sm">
-                <span className="relative block overflow-hidden rounded-[1.6rem]">
+                <span className="relative block overflow-hidden rounded-hero">
                   <ProductVisual
                     name={lead.name}
                     imageUrl={lead.image?.thumb_url}

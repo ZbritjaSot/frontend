@@ -55,8 +55,8 @@ export function PlaceBranchRow({
     ? "block truncate text-xs text-ivory/70"
     : "block truncate text-xs text-muted";
   const shellClass = onForest
-    ? "flex min-w-0 items-center gap-3 rounded-xl border border-white/12 bg-white/[0.06] px-3 py-2.5"
-    : "flex min-w-0 items-center gap-3 rounded-xl border border-line bg-elevated px-3 py-2.5 dark:border-white/10";
+    ? "flex min-w-0 items-center gap-3 rounded-lg border border-white/12 bg-white/[0.06] px-3 py-2.5"
+    : "flex min-w-0 items-center gap-3 rounded-lg border border-line bg-elevated px-3 py-2.5 dark:border-white/10";
 
   const body = (
     <>

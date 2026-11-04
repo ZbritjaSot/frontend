@@ -80,7 +80,7 @@ function ViewsTooltip({ active, payload }: TooltipContentProps) {
   const parsed = parseDay(day.date);
 
   return (
-    <div className="rounded-xl border border-line bg-elevated px-3 py-2 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
+    <div className="rounded-lg border border-line bg-elevated px-3 py-2 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
       {parsed ? (
         <>
           <p className="m-0 text-[0.65rem] font-bold tracking-[0.14em] text-muted uppercase">

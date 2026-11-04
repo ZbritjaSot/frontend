@@ -61,8 +61,8 @@ export function PlacePinRow({
     <a
       className={
         onForest
-          ? `group flex min-w-0 items-center gap-3 rounded-xl border border-white/12 bg-white/[0.06] ${pad} transition-colors hover:bg-white/[0.1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${className ?? ""}`
-          : `group flex min-w-0 items-center gap-3 rounded-xl border border-line bg-elevated ${pad} transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 ${className ?? ""}`
+          ? `group flex min-w-0 items-center gap-3 rounded-lg border border-white/12 bg-white/[0.06] ${pad} transition-colors hover:bg-white/[0.1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${className ?? ""}`
+          : `group flex min-w-0 items-center gap-3 rounded-lg border border-line bg-elevated ${pad} transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 ${className ?? ""}`
       }
       href={mapsUrl({ ...place, address: place.address ?? name })}
       target="_blank"
@@ -122,7 +122,7 @@ export function OfferPlace({
       {showPin ? <PlacePinRow name={name} place={place} /> : null}
       {showMap && pinned && wide ? (
         <div
-          className={`${mapClassName ?? "h-60"} overflow-hidden rounded-xl border border-line`}
+          className={`${mapClassName ?? "h-60"} overflow-hidden rounded-2xl border border-line`}
         >
           <PlaceMap
             latitude={place.latitude ?? null}

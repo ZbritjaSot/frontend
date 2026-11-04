@@ -11,7 +11,7 @@ import { kicker } from "@/features/public/tone";
 import { ProductGrid, ShopLink } from "@/features/public/ProductPoster";
 import { ProductVisual } from "@/features/public/visuals";
 import { formatDateSq, formatEurFromCents } from "@/lib/format";
-import { btnPrimary } from "@/lib/ui";
+import { button } from "@/lib/ui";
 import type { PublicOffer } from "@/types";
 
 type OfferDetailProps = {
@@ -36,7 +36,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
         ) : null}
         <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
           <div className="lg:col-span-7">
-            <div className="relative h-full overflow-hidden rounded-[1.35rem] border border-line bg-sunken dark:bg-[#121816]">
+            <div className="relative h-full overflow-hidden rounded-2xl border border-line bg-sunken dark:bg-[#121816]">
               <ProductVisual
                 name={offer.name}
                 imageUrl={offer.image?.detail_url}
@@ -95,7 +95,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                 href={purchaseHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${btnPrimary} mt-5 w-full sm:w-auto`}
+                className={`${button()} mt-5 w-full sm:w-auto`}
               >
                 Bli tani
                 <OpenInNewOutlinedIcon sx={{ fontSize: 18 }} aria-hidden />
@@ -131,7 +131,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
               surface="plain"
               showHeading={false}
               showPin={false}
-              mapClassName="h-72 rounded-[1.5rem]"
+              mapClassName="h-72"
               name={offer.business.name}
               place={{
                 address: offer.business.address,

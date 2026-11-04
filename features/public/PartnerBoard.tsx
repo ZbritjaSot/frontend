@@ -222,7 +222,7 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
       aria-hidden={inert || undefined}
       className={`${slideWidth} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
     >
-      <span className="flex flex-col overflow-hidden rounded-xl border border-line bg-elevated dark:border-white/10 dark:bg-[#1a2420]">
+      <span className="flex flex-col overflow-hidden rounded-2xl border border-line bg-elevated dark:border-white/10 dark:bg-[#1a2420]">
         <span className="relative aspect-[5/4] overflow-hidden bg-[#1a2420]">
           <ProductVisual
             fill
@@ -255,7 +255,7 @@ function OfferSlide({ offer, inert }: { offer: PublicOffer; inert: boolean }) {
       aria-hidden={inert || undefined}
       className={`${slideWidth} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
     >
-      <span className="flex flex-col overflow-hidden rounded-xl border border-line bg-elevated dark:border-white/10 dark:bg-[#1a2420]">
+      <span className="flex flex-col overflow-hidden rounded-2xl border border-line bg-elevated dark:border-white/10 dark:bg-[#1a2420]">
         <span className="relative aspect-[5/4] overflow-hidden bg-[#1a2420]">
           <ProductVisual
             fill

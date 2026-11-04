@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { kicker } from "@/features/public/tone";
+import { button } from "@/lib/ui";
 
 export function Frame({
   children,
@@ -142,10 +143,7 @@ export function Pager({
       aria-label="Faqet"
     >
       {page > 1 ? (
-        <Link
-          href={hrefFor(page - 1)}
-          className="inline-flex min-h-11 items-center rounded-full px-4 text-ink ring-1 ring-line hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-        >
+        <Link href={hrefFor(page - 1)} className={button({ variant: "secondary", shape: "pill" })}>
           Prapa
         </Link>
       ) : (
@@ -155,10 +153,7 @@ export function Pager({
         {page} / {lastPage}
       </span>
       {page < lastPage ? (
-        <Link
-          href={hrefFor(page + 1)}
-          className="inline-flex min-h-11 items-center rounded-full bg-accent px-4 text-charcoal hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-        >
+        <Link href={hrefFor(page + 1)} className={button({ shape: "pill" })}>
           Tjetra
         </Link>
       ) : (

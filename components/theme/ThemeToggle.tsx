@@ -16,7 +16,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
     <button
       type="button"
       className={[
-        "inline-flex size-10 cursor-pointer appearance-none items-center justify-center rounded-xl border border-line bg-elevated p-0 text-ink motion-safe:transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
+        "inline-flex size-10 cursor-pointer appearance-none items-center justify-center rounded-lg border border-line bg-elevated p-0 text-ink motion-safe:transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
         className,
       ]
         .filter(Boolean)

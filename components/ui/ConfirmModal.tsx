@@ -1,7 +1,7 @@
 "use client";
 
 import { Modal } from "@/components/ui/Modal";
-import { btn, btnGhost, btnPrimary } from "@/lib/ui";
+import { button, buttonFrame } from "@/lib/ui";
 
 type ConfirmModalProps = {
   open: boolean;
@@ -39,8 +39,8 @@ export function ConfirmModal({
             type="button"
             className={
               danger
-                ? `${btn} border border-white/45 bg-transparent text-white hover:bg-white/10`
-                : btnGhost
+                ? `${buttonFrame()} border-white/45 bg-transparent text-white hover:bg-white/10`
+                : button({ variant: "secondary" })
             }
             onClick={onClose}
             disabled={pending}
@@ -51,8 +51,8 @@ export function ConfirmModal({
             type="button"
             className={
               danger
-                ? `${btn} bg-[#d32f2f] text-white hover:brightness-90`
-                : btnPrimary
+                ? `${buttonFrame()} border-transparent bg-[#d32f2f] text-white hover:brightness-90`
+                : button()
             }
             onClick={onConfirm}
             disabled={pending}

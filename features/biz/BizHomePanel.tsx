@@ -10,7 +10,7 @@ import { useBizOfferViews, useBizOffersByStatus } from "@/hooks/useBizOffers";
 import { useBizBusiness, useBizSubscription } from "@/hooks/useBizProfile";
 import { formatDateSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, btnPrimary, pageTitle, panelLead } from "@/lib/ui";
+import { button, pageTitle, panelLead } from "@/lib/ui";
 import type { BizSubscription, OfferViewRange } from "@/types";
 
 const VIEW_RANGES: OfferViewRange[] = [7, 14, 30];
@@ -83,10 +83,10 @@ export function BizHomePanel() {
           ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href="/biz/flyers/new" className={btnPrimary}>
+          <Link href="/biz/flyers/new" className={button()}>
             Fletushkë e re
           </Link>
-          <Link href="/biz/offers/new" className={btnGhost}>
+          <Link href="/biz/offers/new" className={button({ variant: "secondary" })}>
             Oferta të reja
           </Link>
         </div>

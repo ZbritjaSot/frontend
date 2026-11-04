@@ -16,7 +16,7 @@ import {
 } from "@/features/gallery/GalleryUploadModal";
 import { bizGalleryQueryKey } from "@/features/gallery/ItemPhoto";
 import { validationMessage } from "@/lib/api";
-import { fieldError, inputClass } from "@/lib/ui";
+import { fieldError, input } from "@/lib/ui";
 
 const GALLERY_PAGE_SIZES = [25, 50, 100] as const;
 
@@ -89,7 +89,7 @@ export function BizGallery() {
             type="search"
             enterKeyHint="search"
             autoComplete="off"
-            className={`${inputClass} pl-10`}
+            className={`${input()} pl-10`}
             value={search}
             placeholder=""
             onChange={(event) => setSearch(event.target.value)}
@@ -103,14 +103,14 @@ export function BizGallery() {
         Titulli merret nga emri i fotos. Mund ta ndryshosh para se të ruash.
       </p>
 
-      <div className="max-h-[min(28rem,calc(100dvh-16rem))] overflow-y-auto overscroll-contain rounded-xl border border-line p-2">
+      <div className="max-h-[min(28rem,calc(100dvh-16rem))] overflow-y-auto overscroll-contain rounded-2xl border border-line p-2">
         <ul className="m-0 grid list-none grid-cols-3 gap-2 p-0 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
           <li>
             <button
               type="button"
               disabled={busy}
               aria-label="Shto foto"
-              className="grid aspect-square w-full place-items-center rounded-xl border border-dashed border-line bg-sunken text-muted disabled:opacity-60"
+              className="grid aspect-square w-full place-items-center rounded-lg border border-dashed border-line bg-sunken text-muted disabled:opacity-60"
               onClick={() => {
                 setError(null);
                 setUploaderOpen(true);
@@ -122,7 +122,7 @@ export function BizGallery() {
           </li>
           {images.map((image) => (
             <li key={image.id}>
-              <span className="relative block aspect-square overflow-hidden rounded-xl">
+              <span className="relative block aspect-square overflow-hidden rounded-lg">
                 <Image
                   src={image.thumb_url}
                   alt={image.title ?? ""}

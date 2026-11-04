@@ -18,14 +18,7 @@ import {
 import { useBizOffer, useSubmitBizOffer } from "@/hooks/useBizOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import {
-  btnGhost,
-  btnPrimary,
-  fieldError,
-  offerStatusClass,
-  pageTitle,
-  panelLead,
-} from "@/lib/ui";
+import { button, fieldError, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 
 type ViewOfferScreenProps = {
   id: string;
@@ -60,7 +53,7 @@ export function ViewOfferScreen({ id, catalog = "flyers" }: ViewOfferScreenProps
         <p className={panelLead}>
           {validationMessage(error, "Nuk u gjet.")}
         </p>
-        <Link href={listHref} className={btnGhost}>
+        <Link href={listHref} className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
           {listLabel}
         </Link>
@@ -123,15 +116,16 @@ export function ViewOfferScreen({ id, catalog = "flyers" }: ViewOfferScreenProps
         </div>
         <div className="flex flex-wrap gap-2">
           {canEditOffer(bundle.status) ? (
-            <Link href={editHref} className={btnGhost}>
+            <Link href={editHref} className={button({ variant: "secondary" })}>
               Ndrysho
             </Link>
           ) : null}
           {canSubmitOffer(bundle.status) ? (
             <button
               type="button"
-              className={btnPrimary}
+              className={button()}
               disabled={submitMutation.isPending}
+              aria-busy={submitMutation.isPending}
               onClick={onSubmit}
             >
               {submitMutation.isPending ? "Duke dërguar…" : "Dërgo"}

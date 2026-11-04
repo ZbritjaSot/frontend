@@ -20,7 +20,7 @@ import {
 } from "@/hooks/useAdminNewsletter";
 import { validationMessage } from "@/lib/api";
 import { formatDateSq } from "@/lib/format";
-import { btnPrimary, fieldError, fieldLabel, iconButton, inputClass, pageTitle, panelLead } from "@/lib/ui";
+import { button, fieldError, fieldLabel, iconButton, input, pageTitle, panelLead } from "@/lib/ui";
 
 const rowButton =
   "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60";
@@ -61,7 +61,7 @@ function PickSearch({
   return (
     <div className="relative">
       <input
-        className={inputClass}
+        className={input()}
         value={query}
         placeholder=""
         onFocus={() => setOpen(true)}
@@ -77,7 +77,7 @@ function PickSearch({
         <p className="m-0 mt-2 text-xs font-semibold text-muted">Deri në 12 për këtë lloj.</p>
       ) : null}
       {showMenu ? (
-        <ul className="absolute top-[calc(100%+6px)] right-0 left-0 z-30 m-0 max-h-56 list-none overflow-auto rounded-xl border border-line bg-elevated p-1 shadow-[0_10px_28px_var(--color-shadow)]">
+        <ul className="absolute top-[calc(100%+6px)] right-0 left-0 z-30 m-0 max-h-56 list-none overflow-auto rounded-2xl border border-line bg-elevated p-1 shadow-[0_10px_28px_var(--color-shadow)]">
           {picks.isFetching && results.length === 0 ? (
             <li className="px-3 py-2 text-sm text-muted">Duke kërkuar…</li>
           ) : null}
@@ -237,7 +237,7 @@ export function AdminNewsletter() {
             </p>
           </div>
           {sentCount !== null ? (
-            <p className="m-0 rounded-xl border border-accent/40 bg-accent/10 px-3.5 py-2.5 text-sm font-semibold text-ink">
+            <p className="m-0 rounded-lg border border-accent/40 bg-accent/10 px-3.5 py-2.5 text-sm font-semibold text-ink">
               U radhit për {sentCount} adresa.
             </p>
           ) : null}
@@ -250,7 +250,7 @@ export function AdminNewsletter() {
             <label className={fieldLabel}>
               <span>Subjekti</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={subject}
                 maxLength={150}
                 placeholder="Oferta të reja këtë javë"
@@ -260,7 +260,7 @@ export function AdminNewsletter() {
             <label className={fieldLabel}>
               <span>Hyrja, nëse do</span>
               <textarea
-                className={`${inputClass} min-h-24 resize-y`}
+                className={`${input({ multiline: true })} min-h-24 resize-y`}
                 value={intro}
                 maxLength={2000}
                 placeholder="Një fjali në fillim të email-it."
@@ -323,7 +323,7 @@ export function AdminNewsletter() {
                         {group.items.map((item) => (
                           <li
                             key={item.id}
-                            className="flex items-center justify-between gap-3 rounded-xl border border-line bg-sunken px-3 py-2.5"
+                            className="flex items-center justify-between gap-3 rounded-lg border border-line bg-sunken px-3 py-2.5"
                           >
                             <span className="min-w-0">
                               <span className="block truncate text-sm font-semibold">{item.title}</span>
@@ -349,7 +349,7 @@ export function AdminNewsletter() {
                 )}
               </div>
             ) : (
-              <p className="m-0 rounded-xl border border-dashed border-line px-3 py-6 text-center text-sm text-muted">
+              <p className="m-0 rounded-2xl border border-dashed border-line px-3 py-6 text-center text-sm text-muted">
                 Asgjë e zgjedhur ende. Kërko dhe shto çfarë do të jetë në email.
               </p>
             )}
@@ -367,7 +367,7 @@ export function AdminNewsletter() {
               {activeCount} {activeCount === 1 ? "adresë" : "adresa"}
             </p>
             <button
-              className={`${btnPrimary} mt-4`}
+              className={`${button()} mt-4`}
               type="submit"
               form="newsletter-campaign"
               disabled={sendNewsletter.isPending}

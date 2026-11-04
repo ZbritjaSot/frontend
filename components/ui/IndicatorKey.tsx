@@ -222,7 +222,7 @@ export function IndicatorKey({ items }: { items: IndicatorItem[] }) {
         {items.map((item) => (
           <li
             key={`${item.mark}-${item.text}`}
-            className="flex max-w-full items-center gap-2.5 rounded-xl border border-line bg-elevated py-1.5 pr-3.5 pl-1.5"
+            className="flex max-w-full items-center gap-2.5 rounded-lg border border-line bg-elevated py-1.5 pr-3.5 pl-1.5"
           >
             <Mark mark={item.mark} count={item.count} />
             <span className="text-sm leading-snug text-ink">{item.text}</span>

@@ -10,7 +10,7 @@ import { OfferBundleView } from "@/features/offers/OfferBundleView";
 import { bundleDisplayTitle } from "@/features/offers/status";
 import { useApproveManagerBundle, useManagerBundle } from "@/hooks/useManagerReview";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, btnPrimary, pageTitle, panelLead } from "@/lib/ui";
+import { button, pageTitle, panelLead } from "@/lib/ui";
 
 export function ManagerInspect({ id }: { id: string }) {
   const router = useRouter();
@@ -27,7 +27,7 @@ export function ManagerInspect({ id }: { id: string }) {
     return (
       <div className="max-w-[40rem]">
         <p className={panelLead}>{validationMessage(error, "Dosja nuk u gjet.")}</p>
-        <Link href="/biz" className={btnGhost}>
+        <Link href="/biz" className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
           Në pritje
         </Link>
@@ -67,10 +67,10 @@ export function ManagerInspect({ id }: { id: string }) {
         </div>
         {pending ? (
           <div className="flex gap-2">
-            <Link href={`/biz/review/${bundle.id}/edit`} className={btnGhost}>
+            <Link href={`/biz/review/${bundle.id}/edit`} className={button({ variant: "secondary" })}>
               Ndrysho
             </Link>
-            <button className={btnPrimary} type="button" onClick={() => setConfirm(true)}>
+            <button className={button()} type="button" onClick={() => setConfirm(true)}>
               Aprovo
             </button>
           </div>

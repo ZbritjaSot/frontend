@@ -62,7 +62,7 @@ export function CampaignPoster({
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className="group grid h-full min-h-24 grid-cols-[5.75rem_minmax(0,1fr)] overflow-hidden rounded-xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 dark:bg-[#1a2420]"
+        className="group grid h-full min-h-24 grid-cols-[5.75rem_minmax(0,1fr)] overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 dark:bg-[#1a2420]"
       >
         <span className="relative h-full min-h-24">
           <ProductVisual

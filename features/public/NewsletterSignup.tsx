@@ -1,17 +1,14 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
+import { FieldError } from "@/components/ui/Field";
 import { apiFetch, validationMessage } from "@/lib/api";
-
-const field =
-  "min-w-0 w-full border border-ivory/20 bg-black/30 text-sm font-medium text-ivory outline-none placeholder:text-ivory/40 transition-[border-color,box-shadow] duration-150 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-60";
-
-const submit =
-  "inline-flex shrink-0 cursor-pointer items-center justify-center border-0 bg-accent font-bold text-charcoal transition-[filter] duration-150 hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-wait disabled:opacity-65";
+import { button, input } from "@/lib/ui";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
 export function NewsletterSignup({ variant }: { variant: "footer" | "home" }) {
+  const errorId = useId();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -79,7 +76,7 @@ export function NewsletterSignup({ variant }: { variant: "footer" | "home" }) {
           <label className={compact ? "min-w-0 flex-1 sm:w-52 sm:flex-none" : "min-w-0 flex-1"}>
             <span className="sr-only">Email</span>
             <input
-              className={`${field} ${compact ? "h-9 rounded-lg px-3" : "h-11 rounded-xl px-3.5"}`}
+              className={input({ size: compact ? "sm" : "md", shape: "pill", tone: "inverse" })}
               type="email"
               name="email"
               autoComplete="email"
@@ -88,11 +85,12 @@ export function NewsletterSignup({ variant }: { variant: "footer" | "home" }) {
               maxLength={255}
               disabled={pending}
               aria-invalid={error ? true : undefined}
+              aria-describedby={error ? errorId : undefined}
               onChange={(event) => setEmail(event.target.value)}
             />
           </label>
           <button
-            className={`${submit} ${compact ? "h-9 rounded-lg px-3 text-sm" : "h-11 rounded-xl px-4 text-sm"}`}
+            className={button({ size: compact ? "sm" : "md", shape: "pill" })}
             type="submit"
             disabled={pending}
             aria-busy={pending}
@@ -102,9 +100,11 @@ export function NewsletterSignup({ variant }: { variant: "footer" | "home" }) {
         </div>
       )}
       {error ? (
-        <p className="m-0 w-full text-sm font-semibold text-[#ffb4b4]" role="alert">
-          {error}
-        </p>
+        <div className="w-full" role="alert">
+          <FieldError id={errorId} tone="inverse">
+            {error}
+          </FieldError>
+        </div>
       ) : null}
     </form>
   );

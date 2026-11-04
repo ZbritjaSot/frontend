@@ -7,7 +7,7 @@ import { PlaceMap } from "@/components/place/PlaceMap";
 import { geocodeBizAddress, updateBizLocation } from "@/features/biz/api";
 import { bizBusinessQueryKey } from "@/hooks/useBizProfile";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, btnPrimary, fieldError, inputClass } from "@/lib/ui";
+import { button, fieldError, input } from "@/lib/ui";
 import { mapsUrl } from "@/lib/maps";
 import { useWideScreen } from "@/lib/useWideScreen";
 import type { Business } from "@/types";
@@ -168,7 +168,7 @@ export function LocationForm({
           <label className="flex flex-col gap-2">
             <span className={micro}>Rruga</span>
             <input
-              className={inputClass}
+              className={input()}
               value={street}
               maxLength={255}
               placeholder="Rr. Garibaldi"
@@ -184,7 +184,7 @@ export function LocationForm({
             <label className="flex flex-col gap-2">
               <span className={micro}>Lagjja</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={neighborhood}
                 maxLength={255}
                 placeholder="Opsional"
@@ -198,7 +198,7 @@ export function LocationForm({
             <label className="flex flex-col gap-2">
               <span className={micro}>Fshati</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={village}
                 maxLength={255}
                 placeholder="Opsional"
@@ -215,7 +215,7 @@ export function LocationForm({
             <label className="flex flex-col gap-2">
               <span className={micro}>Qyteza</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={municipality}
                 maxLength={255}
                 placeholder="Opsional"
@@ -229,7 +229,7 @@ export function LocationForm({
             <label className="flex flex-col gap-2">
               <span className={micro}>Qyteti</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={city}
                 maxLength={255}
                 placeholder="Prishtinë"
@@ -244,7 +244,7 @@ export function LocationForm({
 
           <div className="flex justify-end">
             <button
-              className={btnGhost}
+              className={button({ variant: "secondary" })}
               type="button"
               disabled={find.isPending}
               onClick={() => {
@@ -275,7 +275,7 @@ export function LocationForm({
 
         {wide ? (
           <div className="mt-5">
-            <div className="h-80 overflow-hidden rounded-xl border border-line">
+            <div className="h-80 overflow-hidden rounded-2xl border border-line">
               <PlaceMap
                 latitude={latitude}
                 longitude={longitude}
@@ -357,7 +357,7 @@ export function LocationForm({
         ) : (
           <span />
         )}
-        <button className={btnPrimary} type="submit" disabled={save.isPending}>
+        <button className={button()} type="submit" disabled={save.isPending} aria-busy={save.isPending}>
           {save.isPending
             ? applyNow
               ? "Duke u ruajtur…"

@@ -58,7 +58,7 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
       href={`/offers/${offer.id}`}
       className="flex min-h-11 items-center gap-3 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
     >
-      <span className="relative block size-14 shrink-0 overflow-hidden rounded-xl">
+      <span className="relative block size-14 shrink-0 overflow-hidden rounded-2xl">
         <ProductVisual
           name={offer.name}
           imageUrl={offer.image?.thumb_url}

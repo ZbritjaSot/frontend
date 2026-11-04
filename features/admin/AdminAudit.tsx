@@ -14,7 +14,7 @@ import {
 import { validationMessage } from "@/lib/api";
 import { localCalendarDayKey } from "@/lib/datetime";
 import { formatDateTimeShortSq } from "@/lib/format";
-import { btnGhost, btnSm, pageTitle, panelLead, statusBadge } from "@/lib/ui";
+import { button, pageTitle, panelLead, statusBadge } from "@/lib/ui";
 
 const actionCopy: Record<AuditAction, string> = {
   business_created: "Krijoi dyqanin",
@@ -158,7 +158,7 @@ export function AdminAudit() {
           {hasRange ? (
             <button
               type="button"
-              className={`${btnGhost} ${btnSm} w-fit`}
+              className={`${button({ variant: "secondary", size: "sm" })} w-fit`}
               onClick={() => {
                 setFrom("");
                 setTo("");
@@ -192,7 +192,7 @@ export function AdminAudit() {
           <p className={panelLead}>
             {validationMessage(logs.error, "Historiku nuk u ngarkua.")}
           </p>
-          <button className={btnGhost} type="button" onClick={() => logs.refetch()}>
+          <button className={button({ variant: "secondary" })} type="button" onClick={() => logs.refetch()}>
             Provo përsëri
           </button>
         </div>

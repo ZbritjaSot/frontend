@@ -34,15 +34,7 @@ import {
   formatEurFromCents,
 } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import {
-  btnGhost,
-  btnPrimary,
-  fieldError,
-  fieldLabel,
-  inputClass,
-  pageTitle,
-  panelLead,
-} from "@/lib/ui";
+import { button, fieldError, fieldLabel, input, pageTitle, panelLead } from "@/lib/ui";
 import {
   PAYMENT_METHOD_OPTIONS,
   subscriptionFormSchema,
@@ -59,7 +51,7 @@ import {
 } from "@/features/admin/subscriptionDisplay";
 import type { PaymentMethod, Subscription } from "@/types";
 
-const textAreaClass = `${inputClass} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`;
+const textAreaClass = `${input({ multiline: true })} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`;
 
 const SUBSCRIPTIONS_PAGE_SIZE = 15;
 
@@ -233,7 +225,7 @@ export function AdminSubscriptions() {
         <div className="flex flex-wrap items-center gap-4">
           <button
             type="button"
-            className={btnPrimary}
+            className={button()}
             onClick={() => setCreateOpen(true)}
           >
             Regjistro pagesë
@@ -290,7 +282,7 @@ export function AdminSubscriptions() {
           <p className={panelLead}>
             {validationMessage(error, "Nuk mundëm t’i ngarkojmë abonimet.")}
           </p>
-          <button className={btnGhost} type="button" onClick={() => refetch()}>
+          <button className={button({ variant: "secondary" })} type="button" onClick={() => refetch()}>
             Provo përsëri
           </button>
         </div>
@@ -540,7 +532,7 @@ export function AdminSubscriptions() {
           <>
             <button
               type="button"
-              className={btnGhost}
+              className={button({ variant: "secondary" })}
               disabled={createMutation.isPending}
               onClick={closeCreateModal}
             >
@@ -549,8 +541,9 @@ export function AdminSubscriptions() {
             <button
               type="submit"
               form="admin-sub-create-form"
-              className={btnPrimary}
+              className={button()}
               disabled={createMutation.isPending}
+              aria-busy={createMutation.isPending}
             >
               {createMutation.isPending ? "Duke u ruajtur…" : "Ruaj abonimin"}
             </button>
@@ -570,7 +563,7 @@ export function AdminSubscriptions() {
               ? " Ky dyqan është në provë falas — prova ndalon sapo të ruhet pagesa."
               : ""}
           </p>
-          <dl className="m-0 grid gap-2 rounded-xl border border-line bg-sunken px-3 py-3 text-sm sm:px-4">
+          <dl className="m-0 grid gap-2 rounded-2xl border border-line bg-sunken px-3 py-3 text-sm sm:px-4">
             <div className="grid gap-0.5 sm:flex sm:justify-between sm:gap-3">
               <dt className="text-muted">Dyqani</dt>
               <dd className="m-0 min-w-0 font-semibold sm:truncate sm:text-right">

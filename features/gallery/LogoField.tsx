@@ -51,7 +51,7 @@ export function LogoField({
           type="button"
           disabled={busy}
           aria-label={logoUrl ? "Ndërro logon" : "Ngarko logon"}
-          className="rounded-[1.25rem] disabled:opacity-60"
+          className="rounded-hero disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
           onClick={() => inputRef.current?.click()}
         >
           <ShopLogo name={name} logoUrl={logoUrl} size="xl" />
