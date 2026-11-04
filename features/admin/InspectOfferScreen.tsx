@@ -8,6 +8,7 @@ import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { adminInspectKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
+import { useToast } from "@/components/ui/Toast";
 import { OfferBundleView } from "@/features/offers/OfferBundleView";
 import { MailResends } from "@/features/admin/MailResends";
 import {
@@ -18,7 +19,11 @@ import {
 import { validationMessage } from "@/lib/api";
 import { safeNextPath } from "@/lib/safeNextPath";
 import { formatDateShortSq } from "@/lib/format";
-import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status";
+import {
+  bundleDisplayTitle,
+  OFFER_STATUS_LABEL,
+  publicBundlePath,
+} from "@/features/offers/status";
 import {
   button,
   fieldError,
@@ -40,6 +45,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
   const { data: bundle, isLoading, isError, error } = useAdminOfferBundle(id);
   const approveMutation = useApproveOffer();
   const takeDownMutation = useTakeDownOffer();
+  const { showToast } = useToast();
   const [actionError, setActionError] = useState<string | null>(null);
   const [confirmApprove, setConfirmApprove] = useState(false);
   const [confirmTakeDown, setConfirmTakeDown] = useState(false);
@@ -78,9 +84,18 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
     try {
       await approveMutation.mutateAsync(bundle!.id);
       setConfirmApprove(false);
+      const path = publicBundlePath(bundle!);
+      showToast("U aprovua", {
+        tone: "success",
+        action: path
+          ? { label: "Shiko në faqe", onClick: () => window.open(path, "_blank", "noopener,noreferrer") }
+          : undefined,
+      });
       router.replace("/admin/offers");
     } catch (err) {
-      setActionError(validationMessage(err, "Nuk mundëm ta aprovojmë dosjen."));
+      const message = validationMessage(err, "Nuk mundëm ta aprovojmë dosjen.");
+      setActionError(message);
+      showToast(message, { tone: "error" });
       setConfirmApprove(false);
     }
   }
@@ -107,9 +122,12 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
       });
       setConfirmTakeDown(false);
       setTakeDownReason("");
+      showToast("U hoq nga faqja", { tone: "success" });
       router.replace("/admin/offers?status=approved");
     } catch (err) {
-      setActionError(validationMessage(err, "Nuk mundëm ta heqim dosjen."));
+      const message = validationMessage(err, "Nuk mundëm ta heqim dosjen.");
+      setActionError(message);
+      showToast(message, { tone: "error" });
       setConfirmTakeDown(false);
     }
   }

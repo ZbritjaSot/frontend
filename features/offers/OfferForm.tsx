@@ -23,6 +23,7 @@ import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Modal } from "@/components/ui/Modal";
 import { PosMoneyField } from "@/components/ui/PosMoneyField";
 import { SelectField } from "@/components/ui/SelectField";
+import { useToast } from "@/components/ui/Toast";
 import { useCreateAdminOffer, useUpdateAdminOffer } from "@/hooks/useAdminOffers";
 import { useCreateManagerBundle, useUpdateManagerBundle } from "@/hooks/useManagerReview";
 import {
@@ -119,6 +120,7 @@ export function OfferForm({
   doneHref,
 }: OfferFormProps) {
   const router = useRouter();
+  const { showToast } = useToast();
   const resolvedCatalog: BundleCatalog =
     offer?.is_standalone === true
       ? "offers"
@@ -370,9 +372,12 @@ export function OfferForm({
     try {
       if (mode === "create") {
         const created = await createMutation.mutateAsync(parsed.data);
+        let didSubmit = false;
         if (thenSubmit && audience === "biz") {
           await submitBiz.mutateAsync(created.id);
+          didSubmit = true;
         }
+        showToast(saveSuccessMessage(didSubmit));
         router.replace(
           doneHref ??
             (audience === "manager"
@@ -383,17 +388,38 @@ export function OfferForm({
         );
       } else if (offer) {
         await updateMutation.mutateAsync(parsed.data);
+        let didSubmit = false;
         if (thenSubmit && audience === "biz") {
           await submitBiz.mutateAsync(offer.id);
+          didSubmit = true;
         }
+        showToast(saveSuccessMessage(didSubmit));
         router.replace(leaveHref);
       }
     } catch (err) {
-      setError(validationMessage(err, "Nuk mundëm ta ruajmë ofertën."));
+      const message = validationMessage(err, "Nuk mundëm ta ruajmë ofertën.");
+      setError(message);
+      showToast(message, { tone: "error" });
       if (thenSubmit) {
         setReviewOpen(true);
       }
     }
+  }
+
+  /** Copy mirrors the audit's tone ("U dërgua për aprovim") across every
+   * audience + mode combination `save()` can reach. `didSubmit` is only ever
+   * true for the biz audience, since submit-after-save is biz-only. */
+  function saveSuccessMessage(didSubmit: boolean): string {
+    if (didSubmit) {
+      return "U dërgua për aprovim";
+    }
+    if (audience === "admin") {
+      return mode === "create" ? "U publikua" : "U përditësua";
+    }
+    if (audience === "manager") {
+      return mode === "create" ? "U dërgua në pritje" : "U përditësua";
+    }
+    return mode === "create" ? "U ruajt si draft" : "U ruajt";
   }
 
   const micro =

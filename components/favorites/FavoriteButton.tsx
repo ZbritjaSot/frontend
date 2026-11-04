@@ -2,7 +2,9 @@
 
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { useRouter } from "next/navigation";
 import type { MouseEvent } from "react";
+import { useToast } from "@/components/ui/Toast";
 import { useFavorites } from "@/hooks/useFavorites";
 import type { FavoriteKind } from "@/lib/favorites";
 
@@ -22,15 +24,30 @@ export function FavoriteButton({
   className = "",
   tone = "on-media",
 }: FavoriteButtonProps) {
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const { isFavorite, toggleFavorite, addFavorite } = useFavorites();
   const active = isFavorite(kind, id);
   const dim = size === "md" ? "size-11" : "size-9";
   const iconSize = size === "md" ? "medium" : "small";
+  const router = useRouter();
+  const { showToast } = useToast();
 
   function onClick(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
     event.stopPropagation();
-    toggleFavorite(kind, id);
+    const nowActive = toggleFavorite(kind, id);
+    if (nowActive) {
+      showToast("U ruajt", {
+        tone: "success",
+        action: { label: "Shiko", onClick: () => router.push("/preferuarat") },
+      });
+    } else {
+      showToast("U hoq nga të preferuarat", {
+        tone: "success",
+        // addFavorite (not toggleFavorite): idempotent restore, safe even if
+        // tapped twice or after other favorites changed in between.
+        action: { label: "Zhbëj", onClick: () => addFavorite(kind, id) },
+      });
+    }
   }
 
   return (

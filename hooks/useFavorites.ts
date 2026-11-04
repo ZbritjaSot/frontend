@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import {
+  addFavoriteStored,
   favoriteKey,
   isFavoriteStored,
   parseFavoriteKey,
@@ -38,12 +39,18 @@ export function useFavorites() {
     return toggleFavoriteStored(kind, id);
   }, []);
 
+  /** Idempotent add — for "Zhbëj" (undo), not a re-toggle: see addFavoriteStored. */
+  const addFavorite = useCallback((kind: FavoriteKind, id: string) => {
+    addFavoriteStored(kind, id);
+  }, []);
+
   return {
     keys,
     refs,
     count: keys.length,
     isFavorite,
     toggleFavorite,
+    addFavorite,
     /** Fresh read — useful after storage events from another tab. */
     refresh: readFavoriteRefs,
   };

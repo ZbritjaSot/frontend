@@ -13,6 +13,7 @@ import { bizOfferKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
+import { useToast } from "@/components/ui/Toast";
 import { hasRole } from "@/features/auth/api";
 import { ManagerReview } from "@/features/biz/ManagerReview";
 import { BIZ_OFFERS_PAGE_SIZE, type BundleCatalog } from "@/features/offers/bizApi";
@@ -60,6 +61,7 @@ export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }
   const deleteMutation = useDeleteBizOffer();
   const [actionError, setActionError] = useState<string | null>(null);
   const [bundleToDelete, setBundleToDelete] = useState<OfferBundle | null>(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -143,10 +145,11 @@ export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }
     setActionError(null);
     try {
       await submitMutation.mutateAsync(bundle.id);
+      showToast("U dërgua për aprovim", { tone: "success" });
     } catch (err) {
-      setActionError(
-        validationMessage(err, "Nuk mundëm ta dërgojmë për aprovim."),
-      );
+      const message = validationMessage(err, "Nuk mundëm ta dërgojmë për aprovim.");
+      setActionError(message);
+      showToast(message, { tone: "error" });
     }
   }
 
@@ -158,13 +161,17 @@ export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }
     try {
       await deleteMutation.mutateAsync(bundleToDelete.id);
       setBundleToDelete(null);
+      // No backend soft-delete for offer bundles (hard DELETE, confirmed in
+      // OfferBundleController@destroy) — this is a confirmation toast only,
+      // no "Undo" action, since there is nothing left server-side to restore.
+      showToast("U fshi", { tone: "success" });
     } catch (err) {
-      setActionError(
-        validationMessage(
-          err,
-          isFlyer ? "Nuk mundëm ta fshijmë fletushkën." : "Nuk mundëm ta fshijmë ofertën.",
-        ),
+      const message = validationMessage(
+        err,
+        isFlyer ? "Nuk mundëm ta fshijmë fletushkën." : "Nuk mundëm ta fshijmë ofertën.",
       );
+      setActionError(message);
+      showToast(message, { tone: "error" });
       setBundleToDelete(null);
     }
   }
