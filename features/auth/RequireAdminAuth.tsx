@@ -18,13 +18,18 @@ type RequireAdminAuthProps = {
 export function RequireAdminAuth({ children }: RequireAdminAuthProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { data: user, error, isLoading, isFetching, isError } = useMe();
+  const { data: user, error, isLoading, isError } = useMe();
 
   useEffect(() => {
-    if (isLoading || isFetching) {
+    if (isLoading) {
       return;
     }
 
+    // Only act on a genuine query failure (e.g. a background refetch that
+    // comes back 401), not on `isFetching` — that flag is also true for
+    // routine background revalidation while cached data is still valid and
+    // being shown, and redirecting then would tear down the whole dashboard
+    // shell (and any in-progress form state) for no reason.
     if (isUnauthenticated(error) || (isError && !user)) {
       router.replace(loginHref(pathname || "/admin"));
       return;
@@ -45,9 +50,9 @@ export function RequireAdminAuth({ children }: RequireAdminAuthProps) {
     }
 
     router.replace(loginHref());
-  }, [user, error, isLoading, isFetching, isError, router, pathname]);
+  }, [user, error, isLoading, isError, router, pathname]);
 
-  if (isLoading || isFetching) {
+  if (isLoading) {
     return <Spinner label="Duke kontrolluar hyrjen" />;
   }
 
