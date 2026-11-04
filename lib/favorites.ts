@@ -160,18 +160,6 @@ export function removeFavoriteStored(kind: FavoriteKind, id: string): void {
   writeFavoriteKeys(current.filter((item) => item !== key));
 }
 
-/** Idempotent add — safe for "Zhbëj" (undo) on a toast, which may fire after
- * other favorites changes happened; unlike `toggleFavoriteStored`, calling
- * this twice (or on an already-favorited item) never removes it again. */
-export function addFavoriteStored(kind: FavoriteKind, id: string): void {
-  const key = favoriteKey(kind, id);
-  const current = readFavoriteKeys();
-  if (current.includes(key)) {
-    return;
-  }
-  writeFavoriteKeys([...current, key]);
-}
-
 /** Server snapshot — stable empty array for SSR. */
 export function serverFavoriteKeys(): FavoriteKey[] {
   return EMPTY_KEYS;

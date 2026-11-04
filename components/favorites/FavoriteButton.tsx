@@ -24,7 +24,7 @@ export function FavoriteButton({
   className = "",
   tone = "on-media",
 }: FavoriteButtonProps) {
-  const { isFavorite, toggleFavorite, addFavorite } = useFavorites();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const active = isFavorite(kind, id);
   const dim = size === "md" ? "size-11" : "size-9";
   const iconSize = size === "md" ? "medium" : "small";
@@ -41,12 +41,7 @@ export function FavoriteButton({
         action: { label: "Shiko", onClick: () => router.push("/preferuarat") },
       });
     } else {
-      showToast("U hoq nga të preferuarat", {
-        tone: "success",
-        // addFavorite (not toggleFavorite): idempotent restore, safe even if
-        // tapped twice or after other favorites changed in between.
-        action: { label: "Zhbëj", onClick: () => addFavorite(kind, id) },
-      });
+      showToast("U hoq nga të preferuarat", { tone: "success" });
     }
   }
 
