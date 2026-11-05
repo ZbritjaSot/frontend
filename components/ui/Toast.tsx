@@ -1,6 +1,7 @@
 "use client";
 
 import CloseIcon from "@mui/icons-material/Close";
+import Image from "next/image";
 import {
   createContext,
   useCallback,
@@ -13,6 +14,8 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { shopInitials } from "@/features/public/initials";
+import { WASHES, washIndex } from "@/features/public/visuals";
 
 function subscribeNoop() {
   return () => {};
@@ -42,12 +45,26 @@ type ToastAction = {
   onClick: () => void;
 };
 
+/** Decorative leading thumbnail. `name` only drives the fallback wash/initials
+ * — it is never used as alt text or announced, the toast message already
+ * carries the meaning. */
+type ToastThumbnail = {
+  url?: string | null;
+  name: string;
+};
+
 type ToastOptions = {
   tone?: ToastTone;
   /** ms before auto-dismiss. Defaults to 5s (6s for errors, so a failure
    * reason stays readable a little longer). Keep within the 4–6s window. */
   duration?: number;
   action?: ToastAction;
+  thumbnail?: ToastThumbnail;
+  /** When this matches an already-visible toast's key, that toast's content
+   * is replaced in place (and its entry transition re-triggered) instead of
+   * appending a new stacked toast. No key, or a key with no current match,
+   * behaves exactly like today — append, capped at `MAX_VISIBLE_TOASTS`. */
+  key?: string;
 };
 
 type ToastItem = {
@@ -56,6 +73,8 @@ type ToastItem = {
   tone: ToastTone;
   duration: number;
   action?: ToastAction;
+  thumbnail?: ToastThumbnail;
+  key?: string;
 };
 
 type ToastContextValue = {
@@ -164,12 +183,38 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       const duration =
         options.duration ?? (tone === "error" ? ERROR_DURATION : DEFAULT_DURATION);
       const id = ++nextToastId;
+      const toast: ToastItem = {
+        id,
+        message,
+        tone,
+        duration,
+        action: options.action,
+        thumbnail: options.thumbnail,
+        key: options.key,
+      };
 
-      const next = [...toastsRef.current, { id, message, tone, duration, action: options.action }];
-      if (next.length > MAX_VISIBLE_TOASTS) {
-        const oldest = next.shift();
-        if (oldest) {
-          forget(oldest.id);
+      // A matching key on an already-visible toast replaces its content in
+      // place (new id, so `ToastCard` remounts and its entry transition
+      // re-plays) instead of stacking a near-duplicate toast.
+      const matchIndex = options.key
+        ? toastsRef.current.findIndex((item) => item.key === options.key)
+        : -1;
+
+      let next: ToastItem[];
+      if (matchIndex !== -1) {
+        forget(toastsRef.current[matchIndex].id);
+        // Moved to the end (not updated in place): array position doubles
+        // as age for the MAX_VISIBLE_TOASTS eviction below, so a refreshed
+        // toast should read as the newest, not stay next in line to be
+        // evicted because it happened to be the oldest before this update.
+        next = [...toastsRef.current.filter((_, index) => index !== matchIndex), toast];
+      } else {
+        next = [...toastsRef.current, toast];
+        if (next.length > MAX_VISIBLE_TOASTS) {
+          const oldest = next.shift();
+          if (oldest) {
+            forget(oldest.id);
+          }
         }
       }
       toastsRef.current = next;
@@ -250,15 +295,14 @@ function ToastCard({
 
   const toneShell =
     toast.tone === "error"
-      ? "border-danger/60 bg-[#3a0d0d] text-white [--color-focus:var(--color-lime)]"
-      : "border-line bg-elevated text-ink";
-  const actionTone = toast.tone === "error" ? "text-white" : "text-accent-fg";
-  const closeTone =
-    toast.tone === "error" ? "text-white/80 hover:text-white" : "text-muted hover:text-ink";
+      ? "bg-danger-surface text-ivory [--color-focus:var(--color-lime)]"
+      : "bg-forest text-ivory [--color-focus:var(--color-lime)]";
+  const actionTone = toast.tone === "error" ? "text-ivory" : "text-accent";
+  const hasThumbnail = toast.thumbnail != null;
 
   return (
     <div
-      className={`pointer-events-auto flex w-full items-start gap-3 rounded-xl border px-4 py-3 shadow-[0_12px_32px_var(--color-shadow)] transition-[opacity,transform] duration-200 motion-reduce:transition-none sm:w-96 ${toneShell} ${
+      className={`pointer-events-auto flex w-full min-h-14 items-center gap-3 rounded-2xl border border-white/10 py-2 ${hasThumbnail ? "pl-2" : "pl-4"} pr-2 shadow-[0_1px_2px_var(--color-shadow),0_12px_32px_var(--color-shadow)] transition-[opacity,transform] duration-[220ms] ease-[cubic-bezier(0.215,0.61,0.355,1)] motion-reduce:transition-none sm:w-96 ${toneShell} ${
         entered ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
       }`}
       onMouseEnter={() => {
@@ -295,15 +339,18 @@ function ToastCard({
         }
       }}
     >
-      <p className="m-0 flex-1 text-sm leading-snug font-semibold">{toast.message}</p>
+      {toast.thumbnail ? (
+        <ToastThumb key={toast.id} url={toast.thumbnail.url} name={toast.thumbnail.name} />
+      ) : null}
+      <p className="m-0 flex-1 text-sm leading-5 font-semibold text-ivory">{toast.message}</p>
       {toast.action ? (
         <button
           type="button"
-          // Visible label stays short ("Shiko", "Zhbëj"); the accessible
-          // name includes the toast's own message so screen reader users
-          // can tell stacked toasts' action buttons apart from one another.
+          // Visible label stays short ("Shiko"); the accessible name
+          // includes the toast's own message so screen reader users can
+          // tell stacked toasts' action buttons apart from one another.
           aria-label={`${toast.action.label}: ${toast.message}`}
-          className={`shrink-0 cursor-pointer border-0 bg-transparent p-0 text-sm font-bold underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${actionTone}`}
+          className={`h-10 shrink-0 cursor-pointer rounded-lg border-0 bg-transparent px-3 text-sm font-bold hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${actionTone}`}
           onClick={() => {
             toast.action?.onClick();
             onDismiss();
@@ -315,12 +362,51 @@ function ToastCard({
       <button
         type="button"
         aria-label={`Mbyll njoftimin: ${toast.message}`}
-        className={`-mt-0.5 -mr-0.5 shrink-0 cursor-pointer border-0 bg-transparent p-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${closeTone}`}
+        className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-lg border-0 bg-transparent text-ivory/75 hover:bg-white/10 hover:text-ivory focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
         onClick={onDismiss}
       >
         <CloseIcon fontSize="small" />
       </button>
     </div>
+  );
+}
+
+/** Decorative leading thumbnail — real photo when available, otherwise the
+ * same name-hashed wash + initials `ProductVisual` uses, scaled to 40px.
+ * Keyed by the toast's id (by the caller) so a new toast with a different
+ * thumbnail doesn't inherit a prior one's failed-load state. */
+function ToastThumb({ url, name }: { url?: string | null; name: string }) {
+  const [failed, setFailed] = useState(false);
+  const showImage = Boolean(url) && !failed;
+
+  return (
+    <span className="relative size-10 shrink-0 overflow-hidden rounded-lg">
+      {showImage ? (
+        <Image
+          src={url as string}
+          alt=""
+          fill
+          unoptimized
+          sizes="40px"
+          loading="eager"
+          className="object-cover"
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <span
+          aria-hidden
+          className={`absolute inset-0 grid place-items-center ${WASHES[washIndex(name)]}`}
+        >
+          <span className="text-[13px] leading-none font-extrabold text-charcoal/25 dark:text-white/35">
+            {shopInitials(name)}
+          </span>
+        </span>
+      )}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-lg ring-1 ring-inset ring-white/10"
+      />
+    </span>
   );
 }
 

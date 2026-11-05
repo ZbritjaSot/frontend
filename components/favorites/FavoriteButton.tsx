@@ -15,6 +15,10 @@ type FavoriteButtonProps = {
   className?: string;
   /** Dark glass chip for photos on forest / product media. */
   tone?: "on-media" | "on-surface";
+  /** Thumbnail shown on the add/remove toast. Both are optional — items
+   * without a photo still get the toast's name-hashed fallback. */
+  thumbnailUrl?: string | null;
+  thumbnailName?: string;
 };
 
 export function FavoriteButton({
@@ -23,6 +27,8 @@ export function FavoriteButton({
   size = "sm",
   className = "",
   tone = "on-media",
+  thumbnailUrl,
+  thumbnailName,
 }: FavoriteButtonProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const active = isFavorite(kind, id);
@@ -35,13 +41,16 @@ export function FavoriteButton({
     event.preventDefault();
     event.stopPropagation();
     const nowActive = toggleFavorite(kind, id);
+    const thumbnail = thumbnailName ? { url: thumbnailUrl, name: thumbnailName } : undefined;
     if (nowActive) {
-      showToast("U ruajt", {
+      showToast("U shtua te të preferuarat", {
         tone: "success",
         action: { label: "Shiko", onClick: () => router.push("/preferuarat") },
+        key: "favorite",
+        thumbnail,
       });
     } else {
-      showToast("U hoq nga të preferuarat", { tone: "success" });
+      showToast("U hoq nga të preferuarat", { tone: "success", key: "favorite", thumbnail });
     }
   }
 

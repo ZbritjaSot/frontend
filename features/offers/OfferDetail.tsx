@@ -49,7 +49,13 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                 <DiscountRail percent={offer.discount_percent} size="lg" />
               ) : null}
               <span className="absolute top-4 right-4 z-20">
-                <FavoriteButton kind="offer" id={offer.id} size="md" />
+                <FavoriteButton
+                  kind="offer"
+                  id={offer.id}
+                  size="md"
+                  thumbnailUrl={offer.image?.thumb_url}
+                  thumbnailName={offer.name}
+                />
               </span>
             </div>
           </div>

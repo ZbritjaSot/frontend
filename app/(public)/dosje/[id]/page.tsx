@@ -65,6 +65,8 @@ export default async function FolderPage({ params }: FolderPageProps) {
     folder.items.find((item) => item.id === folder.cover?.id) ??
     leadProduct(folder);
   const backHref = folder.business ? `/biznese/${folder.business.id}` : "/";
+  const coverName = folder.cover?.name ?? lead?.name ?? folder.title;
+  const coverUrl = folder.cover?.thumb_url ?? lead?.image?.thumb_url;
 
   return (
     <article>
@@ -82,6 +84,8 @@ export default async function FolderPage({ params }: FolderPageProps) {
               id={folder.id}
               size="md"
               className="shrink-0 ring-1 ring-ivory/20"
+              thumbnailUrl={coverUrl}
+              thumbnailName={coverName}
             />
           </div>
           <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.7fr)]">

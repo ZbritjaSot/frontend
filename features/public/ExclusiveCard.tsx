@@ -52,7 +52,12 @@ export function ExclusiveCard({
             <DiscountRail percent={meta.percent} />
           ) : null}
           <span className="absolute top-3 right-3 z-10">
-            <FavoriteButton kind={meta.favoriteKind} id={meta.favoriteId} />
+            <FavoriteButton
+              kind={meta.favoriteKind}
+              id={meta.favoriteId}
+              thumbnailUrl={meta.thumbUrl}
+              thumbnailName={meta.imageName}
+            />
           </span>
         </span>
 

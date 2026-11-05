@@ -32,6 +32,7 @@
   --color-chrome-muted: var(--color-chrome-muted);
   --color-forest: var(--color-forest);
   --color-ivory: var(--color-ivory);
+  --color-danger-surface: var(--color-danger-surface);
   --color-pending: #f5c542;
   --color-hover: var(--color-surface-hover);
   --color-mist: var(--color-bg-mist);
@@ -63,6 +64,9 @@
   --color-off-white: #f5f5f5;
   --color-forest: #243528;
   --color-ivory: #f6f3ea;
+  /* Error toast surface — intentionally identical in both themes, already an
+     always-dark surface regardless of light/dark mode. */
+  --color-danger-surface: #3a0d0d;
 
   /* Light theme — warm ivory paper, forest for editorial blocks, lime as accent. */
   --color-bg: #f4f1e8;

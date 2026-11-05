@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { shopInitials } from "@/features/public/initials";
 
-const WASHES = [
+export const WASHES = [
   "bg-[#d5e4c4] dark:bg-[#243628]",
   "bg-[#eadcc4] dark:bg-[#322c22]",
   "bg-[#d4e2dc] dark:bg-[#1c3038]",
@@ -19,7 +19,7 @@ const STRIPES = [
   "bg-[linear-gradient(230deg,transparent_60%,rgba(11,15,14,0.06)_60%,rgba(11,15,14,0.06)_68%,transparent_68%)] dark:bg-[linear-gradient(230deg,transparent_60%,rgba(168,255,0,0.18)_60%,rgba(168,255,0,0.18)_68%,transparent_68%)]",
 ] as const;
 
-function washIndex(name: string): number {
+export function washIndex(name: string): number {
   let hash = 0;
   for (const char of name) {
     hash = (hash + char.charCodeAt(0)) % WASHES.length;

@@ -234,7 +234,12 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
           />
           {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
           <span className="absolute top-2 right-2 z-10">
-            <FavoriteButton kind="flyer" id={flyer.id} />
+            <FavoriteButton
+              kind="flyer"
+              id={flyer.id}
+              thumbnailUrl={flyer.cover?.thumb_url}
+              thumbnailName={coverName}
+            />
           </span>
         </span>
         <span className="grid gap-0.5 px-2.5 py-2">
@@ -269,7 +274,12 @@ function OfferSlide({ offer, inert }: { offer: PublicOffer; inert: boolean }) {
             <DiscountRail percent={offer.discount_percent} size="sm" />
           ) : null}
           <span className="absolute top-2 right-2 z-10">
-            <FavoriteButton kind="offer" id={offer.id} />
+            <FavoriteButton
+              kind="offer"
+              id={offer.id}
+              thumbnailUrl={offer.image?.thumb_url}
+              thumbnailName={offer.name}
+            />
           </span>
         </span>
         <span className="grid gap-0.5 px-2.5 py-2">

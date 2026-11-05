@@ -82,7 +82,12 @@ export function ProductPoster({
         </span>
       </Link>
       <span className="absolute top-2 right-2 z-20">
-        <FavoriteButton kind="offer" id={offer.id} />
+        <FavoriteButton
+          kind="offer"
+          id={offer.id}
+          thumbnailUrl={offer.image?.thumb_url}
+          thumbnailName={offer.name}
+        />
       </span>
     </div>
   );
@@ -152,7 +157,12 @@ export function ProductList({ offers }: { offers: PublicOffer[] }) {
               </span>
             </Link>
             <span className="absolute top-5 right-1 z-20 scale-90 sm:top-6">
-              <FavoriteButton kind="offer" id={offer.id} />
+              <FavoriteButton
+                kind="offer"
+                id={offer.id}
+                thumbnailUrl={offer.image?.thumb_url}
+                thumbnailName={offer.name}
+              />
             </span>
           </div>
         </li>

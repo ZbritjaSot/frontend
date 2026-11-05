@@ -23,7 +23,14 @@ export function CampaignPoster({
   const coverName = folder.cover?.name ?? lead?.name ?? folder.title;
   const coverUrl = folder.cover?.thumb_url ?? lead?.image?.thumb_url;
   const meta = `${count} ${productWord(count)} · deri më ${formatDateShortSq(folder.expires_at)}`;
-  const heartButton = <FavoriteButton kind="flyer" id={folder.id} />;
+  const heartButton = (
+    <FavoriteButton
+      kind="flyer"
+      id={folder.id}
+      thumbnailUrl={coverUrl}
+      thumbnailName={coverName}
+    />
+  );
   const heart = (
     <span className="absolute top-2 right-2 z-20 sm:top-3 sm:right-3">{heartButton}</span>
   );
@@ -74,7 +81,12 @@ export function CampaignPoster({
           />
           {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
           <span className="absolute top-1 right-1 z-20 scale-90">
-            <FavoriteButton kind="flyer" id={folder.id} />
+            <FavoriteButton
+              kind="flyer"
+              id={folder.id}
+              thumbnailUrl={coverUrl}
+              thumbnailName={coverName}
+            />
           </span>
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-1.5 px-3 py-3">
@@ -106,7 +118,13 @@ export function CampaignPoster({
           />
           {percent > 0 ? <DiscountRail percent={percent} size="lg" /> : null}
           <span className="absolute top-4 right-4 z-20">
-            <FavoriteButton kind="flyer" id={folder.id} size="md" />
+            <FavoriteButton
+              kind="flyer"
+              id={folder.id}
+              size="md"
+              thumbnailUrl={coverUrl}
+              thumbnailName={coverName}
+            />
           </span>
         </span>
         <span className="flex flex-col justify-between p-6 sm:p-8">
