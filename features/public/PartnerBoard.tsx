@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { campaignWord, productWord } from "@/features/public/compose";
-import { fetchPublicBusinesses } from "@/features/offers/api";
+import { fetchPublicBusinesses, PUBLIC_BUSINESSES_PAGE_SIZE } from "@/features/offers/api";
 import { DiscountRail, PriceLine } from "@/features/public/price";
 import { StepRail, type RailNav } from "@/features/public/StepRail";
 import { kicker } from "@/features/public/tone";
@@ -13,14 +13,6 @@ import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { normalizePage, uniqueById } from "@/lib/pages";
 import { useInfiniteSentinel } from "@/lib/useInfiniteSentinel";
 import type { PublicBusiness, PublicFolder, PublicOffer } from "@/types";
-
-// Bumped from 6 → 20 (within the audit's recommended 12–24 range): the
-// previous page size compounded the back-navigation state-loss problem with
-// excess fetch cycles.
-// Exported so the SSR fetch on `/biznese` (app/(public)/biznese/page.tsx)
-// uses the same page size — a mismatch between the two would make page 2
-// skip or duplicate items (hidden by `uniqueById`, but still wrong).
-export const PAGE_SIZE = 20;
 
 type RailItem =
   | { kind: "flyer"; flyer: PublicFolder }
@@ -44,9 +36,15 @@ export function PartnerBoard({
     queryKey: ["partner-directory", q ?? "", city ?? ""],
     queryFn: async ({ pageParam }) =>
       normalizePage(
-        await fetchPublicBusinesses({ q: q || undefined, city, page: pageParam, perPage: PAGE_SIZE, rail: true }),
+        await fetchPublicBusinesses({
+          q: q || undefined,
+          city,
+          page: pageParam,
+          perPage: PUBLIC_BUSINESSES_PAGE_SIZE,
+          rail: true,
+        }),
         pageParam,
-        PAGE_SIZE,
+        PUBLIC_BUSINESSES_PAGE_SIZE,
       ),
     initialPageParam: 1,
     getNextPageParam: (last, _pages, page) =>
@@ -58,7 +56,7 @@ export function PartnerBoard({
           meta: {
             current_page: 1,
             last_page: lastPage,
-            per_page: PAGE_SIZE,
+            per_page: PUBLIC_BUSINESSES_PAGE_SIZE,
             total: shops.length,
           },
         },
