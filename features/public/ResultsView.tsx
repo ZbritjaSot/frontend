@@ -36,6 +36,7 @@ type ResultsViewProps = {
   folderTotal?: number;
   shops?: PublicBusiness[];
   basePath?: string;
+  placeholder?: string;
 };
 
 export function ResultsView({
@@ -55,6 +56,7 @@ export function ResultsView({
   folderTotal = folders.length,
   shops = [],
   basePath,
+  placeholder,
 }: ResultsViewProps) {
   const resolvedBasePath = basePath ?? (katalog ? catalogPath(katalog) : "/");
   const categoryName = categories.find((item) => item.slug === category)?.name;
@@ -122,6 +124,7 @@ export function ResultsView({
             categories={categories}
             catalog
             showCategories={showControls}
+            placeholder={placeholder}
           />
           <FilterChips
             basePath={resolvedBasePath}
@@ -155,6 +158,7 @@ export function ResultsView({
             sort={sort}
             categories={categories}
             showCategories={showControls}
+            placeholder={placeholder}
           />
           <FilterChips
             basePath={resolvedBasePath}

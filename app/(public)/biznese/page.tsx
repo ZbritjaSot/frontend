@@ -96,7 +96,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
           city={city}
           categories={[]}
           showCategories={false}
-          placeholder=""
+          placeholder="Kërko dyqane"
         />
         <FilterChips basePath="/biznese" q={q} city={city} />
         {showCatalogControls({

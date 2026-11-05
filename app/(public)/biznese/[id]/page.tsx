@@ -193,6 +193,7 @@ export default async function BusinessPage({
               basePath={basePath}
               categories={categories}
               showCategories={folders.length > 0 || offers.length > 0}
+              placeholder="Kërko produkte në këtë dyqan"
             />
           </Band>
           {folders.length > 0 ? (
@@ -243,6 +244,7 @@ export default async function BusinessPage({
           folderLastPage={folderLastPage}
           offerTotal={offerTotal}
           folderTotal={folderTotal}
+          placeholder="Kërko produkte në këtë dyqan"
         />
       )}
     </article>
