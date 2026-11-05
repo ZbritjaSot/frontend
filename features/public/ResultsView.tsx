@@ -3,6 +3,7 @@ import { CatalogFilters } from "@/features/public/CatalogFilters";
 import { CatalogStream } from "@/features/public/CatalogStream";
 import { CampaignGrid, CampaignPoster, CampaignRail } from "@/features/public/CampaignPoster";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
+import { FilterChips } from "@/features/public/FilterChips";
 import { Band, EmptyNote, Pager, SectionHeading } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import { locationLabel } from "@/features/public/compose";
@@ -84,6 +85,10 @@ export function ResultsView({
   });
   const noActiveFlyers =
     flyerCatalogue && folders.length === 0 && !q && !category && !city;
+  // `showControls` is also true for a non-default sort with nothing else
+  // active, where "Pastro filtrat" would link to the current URL unchanged —
+  // this is the actual "is there a filter to clear" check for that button.
+  const hasActiveFilters = Boolean(q?.trim() || category || city);
   const lastPage = flyerCatalogue
     ? folderLastPage
     : offers.length > 0 || offerLastPage > 1
@@ -118,6 +123,15 @@ export function ResultsView({
             catalog
             showCategories={showControls}
           />
+          <FilterChips
+            basePath={resolvedBasePath}
+            katalog={katalog}
+            q={q}
+            category={category}
+            city={city}
+            sort={sort}
+            categories={categories}
+          />
           {showControls ? (
             <CatalogFilters
               basePath={resolvedBasePath}
@@ -141,6 +155,15 @@ export function ResultsView({
             sort={sort}
             categories={categories}
             showCategories={showControls}
+          />
+          <FilterChips
+            basePath={resolvedBasePath}
+            katalog={katalog}
+            q={q}
+            category={category}
+            city={city}
+            sort={sort}
+            categories={categories}
           />
         </div>
       ) : null}
@@ -227,7 +250,27 @@ export function ResultsView({
               <Link href="/oferta" className={button({ shape: "pill" })}>
                 Shiko ofertat tjera
               </Link>
-            ) : undefined
+            ) : (
+              <div className="flex flex-wrap gap-3">
+                {hasActiveFilters ? (
+                  <Link
+                    href={browsePath(resolvedBasePath, { katalog, sort })}
+                    className={button({ shape: "pill" })}
+                  >
+                    Pastro filtrat
+                  </Link>
+                ) : null}
+                <Link
+                  href="/oferta"
+                  className={button({
+                    variant: hasActiveFilters ? "secondary" : "primary",
+                    shape: "pill",
+                  })}
+                >
+                  Shiko të gjitha ofertat
+                </Link>
+              </div>
+            )
           }
         />
       ) : null}

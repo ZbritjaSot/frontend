@@ -1,7 +1,8 @@
 "use client";
 
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { campaignWord, productWord } from "@/features/public/compose";
 import { fetchPublicBusinesses } from "@/features/offers/api";
@@ -9,10 +10,17 @@ import { DiscountRail, PriceLine } from "@/features/public/price";
 import { StepRail, type RailNav } from "@/features/public/StepRail";
 import { kicker } from "@/features/public/tone";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
+import { normalizePage, uniqueById } from "@/lib/pages";
 import { useInfiniteSentinel } from "@/lib/useInfiniteSentinel";
 import type { PublicBusiness, PublicFolder, PublicOffer } from "@/types";
 
-const PAGE_SIZE = 6;
+// Bumped from 6 → 20 (within the audit's recommended 12–24 range): the
+// previous page size compounded the back-navigation state-loss problem with
+// excess fetch cycles.
+// Exported so the SSR fetch on `/biznese` (app/(public)/biznese/page.tsx)
+// uses the same page size — a mismatch between the two would make page 2
+// skip or duplicate items (hidden by `uniqueById`, but still wrong).
+export const PAGE_SIZE = 20;
 
 type RailItem =
   | { kind: "flyer"; flyer: PublicFolder }
@@ -29,43 +37,50 @@ export function PartnerBoard({
   q?: string;
   city?: string;
 }) {
-  const [items, setItems] = useState(shops);
-  const [page, setPage] = useState(1);
-  const [done, setDone] = useState(lastPage <= 1);
-  const [loading, setLoading] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const loadingRef = useRef(false);
+  // Query cache lives in the root `QueryClientProvider`, which survives
+  // client-side navigation to a shop page and back — see `CatalogStream` for
+  // the full rationale.
+  const query = useInfiniteQuery({
+    queryKey: ["partner-directory", q ?? "", city ?? ""],
+    queryFn: async ({ pageParam }) =>
+      normalizePage(
+        await fetchPublicBusinesses({ q: q || undefined, city, page: pageParam, perPage: PAGE_SIZE, rail: true }),
+        pageParam,
+        PAGE_SIZE,
+      ),
+    initialPageParam: 1,
+    getNextPageParam: (last, _pages, page) =>
+      page < (last.meta?.last_page ?? page) ? page + 1 : undefined,
+    initialData: () => ({
+      pages: [
+        {
+          data: shops,
+          meta: {
+            current_page: 1,
+            last_page: lastPage,
+            per_page: PAGE_SIZE,
+            total: shops.length,
+          },
+        },
+      ],
+      pageParams: [1],
+    }),
+  });
 
-  const loadMore = useCallback(async () => {
-    if (loadingRef.current || done) {
-      return;
-    }
-    loadingRef.current = true;
-    setLoading(true);
-    setFailed(false);
-    const next = page + 1;
-    try {
-      const result = await fetchPublicBusinesses({
-        q: q || undefined,
-        city,
-        page: next,
-        perPage: PAGE_SIZE,
-        rail: true,
-      });
-      setItems((current) => appendUnique(current, result.data));
-      setPage(next);
-      setDone(next >= (result.meta?.last_page ?? next));
-    } catch {
-      setFailed(true);
-    } finally {
-      loadingRef.current = false;
-      setLoading(false);
-    }
-  }, [city, done, page, q]);
-
+  const items = useMemo(() => uniqueById(query.data?.pages), [query.data]);
+  const loading = query.isFetchingNextPage;
+  const failed = query.isFetchNextPageError;
+  // Gated on `isFetching` (not just `isFetchingNextPage`) so the sentinel
+  // can't fire `fetchNextPage()` — which defaults to `cancelRefetch: true` —
+  // while a stale-on-remount background refetch of the already-loaded pages
+  // is still in flight; that would cancel it and can drop or mix in stale
+  // data. The visible "Duke ngarkuar…" spinner still only reflects
+  // `isFetchingNextPage`, not this broader gate.
+  const queryFetchNextPage = query.fetchNextPage;
+  const onLoadMore = useCallback(() => queryFetchNextPage(), [queryFetchNextPage]);
   const sentinel = useInfiniteSentinel({
-    onLoadMore: loadMore,
-    enabled: !done && !failed && !loading,
+    onLoadMore,
+    enabled: Boolean(query.hasNextPage) && !query.isFetching && !failed,
   });
 
   return (
@@ -85,7 +100,7 @@ export function PartnerBoard({
             type="button"
             className="cursor-pointer border-0 bg-transparent text-sm font-semibold text-ink underline"
             onClick={() => {
-              void loadMore();
+              void query.fetchNextPage();
             }}
           >
             Provo përsëri
@@ -299,7 +314,3 @@ function OfferSlide({ offer, inert }: { offer: PublicOffer; inert: boolean }) {
   );
 }
 
-function appendUnique(current: PublicBusiness[], next: PublicBusiness[]): PublicBusiness[] {
-  const seen = new Set(current.map((item) => item.id));
-  return [...current, ...next.filter((item) => !seen.has(item.id))];
-}

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { CatalogFilters } from "@/features/public/CatalogFilters";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
+import { FilterChips } from "@/features/public/FilterChips";
 import { Band, EmptyNote, Frame } from "@/features/public/Frame";
-import { PartnerBoard } from "@/features/public/PartnerBoard";
+import { PAGE_SIZE, PartnerBoard } from "@/features/public/PartnerBoard";
 import { kicker } from "@/features/public/tone";
 import { ApiError, fetchPublicBusinesses, fetchPublicCities } from "@/features/offers/api";
 import { showCatalogControls } from "@/lib/browse";
@@ -51,7 +52,8 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
       fetchPublicBusinesses({
         q: q || undefined,
         city,
-        perPage: 6,
+        // Matches `PartnerBoard`'s infinite-scroll page size.
+        perPage: PAGE_SIZE,
         rail: true,
       }),
       fetchPublicCities({ shops: true }).catch(() => [] as string[]),
@@ -91,6 +93,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
           showCategories={false}
           placeholder=""
         />
+        <FilterChips basePath="/biznese" q={q} city={city} />
         {showCatalogControls({
           hasResults: shops.length > 0,
           q,
