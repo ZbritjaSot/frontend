@@ -143,7 +143,8 @@ export function PartnerDirectorySkeleton() {
 export function OfferDetailSkeleton() {
   return (
     <div aria-busy="true" aria-label="Duke ngarkuar ofertën" className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8">
-      <div className="grid items-start gap-8 lg:grid-cols-12">
+      <Bone className="h-4 w-64 max-w-full" />
+      <div className="mt-6 grid items-start gap-8 lg:grid-cols-12">
         <Bone className="aspect-[4/3] w-full rounded-2xl lg:col-span-7" />
         <div className="grid gap-3 lg:col-span-5">
           <Bone className="h-3 w-24 rounded-full" />
@@ -171,6 +172,7 @@ export function FlyerDetailSkeleton() {
     <div aria-busy="true" aria-label="Duke ngarkuar dosjen">
       <div className="bg-forest px-5 py-8 sm:px-8">
         <div className="mx-auto grid w-full max-w-6xl gap-3">
+          <Bone className="h-4 w-56 max-w-full bg-white/15" />
           <div className="flex items-center gap-3">
             <Bone className="size-7 rounded-lg bg-white/15" />
             <Bone className="h-4 w-32 bg-white/15" />

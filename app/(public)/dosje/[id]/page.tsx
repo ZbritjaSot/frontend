@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { leadProduct, offerWord, withCampaign } from "@/features/public/compose";
 import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
-import { BackLink, Band, EmptyNote, Frame, SectionHeading } from "@/features/public/Frame";
+import { Breadcrumbs, flyerCrumbs } from "@/features/public/Breadcrumbs";
+import { Band, EmptyNote, Frame, SectionHeading } from "@/features/public/Frame";
 import { ProductList } from "@/features/public/ProductPoster";
 import { DiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
@@ -64,7 +65,6 @@ export default async function FolderPage({ params }: FolderPageProps) {
   const lead =
     folder.items.find((item) => item.id === folder.cover?.id) ??
     leadProduct(folder);
-  const backHref = folder.business ? `/biznese/${folder.business.id}` : "/";
   const coverName = folder.cover?.name ?? lead?.name ?? folder.title;
   const coverUrl = folder.cover?.thumb_url ?? lead?.image?.thumb_url;
 
@@ -73,12 +73,11 @@ export default async function FolderPage({ params }: FolderPageProps) {
       <section className="bg-forest text-ivory [--color-focus:var(--color-lime)]">
         <Frame className="py-10 sm:py-14">
           <div className="flex items-center justify-between gap-3">
-            <BackLink
-              href={backHref}
-              className="text-ivory/75 hover:text-ivory"
-            >
-              {folder.business ? "Kthehu te dyqani" : "Kreu"}
-            </BackLink>
+            <Breadcrumbs
+              items={flyerCrumbs(folder)}
+              tone="inverse"
+              className="min-w-0 flex-1"
+            />
             <FavoriteButton
               kind="flyer"
               id={folder.id}
