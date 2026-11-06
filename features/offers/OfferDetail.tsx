@@ -34,16 +34,16 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
             {offer.bundle!.title}
           </BackLink>
         ) : null}
-        <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:gap-10">
-          <div className="lg:col-span-6">
-            <div className="relative overflow-hidden rounded-2xl border border-line bg-elevated">
+        <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
+          <div className="lg:col-span-7">
+            <div className="relative h-full overflow-hidden rounded-2xl border border-line bg-white">
               <ProductVisual
                 name={offer.name}
                 imageUrl={offer.image?.detail_url}
                 priority
                 fit="contain"
-                sizes="(max-width: 1024px) 100vw, 600px"
-                className="aspect-square w-full"
+                sizes="(max-width: 1024px) 100vw, 640px"
+                className="aspect-[4/3] w-full lg:aspect-auto lg:h-full lg:min-h-[18rem]"
               />
               {offer.discount_percent != null && offer.discount_percent > 0 ? (
                 <DiscountRail percent={offer.discount_percent} size="lg" />
@@ -60,7 +60,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
             </div>
           </div>
 
-          <div className="rounded-2xl border border-line bg-elevated p-5 sm:p-6 lg:col-span-6 dark:border-white/10 dark:bg-[#1a2420]">
+          <div className="rounded-2xl border border-line bg-elevated p-5 sm:p-6 lg:col-span-5 dark:border-white/10 dark:bg-[#1a2420]">
             {offer.categories?.length ? (
               <p className={`${kicker} m-0`}>
                 {offer.categories.map((category, index) => (
