@@ -91,6 +91,68 @@ export function DiscountRail({
   );
 }
 
+/**
+ * Up to 4 segments, one per distinct PO-approved discount band actually
+ * present among the flyer's own items — never invented, never randomized,
+ * and stable across renders since it's a pure function of real data.
+ */
+export function discountSegments(
+  items: { discount_percent?: number | null }[],
+): { from: string; to: string }[] {
+  const percents = items
+    .map((item) => item.discount_percent)
+    .filter(
+      (percent): percent is number =>
+        typeof percent === "number" && Number.isFinite(percent) && percent > 0,
+    );
+
+  if (percents.length === 0) {
+    return [];
+  }
+
+  return DISCOUNT_BANDS.filter((band, index) => {
+    const floor = index === 0 ? 0 : DISCOUNT_BANDS[index - 1].max;
+    return percents.some((percent) => percent > floor && percent <= band.max);
+  }).map((band) => ({ from: band.from, to: band.to }));
+}
+
+/**
+ * Lead-flyer-only rail (homepage "Fletushkat" first card): one flat color
+ * block per distinct discount band actually present among the flyer's own
+ * items (from `discountSegments`), flush against each other with no gaps.
+ * Same height/position as `DiscountRail` at `size="lg"` and the same
+ * 2-stop 135deg gradient treatment per segment — only what fills the rail
+ * changes. No text/percentage inside any segment; every other flyer's
+ * rail is untouched.
+ */
+export function MultiDiscountRail({
+  segments,
+}: {
+  segments: { from: string; to: string }[];
+}) {
+  if (segments.length === 0) {
+    return null;
+  }
+
+  const { height } = railSize.lg;
+
+  return (
+    <span
+      className={`pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-stretch ${height}`}
+      role="img"
+      aria-label={`Zbritje në ${segments.length} ${segments.length === 1 ? "nivel" : "nivele"}`}
+    >
+      {segments.map((segment, index) => (
+        <span
+          key={`${segment.from}-${segment.to}-${index}`}
+          className="flex-1"
+          style={{ background: `linear-gradient(135deg, ${segment.from}, ${segment.to})` }}
+        />
+      ))}
+    </span>
+  );
+}
+
 export function PriceLine({
   sale,
   original,

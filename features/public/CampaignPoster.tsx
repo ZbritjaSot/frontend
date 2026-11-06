@@ -2,7 +2,7 @@ import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { folderCount, leadProduct, offerWord } from "@/features/public/compose";
 import { Rail } from "@/features/public/Frame";
-import { DiscountRail } from "@/features/public/price";
+import { DiscountRail, MultiDiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateShortSq, formatDateSq } from "@/lib/format";
 import type { PublicFolder } from "@/types";
@@ -11,10 +11,18 @@ export function CampaignPoster({
   folder,
   eager = false,
   layout = "rail",
+  discountSegments,
 }: {
   folder: PublicFolder;
   eager?: boolean;
   layout?: "rail" | "card" | "feature" | "shelf" | "editorial";
+  /**
+   * Homepage lead flyer only: up to 4 discount-band color segments computed
+   * from the flyer's own items (see `discountSegments` in
+   * `features/public/price.tsx`). Only consumed by the `editorial` layout;
+   * every other layout keeps rendering the single-band `DiscountRail`.
+   */
+  discountSegments?: { from: string; to: string }[];
 }) {
   const shop = folder.business?.name ?? "Dyqan";
   const lead = leadProduct(folder);
@@ -49,7 +57,11 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="(max-width: 640px) 100vw, 420px"
           />
-          {percent > 0 ? <DiscountRail percent={percent} size="lg" /> : null}
+          {discountSegments && discountSegments.length > 0 ? (
+            <MultiDiscountRail segments={discountSegments} />
+          ) : percent > 0 ? (
+            <DiscountRail percent={percent} size="lg" />
+          ) : null}
           {heart}
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-2 px-4 py-4 sm:px-6">
