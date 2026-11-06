@@ -22,16 +22,19 @@ type FieldProps = {
 export function FieldError({
   id,
   tone = "default",
+  announce = false,
   children,
 }: {
   id: string;
   tone?: "default" | "inverse";
+  announce?: boolean;
   children?: ReactNode;
 }) {
   if (!children) return null;
   return (
     <p
       id={id}
+      role={announce ? "alert" : undefined}
       className={`m-0 text-sm font-semibold ${tone === "inverse" ? "text-[#ffb4b4]" : "text-danger"}`}
     >
       {children}
@@ -82,7 +85,9 @@ export function Field({
       </div>
       {children(control)}
       {hint && <p id={hintId} className="m-0 text-sm leading-normal text-muted">{hint}</p>}
-      <FieldError id={errorId}>{error}</FieldError>
+      <FieldError id={errorId} announce>
+        {error}
+      </FieldError>
     </div>
   );
 }

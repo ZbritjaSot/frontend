@@ -9,13 +9,23 @@ import {
   inquiryForm,
   inquiryPanel,
 } from "@/features/public/inquiry/styles";
+import { useFocusInvalidField } from "@/features/public/inquiry/useFocusInvalidField";
 import { kicker } from "@/features/public/tone";
 import { apiFetch, validationMessage } from "@/lib/api";
 import { button, input } from "@/lib/ui";
+import { fieldMessages, partnerFormSchema } from "@/schemas/inquiry";
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+const fields = ["name", "email", "businessName", "city", "phone", "message"] as const;
+type FieldKey = (typeof fields)[number];
 
-type FieldKey = "name" | "email" | "businessName" | "city";
+const fieldIds: Record<FieldKey, string> = {
+  name: "partner-name",
+  email: "partner-email",
+  businessName: "partner-shop",
+  city: "partner-city",
+  phone: "partner-phone",
+  message: "partner-message",
+};
 
 export function PartnerForm() {
   const [name, setName] = useState("");
@@ -24,62 +34,58 @@ export function PartnerForm() {
   const [city, setCity] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [invalid, setInvalid] = useState<Partial<Record<FieldKey, boolean>>>({});
+  const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
+  const [serverError, setServerError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [pending, setPending] = useState(false);
+  const invalidField = useFocusInvalidField();
+
+  function clearError(key: FieldKey) {
+    setErrors((current) => {
+      if (!current[key]) {
+        return current;
+      }
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    const trimmedName = name.trim();
-    const trimmedEmail = email.trim();
-    const trimmedBusiness = businessName.trim();
-    const trimmedCity = city.trim();
-    const nextInvalid: Partial<Record<FieldKey, boolean>> = {};
-    if (trimmedName === "") {
-      nextInvalid.name = true;
-      setInvalid(nextInvalid);
-      setError("Shkruaj emrin.");
+    const parsed = partnerFormSchema.safeParse({
+      name,
+      email,
+      businessName,
+      city,
+      phone,
+      message,
+    });
+    if (!parsed.success) {
+      const next = fieldMessages(parsed.error.issues, fields);
+      setErrors(next);
+      setServerError(null);
+      const first = fields.find((key) => next[key]);
+      if (first) {
+        invalidField.focus(fieldIds[first]);
+      }
       return;
     }
-    if (trimmedEmail === "") {
-      nextInvalid.email = true;
-      setInvalid(nextInvalid);
-      setError("Shkruaj email-in.");
-      return;
-    }
-    if (!emailPattern.test(trimmedEmail)) {
-      nextInvalid.email = true;
-      setInvalid(nextInvalid);
-      setError("Shkruaj një email të vlefshëm.");
-      return;
-    }
-    if (trimmedBusiness === "") {
-      nextInvalid.businessName = true;
-      setInvalid(nextInvalid);
-      setError("Shkruaj emrin e dyqanit.");
-      return;
-    }
-    if (trimmedCity === "") {
-      nextInvalid.city = true;
-      setInvalid(nextInvalid);
-      setError("Shkruaj qytetin.");
-      return;
-    }
-    setInvalid({});
-    setError(null);
+
+    setErrors({});
+    setServerError(null);
     setPending(true);
     try {
       await apiFetch("/partner", {
         method: "POST",
         auth: true,
         body: JSON.stringify({
-          name: trimmedName,
-          email: trimmedEmail,
-          business_name: trimmedBusiness,
-          city: trimmedCity,
-          phone: phone.trim() || null,
-          message: message.trim() || null,
+          name: parsed.data.name,
+          email: parsed.data.email,
+          business_name: parsed.data.businessName,
+          city: parsed.data.city,
+          phone: parsed.data.phone,
+          message: parsed.data.message,
         }),
       });
       setDone(true);
@@ -90,7 +96,7 @@ export function PartnerForm() {
       setPhone("");
       setMessage("");
     } catch (caught) {
-      setError(validationMessage(caught, "Nuk u dërgua. Provo përsëri."));
+      setServerError(validationMessage(caught, "Nuk u dërgua. Provo përsëri."));
     } finally {
       setPending(false);
     }
@@ -111,7 +117,7 @@ export function PartnerForm() {
         <p className={kicker}>Aplikimi</p>
         <form className={`${inquiryForm} mt-5`} onSubmit={onSubmit} noValidate>
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field id="partner-name" label="Emri" requirement="required">
+            <Field id="partner-name" label="Emri" requirement="required" error={errors.name}>
               {(control) => (
                 <input
                   {...control}
@@ -120,17 +126,16 @@ export function PartnerForm() {
                   value={name}
                   maxLength={120}
                   disabled={pending}
-                  aria-invalid={invalid.name || undefined}
                   placeholder="Emri yt"
                   className={input({ size: "lg" })}
                   onChange={(event) => {
                     setName(event.target.value);
-                    setInvalid((prev) => ({ ...prev, name: false }));
+                    clearError("name");
                   }}
                 />
               )}
             </Field>
-            <Field id="partner-email" label="Email" requirement="required">
+            <Field id="partner-email" label="Email" requirement="required" error={errors.email}>
               {(control) => (
                 <input
                   {...control}
@@ -140,18 +145,22 @@ export function PartnerForm() {
                   value={email}
                   maxLength={255}
                   disabled={pending}
-                  aria-invalid={invalid.email || undefined}
                   placeholder="email@dyqani.com"
                   className={input({ size: "lg" })}
                   onChange={(event) => {
                     setEmail(event.target.value);
-                    setInvalid((prev) => ({ ...prev, email: false }));
+                    clearError("email");
                   }}
                 />
               )}
             </Field>
           </div>
-          <Field id="partner-shop" label="Emri i dyqanit" requirement="required">
+          <Field
+            id="partner-shop"
+            label="Emri i dyqanit"
+            requirement="required"
+            error={errors.businessName}
+          >
             {(control) => (
               <input
                 {...control}
@@ -160,18 +169,17 @@ export function PartnerForm() {
                 value={businessName}
                 maxLength={160}
                 disabled={pending}
-                aria-invalid={invalid.businessName || undefined}
                 placeholder="Si quhet dyqani"
                 className={input({ size: "lg" })}
                 onChange={(event) => {
                   setBusinessName(event.target.value);
-                  setInvalid((prev) => ({ ...prev, businessName: false }));
+                  clearError("businessName");
                 }}
               />
             )}
           </Field>
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field id="partner-city" label="Qyteti" requirement="required">
+            <Field id="partner-city" label="Qyteti" requirement="required" error={errors.city}>
               {(control) => (
                 <input
                   {...control}
@@ -180,17 +188,16 @@ export function PartnerForm() {
                   value={city}
                   maxLength={120}
                   disabled={pending}
-                  aria-invalid={invalid.city || undefined}
                   placeholder="p.sh. Prishtinë"
                   className={input({ size: "lg" })}
                   onChange={(event) => {
                     setCity(event.target.value);
-                    setInvalid((prev) => ({ ...prev, city: false }));
+                    clearError("city");
                   }}
                 />
               )}
             </Field>
-            <Field id="partner-phone" label="Telefoni" requirement="optional">
+            <Field id="partner-phone" label="Telefoni" requirement="optional" error={errors.phone}>
               {(control) => (
                 <input
                   {...control}
@@ -202,12 +209,15 @@ export function PartnerForm() {
                   disabled={pending}
                   placeholder="p.sh. +383 44 000 000"
                   className={input({ size: "lg" })}
-                  onChange={(event) => setPhone(event.target.value)}
+                  onChange={(event) => {
+                    setPhone(event.target.value);
+                    clearError("phone");
+                  }}
                 />
               )}
             </Field>
           </div>
-          <Field id="partner-message" label="Mesazhi" requirement="optional">
+          <Field id="partner-message" label="Mesazhi" requirement="optional" error={errors.message}>
             {(control) => (
               <textarea
                 {...control}
@@ -217,13 +227,16 @@ export function PartnerForm() {
                 disabled={pending}
                 placeholder="Diçka që dëshiron të na tregosh (opsionale)"
                 className={`${input({ size: "lg", multiline: true })} min-h-28 resize-y leading-relaxed`}
-                onChange={(event) => setMessage(event.target.value)}
+                onChange={(event) => {
+                  setMessage(event.target.value);
+                  clearError("message");
+                }}
               />
             )}
           </Field>
-          {error ? (
+          {serverError ? (
             <p className={inquiryError} role="alert">
-              {error}
+              {serverError}
             </p>
           ) : null}
           <div className="pt-1">
