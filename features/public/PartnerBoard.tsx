@@ -6,7 +6,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { campaignWord, offerWord } from "@/features/public/compose";
 import { fetchPublicBusinesses, PUBLIC_BUSINESSES_PAGE_SIZE } from "@/features/offers/api";
-import { DiscountRail, PriceLine } from "@/features/public/price";
+import { DiscountRail } from "@/features/public/price";
 import { StepRail, type RailNav } from "@/features/public/StepRail";
 import { kicker } from "@/features/public/tone";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
@@ -296,16 +296,8 @@ function OfferSlide({ offer, inert }: { offer: PublicOffer; inert: boolean }) {
           </span>
         </span>
         <span className="grid gap-0.5 px-2.5 py-2">
+          <span className={kicker}>Ofertë</span>
           <span className="truncate text-sm font-extrabold tracking-tight">{offer.name}</span>
-          {offer.discounted_price != null ? (
-            <PriceLine
-              sale={offer.discounted_price}
-              original={offer.original_price ?? 0}
-              size="sm"
-            />
-          ) : (
-            <span className="block h-5" />
-          )}
         </span>
       </span>
     </Link>
