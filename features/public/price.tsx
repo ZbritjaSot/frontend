@@ -1,11 +1,17 @@
 import { formatDiscountPercent, formatEurFromCents } from "@/lib/format";
 
-/** Four fixed families. -25% stays green and -26% is orange. */
+/**
+ * Four fixed families. -25% stays green and -26% is orange. `text` is
+ * white on every band per product decision — note the 50%/75% bands
+ * (light yellow/orange) measure only ~1.3:1 and ~1.6:1 contrast against
+ * white, well under WCAG AA. Keep in sync with mobile's `DISCOUNT_BANDS`
+ * in `src/components/visuals.tsx` — same colors, same text.
+ */
 const DISCOUNT_BANDS = [
   { max: 25, from: "#2C862B", to: "#08752D", text: "text-white" },
-  { max: 50, from: "#FFC02E", to: "#E96800", text: "text-charcoal" },
-  { max: 75, from: "#E0263B", to: "#C21A31", text: "text-white" },
-  { max: 100, from: "#C91835", to: "#870D25", text: "text-white" },
+  { max: 50, from: "#FFE066", to: "#F5B800", text: "text-white" },
+  { max: 75, from: "#FFC02E", to: "#E96800", text: "text-white" },
+  { max: 100, from: "#E0263B", to: "#C21A31", text: "text-white" },
 ] as const;
 
 function discountBand(percent: number): { from: string; to: string; text: string } {
