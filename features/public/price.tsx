@@ -19,6 +19,31 @@ function discountBand(percent: number): { from: string; to: string; text: string
   return DISCOUNT_BANDS.find((band) => shown <= band.max) ?? DISCOUNT_BANDS[3];
 }
 
+/**
+ * Original rounded-pill mark (pre-dates `DiscountRail`'s gradient bar) —
+ * only for the product detail page's main/featured image, top-left corner.
+ * Flat fill, not a gradient: uses `DISCOUNT_BANDS`' `from` color per band
+ * (the updated PO-approved palette) instead of the old flat `bg-accent`,
+ * but keeps the pill's original shape/size and single-color fill. Do not
+ * use this anywhere `DiscountRail` is already used — that's unchanged.
+ */
+export function DiscountBadge({ percent }: { percent: number }) {
+  if (!Number.isFinite(percent) || percent <= 0) {
+    return null;
+  }
+
+  const band = discountBand(percent);
+
+  return (
+    <span
+      className={`inline-flex rounded-full px-2 py-0.5 text-[0.7rem] leading-none font-extrabold tracking-tight tabular-nums ${band.text}`}
+      style={{ backgroundColor: band.from }}
+    >
+      {formatDiscountPercent(percent)}
+    </span>
+  );
+}
+
 const railSize = {
   /** 56px ending-soon thumbnails. */
   xs: { height: "h-[16px]", text: "text-[8px]" },
