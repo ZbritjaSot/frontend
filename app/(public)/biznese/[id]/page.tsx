@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { shopLinks } from "@/features/business/links";
 import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
 import { CampaignGrid, CampaignPoster } from "@/features/public/CampaignPoster";
-import { campaignWord, productWord } from "@/features/public/compose";
+import { campaignWord, offerWord } from "@/features/public/compose";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
 import { Band, EmptyNote, Frame, Pager, SectionHeading } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
@@ -165,7 +165,7 @@ export default async function BusinessPage({
                 </h1>
                 <p className="mt-4 mb-0 text-sm font-semibold">
                   {folderTotal} {campaignWord(folderTotal)} · {offerTotal}{" "}
-                  {productWord(offerTotal)}
+                  {offerWord(offerTotal)}
                 </p>
               </div>
               {hasLinks ? (
@@ -193,7 +193,7 @@ export default async function BusinessPage({
               basePath={basePath}
               categories={categories}
               showCategories={folders.length > 0 || offers.length > 0}
-              placeholder="Kërko produkte në këtë dyqan"
+              placeholder="Kërko oferta në këtë dyqan"
             />
           </Band>
           {folders.length > 0 ? (
@@ -214,7 +214,7 @@ export default async function BusinessPage({
           ) : null}
           {offers.length > 0 ? (
             <Band>
-              <SectionHeading title={page > 1 ? "Më shumë produkte" : "Zbritjet aktive"} />
+              <SectionHeading title={page > 1 ? "Më shumë oferta" : "Zbritjet aktive"} />
               <ProductGrid offers={offers} />
               <Pager
                 page={page}
@@ -244,7 +244,7 @@ export default async function BusinessPage({
           folderLastPage={folderLastPage}
           offerTotal={offerTotal}
           folderTotal={folderTotal}
-          placeholder="Kërko produkte në këtë dyqan"
+          placeholder="Kërko oferta në këtë dyqan"
         />
       )}
     </article>

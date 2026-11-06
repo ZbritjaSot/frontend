@@ -108,8 +108,8 @@ export function ResultsView({
           {flyerCatalogue
             ? `${folderTotal} fletushka aktive${categoryName ? ` te ${categoryName}` : ""}.`
             : q
-              ? `${offerTotal} produkte · ${folderTotal} fletushka`
-              : `${offerTotal} produkte aktive${categoryName ? ` te ${categoryName}` : ""}.`}
+              ? `${offerTotal} oferta · ${folderTotal} fletushka`
+              : `${offerTotal} oferta aktive${categoryName ? ` te ${categoryName}` : ""}.`}
         </p>
       ) : null}
       {catalogue && !noActiveFlyers ? (
@@ -230,7 +230,7 @@ export function ResultsView({
       {!catalogue && showOffers ? (
         <div className="mt-12">
           {showFlyerRail ? (
-            <SectionHeading kicker="Produkte" title="Zbritjet" />
+            <SectionHeading kicker="Oferta" title="Zbritjet" />
           ) : null}
           <ProductGrid
             offers={offers}

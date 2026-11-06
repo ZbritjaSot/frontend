@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
-import { leadProduct, productWord, withCampaign } from "@/features/public/compose";
+import { leadProduct, offerWord, withCampaign } from "@/features/public/compose";
 import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
 import { BackLink, Band, EmptyNote, Frame, SectionHeading } from "@/features/public/Frame";
 import { ProductList } from "@/features/public/ProductPoster";
@@ -111,7 +111,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
                 {folder.title}
               </h1>
               <p className="mt-5 mb-0 max-w-xl text-lg leading-relaxed text-ivory/75 dark:text-muted">
-                {count} {productWord(count)} nga {shop}. Nga{" "}
+                {count} {offerWord(count)} nga {shop}. Nga{" "}
                 {formatDateSq(folder.starts_at)} deri më{" "}
                 {formatDateSq(folder.expires_at)}.
               </p>
@@ -158,13 +158,13 @@ export default async function FolderPage({ params }: FolderPageProps) {
       </section>
 
       <Band>
-        <SectionHeading title="Produktet" />
+        <SectionHeading title="Ofertat" />
         {count > 0 ? (
           <ProductList offers={withCampaign(folder)} />
         ) : (
           <EmptyNote
             title="Kjo fletushkë është bosh"
-            body="Nuk ka produkte aktive brenda kësaj fletushke."
+            body="Nuk ka oferta aktive brenda kësaj fletushke."
           />
         )}
         <BranchPlaces places={folder.also_at} className="mt-8" />

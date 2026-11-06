@@ -28,7 +28,7 @@ export function DiscoverForm({
   categories,
   showCategories = true,
   catalog = false,
-  placeholder = "Kërko produkte, dyqane, fletushka",
+  placeholder = "Kërko oferta, dyqane, fletushka",
 }: DiscoverFormProps) {
   return (
     <div className={catalog ? "flex flex-col gap-3" : "grid gap-5"} id="kerko">

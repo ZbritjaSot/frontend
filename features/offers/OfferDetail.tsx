@@ -154,7 +154,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
         <Band>
           <SectionHeading
             kicker="E njëjta fletushkë"
-            title={offer.bundle?.title ?? "Produkte të tjera"}
+            title={offer.bundle?.title ?? "Oferta të tjera"}
           />
           <ProductGrid offers={related} />
         </Band>

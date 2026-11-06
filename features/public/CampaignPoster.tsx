@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
-import { folderCount, leadProduct, productWord } from "@/features/public/compose";
+import { folderCount, leadProduct, offerWord } from "@/features/public/compose";
 import { Rail } from "@/features/public/Frame";
 import { DiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
@@ -22,7 +22,7 @@ export function CampaignPoster({
   const percent = lead?.discount_percent ?? folder.lead_discount_percent ?? 0;
   const coverName = folder.cover?.name ?? lead?.name ?? folder.title;
   const coverUrl = folder.cover?.thumb_url ?? lead?.image?.thumb_url;
-  const meta = `${count} ${productWord(count)} · deri më ${formatDateShortSq(folder.expires_at)}`;
+  const meta = `${count} ${offerWord(count)} · deri më ${formatDateShortSq(folder.expires_at)}`;
   const heartButton = (
     <FavoriteButton
       kind="flyer"
@@ -95,7 +95,7 @@ export function CampaignPoster({
             {folder.title}
           </span>
           <span className="truncate text-xs text-muted">
-            {count} {productWord(count)} · deri më {formatDateShortSq(folder.expires_at)}
+            {count} {offerWord(count)} · deri më {formatDateShortSq(folder.expires_at)}
           </span>
         </span>
       </Link>
@@ -138,7 +138,7 @@ export function CampaignPoster({
             </span>
           </span>
           <span className="mt-8 block text-sm leading-relaxed text-muted">
-            {count} {productWord(count)} · {formatDateSq(folder.starts_at)} –{" "}
+            {count} {offerWord(count)} · {formatDateSq(folder.starts_at)} –{" "}
             {formatDateSq(folder.expires_at)}
           </span>
         </span>

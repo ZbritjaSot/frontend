@@ -63,8 +63,8 @@ export function folderCount(folder: PublicFolder): number {
   return folder.items.length;
 }
 
-export function productWord(count: number): string {
-  return count === 1 ? "produkt" : "produkte";
+export function offerWord(count: number): string {
+  return count === 1 ? "ofertë" : "oferta";
 }
 
 export function locationLabel(count: number | undefined, place?: string | null): string {

@@ -4,7 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
-import { campaignWord, productWord } from "@/features/public/compose";
+import { campaignWord, offerWord } from "@/features/public/compose";
 import { fetchPublicBusinesses, PUBLIC_BUSINESSES_PAGE_SIZE } from "@/features/offers/api";
 import { DiscountRail, PriceLine } from "@/features/public/price";
 import { StepRail, type RailNav } from "@/features/public/StepRail";
@@ -147,7 +147,7 @@ function PartnerRow({ shop }: { shop: PublicBusiness }) {
             </span>
             <span className="mt-0.5 block truncate text-xs text-muted">
               {[place, branchLabel].filter(Boolean).join(" · ")}
-              {` · ${flyers} ${campaignWord(flyers)} · ${offers} ${productWord(offers)}`}
+              {` · ${flyers} ${campaignWord(flyers)} · ${offers} ${offerWord(offers)}`}
             </span>
           </span>
         </Link>
