@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Spinner } from "@/components/ui/Spinner";
+import { useToast } from "@/components/ui/Toast";
 import { OfferBundleView } from "@/features/offers/OfferBundleView";
-import { bundleDisplayTitle } from "@/features/offers/status";
+import { bundleDisplayTitle, publicBundlePath } from "@/features/offers/status";
 import { useApproveManagerBundle, useManagerBundle } from "@/hooks/useManagerReview";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, btnPrimary, pageTitle, panelLead } from "@/lib/ui";
+import { button, pageTitle, panelLead } from "@/lib/ui";
 
 export function ManagerInspect({ id }: { id: string }) {
   const router = useRouter();
@@ -18,6 +19,7 @@ export function ManagerInspect({ id }: { id: string }) {
   const approve = useApproveManagerBundle();
   const [confirm, setConfirm] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   if (isLoading) {
     return <Spinner label="Duke ngarkuar dosjen" />;
@@ -27,7 +29,7 @@ export function ManagerInspect({ id }: { id: string }) {
     return (
       <div className="max-w-[40rem]">
         <p className={panelLead}>{validationMessage(error, "Dosja nuk u gjet.")}</p>
-        <Link href="/biz" className={btnGhost}>
+        <Link href="/biz" className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
           Në pritje
         </Link>
@@ -42,9 +44,18 @@ export function ManagerInspect({ id }: { id: string }) {
     try {
       await approve.mutateAsync(bundle!.id);
       setConfirm(false);
+      const path = publicBundlePath(bundle!);
+      showToast("U aprovua", {
+        tone: "success",
+        action: path
+          ? { label: "Shiko në faqe", onClick: () => window.open(path, "_blank", "noopener,noreferrer") }
+          : undefined,
+      });
       router.replace("/biz");
     } catch (err) {
-      setActionError(validationMessage(err, "Nuk mundëm ta aprovojmë dosjen."));
+      const message = validationMessage(err, "Nuk mundëm ta aprovojmë dosjen.");
+      setActionError(message);
+      showToast(message, { tone: "error" });
       setConfirm(false);
     }
   }
@@ -67,10 +78,10 @@ export function ManagerInspect({ id }: { id: string }) {
         </div>
         {pending ? (
           <div className="flex gap-2">
-            <Link href={`/biz/review/${bundle.id}/edit`} className={btnGhost}>
+            <Link href={`/biz/review/${bundle.id}/edit`} className={button({ variant: "secondary" })}>
               Ndrysho
             </Link>
-            <button className={btnPrimary} type="button" onClick={() => setConfirm(true)}>
+            <button className={button()} type="button" onClick={() => setConfirm(true)}>
               Aprovo
             </button>
           </div>

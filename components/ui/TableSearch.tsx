@@ -22,7 +22,7 @@ export function TableSearch({
         type={submitOnEnter ? "search" : "text"}
         enterKeyHint={submitOnEnter ? "search" : undefined}
         autoComplete={submitOnEnter ? "off" : undefined}
-        className="h-12 w-full appearance-none border-0 bg-transparent pr-4 pl-11 text-sm font-medium text-ink outline-none placeholder:text-muted focus-visible:bg-elevated focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus"
+        className="h-12 w-full appearance-none border-0 bg-transparent pr-4 pl-11 text-base font-medium text-ink outline-hidden placeholder:text-muted/70 focus-visible:bg-elevated focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus"
         value={value}
         placeholder=""
         onChange={(event) => onChange(event.target.value)}

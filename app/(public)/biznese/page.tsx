@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
 import { CatalogFilters } from "@/features/public/CatalogFilters";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
+import { FilterChips } from "@/features/public/FilterChips";
 import { Band, EmptyNote, Frame } from "@/features/public/Frame";
 import { PartnerBoard } from "@/features/public/PartnerBoard";
-import { display, kicker } from "@/features/public/tone";
-import { ApiError, fetchPublicBusinesses, fetchPublicCities } from "@/features/offers/api";
+import { kicker } from "@/features/public/tone";
+import {
+  ApiError,
+  fetchPublicBusinesses,
+  fetchPublicCities,
+  PUBLIC_BUSINESSES_PAGE_SIZE,
+} from "@/features/offers/api";
 import { showCatalogControls } from "@/lib/browse";
 import { publicPageMetadata } from "@/lib/metadata";
 import type { PublicBusiness } from "@/types";
@@ -51,7 +57,8 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
       fetchPublicBusinesses({
         q: q || undefined,
         city,
-        perPage: 6,
+        // Matches `PartnerBoard`'s infinite-scroll page size.
+        perPage: PUBLIC_BUSINESSES_PAGE_SIZE,
         rail: true,
       }),
       fetchPublicCities({ shops: true }).catch(() => [] as string[]),
@@ -78,7 +85,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
   return (
     <Band pad="page">
       <p className={kicker}>Partnerë</p>
-      <h1 className={`m-0 mt-2 text-[clamp(2.4rem,6vw,4rem)] ${display}`}>Partnerët</h1>
+      <h1 className="m-0 mt-2 text-title-1">Partnerët</h1>
       <p className="mt-3 mb-0 max-w-xl text-sm leading-relaxed text-muted">
         {total} partnerë me fletushka aktive.
       </p>
@@ -89,8 +96,9 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
           city={city}
           categories={[]}
           showCategories={false}
-          placeholder=""
+          placeholder="Kërko dyqane"
         />
+        <FilterChips basePath="/biznese" q={q} city={city} />
         {showCatalogControls({
           hasResults: shops.length > 0,
           q,

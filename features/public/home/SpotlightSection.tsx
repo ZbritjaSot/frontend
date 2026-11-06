@@ -1,6 +1,5 @@
-import { Frame, SeeAll } from "@/features/public/Frame";
+import { Frame, SeeAll, SectionHeading } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
-import { kicker } from "@/features/public/tone";
 import type { PublicOffer } from "@/types";
 
 /** Admin-curated spotlight first, then random fill (homepage featured rail). */
@@ -17,15 +16,11 @@ export function SpotlightSection({
 
   return (
     <Frame className="pt-10 sm:pt-12">
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className={kicker}>Përzgjedhje</p>
-          <h2 className="m-0 mt-1 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
-            {title}
-          </h2>
-        </div>
-        <SeeAll href="/oferta">Shiko të gjitha</SeeAll>
-      </div>
+      <SectionHeading
+        kicker="Përzgjedhje"
+        title={title}
+        action={<SeeAll href="/oferta">Shiko të gjitha</SeeAll>}
+      />
       <ProductGrid offers={offers} eager />
     </Frame>
   );

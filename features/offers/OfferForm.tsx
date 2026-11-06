@@ -23,6 +23,7 @@ import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Modal } from "@/components/ui/Modal";
 import { PosMoneyField } from "@/components/ui/PosMoneyField";
 import { SelectField } from "@/components/ui/SelectField";
+import { useToast } from "@/components/ui/Toast";
 import { useCreateAdminOffer, useUpdateAdminOffer } from "@/hooks/useAdminOffers";
 import { useCreateManagerBundle, useUpdateManagerBundle } from "@/hooks/useManagerReview";
 import {
@@ -40,12 +41,7 @@ import {
 } from "@/lib/datetime";
 import { formatDateShortSq, formatEurFromCents } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import {
-  btnGhost,
-  btnPrimary,
-  fieldError,
-  inputClass,
-} from "@/lib/ui";
+import { button, fieldError, input } from "@/lib/ui";
 import type { BundleCatalog } from "@/features/offers/bizApi";
 import {
   emptyItem,
@@ -124,6 +120,7 @@ export function OfferForm({
   doneHref,
 }: OfferFormProps) {
   const router = useRouter();
+  const { showToast } = useToast();
   const resolvedCatalog: BundleCatalog =
     offer?.is_standalone === true
       ? "offers"
@@ -375,9 +372,12 @@ export function OfferForm({
     try {
       if (mode === "create") {
         const created = await createMutation.mutateAsync(parsed.data);
+        let didSubmit = false;
         if (thenSubmit && audience === "biz") {
           await submitBiz.mutateAsync(created.id);
+          didSubmit = true;
         }
+        showToast(saveSuccessMessage(didSubmit));
         router.replace(
           doneHref ??
             (audience === "manager"
@@ -388,17 +388,38 @@ export function OfferForm({
         );
       } else if (offer) {
         await updateMutation.mutateAsync(parsed.data);
+        let didSubmit = false;
         if (thenSubmit && audience === "biz") {
           await submitBiz.mutateAsync(offer.id);
+          didSubmit = true;
         }
+        showToast(saveSuccessMessage(didSubmit));
         router.replace(leaveHref);
       }
     } catch (err) {
-      setError(validationMessage(err, "Nuk mundëm ta ruajmë ofertën."));
+      const message = validationMessage(err, "Nuk mundëm ta ruajmë ofertën.");
+      setError(message);
+      showToast(message, { tone: "error" });
       if (thenSubmit) {
         setReviewOpen(true);
       }
     }
+  }
+
+  /** Copy mirrors the audit's tone ("U dërgua për aprovim") across every
+   * audience + mode combination `save()` can reach. `didSubmit` is only ever
+   * true for the biz audience, since submit-after-save is biz-only. */
+  function saveSuccessMessage(didSubmit: boolean): string {
+    if (didSubmit) {
+      return "U dërgua për aprovim";
+    }
+    if (audience === "admin") {
+      return mode === "create" ? "U publikua" : "U përditësua";
+    }
+    if (audience === "manager") {
+      return mode === "create" ? "U dërgua në pritje" : "U përditësua";
+    }
+    return mode === "create" ? "U ruajt si draft" : "U ruajt";
   }
 
   const micro =
@@ -431,15 +452,15 @@ export function OfferForm({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button className={btnGhost} type="button" disabled={pending} onClick={() => router.push(leaveHref)}>
+          <button className={button({ variant: "secondary" })} type="button" disabled={pending} onClick={() => router.push(leaveHref)}>
             Anulo
           </button>
           {audience === "biz" ? (
-            <button className={btnGhost} type="button" disabled={pending} onClick={() => void save(false)}>
+            <button className={button({ variant: "secondary" })} type="button" disabled={pending} aria-busy={pending} onClick={() => void save(false)}>
               {pending ? "Duke u ruajtur…" : "Ruaj draft"}
             </button>
           ) : null}
-          <button className={btnPrimary} type="submit" disabled={pending}>
+          <button className={button()} type="submit" disabled={pending} aria-busy={pending}>
             {pending ? "Duke u ruajtur…" : primaryLabel}
           </button>
         </div>
@@ -457,7 +478,7 @@ export function OfferForm({
           <label className="mt-5 flex flex-col gap-2">
             <span className={micro}>Titulli i fletushkës</span>
             <input
-              className={`${inputClass} text-2xl! font-bold tracking-[-0.03em]`}
+              className={`${input()} text-2xl! font-bold tracking-[-0.03em]`}
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -535,7 +556,7 @@ export function OfferForm({
                     type="button"
                     aria-pressed={selected}
                     disabled={pending}
-                    className={`flex w-full cursor-pointer flex-col gap-1 rounded-xl border px-4 py-3 text-left ${
+                    className={`flex w-full cursor-pointer flex-col gap-1 rounded-2xl border px-4 py-3 text-left ${
                       selected ? "border-accent bg-accent/10" : "border-line bg-transparent hover:bg-sunken"
                     }`}
                     onClick={() =>
@@ -595,7 +616,7 @@ export function OfferForm({
                         type="button"
                         aria-pressed={coverKey === item.key}
                         disabled={pending}
-                        className={`flex w-28 cursor-pointer flex-col gap-2 rounded-xl border p-2 text-left ${
+                        className={`flex w-28 cursor-pointer flex-col gap-2 rounded-2xl border p-2 text-left ${
                           coverKey === item.key
                             ? "border-accent bg-accent/10"
                             : "border-line bg-transparent hover:bg-sunken"
@@ -687,7 +708,7 @@ export function OfferForm({
                     <div className="flex items-start gap-3">
                       <div className="grid min-w-0 flex-1 gap-3 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
                         <input
-                          className={inputClass}
+                          className={input()}
                           type="text"
                           value={item.name}
                           onChange={(e) =>
@@ -778,7 +799,7 @@ export function OfferForm({
                         <span className={micro}>Zbritja %</span>
                         <div className="relative">
                           <input
-                            className={`${inputClass} pr-8 text-right tabular-nums`}
+                            className={`${input()} pr-8 text-right tabular-nums`}
                             type="text"
                             inputMode="numeric"
                             autoComplete="off"
@@ -830,7 +851,7 @@ export function OfferForm({
                     <label className="flex min-w-0 flex-col gap-1.5">
                       <span className={micro}>Linku i blerjes (opsional)</span>
                       <input
-                        className={inputClass}
+                        className={input()}
                         type="url"
                         inputMode="url"
                         autoComplete="off"
@@ -888,7 +909,7 @@ export function OfferForm({
         footer={
           <>
             <button
-              className={btnGhost}
+              className={button({ variant: "secondary" })}
               type="button"
               disabled={pending}
               onClick={() => {
@@ -899,9 +920,10 @@ export function OfferForm({
               Kthehu dhe ndrysho
             </button>
             <button
-              className={btnPrimary}
+              className={button()}
               type="button"
               disabled={pending || submitBlocked}
+              aria-busy={pending}
               onClick={() => void save(audience === "biz")}
             >
               {pending ? "Duke u ruajtur…" : primaryLabel}

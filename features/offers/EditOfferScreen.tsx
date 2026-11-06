@@ -10,7 +10,7 @@ import { OfferForm } from "@/features/offers/OfferForm";
 import { canEditOffer, OFFER_STATUS_LABEL } from "@/features/offers/status";
 import { useBizOffer } from "@/hooks/useBizOffers";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, pageTitle, panelLead } from "@/lib/ui";
+import { button, pageTitle, panelLead } from "@/lib/ui";
 
 export function OffersBackHeading({
   title,
@@ -72,7 +72,7 @@ export function EditOfferScreen({ id, catalog = "flyers" }: EditOfferScreenProps
         <p className={panelLead}>
           {validationMessage(error, "Nuk u gjet.")}
         </p>
-        <Link href={listHref} className={btnGhost}>
+        <Link href={listHref} className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
           {listLabel}
         </Link>
@@ -86,7 +86,7 @@ export function EditOfferScreen({ id, catalog = "flyers" }: EditOfferScreenProps
         <p className={panelLead}>
           Nuk mund të ndryshohet (statusi: {OFFER_STATUS_LABEL[bundle.status]}).
         </p>
-        <Link href={listHref} className={btnGhost}>
+        <Link href={listHref} className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
           {listLabel}
         </Link>

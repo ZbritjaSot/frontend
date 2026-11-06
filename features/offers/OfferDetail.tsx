@@ -7,11 +7,11 @@ import { safeHttpUrl } from "@/features/business/links";
 import { savingsCents } from "@/features/public/compose";
 import { BackLink, Band, Frame, SectionHeading } from "@/features/public/Frame";
 import { DiscountRail, PriceLine } from "@/features/public/price";
-import { display, kicker } from "@/features/public/tone";
+import { kicker } from "@/features/public/tone";
 import { ProductGrid, ShopLink } from "@/features/public/ProductPoster";
 import { ProductVisual } from "@/features/public/visuals";
 import { formatDateSq, formatEurFromCents } from "@/lib/format";
-import { btnPrimary } from "@/lib/ui";
+import { button } from "@/lib/ui";
 import type { PublicOffer } from "@/types";
 
 type OfferDetailProps = {
@@ -36,7 +36,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
         ) : null}
         <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
           <div className="lg:col-span-7">
-            <div className="relative h-full overflow-hidden rounded-[1.35rem] border border-line bg-sunken dark:bg-[#121816]">
+            <div className="relative h-full overflow-hidden rounded-2xl border border-line bg-sunken dark:bg-[#121816]">
               <ProductVisual
                 name={offer.name}
                 imageUrl={offer.image?.detail_url}
@@ -49,7 +49,13 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                 <DiscountRail percent={offer.discount_percent} size="lg" />
               ) : null}
               <span className="absolute top-4 right-4 z-20">
-                <FavoriteButton kind="offer" id={offer.id} size="md" />
+                <FavoriteButton
+                  kind="offer"
+                  id={offer.id}
+                  size="md"
+                  thumbnailUrl={offer.image?.thumb_url}
+                  thumbnailName={offer.name}
+                />
               </span>
             </div>
           </div>
@@ -70,7 +76,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                 ))}
               </p>
             ) : null}
-            <h1 className={`m-0 mt-3 text-[clamp(2.2rem,4vw,3.4rem)] ${display}`}>
+            <h1 className="m-0 mt-3 text-title-1 break-words line-clamp-4">
               {offer.name}
             </h1>
             {offer.discounted_price != null ? (
@@ -95,7 +101,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                 href={purchaseHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${btnPrimary} mt-5 w-full sm:w-auto`}
+                className={`${button()} mt-5 w-full sm:w-auto`}
               >
                 Bli tani
                 <OpenInNewOutlinedIcon sx={{ fontSize: 18 }} aria-hidden />
@@ -124,16 +130,14 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
 
       {offer.business ? (
         <Band pad="compact">
-          <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
-            Ku e gjen
-          </p>
+          <p className={kicker}>Ku e gjen</p>
           <div className="mt-3 max-w-xl grid gap-3">
             <PlaceBranchRow place={offer.business} />
             <OfferPlace
               surface="plain"
               showHeading={false}
               showPin={false}
-              mapClassName="h-72 rounded-[1.5rem]"
+              mapClassName="h-72"
               name={offer.business.name}
               place={{
                 address: offer.business.address,
@@ -150,7 +154,7 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
         <Band>
           <SectionHeading
             kicker="E njëjta fletushkë"
-            title={offer.bundle?.title ?? "Produkte të tjera"}
+            title={offer.bundle?.title ?? "Oferta të tjera"}
           />
           <ProductGrid offers={related} />
         </Band>

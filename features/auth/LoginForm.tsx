@@ -9,7 +9,7 @@ import { loginWithCookies, logout } from "@/features/auth/api";
 import { hasDashboardRole, postLoginPath } from "@/features/auth/postLoginPath";
 import { meQueryKey } from "@/hooks/useAuth";
 import { validationMessage } from "@/lib/api";
-import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
+import { button, fieldError, fieldLabel, input } from "@/lib/ui";
 import { loginSchema } from "@/schemas/login";
 
 type LoginFormProps = {
@@ -65,7 +65,7 @@ export function LoginForm({ next, forgotHref }: LoginFormProps) {
       <label className={fieldLabel}>
         <span>Email</span>
         <input
-          className={inputClass}
+          className={input()}
           type="email"
           name="email"
           autoComplete="username"
@@ -79,7 +79,7 @@ export function LoginForm({ next, forgotHref }: LoginFormProps) {
       <label className={fieldLabel}>
         <span>Fjalëkalimi</span>
         <input
-          className={inputClass}
+          className={input()}
           type="password"
           name="password"
           autoComplete="current-password"
@@ -105,7 +105,7 @@ export function LoginForm({ next, forgotHref }: LoginFormProps) {
         </p>
       ) : null}
 
-      <button className={`${btnPrimary} w-full`} type="submit" disabled={pending}>
+      <button className={`${button()} w-full`} type="submit" disabled={pending}>
         {pending ? (
           <Spinner
             label="Duke u futur"

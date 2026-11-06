@@ -3,10 +3,11 @@ import { CatalogFilters } from "@/features/public/CatalogFilters";
 import { CatalogStream } from "@/features/public/CatalogStream";
 import { CampaignGrid, CampaignPoster, CampaignRail } from "@/features/public/CampaignPoster";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
+import { FilterChips } from "@/features/public/FilterChips";
 import { Band, EmptyNote, Pager, SectionHeading } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import { locationLabel } from "@/features/public/compose";
-import { display, kicker as kickerClass } from "@/features/public/tone";
+import { kicker as kickerClass } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
 import {
   browsePath,
@@ -15,6 +16,7 @@ import {
   type CatalogSort,
   type Katalog,
 } from "@/lib/browse";
+import { button } from "@/lib/ui";
 import type { CategorySummary, PublicBusiness, PublicFolder, PublicOffer } from "@/types";
 
 type ResultsViewProps = {
@@ -34,6 +36,7 @@ type ResultsViewProps = {
   folderTotal?: number;
   shops?: PublicBusiness[];
   basePath?: string;
+  placeholder?: string;
 };
 
 export function ResultsView({
@@ -53,6 +56,7 @@ export function ResultsView({
   folderTotal = folders.length,
   shops = [],
   basePath,
+  placeholder,
 }: ResultsViewProps) {
   const resolvedBasePath = basePath ?? (katalog ? catalogPath(katalog) : "/");
   const categoryName = categories.find((item) => item.slug === category)?.name;
@@ -83,6 +87,10 @@ export function ResultsView({
   });
   const noActiveFlyers =
     flyerCatalogue && folders.length === 0 && !q && !category && !city;
+  // `showControls` is also true for a non-default sort with nothing else
+  // active, where "Pastro filtrat" would link to the current URL unchanged —
+  // this is the actual "is there a filter to clear" check for that button.
+  const hasActiveFilters = Boolean(q?.trim() || category || city);
   const lastPage = flyerCatalogue
     ? folderLastPage
     : offers.length > 0 || offerLastPage > 1
@@ -92,7 +100,7 @@ export function ResultsView({
   return (
     <Band pad="page">
       <p className={kickerClass}>{kicker}</p>
-      <h1 className={`m-0 mt-2 max-w-4xl text-[clamp(2.4rem,6vw,4rem)] ${display}`}>
+      <h1 className="m-0 mt-2 max-w-4xl text-title-1 break-words line-clamp-2">
         {title}
       </h1>
       {!noActiveFlyers ? (
@@ -100,8 +108,8 @@ export function ResultsView({
           {flyerCatalogue
             ? `${folderTotal} fletushka aktive${categoryName ? ` te ${categoryName}` : ""}.`
             : q
-              ? `${offerTotal} produkte · ${folderTotal} fletushka`
-              : `${offerTotal} produkte aktive${categoryName ? ` te ${categoryName}` : ""}.`}
+              ? `${offerTotal} oferta · ${folderTotal} fletushka`
+              : `${offerTotal} oferta aktive${categoryName ? ` te ${categoryName}` : ""}.`}
         </p>
       ) : null}
       {catalogue && !noActiveFlyers ? (
@@ -116,6 +124,16 @@ export function ResultsView({
             categories={categories}
             catalog
             showCategories={showControls}
+            placeholder={placeholder}
+          />
+          <FilterChips
+            basePath={resolvedBasePath}
+            katalog={katalog}
+            q={q}
+            category={category}
+            city={city}
+            sort={sort}
+            categories={categories}
           />
           {showControls ? (
             <CatalogFilters
@@ -140,6 +158,16 @@ export function ResultsView({
             sort={sort}
             categories={categories}
             showCategories={showControls}
+            placeholder={placeholder}
+          />
+          <FilterChips
+            basePath={resolvedBasePath}
+            katalog={katalog}
+            q={q}
+            category={category}
+            city={city}
+            sort={sort}
+            categories={categories}
           />
         </div>
       ) : null}
@@ -202,7 +230,7 @@ export function ResultsView({
       {!catalogue && showOffers ? (
         <div className="mt-12">
           {showFlyerRail ? (
-            <SectionHeading kicker="Produkte" title="Zbritjet" />
+            <SectionHeading kicker="Oferta" title="Zbritjet" />
           ) : null}
           <ProductGrid
             offers={offers}
@@ -223,13 +251,30 @@ export function ResultsView({
           }
           action={
             noActiveFlyers ? (
-              <Link
-                href="/oferta"
-                className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 text-sm font-extrabold tracking-tight text-charcoal hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-              >
+              <Link href="/oferta" className={button({ shape: "pill" })}>
                 Shiko ofertat tjera
               </Link>
-            ) : undefined
+            ) : (
+              <div className="flex flex-wrap gap-3">
+                {hasActiveFilters ? (
+                  <Link
+                    href={browsePath(resolvedBasePath, { katalog, sort })}
+                    className={button({ shape: "pill" })}
+                  >
+                    Pastro filtrat
+                  </Link>
+                ) : null}
+                <Link
+                  href="/oferta"
+                  className={button({
+                    variant: hasActiveFilters ? "secondary" : "primary",
+                    shape: "pill",
+                  })}
+                >
+                  Shiko të gjitha ofertat
+                </Link>
+              </div>
+            )
           }
         />
       ) : null}

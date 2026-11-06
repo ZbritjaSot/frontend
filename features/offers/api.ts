@@ -12,6 +12,8 @@ const PUBLIC_FETCH: RequestInit = {
   cache: "no-store",
 };
 
+export const PUBLIC_BUSINESSES_PAGE_SIZE = 20;
+
 export type PublicOfferQuery = {
   q?: string;
   category?: string;
@@ -57,7 +59,7 @@ export async function fetchPublicBusinesses(
   query: { q?: string; city?: string; page?: number; perPage?: number; rail?: boolean } = {},
 ): Promise<Paginated<PublicBusiness>> {
   const params = new URLSearchParams();
-  params.set("per_page", String(query.perPage ?? 24));
+  params.set("per_page", String(query.perPage ?? PUBLIC_BUSINESSES_PAGE_SIZE));
   if (query.q) {
     params.set("q", query.q);
   }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { mapsUrl } from "@/lib/maps";
+import { kicker } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
 import type { BusinessSummary } from "@/types";
 
@@ -54,8 +55,8 @@ export function PlaceBranchRow({
     ? "block truncate text-xs text-ivory/70"
     : "block truncate text-xs text-muted";
   const shellClass = onForest
-    ? "flex min-w-0 items-center gap-3 rounded-xl border border-white/12 bg-white/[0.06] px-3 py-2.5"
-    : "flex min-w-0 items-center gap-3 rounded-xl border border-line bg-elevated px-3 py-2.5 dark:border-white/10";
+    ? "flex min-w-0 items-center gap-3 rounded-lg border border-white/12 bg-white/[0.06] px-3 py-2.5"
+    : "flex min-w-0 items-center gap-3 rounded-lg border border-line bg-elevated px-3 py-2.5 dark:border-white/10";
 
   const body = (
     <>
@@ -110,12 +111,8 @@ export function BranchPlaces({
     <div className={`grid gap-3 ${className ?? ""}`.trim()}>
       {showHeading ? (
         <div>
-          <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
-            Degë të tjera
-          </p>
-          <h2 className="m-0 mt-1 text-[clamp(1.65rem,3vw,2.35rem)] leading-[0.95] font-extrabold tracking-[-0.04em]">
-            {title}
-          </h2>
+          <p className={kicker}>Degë të tjera</p>
+          <h2 className="m-0 mt-1 text-title-2">{title}</h2>
         </div>
       ) : null}
       <ul className="m-0 grid list-none gap-2 p-0">

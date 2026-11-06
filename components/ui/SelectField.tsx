@@ -11,10 +11,10 @@ import {
 import { createPortal } from "react-dom";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { ShopLogo } from "@/features/public/visuals";
-import { triggerClass } from "@/lib/ui";
+import { input, triggerClass } from "@/lib/ui";
 
 const optionClass =
-  "flex w-full cursor-pointer appearance-none items-center gap-3 rounded-md border-0 bg-transparent px-3 py-2.5 text-left text-base font-medium text-ink hover:bg-accent/14 hover:text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus";
+  "flex w-full cursor-pointer appearance-none items-center gap-3 rounded-lg border-0 bg-transparent px-3 py-2.5 text-left text-base font-medium text-ink hover:bg-accent/14 hover:text-accent-fg focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus";
 
 export type SelectOption = {
   value: string;
@@ -205,7 +205,7 @@ export function SelectField({
         ? createPortal(
         <div
           ref={menuRef}
-          className="fixed z-[110] flex flex-col overflow-hidden rounded-lg border border-line bg-elevated p-1.5 shadow-[0_12px_32px_var(--color-shadow)]"
+          className="fixed z-[110] flex flex-col overflow-hidden rounded-2xl border border-line bg-elevated p-1.5 shadow-[0_12px_32px_var(--color-shadow)]"
           style={{
             left: menuBox.left,
             width: menuBox.width,
@@ -223,7 +223,7 @@ export function SelectField({
               placeholder=""
               aria-label="Kërko"
               aria-controls={listId}
-              className="mb-1.5 min-h-10 w-full shrink-0 rounded-md border border-line bg-sunken px-3 text-sm font-medium text-ink outline-none placeholder:text-muted focus:border-accent/40"
+              className={`mb-1.5 shrink-0 ${input({ size: "sm" })}`}
             />
           ) : null}
           <ul

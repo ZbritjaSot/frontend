@@ -9,7 +9,7 @@ import { OFFER_STATUS_LABEL } from "@/features/offers/status";
 import { useAdminOfferBundle } from "@/hooks/useAdminOffers";
 import { validationMessage } from "@/lib/api";
 import { safeNextPath } from "@/lib/safeNextPath";
-import { btnGhost, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
+import { button, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 
 export function AdminEditOfferScreen({ id }: { id: string }) {
   const params = useSearchParams();
@@ -29,7 +29,7 @@ export function AdminEditOfferScreen({ id }: { id: string }) {
         <p className={panelLead}>
           {validationMessage(error, "Dosja nuk u gjet.")}
         </p>
-        <Link href="/admin/offers" className={btnGhost}>
+        <Link href="/admin/offers" className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
           Në pritje
         </Link>

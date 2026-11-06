@@ -8,7 +8,7 @@ import {
   type BusinessLinksInput,
 } from "@/features/business/links";
 import { validationMessage } from "@/lib/api";
-import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
+import { button, fieldError, fieldLabel, input } from "@/lib/ui";
 import type { Business } from "@/types";
 
 const micro = "text-xs font-bold tracking-[0.08em] text-muted uppercase";
@@ -75,7 +75,7 @@ export function BusinessLinksForm({
       <label className={fieldLabel}>
         <span>Website</span>
         <input
-          className={inputClass}
+          className={input()}
           value={website}
           maxLength={255}
           disabled={readOnly || busy}
@@ -85,7 +85,7 @@ export function BusinessLinksForm({
       <label className={fieldLabel}>
         <span>Instagram</span>
         <input
-          className={inputClass}
+          className={input()}
           value={instagram}
           maxLength={255}
           disabled={readOnly || busy}
@@ -95,7 +95,7 @@ export function BusinessLinksForm({
       <label className={fieldLabel}>
         <span>Facebook</span>
         <input
-          className={inputClass}
+          className={input()}
           value={facebook}
           maxLength={255}
           disabled={readOnly || busy}
@@ -112,7 +112,7 @@ export function BusinessLinksForm({
             +
           </span>
           <input
-            className={`${inputClass} pl-7`}
+            className={`${input()} pl-7`}
             value={whatsapp}
             maxLength={15}
             disabled={readOnly || busy}
@@ -127,7 +127,7 @@ export function BusinessLinksForm({
       </label>
       {!readOnly ? (
         <div className="flex justify-end">
-          <button className={btnPrimary} type="submit" disabled={busy}>
+          <button className={button()} type="submit" disabled={busy} aria-busy={busy}>
             {busy ? "Duke u ruajtur…" : "Ruaj lidhjet"}
           </button>
         </div>

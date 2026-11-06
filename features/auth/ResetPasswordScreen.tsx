@@ -7,7 +7,7 @@ import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { Spinner } from "@/components/ui/Spinner";
 import { resetPassword } from "@/features/auth/api";
-import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
+import { button, fieldError, fieldLabel, input } from "@/lib/ui";
 import { resetPasswordSchema } from "@/schemas/passwordReset";
 
 export function ResetPasswordScreen() {
@@ -62,7 +62,7 @@ export function ResetPasswordScreen() {
           <Wordmark className="text-2xl" as="h1" />
         </Link>
 
-        <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent-fg uppercase">
+        <p className="m-0 text-kicker text-accent-fg uppercase">
           Biznes
         </p>
         <p className="m-0 mt-3 mb-8 text-xl font-semibold">Fjalëkalim i ri</p>
@@ -80,7 +80,7 @@ export function ResetPasswordScreen() {
             <label className={fieldLabel}>
               <span>Fjalëkalimi i ri</span>
               <input
-                className={inputClass}
+                className={input()}
                 type="password"
                 autoComplete="new-password"
                 value={password}
@@ -92,7 +92,7 @@ export function ResetPasswordScreen() {
             <label className={fieldLabel}>
               <span>Përsërit fjalëkalimin</span>
               <input
-                className={inputClass}
+                className={input()}
                 type="password"
                 autoComplete="new-password"
                 value={confirmation}
@@ -106,7 +106,7 @@ export function ResetPasswordScreen() {
                 {error}
               </p>
             ) : null}
-            <button className={`${btnPrimary} w-full`} type="submit" disabled={pending}>
+            <button className={`${button()} w-full`} type="submit" disabled={pending}>
               {pending ? (
                 <Spinner label="Duke u ruajtur" size="sm" block={false} tone="onAccent" />
               ) : (

@@ -7,13 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { changePassword } from "@/features/auth/api";
 import { meQueryKey } from "@/hooks/useAuth";
 import { passwordError, validateNewPassword } from "@/lib/passwordErrors";
-import {
-  btnPrimary,
-  fieldError,
-  fieldLabel,
-  inputClass,
-  pageTitle,
-} from "@/lib/ui";
+import { button, fieldError, fieldLabel, input, pageTitle } from "@/lib/ui";
 
 export function BizPasswordScreen() {
   const queryClient = useQueryClient();
@@ -92,7 +86,7 @@ export function BizPasswordScreen() {
           <span>Fjalëkalimi aktual</span>
           <input
             id="biz-current-password"
-            className={inputClass}
+            className={input()}
             type="password"
             autoComplete="current-password"
             value={currentPassword}
@@ -104,7 +98,7 @@ export function BizPasswordScreen() {
           <span>Fjalëkalimi i ri</span>
           <input
             id="biz-new-password"
-            className={inputClass}
+            className={input()}
             type="password"
             autoComplete="new-password"
             value={password}
@@ -116,7 +110,7 @@ export function BizPasswordScreen() {
           <span>Përsërit fjalëkalimin e ri</span>
           <input
             id="biz-confirm-password"
-            className={inputClass}
+            className={input()}
             type="password"
             autoComplete="new-password"
             value={confirmation}
@@ -124,7 +118,7 @@ export function BizPasswordScreen() {
             disabled={pending}
           />
         </label>
-        <button className={`${btnPrimary} self-start`} type="submit" disabled={pending}>
+        <button className={`${button()} self-start`} type="submit" disabled={pending}>
           {pending ? "Duke u ruajtur…" : "Ruaj fjalëkalimin"}
         </button>
       </form>

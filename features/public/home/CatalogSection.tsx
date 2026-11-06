@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { Frame, SeeAll } from "@/features/public/Frame";
+import { Frame, SeeAll, SectionHeading } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import { DiscountRail, PriceLine } from "@/features/public/price";
-import { kicker } from "@/features/public/tone";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateShortSq } from "@/lib/format";
 import type { PublicOffer } from "@/types";
@@ -26,15 +25,11 @@ export function CatalogSection({
     <>
       {latest.length > 0 ? (
         <Frame className="pt-10 sm:pt-12">
-          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className={kicker}>Të reja</p>
-              <h2 className="m-0 mt-1 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
-                {freshTitle}
-              </h2>
-            </div>
-            <SeeAll href="/oferta">Shiko të gjitha</SeeAll>
-          </div>
+          <SectionHeading
+            kicker="Të reja"
+            title={freshTitle}
+            action={<SeeAll href="/oferta">Shiko të gjitha</SeeAll>}
+          />
           <ProductGrid offers={latest} eager />
         </Frame>
       ) : null}
@@ -42,11 +37,8 @@ export function CatalogSection({
       {soon.length > 0 ? (
         <section className="mt-10 bg-mist sm:mt-12 dark:bg-transparent">
           <Frame className="py-8 sm:py-10">
-            <p className={kicker}>Afati</p>
-            <h2 className="m-0 mt-1 text-2xl leading-none font-extrabold tracking-[-0.04em] sm:text-3xl">
-              {endingTitle}
-            </h2>
-            <ul className="m-0 mt-4 list-none p-0">
+            <SectionHeading kicker="Afati" title={endingTitle} />
+            <ul className="m-0 list-none p-0">
               {soon.map((offer) => (
                 <li key={offer.id} className="border-t border-line">
                   <UrgentRow offer={offer} />
@@ -66,7 +58,7 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
       href={`/offers/${offer.id}`}
       className="flex min-h-11 items-center gap-3 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
     >
-      <span className="relative block size-14 shrink-0 overflow-hidden rounded-xl">
+      <span className="relative block size-14 shrink-0 overflow-hidden rounded-2xl">
         <ProductVisual
           name={offer.name}
           imageUrl={offer.image?.thumb_url}

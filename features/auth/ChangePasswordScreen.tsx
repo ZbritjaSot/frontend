@@ -6,7 +6,7 @@ import { changePassword } from "@/features/auth/api";
 import { LogoutButton } from "@/features/auth/LogoutButton";
 import { meQueryKey } from "@/hooks/useAuth";
 import { passwordError, validateNewPassword } from "@/lib/passwordErrors";
-import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
+import { button, fieldError, fieldLabel, input } from "@/lib/ui";
 
 export function ChangePasswordScreen() {
   const queryClient = useQueryClient();
@@ -44,7 +44,7 @@ export function ChangePasswordScreen() {
         onSubmit={onSubmit}
         noValidate
       >
-        <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent-fg uppercase">
+        <p className="m-0 text-kicker text-accent-fg uppercase">
           Biznes
         </p>
         <h1 className="m-0 text-xl font-semibold">Ndrysho fjalëkalimin</h1>
@@ -61,7 +61,7 @@ export function ChangePasswordScreen() {
           <span>Fjalëkalimi i ri</span>
           <input
             id="forced-new-password"
-            className={inputClass}
+            className={input()}
             type="password"
             autoComplete="new-password"
             value={password}
@@ -72,14 +72,14 @@ export function ChangePasswordScreen() {
           <span>Përsërit fjalëkalimin e ri</span>
           <input
             id="forced-confirm-password"
-            className={inputClass}
+            className={input()}
             type="password"
             autoComplete="new-password"
             value={confirmation}
             onChange={(event) => setConfirmation(event.target.value)}
           />
         </label>
-        <button className={btnPrimary} type="submit" disabled={pending}>
+        <button className={button()} type="submit" disabled={pending}>
           {pending ? "Duke u ruajtur…" : "Ruaj fjalëkalimin"}
         </button>
         <LogoutButton redirectTo="/login" />

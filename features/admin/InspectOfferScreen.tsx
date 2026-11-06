@@ -8,6 +8,7 @@ import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { adminInspectKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
+import { useToast } from "@/components/ui/Toast";
 import { OfferBundleView } from "@/features/offers/OfferBundleView";
 import { MailResends } from "@/features/admin/MailResends";
 import {
@@ -18,14 +19,16 @@ import {
 import { validationMessage } from "@/lib/api";
 import { safeNextPath } from "@/lib/safeNextPath";
 import { formatDateShortSq } from "@/lib/format";
-import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status";
 import {
-  btnDanger,
-  btnGhost,
-  btnPrimary,
+  bundleDisplayTitle,
+  OFFER_STATUS_LABEL,
+  publicBundlePath,
+} from "@/features/offers/status";
+import {
+  button,
   fieldError,
   fieldLabel,
-  inputClass,
+  input,
   offerStatusClass,
   pageTitle,
   panelLead,
@@ -42,6 +45,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
   const { data: bundle, isLoading, isError, error } = useAdminOfferBundle(id);
   const approveMutation = useApproveOffer();
   const takeDownMutation = useTakeDownOffer();
+  const { showToast } = useToast();
   const [actionError, setActionError] = useState<string | null>(null);
   const [confirmApprove, setConfirmApprove] = useState(false);
   const [confirmTakeDown, setConfirmTakeDown] = useState(false);
@@ -57,7 +61,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
         <p className={panelLead}>
           {validationMessage(error, "Dosja nuk u gjet.")}
         </p>
-        <Link href="/admin/offers" className={btnGhost}>
+        <Link href="/admin/offers" className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
           Në pritje
         </Link>
@@ -80,9 +84,18 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
     try {
       await approveMutation.mutateAsync(bundle!.id);
       setConfirmApprove(false);
+      const path = publicBundlePath(bundle!);
+      showToast("U aprovua", {
+        tone: "success",
+        action: path
+          ? { label: "Shiko në faqe", onClick: () => window.open(path, "_blank", "noopener,noreferrer") }
+          : undefined,
+      });
       router.replace("/admin/offers");
     } catch (err) {
-      setActionError(validationMessage(err, "Nuk mundëm ta aprovojmë dosjen."));
+      const message = validationMessage(err, "Nuk mundëm ta aprovojmë dosjen.");
+      setActionError(message);
+      showToast(message, { tone: "error" });
       setConfirmApprove(false);
     }
   }
@@ -109,9 +122,12 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
       });
       setConfirmTakeDown(false);
       setTakeDownReason("");
+      showToast("U hoq nga faqja", { tone: "success" });
       router.replace("/admin/offers?status=approved");
     } catch (err) {
-      setActionError(validationMessage(err, "Nuk mundëm ta heqim dosjen."));
+      const message = validationMessage(err, "Nuk mundëm ta heqim dosjen.");
+      setActionError(message);
+      showToast(message, { tone: "error" });
       setConfirmTakeDown(false);
     }
   }
@@ -148,14 +164,15 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href={editHref} className={btnGhost}>
+          <Link href={editHref} className={button({ variant: "secondary" })}>
             Ndrysho
           </Link>
           {isPending ? (
             <button
               type="button"
-              className={btnPrimary}
+              className={button()}
               disabled={approveMutation.isPending}
+              aria-busy={approveMutation.isPending}
               onClick={() => setConfirmApprove(true)}
             >
               Aprovo
@@ -164,8 +181,9 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
           {isApproved ? (
             <button
               type="button"
-              className={btnDanger}
+              className={button({ variant: "danger" })}
               disabled={takeDownMutation.isPending}
+              aria-busy={takeDownMutation.isPending}
               onClick={() => {
                 setActionError(null);
                 setConfirmTakeDown(true);
@@ -219,7 +237,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
           <>
             <button
               type="button"
-              className={btnGhost}
+              className={button({ variant: "secondary" })}
               disabled={takeDownMutation.isPending}
               onClick={closeTakeDown}
             >
@@ -227,8 +245,9 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
             </button>
             <button
               type="button"
-              className={btnDanger}
+              className={button({ variant: "danger" })}
               disabled={takeDownMutation.isPending || takeDownReason.trim() === ""}
+              aria-busy={takeDownMutation.isPending}
               onClick={onTakeDown}
             >
               {takeDownMutation.isPending ? "Duke u hequr…" : "Hiq"}
@@ -244,7 +263,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
           <label className={fieldLabel}>
             <span>Arsye</span>
             <textarea
-              className={`${inputClass} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`}
+              className={`${input({ multiline: true })} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`}
               rows={4}
               value={takeDownReason}
               maxLength={1000}

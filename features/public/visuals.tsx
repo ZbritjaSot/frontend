@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { shopInitials } from "@/features/public/initials";
 
-const WASHES = [
+export const WASHES = [
   "bg-[#d5e4c4] dark:bg-[#243628]",
   "bg-[#eadcc4] dark:bg-[#322c22]",
   "bg-[#d4e2dc] dark:bg-[#1c3038]",
@@ -19,7 +19,7 @@ const STRIPES = [
   "bg-[linear-gradient(230deg,transparent_60%,rgba(11,15,14,0.06)_60%,rgba(11,15,14,0.06)_68%,transparent_68%)] dark:bg-[linear-gradient(230deg,transparent_60%,rgba(168,255,0,0.18)_60%,rgba(168,255,0,0.18)_68%,transparent_68%)]",
 ] as const;
 
-function washIndex(name: string): number {
+export function washIndex(name: string): number {
   let hash = 0;
   for (const char of name) {
     hash = (hash + char.charCodeAt(0)) % WASHES.length;
@@ -29,10 +29,10 @@ function washIndex(name: string): number {
 
 const LOGO_SIZE = {
   xs: "size-6 rounded-lg text-[0.55rem]",
-  sm: "size-10 rounded-xl text-sm",
+  sm: "size-10 rounded-lg text-sm",
   md: "size-12 rounded-2xl text-base",
-  lg: "size-16 rounded-[1.25rem] text-xl",
-  xl: "size-24 rounded-[1.6rem] text-3xl",
+  lg: "size-16 rounded-2xl text-xl",
+  xl: "size-24 rounded-hero text-3xl",
 } as const;
 
 /** Shop mark. Initials until the shop has a logo. The name sits beside it, so the image stays decorative. */

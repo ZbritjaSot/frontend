@@ -15,7 +15,7 @@ import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status
 import { useAdminBusinessBundles } from "@/hooks/useAdminOffers";
 import { validationMessage } from "@/lib/api";
 import { formatDateShortSq } from "@/lib/format";
-import { btnGhost, btnPrimary, offerStatusClass, panelLead } from "@/lib/ui";
+import { button, offerStatusClass, panelLead } from "@/lib/ui";
 
 const STATUS_OPTIONS = [
   ["", "Të gjitha"],
@@ -83,7 +83,7 @@ export function AdminBusinessCatalog({
             ? "Fletushkat e këtij dyqani, me statusin e tyre."
             : "Ofertat individuale të këtij dyqani, me statusin e tyre."}
         </p>
-        <Link href={createHref} className={btnPrimary}>
+        <Link href={createHref} className={button()}>
           {isFlyer ? "Fletushkë e re" : "Oferta të reja"}
         </Link>
       </div>
@@ -109,7 +109,7 @@ export function AdminBusinessCatalog({
                 : "Nuk mundëm t’i ngarkojmë ofertat.",
             )}
           </p>
-          <button className={btnGhost} type="button" onClick={() => refetch()}>
+          <button className={button({ variant: "secondary" })} type="button" onClick={() => refetch()}>
             Provo përsëri
           </button>
         </div>

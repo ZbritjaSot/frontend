@@ -7,7 +7,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { fetchBizShops } from "@/features/branches/api";
 import { ShopLogo } from "@/features/public/visuals";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, btnPrimary, pageTitle, panelLead } from "@/lib/ui";
+import { button, pageTitle, panelLead } from "@/lib/ui";
 import type { CompanyShop } from "@/types";
 
 function placeLine(shop: CompanyShop): string {
@@ -102,10 +102,10 @@ export function ManagerShops() {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h1 className={`${pageTitle} mb-0!`}>Dyqanet</h1>
         <div className="flex flex-wrap gap-2">
-          <Link href="/biz/review/new" className={btnPrimary}>
+          <Link href="/biz/review/new" className={button()}>
             Fletushkë e re
           </Link>
-          <Link href="/biz/review/new?kind=offers" className={btnGhost}>
+          <Link href="/biz/review/new?kind=offers" className={button({ variant: "secondary" })}>
             Oferta të reja
           </Link>
         </div>

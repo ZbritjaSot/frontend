@@ -1,17 +1,18 @@
 "use client";
 
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
-import { campaignWord, productWord } from "@/features/public/compose";
-import { fetchPublicBusinesses } from "@/features/offers/api";
+import { campaignWord, offerWord } from "@/features/public/compose";
+import { fetchPublicBusinesses, PUBLIC_BUSINESSES_PAGE_SIZE } from "@/features/offers/api";
 import { DiscountRail, PriceLine } from "@/features/public/price";
 import { StepRail, type RailNav } from "@/features/public/StepRail";
+import { kicker } from "@/features/public/tone";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
+import { normalizePage, uniqueById } from "@/lib/pages";
 import { useInfiniteSentinel } from "@/lib/useInfiniteSentinel";
 import type { PublicBusiness, PublicFolder, PublicOffer } from "@/types";
-
-const PAGE_SIZE = 6;
 
 type RailItem =
   | { kind: "flyer"; flyer: PublicFolder }
@@ -28,43 +29,56 @@ export function PartnerBoard({
   q?: string;
   city?: string;
 }) {
-  const [items, setItems] = useState(shops);
-  const [page, setPage] = useState(1);
-  const [done, setDone] = useState(lastPage <= 1);
-  const [loading, setLoading] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const loadingRef = useRef(false);
+  // Query cache lives in the root `QueryClientProvider`, which survives
+  // client-side navigation to a shop page and back — see `CatalogStream` for
+  // the full rationale.
+  const query = useInfiniteQuery({
+    queryKey: ["partner-directory", q ?? "", city ?? ""],
+    queryFn: async ({ pageParam }) =>
+      normalizePage(
+        await fetchPublicBusinesses({
+          q: q || undefined,
+          city,
+          page: pageParam,
+          perPage: PUBLIC_BUSINESSES_PAGE_SIZE,
+          rail: true,
+        }),
+        pageParam,
+        PUBLIC_BUSINESSES_PAGE_SIZE,
+      ),
+    initialPageParam: 1,
+    getNextPageParam: (last, _pages, page) =>
+      page < (last.meta?.last_page ?? page) ? page + 1 : undefined,
+    initialData: () => ({
+      pages: [
+        {
+          data: shops,
+          meta: {
+            current_page: 1,
+            last_page: lastPage,
+            per_page: PUBLIC_BUSINESSES_PAGE_SIZE,
+            total: shops.length,
+          },
+        },
+      ],
+      pageParams: [1],
+    }),
+  });
 
-  const loadMore = useCallback(async () => {
-    if (loadingRef.current || done) {
-      return;
-    }
-    loadingRef.current = true;
-    setLoading(true);
-    setFailed(false);
-    const next = page + 1;
-    try {
-      const result = await fetchPublicBusinesses({
-        q: q || undefined,
-        city,
-        page: next,
-        perPage: PAGE_SIZE,
-        rail: true,
-      });
-      setItems((current) => appendUnique(current, result.data));
-      setPage(next);
-      setDone(next >= (result.meta?.last_page ?? next));
-    } catch {
-      setFailed(true);
-    } finally {
-      loadingRef.current = false;
-      setLoading(false);
-    }
-  }, [city, done, page, q]);
-
+  const items = useMemo(() => uniqueById(query.data?.pages), [query.data]);
+  const loading = query.isFetchingNextPage;
+  const failed = query.isFetchNextPageError;
+  // Gated on `isFetching` (not just `isFetchingNextPage`) so the sentinel
+  // can't fire `fetchNextPage()` — which defaults to `cancelRefetch: true` —
+  // while a stale-on-remount background refetch of the already-loaded pages
+  // is still in flight; that would cancel it and can drop or mix in stale
+  // data. The visible "Duke ngarkuar…" spinner still only reflects
+  // `isFetchingNextPage`, not this broader gate.
+  const queryFetchNextPage = query.fetchNextPage;
+  const onLoadMore = useCallback(() => queryFetchNextPage(), [queryFetchNextPage]);
   const sentinel = useInfiniteSentinel({
-    onLoadMore: loadMore,
-    enabled: !done && !failed && !loading,
+    onLoadMore,
+    enabled: Boolean(query.hasNextPage) && !query.isFetching && !failed,
   });
 
   return (
@@ -84,7 +98,7 @@ export function PartnerBoard({
             type="button"
             className="cursor-pointer border-0 bg-transparent text-sm font-semibold text-ink underline"
             onClick={() => {
-              void loadMore();
+              void query.fetchNextPage();
             }}
           >
             Provo përsëri
@@ -133,7 +147,7 @@ function PartnerRow({ shop }: { shop: PublicBusiness }) {
             </span>
             <span className="mt-0.5 block truncate text-xs text-muted">
               {[place, branchLabel].filter(Boolean).join(" · ")}
-              {` · ${flyers} ${campaignWord(flyers)} · ${offers} ${productWord(offers)}`}
+              {` · ${flyers} ${campaignWord(flyers)} · ${offers} ${offerWord(offers)}`}
             </span>
           </span>
         </Link>
@@ -221,7 +235,7 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
       aria-hidden={inert || undefined}
       className={`${slideWidth} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
     >
-      <span className="flex flex-col overflow-hidden rounded-xl border border-line bg-elevated dark:border-white/10 dark:bg-[#1a2420]">
+      <span className="flex flex-col overflow-hidden rounded-2xl border border-line bg-elevated dark:border-white/10 dark:bg-[#1a2420]">
         <span className="relative aspect-[5/4] overflow-hidden bg-[#1a2420]">
           <ProductVisual
             fill
@@ -233,13 +247,16 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
           />
           {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
           <span className="absolute top-2 right-2 z-10">
-            <FavoriteButton kind="flyer" id={flyer.id} />
+            <FavoriteButton
+              kind="flyer"
+              id={flyer.id}
+              thumbnailUrl={flyer.cover?.thumb_url}
+              thumbnailName={coverName}
+            />
           </span>
         </span>
         <span className="grid gap-0.5 px-2.5 py-2">
-          <span className="text-[0.6rem] font-bold tracking-[0.14em] text-muted uppercase">
-            Fletushkë
-          </span>
+          <span className={kicker}>Fletushkë</span>
           <span className="truncate text-sm font-extrabold tracking-tight">{flyer.title}</span>
         </span>
       </span>
@@ -256,7 +273,7 @@ function OfferSlide({ offer, inert }: { offer: PublicOffer; inert: boolean }) {
       aria-hidden={inert || undefined}
       className={`${slideWidth} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
     >
-      <span className="flex flex-col overflow-hidden rounded-xl border border-line bg-elevated dark:border-white/10 dark:bg-[#1a2420]">
+      <span className="flex flex-col overflow-hidden rounded-2xl border border-line bg-elevated dark:border-white/10 dark:bg-[#1a2420]">
         <span className="relative aspect-[5/4] overflow-hidden bg-[#1a2420]">
           <ProductVisual
             fill
@@ -270,7 +287,12 @@ function OfferSlide({ offer, inert }: { offer: PublicOffer; inert: boolean }) {
             <DiscountRail percent={offer.discount_percent} size="sm" />
           ) : null}
           <span className="absolute top-2 right-2 z-10">
-            <FavoriteButton kind="offer" id={offer.id} />
+            <FavoriteButton
+              kind="offer"
+              id={offer.id}
+              thumbnailUrl={offer.image?.thumb_url}
+              thumbnailName={offer.name}
+            />
           </span>
         </span>
         <span className="grid gap-0.5 px-2.5 py-2">
@@ -290,7 +312,3 @@ function OfferSlide({ offer, inert }: { offer: PublicOffer; inert: boolean }) {
   );
 }
 
-function appendUnique(current: PublicBusiness[], next: PublicBusiness[]): PublicBusiness[] {
-  const seen = new Set(current.map((item) => item.id));
-  return [...current, ...next.filter((item) => !seen.has(item.id))];
-}

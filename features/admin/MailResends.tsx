@@ -113,6 +113,7 @@ export function MailResends({ businessId, offerBundleId, templates }: MailResend
               className={iconButton}
               aria-label={`Ridërgo ${copy[template].label}`}
               disabled={send.isPending}
+              aria-busy={send.isPending}
               onClick={() => {
                 setError(null);
                 setPendingTemplate(template);

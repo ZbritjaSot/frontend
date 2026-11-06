@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
-import { leadProduct, productWord, withCampaign } from "@/features/public/compose";
-import { display } from "@/features/public/tone";
+import { leadProduct, offerWord, withCampaign } from "@/features/public/compose";
 import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
-import { BackLink, Band, EmptyNote, Frame } from "@/features/public/Frame";
+import { BackLink, Band, EmptyNote, Frame, SectionHeading } from "@/features/public/Frame";
 import { ProductList } from "@/features/public/ProductPoster";
 import { DiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
@@ -66,6 +65,8 @@ export default async function FolderPage({ params }: FolderPageProps) {
     folder.items.find((item) => item.id === folder.cover?.id) ??
     leadProduct(folder);
   const backHref = folder.business ? `/biznese/${folder.business.id}` : "/";
+  const coverName = folder.cover?.name ?? lead?.name ?? folder.title;
+  const coverUrl = folder.cover?.thumb_url ?? lead?.image?.thumb_url;
 
   return (
     <article>
@@ -83,6 +84,8 @@ export default async function FolderPage({ params }: FolderPageProps) {
               id={folder.id}
               size="md"
               className="shrink-0 ring-1 ring-ivory/20"
+              thumbnailUrl={coverUrl}
+              thumbnailName={coverName}
             />
           </div>
           <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.7fr)]">
@@ -104,11 +107,11 @@ export default async function FolderPage({ params }: FolderPageProps) {
                   <span className="min-w-0 truncate">{shop}</span>
                 )}
               </p>
-              <h1 className={`m-0 mt-5 max-w-3xl text-[clamp(3rem,8vw,5.8rem)] ${display}`}>
+              <h1 className="m-0 mt-5 max-w-3xl text-title-1 break-words line-clamp-3">
                 {folder.title}
               </h1>
               <p className="mt-5 mb-0 max-w-xl text-lg leading-relaxed text-ivory/75 dark:text-muted">
-                {count} {productWord(count)} nga {shop}. Nga{" "}
+                {count} {offerWord(count)} nga {shop}. Nga{" "}
                 {formatDateSq(folder.starts_at)} deri më{" "}
                 {formatDateSq(folder.expires_at)}.
               </p>
@@ -122,7 +125,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
             </div>
             {lead ? (
               <Link href={`/offers/${lead.id}`} className="group block max-w-sm">
-                <span className="relative block overflow-hidden rounded-[1.6rem]">
+                <span className="relative block overflow-hidden rounded-hero">
                   <ProductVisual
                     name={lead.name}
                     imageUrl={lead.image?.thumb_url}
@@ -155,15 +158,13 @@ export default async function FolderPage({ params }: FolderPageProps) {
       </section>
 
       <Band>
-        <h2 className="m-0 mb-8 text-[clamp(1.65rem,3vw,2.35rem)] leading-[0.95] font-extrabold tracking-[-0.04em]">
-          Produktet
-        </h2>
+        <SectionHeading title="Ofertat" />
         {count > 0 ? (
           <ProductList offers={withCampaign(folder)} />
         ) : (
           <EmptyNote
             title="Kjo fletushkë është bosh"
-            body="Nuk ka produkte aktive brenda kësaj fletushke."
+            body="Nuk ka oferta aktive brenda kësaj fletushke."
           />
         )}
         <BranchPlaces places={folder.also_at} className="mt-8" />

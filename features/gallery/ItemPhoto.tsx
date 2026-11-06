@@ -21,7 +21,7 @@ import {
   uploadBizGallery,
 } from "@/features/gallery/api";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, fieldError, fieldLabel, inputClass } from "@/lib/ui";
+import { button, fieldError, fieldLabel, input } from "@/lib/ui";
 import type { OfferImage, Paginated } from "@/types";
 
 export const bizGalleryQueryKey = ["biz", "gallery"] as const;
@@ -266,7 +266,7 @@ export function ItemPhoto({
             <label className="grid gap-1.5">
               <span className={fieldLabel}>Titulli</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={title}
                 maxLength={160}
                 required
@@ -307,7 +307,7 @@ export function ItemPhoto({
                   type="search"
                   enterKeyHint="search"
                   autoComplete="off"
-                  className={`${inputClass} pl-10`}
+                  className={`${input()} pl-10`}
                   value={search}
                   placeholder=""
                   onChange={(event) => setSearch(event.target.value)}
@@ -341,7 +341,7 @@ export function ItemPhoto({
                         }}
                       >
                         <span
-                          className={`relative block aspect-square w-full overflow-hidden rounded-xl ${
+                          className={`relative block aspect-square w-full overflow-hidden rounded-2xl ${
                             selected
                               ? "ring-2 ring-accent ring-offset-2 ring-offset-elevated"
                               : ""
@@ -376,7 +376,7 @@ export function ItemPhoto({
               <button
                 type="button"
                 disabled={activePhotos.isFetchingNextPage}
-                className={`${btnGhost} min-h-10 disabled:opacity-60`}
+                className={button({ variant: "secondary", size: "sm" })}
                 onClick={() => void activePhotos.fetchNextPage()}
               >
                 {activePhotos.isFetchingNextPage

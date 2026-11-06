@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Band } from "@/features/public/Frame";
 import { inquiryBack } from "@/features/public/inquiry/styles";
-import { display, kicker } from "@/features/public/tone";
+import { kicker } from "@/features/public/tone";
 
 export function InquiryPage({
   eyebrow = "Cilësimet",
@@ -25,7 +25,7 @@ export function InquiryPage({
           ← Cilësimet
         </Link>
         <p className={`${kicker} mt-8`}>{eyebrow}</p>
-        <h1 className={`m-0 mt-2 text-[clamp(2.2rem,5.5vw,3.4rem)] ${display}`}>{title}</h1>
+        <h1 className="m-0 mt-2 text-title-1">{title}</h1>
         <div className="mt-4 max-w-xl text-base leading-relaxed text-muted [&_p]:m-0 [&_p+p]:mt-3">
           {lead}
         </div>

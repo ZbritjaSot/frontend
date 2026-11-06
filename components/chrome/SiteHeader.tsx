@@ -17,7 +17,7 @@ const PARTNERS_HREF = "/biznese";
 const PARTNERS_LABEL = "Partnerët";
 
 const iconHit =
-  "inline-flex size-10 items-center justify-center rounded-xl text-chrome-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+  "inline-flex size-10 items-center justify-center rounded-lg text-chrome-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export function SiteHeader() {
   const pathname = usePathname();

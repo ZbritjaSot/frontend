@@ -8,12 +8,17 @@ import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
+import { useToast } from "@/components/ui/Toast";
 import { PENDING_OFFERS_PAGE_SIZE } from "@/features/admin/offersApi";
-import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status";
+import {
+  bundleDisplayTitle,
+  OFFER_STATUS_LABEL,
+  publicBundlePath,
+} from "@/features/offers/status";
 import { useApproveOffer, usePendingOffers } from "@/hooks/useAdminOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, offerStatusClass, panelLead } from "@/lib/ui";
+import { button, offerStatusClass, panelLead } from "@/lib/ui";
 import type { OfferBundle } from "@/types";
 
 const rowButton =
@@ -88,6 +93,7 @@ export function AdminPendingOffers({
   const { data, isLoading, isError, error, refetch } = usePendingOffers(page, q);
   const approve = useApproveOffer();
   const [confirm, setConfirm] = useState<OfferBundle | null>(null);
+  const { showToast } = useToast();
 
   if (isLoading) {
     return <Spinner label="Duke ngarkuar listën" />;
@@ -99,7 +105,7 @@ export function AdminPendingOffers({
         <p className={panelLead}>
           {validationMessage(error, "Nuk mundëm t’i ngarkojmë ofertat.")}
         </p>
-        <button className={btnGhost} type="button" onClick={() => refetch()}>
+        <button className={button({ variant: "secondary" })} type="button" onClick={() => refetch()}>
           Provo përsëri
         </button>
       </div>
@@ -211,9 +217,22 @@ export function AdminPendingOffers({
           if (!confirm) {
             return;
           }
-          approve.mutate(confirm.id, {
+          const target = confirm;
+          approve.mutate(target.id, {
             onSuccess: () => {
               setConfirm(null);
+              const path = publicBundlePath(target);
+              showToast("U aprovua", {
+                tone: "success",
+                action: path
+                  ? { label: "Shiko në faqe", onClick: () => window.open(path, "_blank", "noopener,noreferrer") }
+                  : undefined,
+              });
+            },
+            onError: (err) => {
+              showToast(validationMessage(err, "Nuk mundëm ta aprovojmë."), {
+                tone: "error",
+              });
             },
           });
         }}

@@ -23,7 +23,7 @@ import {
 import { adminBusinessesQueryKey } from "@/hooks/useAdminBusinesses";
 import { geocodeBizAddress } from "@/features/biz/api";
 import { accountEmailMessage, validationMessage } from "@/lib/api";
-import { btnGhost, btnPrimary, fieldError, fieldLabel, iconButton, inputClass, offerStatusClass } from "@/lib/ui";
+import { button, fieldError, fieldLabel, iconButton, input, offerStatusClass } from "@/lib/ui";
 import { useWideScreen } from "@/lib/useWideScreen";
 import type { Business } from "@/types";
 
@@ -280,6 +280,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
                       className={iconButton}
                       aria-label={`Aprovo degën në ${branch.city || branch.name}`}
                       disabled={pending}
+                      aria-busy={pending}
                       onClick={() => void onApprove(branch.id)}
                     >
                       <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
@@ -338,7 +339,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
           ) : (
             <button
               type="button"
-              className={panel === "create" ? btnPrimary : btnGhost}
+              className={panel === "create" ? button() : button({ variant: "secondary" })}
               onClick={() => {
                 setError(null);
                 setPanel((current) => (current === "create" ? "none" : "create"));
@@ -363,7 +364,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
             <label className={fieldLabel}>
               <span>Emri i llogarisë</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={ownerName}
                 onChange={(event) => setOwnerName(event.target.value)}
                 disabled={pending}
@@ -372,7 +373,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
             <label className={fieldLabel}>
               <span>Email</span>
               <input
-                className={inputClass}
+                className={input()}
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
@@ -384,7 +385,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
           <label className={fieldLabel}>
             <span>Rruga</span>
             <input
-              className={inputClass}
+              className={input()}
               value={street}
               maxLength={255}
               placeholder="Rr. Garibaldi"
@@ -401,7 +402,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
             <label className={fieldLabel}>
               <span>Lagjja</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={neighborhood}
                 maxLength={255}
                 placeholder="Opsional"
@@ -416,7 +417,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
             <label className={fieldLabel}>
               <span>Fshati</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={village}
                 maxLength={255}
                 placeholder="Opsional"
@@ -433,7 +434,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
             <label className={fieldLabel}>
               <span>Qyteza</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={municipality}
                 maxLength={255}
                 placeholder="Opsional"
@@ -448,7 +449,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
             <label className={fieldLabel}>
               <span>Qyteti</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={city}
                 maxLength={255}
                 placeholder="Prishtinë"
@@ -464,9 +465,10 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
           </div>
           <div className="flex justify-end">
             <button
-              className={btnGhost}
+              className={button({ variant: "secondary" })}
               type="button"
               disabled={pending}
+              aria-busy={pending}
               onClick={() => {
                 setError(null);
                 void pointForAddress();
@@ -476,7 +478,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
             </button>
           </div>
           {wide && latitude != null && longitude != null ? (
-            <div className="h-64 overflow-hidden rounded-xl border border-line">
+            <div className="h-64 overflow-hidden rounded-2xl border border-line">
               <PlaceMap
                 latitude={latitude}
                 longitude={longitude}
@@ -495,7 +497,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
             </p>
           ) : null}
           <div>
-            <button className={btnPrimary} type="submit" disabled={pending}>
+            <button className={button()} type="submit" disabled={pending} aria-busy={pending}>
               {pending ? "Duke shtuar…" : "Konfirmo"}
             </button>
           </div>
@@ -525,6 +527,7 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
               type="button"
               aria-label="Aprovo degën"
               disabled={pending}
+              aria-busy={pending}
               onClick={() => void onApprove(business.id)}
             >
               <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />

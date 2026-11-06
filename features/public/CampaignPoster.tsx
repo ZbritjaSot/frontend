@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
-import { folderCount, leadProduct, productWord } from "@/features/public/compose";
+import { folderCount, leadProduct, offerWord } from "@/features/public/compose";
 import { Rail } from "@/features/public/Frame";
 import { DiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
@@ -22,8 +22,15 @@ export function CampaignPoster({
   const percent = lead?.discount_percent ?? folder.lead_discount_percent ?? 0;
   const coverName = folder.cover?.name ?? lead?.name ?? folder.title;
   const coverUrl = folder.cover?.thumb_url ?? lead?.image?.thumb_url;
-  const meta = `${count} ${productWord(count)} · deri më ${formatDateShortSq(folder.expires_at)}`;
-  const heartButton = <FavoriteButton kind="flyer" id={folder.id} />;
+  const meta = `${count} ${offerWord(count)} · deri më ${formatDateShortSq(folder.expires_at)}`;
+  const heartButton = (
+    <FavoriteButton
+      kind="flyer"
+      id={folder.id}
+      thumbnailUrl={coverUrl}
+      thumbnailName={coverName}
+    />
+  );
   const heart = (
     <span className="absolute top-2 right-2 z-20 sm:top-3 sm:right-3">{heartButton}</span>
   );
@@ -62,7 +69,7 @@ export function CampaignPoster({
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className="group grid h-full min-h-24 grid-cols-[5.75rem_minmax(0,1fr)] overflow-hidden rounded-xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 dark:bg-[#1a2420]"
+        className="group grid h-full min-h-24 grid-cols-[5.75rem_minmax(0,1fr)] overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 dark:bg-[#1a2420]"
       >
         <span className="relative h-full min-h-24">
           <ProductVisual
@@ -74,7 +81,12 @@ export function CampaignPoster({
           />
           {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
           <span className="absolute top-1 right-1 z-20 scale-90">
-            <FavoriteButton kind="flyer" id={folder.id} />
+            <FavoriteButton
+              kind="flyer"
+              id={folder.id}
+              thumbnailUrl={coverUrl}
+              thumbnailName={coverName}
+            />
           </span>
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-1.5 px-3 py-3">
@@ -83,7 +95,7 @@ export function CampaignPoster({
             {folder.title}
           </span>
           <span className="truncate text-xs text-muted">
-            {count} {productWord(count)} · deri më {formatDateShortSq(folder.expires_at)}
+            {count} {offerWord(count)} · deri më {formatDateShortSq(folder.expires_at)}
           </span>
         </span>
       </Link>
@@ -106,7 +118,13 @@ export function CampaignPoster({
           />
           {percent > 0 ? <DiscountRail percent={percent} size="lg" /> : null}
           <span className="absolute top-4 right-4 z-20">
-            <FavoriteButton kind="flyer" id={folder.id} size="md" />
+            <FavoriteButton
+              kind="flyer"
+              id={folder.id}
+              size="md"
+              thumbnailUrl={coverUrl}
+              thumbnailName={coverName}
+            />
           </span>
         </span>
         <span className="flex flex-col justify-between p-6 sm:p-8">
@@ -115,12 +133,12 @@ export function CampaignPoster({
               <ShopLogo name={shop} logoUrl={folder.business?.logo_url} size="sm" />
               <span className="truncate text-sm font-semibold">{shop}</span>
             </span>
-            <span className="mt-4 line-clamp-3 block text-2xl leading-tight font-extrabold tracking-[-0.04em] sm:text-3xl">
+            <span className="mt-4 line-clamp-3 block text-title-2 break-words">
               {folder.title}
             </span>
           </span>
           <span className="mt-8 block text-sm leading-relaxed text-muted">
-            {count} {productWord(count)} · {formatDateSq(folder.starts_at)} –{" "}
+            {count} {offerWord(count)} · {formatDateSq(folder.starts_at)} –{" "}
             {formatDateSq(folder.expires_at)}
           </span>
         </span>
@@ -173,7 +191,7 @@ export function CampaignPoster({
             <ShopLogo name={shop} logoUrl={folder.business?.logo_url} size="sm" />
             <span className="truncate text-sm font-semibold">{shop}</span>
           </span>
-          <span className="mt-6 line-clamp-3 block text-[clamp(1.55rem,2.6vw,2rem)] leading-[1.02] font-extrabold tracking-[-0.045em]">
+          <span className="mt-6 line-clamp-3 block text-title-2 break-words">
             {folder.title}
           </span>
         </span>

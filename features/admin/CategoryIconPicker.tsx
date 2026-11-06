@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { CategoryGlyph, categoryIcons, type CategoryIconId } from "@/lib/categoryIcons";
-import { fieldLabel, inputClass } from "@/lib/ui";
+import { fieldLabel, input } from "@/lib/ui";
 
 export function CategoryIconPicker({
   value,
@@ -26,7 +26,7 @@ export function CategoryIconPicker({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <span className="inline-flex size-12 items-center justify-center rounded-xl bg-sunken text-accent-fg">
+        <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-sunken text-accent-fg">
           <CategoryGlyph name={value} active size={30} />
         </span>
         <div className="min-w-0">
@@ -39,7 +39,7 @@ export function CategoryIconPicker({
       <label className={fieldLabel}>
         <span>Ikona</span>
         <input
-          className={inputClass}
+          className={input()}
           value={query}
           placeholder=""
           onChange={(event) => setQuery(event.target.value)}
@@ -53,7 +53,7 @@ export function CategoryIconPicker({
               key={icon.id}
               type="button"
               aria-pressed={active}
-              className={`flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-1 py-2 ${
+              className={`flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border px-1 py-2 ${
                 active
                   ? "border-accent bg-accent/15 text-accent-fg"
                   : "border-line bg-elevated text-muted hover:text-ink"

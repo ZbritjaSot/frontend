@@ -7,7 +7,7 @@ import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { Spinner } from "@/components/ui/Spinner";
 import { requestPasswordReset } from "@/features/auth/api";
-import { btnPrimary, fieldError, fieldLabel, inputClass } from "@/lib/ui";
+import { button, fieldError, fieldLabel, input } from "@/lib/ui";
 import { forgotPasswordSchema } from "@/schemas/passwordReset";
 
 export function ForgotPasswordScreen() {
@@ -49,7 +49,7 @@ export function ForgotPasswordScreen() {
           <Wordmark className="text-2xl" as="h1" />
         </Link>
 
-        <p className="m-0 text-xs font-bold tracking-[0.2em] text-accent-fg uppercase">
+        <p className="m-0 text-kicker text-accent-fg uppercase">
           Biznes
         </p>
         <p className="m-0 mt-3 mb-8 text-xl font-semibold">
@@ -70,7 +70,7 @@ export function ForgotPasswordScreen() {
             <label className={fieldLabel}>
               <span>Email</span>
               <input
-                className={inputClass}
+                className={input()}
                 type="email"
                 name="email"
                 autoComplete="username"
@@ -85,7 +85,7 @@ export function ForgotPasswordScreen() {
                 {error}
               </p>
             ) : null}
-            <button className={`${btnPrimary} w-full`} type="submit" disabled={pending}>
+            <button className={`${button()} w-full`} type="submit" disabled={pending}>
               {pending ? (
                 <Spinner label="Duke u dërguar" size="sm" block={false} tone="onAccent" />
               ) : (

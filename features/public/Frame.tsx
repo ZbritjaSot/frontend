@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { kicker } from "@/features/public/tone";
+import { button } from "@/lib/ui";
 
 export function Frame({
   children,
@@ -47,7 +49,7 @@ export function Band({
 }
 
 export function SectionHeading({
-  kicker,
+  kicker: kickerText,
   title,
   note,
   action,
@@ -58,14 +60,12 @@ export function SectionHeading({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-8 flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
       <div className="min-w-0">
-        {kicker ? (
-          <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
-            {kicker}
-          </p>
-        ) : null}
-        <h2 className="m-0 mt-2 text-[clamp(1.65rem,3vw,2.35rem)] leading-[0.95] font-extrabold tracking-[-0.04em]">
+        {kickerText ? <p className={kicker}>{kickerText}</p> : null}
+        <h2
+          className={`m-0 text-title-2 break-words line-clamp-2 ${kickerText ? "mt-2" : ""}`}
+        >
           {title}
         </h2>
         {note ? (
@@ -143,10 +143,7 @@ export function Pager({
       aria-label="Faqet"
     >
       {page > 1 ? (
-        <Link
-          href={hrefFor(page - 1)}
-          className="inline-flex min-h-11 items-center rounded-full px-4 text-ink ring-1 ring-line hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-        >
+        <Link href={hrefFor(page - 1)} className={button({ variant: "secondary", shape: "pill" })}>
           Prapa
         </Link>
       ) : (
@@ -156,10 +153,7 @@ export function Pager({
         {page} / {lastPage}
       </span>
       {page < lastPage ? (
-        <Link
-          href={hrefFor(page + 1)}
-          className="inline-flex min-h-11 items-center rounded-full bg-accent px-4 text-charcoal hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-        >
+        <Link href={hrefFor(page + 1)} className={button({ shape: "pill" })}>
           Tjetra
         </Link>
       ) : (
@@ -180,12 +174,8 @@ export function EmptyNote({
 }) {
   return (
     <div className="max-w-xl py-6" role="status">
-      <p className="m-0 text-[0.7rem] font-bold tracking-[0.18em] text-muted uppercase">
-        ZbritjaSot
-      </p>
-      <h2 className="m-0 mt-3 text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.05] font-extrabold tracking-[-0.04em]">
-        {title}
-      </h2>
+      <p className={kicker}>ZbritjaSot</p>
+      <h2 className="m-0 mt-3 text-title-2">{title}</h2>
       <p className="mt-4 mb-0 text-base leading-relaxed text-muted">{body}</p>
       {action ? <div className="mt-6">{action}</div> : null}
     </div>

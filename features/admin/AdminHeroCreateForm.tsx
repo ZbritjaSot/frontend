@@ -18,7 +18,7 @@ import {
   OFFER_START_LEAD_HOURS,
 } from "@/lib/datetime";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, btnPrimary, fieldError, inputClass } from "@/lib/ui";
+import { button, fieldError, input } from "@/lib/ui";
 
 type AdminHeroCreateFormProps = {
   onCreated: () => void;
@@ -114,7 +114,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
       <label className="grid gap-1.5 text-sm font-semibold">
         Dyqani
         <input
-          className={inputClass}
+          className={input()}
           value={shopSearch}
           placeholder=""
           aria-label="Kërko dyqanin"
@@ -141,7 +141,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
               <li key={shop.id}>
                 <button
                   type="button"
-                  className={`flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border-0 px-3 py-2 text-left text-sm ${
+                  className={`flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border-0 px-3 py-2 text-left text-sm ${
                     active ? "bg-accent font-semibold text-on-accent" : "bg-transparent hover:bg-hover"
                   }`}
                   onClick={() => {
@@ -169,7 +169,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
       <label className="grid gap-1.5 text-sm font-semibold">
         Produkti
         <input
-          className={inputClass}
+          className={input()}
           value={name}
           placeholder="p.sh. Coca Cola 1.5L"
           onChange={(event) => setName(event.target.value)}
@@ -222,7 +222,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
         <label className="grid gap-1.5 text-sm font-semibold">
           Zbritja %
           <input
-            className={inputClass}
+            className={input()}
             inputMode="numeric"
             value={discountPercent}
             placeholder="p.sh. 20"
@@ -236,7 +236,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
       <label className="grid gap-1.5 text-sm font-semibold">
         Linku i blerjes (opsional)
         <input
-          className={inputClass}
+          className={input()}
           type="url"
           inputMode="url"
           autoComplete="off"
@@ -326,10 +326,10 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
       ) : null}
 
       <div className="flex flex-wrap gap-2">
-        <button type="button" className={btnPrimary} disabled={busy} onClick={() => void submit()}>
+        <button type="button" className={button()} disabled={busy} aria-busy={busy} onClick={() => void submit()}>
           {busy ? "Duke ruajtur…" : "Krijo ofertën"}
         </button>
-        <button type="button" className={btnGhost} disabled={busy} onClick={onCancel}>
+        <button type="button" className={button({ variant: "secondary" })} disabled={busy} onClick={onCancel}>
           Anulo
         </button>
       </div>

@@ -44,17 +44,7 @@ import {
 import { accountEmailMessage, validationMessage } from "@/lib/api";
 import { defaultSubscriptionWindow, toDateTimeLocalValue } from "@/lib/datetime";
 import { formatDateSq } from "@/lib/format";
-import {
-  btnGhost,
-  btnPrimary,
-  checkInput,
-  fieldError,
-  fieldLabel,
-  inputClass,
-  offerStatusClass,
-  pageTitle,
-  panelLead,
-} from "@/lib/ui";
+import { button, checkInput, fieldError, fieldLabel, input, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 import type { Business } from "@/types";
 
 function clockLabel(value: string): string {
@@ -417,7 +407,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
                   <label className={fieldLabel}>
                     <span className={micro}>Biznesi</span>
                     <input
-                      className={inputClass}
+                      className={input()}
                       value={name}
                       maxLength={255}
                       onChange={(event) => setName(event.target.value)}
@@ -447,9 +437,10 @@ export function AdminBusinessProfile({ id }: { id: string }) {
             </label>
             <div className="flex justify-end">
               <button
-                className={btnPrimary}
+                className={button()}
                 type="submit"
                 disabled={updateBusiness.isPending}
+                aria-busy={updateBusiness.isPending}
               >
                 {updateBusiness.isPending ? "Duke u ruajtur…" : "Ruaj"}
               </button>
@@ -479,7 +470,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
               <label className={fieldLabel}>
                 <span>Arsyeja, nëse e refuzon</span>
                 <input
-                  className={inputClass}
+                  className={input()}
                   value={rejectNote}
                   maxLength={500}
                   onChange={(event) => setRejectNote(event.target.value)}
@@ -487,9 +478,10 @@ export function AdminBusinessProfile({ id }: { id: string }) {
               </label>
               <div className="flex flex-wrap gap-2">
                 <button
-                  className={btnPrimary}
+                  className={button()}
                   type="button"
                   disabled={approveLocation.isPending || rejectLocation.isPending}
+                  aria-busy={approveLocation.isPending}
                   onClick={() => {
                     setLocationError(null);
                     void approveLocation.mutateAsync(business.id).catch((error: unknown) => {
@@ -502,9 +494,10 @@ export function AdminBusinessProfile({ id }: { id: string }) {
                   {approveLocation.isPending ? "Duke aprovuar…" : "Aprovo"}
                 </button>
                 <button
-                  className={btnGhost}
+                  className={button({ variant: "secondary" })}
                   type="button"
                   disabled={approveLocation.isPending || rejectLocation.isPending}
+                  aria-busy={rejectLocation.isPending}
                   onClick={() => {
                     const note = rejectNote.trim();
                     if (note === "") {
@@ -603,7 +596,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
                 .
               </p>
               <button
-                className={btnPrimary}
+                className={button()}
                 type="button"
                 onClick={() => setAddingTrial(true)}
               >
@@ -653,7 +646,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
               <div className="flex justify-end gap-2">
                 {!subscription ? (
                   <button
-                    className={btnGhost}
+                    className={button({ variant: "secondary" })}
                     type="button"
                     disabled={savingDates}
                     onClick={() => {
@@ -665,9 +658,10 @@ export function AdminBusinessProfile({ id }: { id: string }) {
                   </button>
                 ) : null}
                 <button
-                  className={btnPrimary}
+                  className={button()}
                   type="submit"
                   disabled={savingDates}
+                  aria-busy={savingDates}
                 >
                   {savingDates
                     ? "Duke u ruajtur…"
@@ -691,7 +685,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
             <label className={fieldLabel}>
               <span>Emri (opsional)</span>
               <input
-                className={inputClass}
+                className={input()}
                 value={ownerName}
                 maxLength={255}
                 onChange={(event) => setOwnerName(event.target.value)}
@@ -700,7 +694,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
             <label className={fieldLabel}>
               <span>Email</span>
               <input
-                className={inputClass}
+                className={input()}
                 type="email"
                 value={ownerEmail}
                 maxLength={255}
@@ -709,9 +703,10 @@ export function AdminBusinessProfile({ id }: { id: string }) {
             </label>
             <div className="flex justify-end">
               <button
-                className={btnPrimary}
+                className={button()}
                 type="submit"
                 disabled={updateBusiness.isPending}
+                aria-busy={updateBusiness.isPending}
               >
                 {updateBusiness.isPending ? "Duke u ruajtur…" : "Ruaj llogarinë"}
               </button>
@@ -731,7 +726,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
             <label className={fieldLabel}>
               <span>Fjalëkalimi i ri</span>
               <input
-                className={inputClass}
+                className={input()}
                 type="password"
                 autoComplete="new-password"
                 value={password}
@@ -742,7 +737,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
             <label className={fieldLabel}>
               <span>Përsërite fjalëkalimin</span>
               <input
-                className={inputClass}
+                className={input()}
                 type="password"
                 autoComplete="new-password"
                 value={passwordRepeat}
@@ -760,7 +755,7 @@ export function AdminBusinessProfile({ id }: { id: string }) {
               <span>Dërgo email dyqanit</span>
             </label>
             <div className="flex justify-end">
-              <button className={btnPrimary} type="submit">
+              <button className={button()} type="submit">
                 Ndrysho fjalëkalimin
               </button>
             </div>

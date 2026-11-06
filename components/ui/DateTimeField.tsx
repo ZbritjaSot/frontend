@@ -371,7 +371,7 @@ export function DateTimeField({
         <button
           type="button"
           id={id}
-          className={`flex w-full cursor-pointer flex-col items-start gap-0.5 rounded-xl border bg-elevated px-4 py-3 text-left outline-2 outline-offset-1 hover:border-accent/40 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-55 ${
+          className={`flex w-full cursor-pointer flex-col items-start gap-0.5 rounded-lg border bg-elevated px-4 py-3 text-left outline-2 outline-offset-1 hover:border-accent/40 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-55 ${
             open ? "border-accent/60" : "border-line"
           }`}
           aria-haspopup="dialog"

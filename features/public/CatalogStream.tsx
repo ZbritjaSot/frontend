@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   fetchPublicFolders,
   fetchPublicOffers,
@@ -11,6 +12,7 @@ import {
 } from "@/features/public/CampaignPoster";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import type { CatalogSort, Katalog } from "@/lib/browse";
+import { normalizePage, uniqueById } from "@/lib/pages";
 import { useInfiniteSentinel } from "@/lib/useInfiniteSentinel";
 import type { PublicFolder, PublicOffer } from "@/types";
 
@@ -36,59 +38,90 @@ export function CatalogStream({
   sort,
 }: CatalogStreamProps) {
   const flyers = katalog === "fletushka";
-  const [items, setItems] = useState<PublicOffer[]>(offers);
-  const [flyerItems, setFlyerItems] = useState<PublicFolder[]>(folders);
-  const [page, setPage] = useState(1);
-  const [done, setDone] = useState(lastPage <= 1);
-  const [loading, setLoading] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const loadingRef = useRef(false);
 
-  const loadMore = useCallback(async () => {
-    if (loadingRef.current || done) {
-      return;
-    }
-    loadingRef.current = true;
-    setLoading(true);
-    setFailed(false);
-    const next = page + 1;
-    try {
-      if (flyers) {
-        const result = await fetchPublicFolders({
-          q,
-          category,
-          city,
-          sort,
-          page: next,
-          perPage: 12,
-        });
-        setFlyerItems((current) => appendUnique(current, result.data));
-        setPage(next);
-        setDone(next >= (result.meta?.last_page ?? next));
-      } else {
-        const result = await fetchPublicOffers({
-          q,
-          category,
-          city,
-          sort,
-          page: next,
-          perPage: 16,
-        });
-        setItems((current) => appendUnique(current, result.data));
-        setPage(next);
-        setDone(next >= (result.meta?.last_page ?? next));
-      }
-    } catch {
-      setFailed(true);
-    } finally {
-      loadingRef.current = false;
-      setLoading(false);
-    }
-  }, [category, city, done, flyers, page, q, sort]);
+  // Keeping both `useInfiniteQuery` calls mounted (gated by `enabled`) mirrors
+  // the mobile `CatalogScreen` pattern. The query cache lives in the root
+  // `QueryClientProvider` (`components/providers.tsx`), which isn't remounted
+  // on client-side navigation — so navigating to an offer/flyer detail page
+  // and back restores every previously-loaded page and scroll position
+  // without any URL param or custom scroll-restoration code.
+  const offersQuery = useInfiniteQuery({
+    queryKey: ["catalog-offers", q ?? "", category ?? "", city ?? "", sort],
+    queryFn: async ({ pageParam }) =>
+      normalizePage(
+        await fetchPublicOffers({ q, category, city, sort, page: pageParam, perPage: 16 }),
+        pageParam,
+        16,
+      ),
+    initialPageParam: 1,
+    getNextPageParam: (last, _pages, page) =>
+      page < (last.meta?.last_page ?? page) ? page + 1 : undefined,
+    enabled: !flyers,
+    initialData: !flyers
+      ? () => ({
+          pages: [
+            {
+              data: offers,
+              meta: {
+                current_page: 1,
+                last_page: lastPage,
+                per_page: 16,
+                total: offers.length,
+              },
+            },
+          ],
+          pageParams: [1],
+        })
+      : undefined,
+  });
 
+  const foldersQuery = useInfiniteQuery({
+    queryKey: ["catalog-folders", q ?? "", category ?? "", city ?? "", sort],
+    queryFn: async ({ pageParam }) =>
+      normalizePage(
+        await fetchPublicFolders({ q, category, city, sort, page: pageParam, perPage: 12 }),
+        pageParam,
+        12,
+      ),
+    initialPageParam: 1,
+    getNextPageParam: (last, _pages, page) =>
+      page < (last.meta?.last_page ?? page) ? page + 1 : undefined,
+    enabled: flyers,
+    initialData: flyers
+      ? () => ({
+          pages: [
+            {
+              data: folders,
+              meta: {
+                current_page: 1,
+                last_page: lastPage,
+                per_page: 12,
+                total: folders.length,
+              },
+            },
+          ],
+          pageParams: [1],
+        })
+      : undefined,
+  });
+
+  const active = flyers ? foldersQuery : offersQuery;
+  const items = useMemo(() => uniqueById(offersQuery.data?.pages), [offersQuery.data]);
+  const flyerItems = useMemo(() => uniqueById(foldersQuery.data?.pages), [foldersQuery.data]);
+
+  const loading = active.isFetchingNextPage;
+  const failed = active.isFetchNextPageError;
+  // Gated on the query's overall `isFetching` (not just `isFetchingNextPage`)
+  // so the sentinel can't fire `fetchNextPage()` — which defaults to
+  // `cancelRefetch: true` — while a stale-on-remount background refetch of
+  // the already-loaded pages is still in flight; that would cancel it and
+  // can drop or mix in stale data. The visible "Duke ngarkuar…" spinner
+  // still only reflects `isFetchingNextPage`, not this broader gate.
+  const activeFetchNextPage = active.fetchNextPage;
+  const onLoadMore = useCallback(() => activeFetchNextPage(), [activeFetchNextPage]);
   const sentinel = useInfiniteSentinel({
-    onLoadMore: loadMore,
-    enabled: !done && !failed && !loading,
+    onLoadMore,
+    enabled: Boolean(active.hasNextPage) && !active.isFetching && !failed,
   });
 
   return (
@@ -114,7 +147,7 @@ export function CatalogStream({
             type="button"
             className="cursor-pointer border-0 bg-transparent text-sm font-semibold text-ink underline"
             onClick={() => {
-              void loadMore();
+              void active.fetchNextPage();
             }}
           >
             Provo përsëri
@@ -160,9 +193,4 @@ function BackToTop() {
       </svg>
     </button>
   );
-}
-
-function appendUnique<T extends { id: string }>(current: T[], next: T[]): T[] {
-  const seen = new Set(current.map((item) => item.id));
-  return [...current, ...next.filter((item) => !seen.has(item.id))];
 }

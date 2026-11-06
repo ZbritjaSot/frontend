@@ -10,7 +10,7 @@ import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status
 import { useApprovedOffers } from "@/hooks/useAdminOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, offerStatusClass, panelLead } from "@/lib/ui";
+import { button, offerStatusClass, panelLead } from "@/lib/ui";
 
 const rowButton =
   "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
@@ -54,7 +54,7 @@ export function AdminLiveOffers({
         <p className={panelLead}>
           {validationMessage(error, "Nuk mundëm t’i ngarkojmë ofertat.")}
         </p>
-        <button className={btnGhost} type="button" onClick={() => refetch()}>
+        <button className={button({ variant: "secondary" })} type="button" onClick={() => refetch()}>
           Provo përsëri
         </button>
       </div>

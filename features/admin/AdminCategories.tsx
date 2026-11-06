@@ -27,17 +27,7 @@ import {
   useUpdateCategory,
 } from "@/hooks/useAdminCategories";
 import { validationMessage } from "@/lib/api";
-import {
-  btnGhost,
-  btnPrimary,
-  checkInput,
-  fieldError,
-  fieldLabel,
-  inputClass,
-  offerStatusClass,
-  pageTitle,
-  panelLead,
-} from "@/lib/ui";
+import { button, checkInput, fieldError, fieldLabel, input, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 import { CategoryIconPicker } from "@/features/admin/CategoryIconPicker";
 import { CategoryGlyph, isCategoryIconId } from "@/lib/categoryIcons";
 import { categoryFormSchema, type CategoryFormInput } from "@/schemas/category";
@@ -166,7 +156,7 @@ export function AdminCategories() {
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h1 className={`${pageTitle} mb-0!`}>Kategoritë</h1>
-        <button className={btnPrimary} type="button" onClick={openCreate}>
+        <button className={button()} type="button" onClick={openCreate}>
           <AddOutlinedIcon fontSize="small" />
           Shto kategori
         </button>
@@ -192,7 +182,7 @@ export function AdminCategories() {
           <p className={panelLead}>
             {validationMessage(error, "Nuk mundëm t’i ngarkojmë kategoritë.")}
           </p>
-          <button className={btnGhost} type="button" onClick={() => refetch()}>
+          <button className={button({ variant: "secondary" })} type="button" onClick={() => refetch()}>
             Provo përsëri
           </button>
         </div>
@@ -366,7 +356,7 @@ export function AdminCategories() {
         footer={
           <>
             <button
-              className={btnGhost}
+              className={button({ variant: "secondary" })}
               type="button"
               disabled={pending}
               onClick={() => setEditor(null)}
@@ -374,10 +364,11 @@ export function AdminCategories() {
               Anulo
             </button>
             <button
-              className={btnPrimary}
+              className={button()}
               type="submit"
               form="admin-category-form"
               disabled={pending}
+              aria-busy={pending}
             >
               {pending ? "Duke u ruajtur…" : "Ruaj"}
             </button>
@@ -398,7 +389,7 @@ export function AdminCategories() {
           <label className={fieldLabel}>
             <span>Emri</span>
             <input
-              className={inputClass}
+              className={input()}
               value={form.name}
               maxLength={255}
               onChange={(event) =>
@@ -409,7 +400,7 @@ export function AdminCategories() {
           <label className={fieldLabel}>
             <span>Slug (opsional)</span>
             <input
-              className={inputClass}
+              className={input()}
               value={form.slug ?? ""}
               maxLength={255}
               onChange={(event) =>

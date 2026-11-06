@@ -52,7 +52,12 @@ export function ExclusiveCard({
             <DiscountRail percent={meta.percent} />
           ) : null}
           <span className="absolute top-3 right-3 z-10">
-            <FavoriteButton kind={meta.favoriteKind} id={meta.favoriteId} />
+            <FavoriteButton
+              kind={meta.favoriteKind}
+              id={meta.favoriteId}
+              thumbnailUrl={meta.thumbUrl}
+              thumbnailName={meta.imageName}
+            />
           </span>
         </span>
 
@@ -105,7 +110,7 @@ function BrandRow({
       ) : null}
       <span className="min-w-0 flex flex-col gap-0.5">
         {kindLabel ? (
-          <span className="text-[0.62rem] font-bold tracking-[0.16em] text-forest/55 uppercase dark:text-accent/80">
+          <span className="text-kicker text-muted uppercase dark:text-accent/80">
             {kindLabel}
           </span>
         ) : null}

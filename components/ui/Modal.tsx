@@ -89,7 +89,7 @@ export function Modal({
     >
       <div
         ref={dialogRef}
-        className={`flex w-full flex-col overflow-hidden rounded-lg border shadow-[0_24px_64px_var(--color-shadow)] outline-none ${
+        className={`flex w-full flex-col overflow-hidden rounded-2xl border shadow-[0_24px_64px_var(--color-shadow)] outline-none ${
           size === "lg"
             ? "max-h-[min(92dvh,52rem)] max-w-2xl"
             : size === "md"

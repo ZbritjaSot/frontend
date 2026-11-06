@@ -1,20 +1,17 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { Field } from "@/components/ui/Field";
 import { Spinner } from "@/components/ui/Spinner";
-import {
-  InquiryField,
-  InquiryInput,
-  InquiryTextarea,
-} from "@/features/public/inquiry/InquiryField";
 import { InquirySuccess } from "@/features/public/inquiry/InquirySuccess";
 import {
   inquiryError,
   inquiryForm,
   inquiryPanel,
-  inquirySubmit,
 } from "@/features/public/inquiry/styles";
+import { kicker } from "@/features/public/tone";
 import { apiFetch, validationMessage } from "@/lib/api";
+import { button, input } from "@/lib/ui";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
@@ -111,115 +108,131 @@ export function PartnerForm() {
   return (
     <div className="grid gap-4">
       <div className={inquiryPanel}>
-        <p className="m-0 text-[0.7rem] font-bold tracking-[0.16em] text-muted uppercase">
-          Aplikimi
-        </p>
+        <p className={kicker}>Aplikimi</p>
         <form className={`${inquiryForm} mt-5`} onSubmit={onSubmit} noValidate>
           <div className="grid gap-5 sm:grid-cols-2">
-            <InquiryField label="Emri" required htmlFor="partner-name">
-              <InquiryInput
-                id="partner-name"
-                name="name"
-                autoComplete="name"
-                value={name}
-                maxLength={120}
-                disabled={pending}
-                invalid={invalid.name}
-                placeholder="Emri yt"
-                onChange={(event) => {
-                  setName(event.target.value);
-                  setInvalid((prev) => ({ ...prev, name: false }));
-                }}
-                required
-              />
-            </InquiryField>
-            <InquiryField label="Email" required htmlFor="partner-email">
-              <InquiryInput
-                id="partner-email"
-                type="email"
-                name="email"
-                autoComplete="email"
-                value={email}
-                maxLength={255}
-                disabled={pending}
-                invalid={invalid.email}
-                placeholder="email@dyqani.com"
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  setInvalid((prev) => ({ ...prev, email: false }));
-                }}
-                required
-              />
-            </InquiryField>
+            <Field id="partner-name" label="Emri" requirement="required">
+              {(control) => (
+                <input
+                  {...control}
+                  name="name"
+                  autoComplete="name"
+                  value={name}
+                  maxLength={120}
+                  disabled={pending}
+                  aria-invalid={invalid.name || undefined}
+                  placeholder="Emri yt"
+                  className={input({ size: "lg" })}
+                  onChange={(event) => {
+                    setName(event.target.value);
+                    setInvalid((prev) => ({ ...prev, name: false }));
+                  }}
+                />
+              )}
+            </Field>
+            <Field id="partner-email" label="Email" requirement="required">
+              {(control) => (
+                <input
+                  {...control}
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  value={email}
+                  maxLength={255}
+                  disabled={pending}
+                  aria-invalid={invalid.email || undefined}
+                  placeholder="email@dyqani.com"
+                  className={input({ size: "lg" })}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    setInvalid((prev) => ({ ...prev, email: false }));
+                  }}
+                />
+              )}
+            </Field>
           </div>
-          <InquiryField label="Emri i dyqanit" required htmlFor="partner-shop">
-            <InquiryInput
-              id="partner-shop"
-              name="business_name"
-              autoComplete="organization"
-              value={businessName}
-              maxLength={160}
-              disabled={pending}
-              invalid={invalid.businessName}
-              placeholder="Si quhet dyqani"
-              onChange={(event) => {
-                setBusinessName(event.target.value);
-                setInvalid((prev) => ({ ...prev, businessName: false }));
-              }}
-              required
-            />
-          </InquiryField>
+          <Field id="partner-shop" label="Emri i dyqanit" requirement="required">
+            {(control) => (
+              <input
+                {...control}
+                name="business_name"
+                autoComplete="organization"
+                value={businessName}
+                maxLength={160}
+                disabled={pending}
+                aria-invalid={invalid.businessName || undefined}
+                placeholder="Si quhet dyqani"
+                className={input({ size: "lg" })}
+                onChange={(event) => {
+                  setBusinessName(event.target.value);
+                  setInvalid((prev) => ({ ...prev, businessName: false }));
+                }}
+              />
+            )}
+          </Field>
           <div className="grid gap-5 sm:grid-cols-2">
-            <InquiryField label="Qyteti" required htmlFor="partner-city">
-              <InquiryInput
-                id="partner-city"
-                name="city"
-                autoComplete="address-level2"
-                value={city}
-                maxLength={120}
-                disabled={pending}
-                invalid={invalid.city}
-                placeholder="p.sh. Prishtinë"
-                onChange={(event) => {
-                  setCity(event.target.value);
-                  setInvalid((prev) => ({ ...prev, city: false }));
-                }}
-                required
-              />
-            </InquiryField>
-            <InquiryField label="Telefoni" htmlFor="partner-phone">
-              <InquiryInput
-                id="partner-phone"
-                type="tel"
-                name="phone"
-                autoComplete="tel"
-                value={phone}
-                maxLength={40}
-                disabled={pending}
-                placeholder="p.sh. +383 44 000 000"
-                onChange={(event) => setPhone(event.target.value)}
-              />
-            </InquiryField>
+            <Field id="partner-city" label="Qyteti" requirement="required">
+              {(control) => (
+                <input
+                  {...control}
+                  name="city"
+                  autoComplete="address-level2"
+                  value={city}
+                  maxLength={120}
+                  disabled={pending}
+                  aria-invalid={invalid.city || undefined}
+                  placeholder="p.sh. Prishtinë"
+                  className={input({ size: "lg" })}
+                  onChange={(event) => {
+                    setCity(event.target.value);
+                    setInvalid((prev) => ({ ...prev, city: false }));
+                  }}
+                />
+              )}
+            </Field>
+            <Field id="partner-phone" label="Telefoni" requirement="optional">
+              {(control) => (
+                <input
+                  {...control}
+                  type="tel"
+                  name="phone"
+                  autoComplete="tel"
+                  value={phone}
+                  maxLength={40}
+                  disabled={pending}
+                  placeholder="p.sh. +383 44 000 000"
+                  className={input({ size: "lg" })}
+                  onChange={(event) => setPhone(event.target.value)}
+                />
+              )}
+            </Field>
           </div>
-          <InquiryField label="Mesazhi" htmlFor="partner-message">
-            <InquiryTextarea
-              id="partner-message"
-              name="message"
-              value={message}
-              maxLength={5000}
-              disabled={pending}
-              placeholder="Diçka që dëshiron të na tregosh (opsionale)"
-              className="min-h-28"
-              onChange={(event) => setMessage(event.target.value)}
-            />
-          </InquiryField>
+          <Field id="partner-message" label="Mesazhi" requirement="optional">
+            {(control) => (
+              <textarea
+                {...control}
+                name="message"
+                value={message}
+                maxLength={5000}
+                disabled={pending}
+                placeholder="Diçka që dëshiron të na tregosh (opsionale)"
+                className={`${input({ size: "lg", multiline: true })} min-h-28 resize-y leading-relaxed`}
+                onChange={(event) => setMessage(event.target.value)}
+              />
+            )}
+          </Field>
           {error ? (
             <p className={inquiryError} role="alert">
               {error}
             </p>
           ) : null}
           <div className="pt-1">
-            <button className={inquirySubmit} type="submit" disabled={pending} aria-busy={pending}>
+            <button
+              className={`${button({ size: "lg", shape: "pill" })} w-full sm:w-auto sm:min-w-[11rem]`}
+              type="submit"
+              disabled={pending}
+              aria-busy={pending}
+            >
               {pending ? (
                 <span className="inline-flex items-center gap-2.5">
                   <Spinner label="Duke u dërguar" size="sm" block={false} tone="onAccent" />

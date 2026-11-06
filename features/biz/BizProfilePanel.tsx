@@ -22,7 +22,7 @@ import {
 } from "@/hooks/useBizProfile";
 import { formatDateSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { btnGhost, offerStatusClass, panelLead } from "@/lib/ui";
+import { button, offerStatusClass, panelLead } from "@/lib/ui";
 import type { BizSubscription, Business } from "@/types";
 
 const micro = "text-xs font-bold tracking-[0.08em] text-muted uppercase";
@@ -159,7 +159,7 @@ export function BizProfilePanel() {
           )}
         </p>
         <button
-          className={`${btnGhost} mt-4`}
+          className={`${button({ variant: "secondary" })} mt-4`}
           type="button"
           onClick={() => businessQuery.refetch()}
         >
