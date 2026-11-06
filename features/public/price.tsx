@@ -92,9 +92,11 @@ export function DiscountRail({
 }
 
 /**
- * Up to 4 segments, one per distinct PO-approved discount band actually
- * present among the flyer's own items — never invented, never randomized,
- * and stable across renders since it's a pure function of real data.
+ * 6-8 segments (clamped to the flyer's own item count) filling the rail,
+ * cycling round-robin through the PO-approved bands actually present
+ * among the flyer's own items — never invented, never randomized, and
+ * stable across renders since it's a pure function of real data. Cycling
+ * through ≥2 present bands never repeats a color on adjacent segments.
  */
 export function discountSegments(
   items: { discount_percent?: number | null }[],
@@ -110,20 +112,27 @@ export function discountSegments(
     return [];
   }
 
-  return DISCOUNT_BANDS.filter((band, index) => {
+  const presentBands = DISCOUNT_BANDS.filter((band, index) => {
     const floor = index === 0 ? 0 : DISCOUNT_BANDS[index - 1].max;
     return percents.some((percent) => percent > floor && percent <= band.max);
-  }).map((band) => ({ from: band.from, to: band.to }));
+  });
+
+  const length = Math.min(8, Math.max(6, percents.length));
+
+  return Array.from({ length }, (_, index) => {
+    const band = presentBands[index % presentBands.length];
+    return { from: band.from, to: band.to };
+  });
 }
 
 /**
- * Lead-flyer-only rail (homepage "Fletushkat" first card): one flat color
- * block per distinct discount band actually present among the flyer's own
- * items (from `discountSegments`), flush against each other with no gaps.
- * Same height/position as `DiscountRail` at `size="lg"` and the same
- * 2-stop 135deg gradient treatment per segment — only what fills the rail
- * changes. No text/percentage inside any segment; every other flyer's
- * rail is untouched.
+ * Lead-flyer-only rail (homepage "Fletushkat" first card): 6-8 flat color
+ * blocks cycling through the discount bands actually present among the
+ * flyer's own items (from `discountSegments`), flush against each other
+ * with no gaps. Same height/position as `DiscountRail` at `size="lg"` and
+ * the same 2-stop 135deg gradient treatment per segment — only what fills
+ * the rail changes. No text/percentage inside any segment; every other
+ * flyer's rail is untouched.
  */
 export function MultiDiscountRail({
   segments,
