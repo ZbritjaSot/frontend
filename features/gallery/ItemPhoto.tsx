@@ -85,6 +85,11 @@ export function ItemPhoto({
 
   function applySearch(event: FormEvent) {
     event.preventDefault();
+    // This picker is rendered in a `Modal` (a portal) inside the offer/flyer
+    // `<form>` — React bubbles synthetic events along the component tree,
+    // not the DOM tree, so without this the "submit" event still reaches
+    // (and submits) the outer form, even though it's not a DOM ancestor.
+    event.stopPropagation();
     setQ(search.trim());
   }
 

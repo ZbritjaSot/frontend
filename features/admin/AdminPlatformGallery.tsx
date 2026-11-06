@@ -69,6 +69,11 @@ export function AdminPlatformGallery() {
 
   function applySearch(event: FormEvent) {
     event.preventDefault();
+    // Stop the "submit" event from bubbling to any ancestor form — this
+    // search field must only ever filter the gallery, never submit anything
+    // else on the page (see ItemPhoto.tsx's own applySearch for the bug this
+    // guards against: a nested-in-a-form picker advancing the outer form).
+    event.stopPropagation();
     const next = query.trim();
     setQ((current) => {
       if (current !== next) {
