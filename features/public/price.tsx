@@ -49,9 +49,13 @@ const railSize = {
   xs: { height: "h-[16px]", text: "text-[8px]" },
   /** List rows and narrow flyer thumbnails. */
   sm: { height: "h-[20px]", text: "text-[10px]" },
-  /** Catalog cards. */
+  /** Currently unused by any call site — every former default-md spot was bumped to lg per PO. Kept for any future narrower card that still wants the smaller size. */
   md: { height: "h-[28px]", text: "text-[13px]" },
-  /** Hero and offer detail. */
+  /**
+   * Bumped up from md per PO: catalog cards, hero, offer detail, Exclusive
+   * cards, and every campaign/flyer layout ("feature"/"card"/"editorial"/
+   * "rail") — i.e. every prominent card, not just the first one in a grid.
+   */
   lg: { height: "h-[40px]", text: "text-[18px]" },
 } as const;
 

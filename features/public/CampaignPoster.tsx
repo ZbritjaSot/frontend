@@ -49,7 +49,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="(max-width: 640px) 100vw, 420px"
           />
-          {percent > 0 ? <DiscountRail percent={percent} /> : null}
+          {percent > 0 ? <DiscountRail percent={percent} size="lg" /> : null}
           {heart}
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-2 px-4 py-4 sm:px-6">
@@ -161,7 +161,7 @@ export function CampaignPoster({
               eager={eager}
               sizes="(max-width: 640px) 100vw, 50vw"
             />
-            {percent > 0 ? <DiscountRail percent={percent} /> : null}
+            {percent > 0 ? <DiscountRail percent={percent} size="lg" /> : null}
           </span>
           <span className="flex flex-1 flex-col p-5">
             <span className="flex items-center gap-2.5">
@@ -199,7 +199,7 @@ export function CampaignPoster({
       </span>
       <span className="relative w-[42%] shrink-0 self-stretch overflow-hidden">
         <ProductVisual fill name={coverName} imageUrl={coverUrl} eager={eager} sizes="240px" />
-        {percent > 0 ? <DiscountRail percent={percent} /> : null}
+        {percent > 0 ? <DiscountRail percent={percent} size="lg" /> : null}
         {heart}
       </span>
     </Link>

@@ -40,7 +40,7 @@ export function ProductPoster({
             className="aspect-square w-full"
           />
           {offer.discount_percent != null && offer.discount_percent > 0 ? (
-            <DiscountRail percent={offer.discount_percent} />
+            <DiscountRail percent={offer.discount_percent} size="lg" />
           ) : null}
         </span>
         <span className="mt-2 grid gap-0.5">

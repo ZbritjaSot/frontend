@@ -49,7 +49,7 @@ export function ExclusiveCard({
             sizes={layout === "rail" ? "256px" : "(max-width: 1024px) 50vw, 280px"}
           />
           {meta.percent != null && meta.percent > 0 ? (
-            <DiscountRail percent={meta.percent} />
+            <DiscountRail percent={meta.percent} size="lg" />
           ) : null}
           <span className="absolute top-3 right-3 z-10">
             <FavoriteButton
