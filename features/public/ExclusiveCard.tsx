@@ -10,6 +10,9 @@ import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import type { ExclusiveItem } from "@/features/offers/api";
 import { formatEurFromCents } from "@/lib/format";
 
+/** One line, same ellipsis as the other product titles (`truncate`). */
+const titleClamp = "truncate min-w-0 leading-snug";
+
 /**
  * Exclusive card — photo + ivory brand panel.
  * No gradient, no drop shadow, no overlay stack.
@@ -69,10 +72,10 @@ export function ExclusiveCard({
             compact
           />
           <span
-            className={`line-clamp-2 font-extrabold tracking-[-0.035em] text-charcoal dark:text-ivory ${
+            className={`${titleClamp} font-extrabold tracking-[-0.035em] text-charcoal dark:text-ivory ${
               layout === "tile"
-                ? "text-[1.05rem] leading-snug sm:text-[1.15rem]"
-                : "text-[0.98rem] leading-snug"
+                ? "text-[1.05rem] sm:text-[1.15rem]"
+                : "text-[0.98rem]"
             }`}
           >
             {meta.title}
