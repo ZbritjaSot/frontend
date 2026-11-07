@@ -3,9 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { DateTimeField } from "@/components/ui/DateTimeField";
-import { PosMoneyField } from "@/components/ui/PosMoneyField";
+import { SelectField } from "@/components/ui/SelectField";
 import { ItemPhoto } from "@/features/gallery/ItemPhoto";
 import { fetchAdminBusinesses } from "@/features/admin/businessesApi";
+import { CategoryChips } from "@/features/offers/CategoryChips";
+import { DiscountModeFields } from "@/features/offers/DiscountModeFields";
 import {
   createStandaloneHeroOffer,
   type StandaloneHeroOfferInput,
@@ -17,6 +19,7 @@ import {
   localCalendarDayKey,
   OFFER_START_LEAD_HOURS,
 } from "@/lib/datetime";
+import type { PricingMode } from "@/lib/discount";
 import { validationMessage } from "@/lib/api";
 import { button, fieldError, input } from "@/lib/ui";
 
@@ -33,6 +36,7 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
   const [name, setName] = useState("");
   const [startsAt, setStartsAt] = useState(windowDefaults.starts_at);
   const [expiresAt, setExpiresAt] = useState(windowDefaults.expires_at);
+  const [pricingMode, setPricingMode] = useState<PricingMode>("price");
   const [originalPrice, setOriginalPrice] = useState(0);
   const [discountedPrice, setDiscountedPrice] = useState(0);
   const [discountPercent, setDiscountPercent] = useState("");
@@ -83,9 +87,10 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
       name: name.trim(),
       starts_at: fromHourLocalValue(startsAt),
       expires_at: fromHourLocalValue(expiresAt),
-      original_price: originalPrice > 0 ? originalPrice : null,
-      discounted_price: discountedPrice > 0 ? discountedPrice : null,
-      discount_percent: percent != null && Number.isFinite(percent) ? percent : null,
+      original_price: pricingMode === "price" && originalPrice > 0 ? originalPrice : null,
+      discounted_price: pricingMode === "price" && discountedPrice > 0 ? discountedPrice : null,
+      discount_percent:
+        pricingMode === "percent" && percent != null && Number.isFinite(percent) ? percent : null,
       purchase_url: purchaseUrl.trim() === "" ? null : purchaseUrl.trim(),
       gallery_image_id: galleryImageId,
       category_ids: categoryIds,
@@ -176,6 +181,40 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
         />
       </label>
 
+      {(categories.data?.length ?? 0) > 0 ? (
+        <fieldset className="m-0 grid gap-3 border-0 p-0">
+          <div className="flex items-center justify-between gap-3">
+            <legend className="text-sm font-semibold">Kategoritë</legend>
+            <div className="w-48">
+              <SelectField
+                value=""
+                onChange={(value) => {
+                  if (!value || categoryIds.includes(value)) {
+                    return;
+                  }
+                  setCategoryIds((current) => [...current, value]);
+                }}
+                options={
+                  categories.data
+                    ?.filter((category) => !categoryIds.includes(category.id))
+                    .map((category) => ({ value: category.id, label: category.name })) ?? []
+                }
+                searchable
+                placeholder={categoryIds.length > 0 ? "Shto kategori" : "Kategoria"}
+                aria-label="Kategoritë"
+              />
+            </div>
+          </div>
+          <CategoryChips
+            categoryIds={categoryIds}
+            labelFor={(id) => categories.data?.find((category) => category.id === id)?.name ?? "Kategori"}
+            onReorder={setCategoryIds}
+            onRemove={(id) => setCategoryIds((current) => current.filter((existingId) => existingId !== id))}
+            idPrefix={name || "produkti"}
+          />
+        </fieldset>
+      ) : null}
+
       <p className="m-0 text-sm leading-relaxed text-muted">
         Fillimi së paku {OFFER_START_LEAD_HOURS} orë nga tani. Ora vetëm me :00.
       </p>
@@ -202,36 +241,17 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
         </label>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <label className="grid gap-1.5 text-sm font-semibold">
-          Çmimi fillestar
-          <PosMoneyField
-            valueCents={originalPrice}
-            onChangeCents={setOriginalPrice}
-            aria-label="Çmimi fillestar"
-          />
-        </label>
-        <label className="grid gap-1.5 text-sm font-semibold">
-          Çmimi me zbritje
-          <PosMoneyField
-            valueCents={discountedPrice}
-            onChangeCents={setDiscountedPrice}
-            aria-label="Çmimi me zbritje"
-          />
-        </label>
-        <label className="grid gap-1.5 text-sm font-semibold">
-          Zbritja %
-          <input
-            className={input()}
-            inputMode="numeric"
-            value={discountPercent}
-            placeholder="p.sh. 20"
-            onChange={(event) =>
-              setDiscountPercent(event.target.value.replace(/\D/g, "").slice(0, 2))
-            }
-          />
-        </label>
-      </div>
+      <DiscountModeFields
+        mode={pricingMode}
+        originalPriceCents={originalPrice}
+        discountedPriceCents={discountedPrice}
+        percentInput={discountPercent}
+        onModeChange={setPricingMode}
+        onOriginalChange={setOriginalPrice}
+        onDiscountedChange={setDiscountedPrice}
+        onPercentChange={setDiscountPercent}
+        idPrefix={name || "produkti"}
+      />
 
       <label className="grid gap-1.5 text-sm font-semibold">
         Linku i blerjes (opsional)
@@ -271,37 +291,6 @@ export function AdminHeroCreateForm({ onCreated, onCancel }: AdminHeroCreateForm
             setThumbUrl(null);
           }}
         />
-      ) : null}
-
-      {(categories.data?.length ?? 0) > 0 ? (
-        <fieldset className="m-0 grid gap-2 border-0 p-0">
-          <legend className="text-sm font-semibold">Kategoritë</legend>
-          <div className="flex flex-wrap gap-2">
-            {categories.data?.map((category) => {
-              const on = categoryIds.includes(category.id);
-              return (
-                <button
-                  key={category.id}
-                  type="button"
-                  className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-semibold ${
-                    on
-                      ? "border-accent bg-accent text-on-accent"
-                      : "border-line bg-transparent text-muted hover:text-ink"
-                  }`}
-                  onClick={() =>
-                    setCategoryIds((current) =>
-                      on
-                        ? current.filter((id) => id !== category.id)
-                        : [...current, category.id],
-                    )
-                  }
-                >
-                  {category.name}
-                </button>
-              );
-            })}
-          </div>
-        </fieldset>
       ) : null}
 
       <label className="flex items-start gap-3 text-sm font-semibold">

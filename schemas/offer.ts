@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { earliestOfferStart, OFFER_START_LEAD_HOURS } from "@/lib/datetime";
+import { computeDiscountPercent, MAX_DISCOUNT_PERCENT, MIN_DISCOUNT_PERCENT } from "@/lib/discount";
 import { MAX_PRICE_CENTS } from "@/lib/format";
 
 const optionalCents = z
@@ -12,8 +13,8 @@ const optionalCents = z
 const optionalPercent = z
   .number({ error: "Zbritja duhet të jetë numër." })
   .int("Zbritja duhet të jetë e plotë.")
-  .min(1, "Zbritja duhet të jetë midis 1% dhe 99%.")
-  .max(99, "Zbritja duhet të jetë midis 1% dhe 99%.")
+  .min(MIN_DISCOUNT_PERCENT, "Zbritja duhet të jetë midis 1% dhe 99%.")
+  .max(MAX_DISCOUNT_PERCENT, "Zbritja duhet të jetë midis 1% dhe 99%.")
   .nullable();
 
 const offerItemSchema = z
@@ -47,6 +48,15 @@ const offerItemSchema = z
     },
   )
   .refine(
+    (data) =>
+      data.discount_percent === null ||
+      (data.original_price === null && data.discounted_price === null),
+    {
+      message: "Zgjidh ose çmimet, ose përqindjen, jo të dyja.",
+      path: ["discount_percent"],
+    },
+  )
+  .refine(
     (data) => data.discounted_price === null || data.original_price !== null,
     {
       message: "Çmimi origjinal duhet kur vendoset çmimi me zbritje.",
@@ -60,6 +70,19 @@ const offerItemSchema = z
       data.discounted_price < data.original_price,
     {
       message: "Çmimi me zbritje duhet të jetë më i ulët se çmimi origjinal.",
+      path: ["discounted_price"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.original_price === null || data.discounted_price === null) {
+        return true;
+      }
+      const percent = computeDiscountPercent(data.original_price, data.discounted_price);
+      return percent >= MIN_DISCOUNT_PERCENT && percent <= MAX_DISCOUNT_PERCENT;
+    },
+    {
+      message: "Kjo zbritje është jashtë kufirit të lejuar prej 1%-99%.",
       path: ["discounted_price"],
     },
   );

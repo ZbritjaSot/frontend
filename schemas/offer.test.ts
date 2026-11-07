@@ -48,7 +48,7 @@ function messages(input: unknown): string[] {
 }
 
 describe("offer form validation", () => {
-  it("accepts a price, a percent, or both", () => {
+  it("accepts a price-mode item or a percent-mode item", () => {
     expect(offerBundleFormSchema.safeParse(folder()).success).toBe(true);
     expect(
       offerBundleFormSchema.safeParse(
@@ -65,8 +65,11 @@ describe("offer form validation", () => {
         }),
       ).success,
     ).toBe(true);
+  });
+
+  it("rejects an item that sends both prices and a percent", () => {
     expect(
-      offerBundleFormSchema.safeParse(
+      messages(
         folder({
           items: [
             {
@@ -78,8 +81,28 @@ describe("offer form validation", () => {
             },
           ],
         }),
-      ).success,
-    ).toBe(true);
+      ),
+    ).toContain("Zgjidh ose çmimet, ose përqindjen, jo të dyja.");
+  });
+
+  it("rejects a price pair whose computed percent would round outside 1-99", () => {
+    // 200 cents down to 1 cent rounds to 100% (99.5 rounds up), which must be
+    // rejected rather than silently capped to 99%.
+    expect(
+      messages(
+        folder({
+          items: [
+            {
+              category_ids: [categoryId],
+              name: "Çantë",
+              original_price: 200,
+              discounted_price: 1,
+              discount_percent: null,
+            },
+          ],
+        }),
+      ),
+    ).toContain("Kjo zbritje është jashtë kufirit të lejuar prej 1%-99%.");
   });
 
   it("requires a campaign title, a product, and an end date after the start", () => {
