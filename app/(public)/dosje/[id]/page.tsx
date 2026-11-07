@@ -4,12 +4,13 @@ import { notFound } from "next/navigation";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { leadProduct, offerWord, withCampaign } from "@/features/public/compose";
 import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
-import { BackLink, Band, EmptyNote, Frame, SectionHeading } from "@/features/public/Frame";
+import { Breadcrumbs, flyerCrumbs } from "@/features/public/Breadcrumbs";
+import { Band, EmptyNote, Frame, SectionHeading } from "@/features/public/Frame";
 import { ProductList } from "@/features/public/ProductPoster";
 import { DiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { fetchPublicFolder, isNotFound } from "@/features/offers/api";
-import { formatDateSq, formatDiscountPercent, formatEurFromCents } from "@/lib/format";
+import { formatDateSq, formatEurFromCents } from "@/lib/format";
 import { publicPageMetadata } from "@/lib/metadata";
 import { SITE_NAME } from "@/lib/site";
 import type { PublicFolder } from "@/types";
@@ -64,7 +65,6 @@ export default async function FolderPage({ params }: FolderPageProps) {
   const lead =
     folder.items.find((item) => item.id === folder.cover?.id) ??
     leadProduct(folder);
-  const backHref = folder.business ? `/biznese/${folder.business.id}` : "/";
   const coverName = folder.cover?.name ?? lead?.name ?? folder.title;
   const coverUrl = folder.cover?.thumb_url ?? lead?.image?.thumb_url;
 
@@ -73,12 +73,11 @@ export default async function FolderPage({ params }: FolderPageProps) {
       <section className="bg-forest text-ivory [--color-focus:var(--color-lime)]">
         <Frame className="py-10 sm:py-14">
           <div className="flex items-center justify-between gap-3">
-            <BackLink
-              href={backHref}
-              className="text-ivory/75 hover:text-ivory"
-            >
-              {folder.business ? "Kthehu te dyqani" : "Kreu"}
-            </BackLink>
+            <Breadcrumbs
+              items={flyerCrumbs(folder)}
+              tone="inverse"
+              className="min-w-0 flex-1"
+            />
             <FavoriteButton
               kind="flyer"
               id={folder.id}
@@ -139,18 +138,11 @@ export default async function FolderPage({ params }: FolderPageProps) {
                 <span className="mt-3 line-clamp-2 block font-extrabold tracking-tight text-ivory">
                   {lead.name}
                 </span>
-                <span className="mt-1 flex min-w-0 items-baseline gap-3">
-                  {lead.discounted_price != null ? (
-                    <span className="text-lg font-extrabold text-accent tabular-nums">
-                      {formatEurFromCents(lead.discounted_price)}
-                    </span>
-                  ) : null}
-                  {lead.discount_percent != null && lead.discount_percent > 0 ? (
-                    <span className="text-sm font-bold">
-                      {formatDiscountPercent(lead.discount_percent)}
-                    </span>
-                  ) : null}
-                </span>
+                {lead.discounted_price != null ? (
+                  <span className="mt-1 block text-lg font-extrabold text-accent tabular-nums">
+                    {formatEurFromCents(lead.discounted_price)}
+                  </span>
+                ) : null}
               </Link>
             ) : null}
           </div>

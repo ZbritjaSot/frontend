@@ -66,4 +66,54 @@ describe("offer form item mapping", () => {
     expect(payload).not.toHaveProperty("id");
     expect(Object.values(payload)).not.toContain("item-0");
   });
+
+  it("defaults a new item to price mode", () => {
+    expect(emptyItem("item-0").mode).toBe("price");
+  });
+
+  it("restores percent mode from a saved percent-only item", () => {
+    const percentItem: OfferItem = {
+      ...savedItem,
+      original_price: null,
+      discounted_price: null,
+      discount_percent: 20,
+    };
+
+    const [draft] = itemDraftsFromOffer([percentItem]);
+    expect(draft.mode).toBe("percent");
+    expect(draft.discount_percent).toBe("20");
+  });
+
+  it("restores price mode from a saved priced item", () => {
+    const [draft] = itemDraftsFromOffer([savedItem]);
+    expect(draft.mode).toBe("price");
+  });
+
+  it("only sends the active mode's fields, nulling the other mode's leftovers", () => {
+    const priceItem = {
+      ...emptyItem("item-0"),
+      mode: "price" as const,
+      original_price: 2000,
+      discounted_price: 1400,
+      discount_percent: "25", // stray leftover from a prior percent-mode edit
+    };
+    expect(itemDraftToPayload(priceItem)).toMatchObject({
+      original_price: 2000,
+      discounted_price: 1400,
+      discount_percent: null,
+    });
+
+    const percentItem = {
+      ...emptyItem("item-1"),
+      mode: "percent" as const,
+      original_price: 2000, // stray leftover from a prior price-mode edit
+      discounted_price: 1400,
+      discount_percent: "25",
+    };
+    expect(itemDraftToPayload(percentItem)).toMatchObject({
+      original_price: null,
+      discounted_price: null,
+      discount_percent: 25,
+    });
+  });
 });

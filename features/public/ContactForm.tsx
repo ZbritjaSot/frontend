@@ -9,66 +9,65 @@ import {
   inquiryForm,
   inquiryPanel,
 } from "@/features/public/inquiry/styles";
+import { useFocusInvalidField } from "@/features/public/inquiry/useFocusInvalidField";
 import { apiFetch, validationMessage } from "@/lib/api";
 import { button, input } from "@/lib/ui";
+import { contactFormSchema, fieldMessages } from "@/schemas/inquiry";
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+const fields = ["name", "email", "phone", "message"] as const;
+type FieldKey = (typeof fields)[number];
 
-type FieldKey = "name" | "email" | "message";
+const fieldIds: Record<FieldKey, string> = {
+  name: "contact-name",
+  email: "contact-email",
+  phone: "contact-phone",
+  message: "contact-message",
+};
 
 export function ContactForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [invalid, setInvalid] = useState<Partial<Record<FieldKey, boolean>>>({});
+  const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
+  const [serverError, setServerError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [pending, setPending] = useState(false);
+  const invalidField = useFocusInvalidField();
+
+  function clearError(key: FieldKey) {
+    setErrors((current) => {
+      if (!current[key]) {
+        return current;
+      }
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    const trimmedName = name.trim();
-    const trimmedEmail = email.trim();
-    const trimmedMessage = message.trim();
-    const nextInvalid: Partial<Record<FieldKey, boolean>> = {};
-    if (trimmedName === "") {
-      nextInvalid.name = true;
-      setInvalid(nextInvalid);
-      setError("Shkruaj emrin.");
+    const parsed = contactFormSchema.safeParse({ name, email, phone, message });
+    if (!parsed.success) {
+      const next = fieldMessages(parsed.error.issues, fields);
+      setErrors(next);
+      setServerError(null);
+      const first = fields.find((key) => next[key]);
+      if (first) {
+        invalidField.focus(fieldIds[first]);
+      }
       return;
     }
-    if (trimmedEmail === "") {
-      nextInvalid.email = true;
-      setInvalid(nextInvalid);
-      setError("Shkruaj email-in.");
-      return;
-    }
-    if (!emailPattern.test(trimmedEmail)) {
-      nextInvalid.email = true;
-      setInvalid(nextInvalid);
-      setError("Shkruaj një email të vlefshëm.");
-      return;
-    }
-    if (trimmedMessage === "") {
-      nextInvalid.message = true;
-      setInvalid(nextInvalid);
-      setError("Shkruaj mesazhin.");
-      return;
-    }
-    setInvalid({});
-    setError(null);
+
+    setErrors({});
+    setServerError(null);
     setPending(true);
     try {
       await apiFetch("/contact", {
         method: "POST",
         auth: true,
-        body: JSON.stringify({
-          name: trimmedName,
-          email: trimmedEmail,
-          phone: phone.trim() || null,
-          message: trimmedMessage,
-        }),
+        body: JSON.stringify(parsed.data),
       });
       setDone(true);
       setName("");
@@ -76,7 +75,7 @@ export function ContactForm() {
       setPhone("");
       setMessage("");
     } catch (caught) {
-      setError(validationMessage(caught, "Nuk u dërgua. Provo përsëri."));
+      setServerError(validationMessage(caught, "Nuk u dërgua. Provo përsëri."));
     } finally {
       setPending(false);
     }
@@ -94,7 +93,7 @@ export function ContactForm() {
   return (
     <div className={inquiryPanel}>
       <form className={inquiryForm} onSubmit={onSubmit} noValidate>
-        <Field id="contact-name" label="Emri" requirement="required">
+        <Field id="contact-name" label="Emri" requirement="required" error={errors.name}>
           {(control) => (
             <input
               {...control}
@@ -103,17 +102,16 @@ export function ContactForm() {
               value={name}
               maxLength={120}
               disabled={pending}
-              aria-invalid={invalid.name || undefined}
               placeholder="Emri yt"
               className={input({ size: "lg" })}
               onChange={(event) => {
                 setName(event.target.value);
-                setInvalid((prev) => ({ ...prev, name: false }));
+                clearError("name");
               }}
             />
           )}
         </Field>
-        <Field id="contact-email" label="Email" requirement="required">
+        <Field id="contact-email" label="Email" requirement="required" error={errors.email}>
           {(control) => (
             <input
               {...control}
@@ -123,17 +121,16 @@ export function ContactForm() {
               value={email}
               maxLength={255}
               disabled={pending}
-              aria-invalid={invalid.email || undefined}
               placeholder="email@shembull.com"
               className={input({ size: "lg" })}
               onChange={(event) => {
                 setEmail(event.target.value);
-                setInvalid((prev) => ({ ...prev, email: false }));
+                clearError("email");
               }}
             />
           )}
         </Field>
-        <Field id="contact-phone" label="Telefoni" requirement="optional">
+        <Field id="contact-phone" label="Telefoni" requirement="optional" error={errors.phone}>
           {(control) => (
             <input
               {...control}
@@ -145,11 +142,14 @@ export function ContactForm() {
               disabled={pending}
               placeholder="p.sh. +383 44 000 000"
               className={input({ size: "lg" })}
-              onChange={(event) => setPhone(event.target.value)}
+              onChange={(event) => {
+                setPhone(event.target.value);
+                clearError("phone");
+              }}
             />
           )}
         </Field>
-        <Field id="contact-message" label="Mesazhi" requirement="required">
+        <Field id="contact-message" label="Mesazhi" requirement="required" error={errors.message}>
           {(control) => (
             <textarea
               {...control}
@@ -157,19 +157,18 @@ export function ContactForm() {
               value={message}
               maxLength={5000}
               disabled={pending}
-              aria-invalid={invalid.message || undefined}
               placeholder="Si mund të të ndihmojmë?"
               className={`${input({ size: "lg", multiline: true })} min-h-36 resize-y leading-relaxed`}
               onChange={(event) => {
                 setMessage(event.target.value);
-                setInvalid((prev) => ({ ...prev, message: false }));
+                clearError("message");
               }}
             />
           )}
         </Field>
-        {error ? (
+        {serverError ? (
           <p className={inquiryError} role="alert">
-            {error}
+            {serverError}
           </p>
         ) : null}
         <div className="pt-1">

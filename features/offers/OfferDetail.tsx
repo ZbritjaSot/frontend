@@ -4,8 +4,9 @@ import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { OfferPlace } from "@/components/place/OfferPlace";
 import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
 import { safeHttpUrl } from "@/features/business/links";
+import { Breadcrumbs, isPublicFlyerBundle, offerCrumbs } from "@/features/public/Breadcrumbs";
 import { savingsCents } from "@/features/public/compose";
-import { BackLink, Band, Frame, SectionHeading } from "@/features/public/Frame";
+import { Band, Frame, SectionHeading } from "@/features/public/Frame";
 import { DiscountBadge, PriceLine } from "@/features/public/price";
 import { kicker } from "@/features/public/tone";
 import { ProductGrid, ShopLink } from "@/features/public/ProductPoster";
@@ -22,18 +23,14 @@ type OfferDetailProps = {
 
 export function OfferDetail({ offer, related = [], recommended = [] }: OfferDetailProps) {
   const shop = offer.business?.name ?? "Dyqan";
-  const hasFlyerBundle = offer.bundle != null && offer.bundle.title !== "Oferta individuale";
+  const flyer = isPublicFlyerBundle(offer.bundle) ? offer.bundle : null;
   const saved = savingsCents(offer.original_price, offer.discounted_price);
   const purchaseHref = safeHttpUrl(offer.purchase_url);
 
   return (
     <article>
       <Frame className="pt-8">
-        {hasFlyerBundle ? (
-          <BackLink href={`/dosje/${offer.bundle!.id}`}>
-            {offer.bundle!.title}
-          </BackLink>
-        ) : null}
+        <Breadcrumbs items={offerCrumbs(offer)} />
         <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
           <div className="lg:col-span-7">
             <div className="relative h-full overflow-hidden rounded-2xl border border-line bg-white">
@@ -116,13 +113,12 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                 href={offer.business ? `/biznese/${offer.business.id}` : undefined}
                 size="md"
               />
-              {/* TODO: Revisit how individual offers are associated with bundles and handle this more robustly. */}
-              {offer.bundle && offer.bundle.title !== "Oferta individuale" ? (
+              {flyer ? (
                 <Link
-                  href={`/dosje/${offer.bundle.id}`}
+                  href={`/dosje/${flyer.id}`}
                   className="mt-4 block text-sm font-extrabold tracking-tight underline-offset-4 hover:underline"
                 >
-                  Nga fletushka {offer.bundle.title}
+                  Nga fletushka {flyer.title}
                 </Link>
               ) : null}
             </div>

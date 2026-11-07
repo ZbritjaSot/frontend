@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { categoryIconIds } from "@/lib/categoryIcons";
 
+const categorySlugPattern = /^[a-z0-9_-]+$/;
+
 export const categoryFormSchema = z.object({
   name: z
     .string()
@@ -10,7 +12,10 @@ export const categoryFormSchema = z.object({
   slug: z
     .string()
     .trim()
-    .max(255, "Slug është shumë i gjatë.")
+    .max(80, "Slug është shumë i gjatë.")
+    .refine((value) => value === "" || categorySlugPattern.test(value), {
+      message: "Përdor vetëm shkronja të vogla, numra, viza dhe nënviza.",
+    })
     .optional()
     .or(z.literal("")),
   icon: z.enum(categoryIconIds).nullable(),

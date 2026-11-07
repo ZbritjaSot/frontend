@@ -27,7 +27,7 @@ const buttonVariant: Record<ButtonVariant, string> = {
   danger: "border-transparent bg-danger text-white hover:brightness-90 dark:text-charcoal",
 };
 
-/** Layout and size only, no colour — only for fixed-colour surfaces (the ConfirmModal danger shell). Caller supplies border/background/text colours. */
+/** Layout and size only, no colour. `button()` adds the variant colours. */
 export function buttonFrame({ size = "md", shape = "rounded" }: { size?: ButtonSize; shape?: ControlShape } = {}) {
   return `${buttonBase} ${buttonSize[shape][size]}`;
 }

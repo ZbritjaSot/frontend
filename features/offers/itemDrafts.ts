@@ -1,3 +1,4 @@
+import { inferPricingMode, type PricingMode } from "@/lib/discount";
 import type { OfferItem } from "@/types";
 
 /** One product row while the offer form is open. */
@@ -7,10 +8,13 @@ export type ItemDraft = {
   id?: string;
   category_ids: string[];
   name: string;
-  /** Integer cents (POS). */
+  /** Which fields below are live. Only the active mode's fields are sent to the API. */
+  mode: PricingMode;
+  /** Integer cents (POS). Price mode only. */
   original_price: number;
-  /** Integer cents (POS). */
+  /** Integer cents (POS). Price mode only. */
   discounted_price: number;
+  /** Percent mode only. */
   discount_percent: string;
   /** Optional external retailer purchase link. */
   purchase_url: string;
@@ -24,6 +28,7 @@ export function emptyItem(key: string): ItemDraft {
     key,
     category_ids: [],
     name: "",
+    mode: "price",
     original_price: 0,
     discounted_price: 0,
     discount_percent: "",
@@ -41,6 +46,7 @@ export function itemDraftsFromOffer(items: OfferItem[]): ItemDraft[] {
     id: item.id,
     category_ids: item.categories?.map((category) => category.id) ?? [],
     name: item.name,
+    mode: inferPricingMode(item),
     original_price: item.original_price ?? 0,
     discounted_price: item.discounted_price ?? 0,
     discount_percent:
@@ -52,11 +58,17 @@ export function itemDraftsFromOffer(items: OfferItem[]): ItemDraft[] {
   }));
 }
 
-/** Editable row → form payload item. `id` is sent only for products that already exist. */
+/**
+ * Editable row → form payload item. `id` is sent only for products that already
+ * exist. Only the active mode's fields are sent — the other mode's leftover
+ * field state (e.g. a percent typed before switching to price mode) is always
+ * nulled out, so the two modes can never both reach the API at once.
+ */
 export function itemDraftToPayload({
   id,
   category_ids,
   name,
+  mode,
   original_price,
   discounted_price,
   discount_percent,
@@ -67,10 +79,12 @@ export function itemDraftToPayload({
     ...(id ? { id } : {}),
     category_ids,
     name,
-    original_price: original_price > 0 ? original_price : null,
-    discounted_price: discounted_price > 0 ? discounted_price : null,
+    original_price: mode === "price" && original_price > 0 ? original_price : null,
+    discounted_price: mode === "price" && discounted_price > 0 ? discounted_price : null,
     discount_percent:
-      discount_percent.trim() === "" ? null : Number(discount_percent),
+      mode === "percent" && discount_percent.trim() !== ""
+        ? Number(discount_percent)
+        : null,
     purchase_url: purchase_url.trim() === "" ? null : purchase_url.trim(),
     gallery_image_id,
   };

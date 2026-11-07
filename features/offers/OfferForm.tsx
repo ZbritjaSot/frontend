@@ -3,14 +3,7 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useQuery } from "@tanstack/react-query";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ClipboardEvent,
-  type KeyboardEvent,
-} from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchAdminCompanyShops,
   fetchBizCompanyShops,
@@ -21,7 +14,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Modal } from "@/components/ui/Modal";
-import { PosMoneyField } from "@/components/ui/PosMoneyField";
 import { SelectField } from "@/components/ui/SelectField";
 import { useToast } from "@/components/ui/Toast";
 import { useCreateAdminOffer, useUpdateAdminOffer } from "@/hooks/useAdminOffers";
@@ -39,10 +31,13 @@ import {
   OFFER_START_LEAD_HOURS,
   toHourLocalValue,
 } from "@/lib/datetime";
+import { computeDiscountPercent } from "@/lib/discount";
 import { formatDateShortSq, formatEurFromCents } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
 import { button, fieldError, input } from "@/lib/ui";
 import type { BundleCatalog } from "@/features/offers/bizApi";
+import { CategoryChips } from "@/features/offers/CategoryChips";
+import { DiscountModeFields } from "@/features/offers/DiscountModeFields";
 import {
   emptyItem,
   itemDraftsFromOffer,
@@ -69,46 +64,6 @@ type OfferFormProps = {
   /** Where create/cancel returns. Defaults to the audience list or dossier. */
   doneHref?: string;
 };
-
-/** Keep % as integer digits only, clamped to 1–99 while typing. */
-function sanitizeDiscountPercentInput(raw: string): string {
-  const digits = raw.replace(/\D/g, "");
-  if (!digits) {
-    return "";
-  }
-  const n = Math.min(99, Number(digits));
-  if (!Number.isFinite(n) || n < 1) {
-    return digits.length > 0 && Number(digits) === 0 ? "0" : "";
-  }
-  return String(n);
-}
-
-function isDigitKey(key: string): boolean {
-  return key >= "0" && key <= "9";
-}
-
-function onPercentKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-  if (event.metaKey || event.ctrlKey || event.altKey) {
-    return;
-  }
-  if (isDigitKey(event.key) || event.key === "Backspace" || event.key === "Delete") {
-    return;
-  }
-  const allowed = [
-    "Tab",
-    "Escape",
-    "Enter",
-    "ArrowLeft",
-    "ArrowRight",
-    "ArrowUp",
-    "ArrowDown",
-    "Home",
-    "End",
-  ];
-  if (!allowed.includes(event.key)) {
-    event.preventDefault();
-  }
-}
 
 export function OfferForm({
   mode,
@@ -321,7 +276,7 @@ export function OfferForm({
   }
 
   function onPercentChange(key: string, value: string) {
-    patchItem(key, { discount_percent: sanitizeDiscountPercentInput(value) });
+    patchItem(key, { discount_percent: value });
   }
 
   function onDiscountedChange(key: string, cents: number) {
@@ -653,15 +608,6 @@ export function OfferForm({
 
         <div className="grid gap-3">
           {items.map((item, index) => {
-            const percent = Number(item.discount_percent);
-            const hasDeal =
-              item.original_price > 0 &&
-              item.discounted_price > 0 &&
-              item.discounted_price < item.original_price &&
-              Number.isFinite(percent) &&
-              percent >= 1 &&
-              percent <= 99;
-
             return (
               <div
                 key={item.key}
@@ -758,96 +704,33 @@ export function OfferForm({
                         </button>
                       ) : null}
                     </div>
-                    {item.category_ids.length > 0 ? (
-                      <div className="flex flex-wrap gap-1.5">
-                        {item.category_ids.map((id) => (
-                          <button
-                            key={id}
-                            type="button"
-                            className="inline-flex items-center gap-1 rounded-full border border-line bg-elevated px-2.5 py-1 text-sm font-semibold text-ink"
-                            disabled={pending}
-                            onClick={() =>
-                              patchItem(item.key, {
-                                category_ids: item.category_ids.filter(
-                                  (current) => current !== id,
-                                ),
-                              })
-                            }
-                          >
-                            {categoryOptions.find((option) => option.value === id)
-                              ?.label ?? "Kategori"}
-                            <span aria-hidden>×</span>
-                            <span className="sr-only">Hiq kategorinë</span>
-                          </button>
-                        ))}
-                      </div>
-                    ) : null}
+                    <CategoryChips
+                      categoryIds={item.category_ids}
+                      labelFor={(id) =>
+                        categoryOptions.find((option) => option.value === id)?.label ?? "Kategori"
+                      }
+                      onReorder={(category_ids) => patchItem(item.key, { category_ids })}
+                      onRemove={(id) =>
+                        patchItem(item.key, {
+                          category_ids: item.category_ids.filter((current) => current !== id),
+                        })
+                      }
+                      disabled={pending}
+                      idPrefix={String(index + 1)}
+                    />
 
-                    <div className="grid items-end gap-3 sm:grid-cols-3">
-                      <label className="flex min-w-0 flex-col gap-1.5">
-                        <span className={micro}>Çmimi i vjetër</span>
-                        <PosMoneyField
-                          valueCents={item.original_price}
-                          onChangeCents={(cents) =>
-                            onOriginalChange(item.key, cents)
-                          }
-                          disabled={pending}
-                          aria-label={`Çmimi origjinal i produktit ${index + 1}`}
-                        />
-                      </label>
-                      <label className="flex min-w-0 flex-col gap-1.5">
-                        <span className={micro}>Zbritja %</span>
-                        <div className="relative">
-                          <input
-                            className={`${input()} pr-8 text-right tabular-nums`}
-                            type="text"
-                            inputMode="numeric"
-                            autoComplete="off"
-                            spellCheck={false}
-                            pattern="[0-9]*"
-                            maxLength={2}
-                            value={item.discount_percent}
-                            onKeyDown={onPercentKeyDown}
-                            onPaste={(
-                              event: ClipboardEvent<HTMLInputElement>,
-                            ) => {
-                              event.preventDefault();
-                              onPercentChange(
-                                item.key,
-                                event.clipboardData.getData("text"),
-                              );
-                            }}
-                            onChange={(e) =>
-                              onPercentChange(item.key, e.target.value)
-                            }
-                            disabled={pending}
-                            placeholder="0"
-                            aria-label={`Zbritja në përqindje e produktit ${index + 1}`}
-                          />
-                          <span aria-hidden="true" className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm font-bold text-muted">
-                            %
-                          </span>
-                        </div>
-                      </label>
-                      <label className="flex min-w-0 flex-col gap-1.5">
-                        <span className={micro}>Çmimi i ri</span>
-                        <div className={hasDeal ? "[&_input]:text-accent-fg!" : ""}>
-                          <PosMoneyField
-                            valueCents={item.discounted_price}
-                            onChangeCents={(cents) =>
-                              onDiscountedChange(item.key, cents)
-                            }
-                            disabled={pending}
-                            aria-label={`Çmimi me zbritje i produktit ${index + 1}`}
-                          />
-                        </div>
-                      </label>
-                    </div>
-                    {hasDeal ? (
-                      <p className="m-0 text-sm font-semibold text-accent-fg">
-                        {formatEurFromCents(item.original_price)} − {percent}% = {formatEurFromCents(item.discounted_price)}
-                      </p>
-                    ) : null}
+                    <DiscountModeFields
+                      mode={item.mode}
+                      originalPriceCents={item.original_price}
+                      discountedPriceCents={item.discounted_price}
+                      percentInput={item.discount_percent}
+                      onModeChange={(mode) => patchItem(item.key, { mode })}
+                      onOriginalChange={(cents) => onOriginalChange(item.key, cents)}
+                      onDiscountedChange={(cents) => onDiscountedChange(item.key, cents)}
+                      onPercentChange={(value) => onPercentChange(item.key, value)}
+                      disabled={pending}
+                      idPrefix={String(index + 1)}
+                    />
                     <label className="flex min-w-0 flex-col gap-1.5">
                       <span className={micro}>Linku i blerjes (opsional)</span>
                       <input
@@ -948,22 +831,30 @@ export function OfferForm({
           {locationNames.length > 0 ? ` · ${locationNames.join(", ")}` : ""}
         </p>
         <ul className="m-0 mt-4 list-none p-0">
-          {items.map((item) => (
-            <li key={item.key} className="flex items-center gap-3 border-t border-line py-3">
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-semibold">{item.name || "Pa emër"}</span>
-                <span className="block text-sm text-muted">
-                  {item.discount_percent ? `${item.discount_percent}%` : "Pa përqindje"}
-                  {item.discounted_price > 0 ? ` · ${formatEurFromCents(item.discounted_price)}` : ""}
+          {items.map((item) => {
+            const percent =
+              item.mode === "price"
+                ? computeDiscountPercent(item.original_price, item.discounted_price)
+                : Number(item.discount_percent);
+            return (
+              <li key={item.key} className="flex items-center gap-3 border-t border-line py-3">
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-semibold">{item.name || "Pa emër"}</span>
+                  <span className="block text-sm text-muted">
+                    {Number.isFinite(percent) && percent > 0 ? `${percent}%` : "Pa përqindje"}
+                    {item.mode === "price" && item.discounted_price > 0
+                      ? ` · ${formatEurFromCents(item.discounted_price)}`
+                      : ""}
+                  </span>
                 </span>
-              </span>
-              {item.original_price > 0 ? (
-                <span className="text-sm text-muted line-through tabular-nums">
-                  {formatEurFromCents(item.original_price)}
-                </span>
-              ) : null}
-            </li>
-          ))}
+                {item.mode === "price" && item.original_price > 0 ? (
+                  <span className="text-sm text-muted line-through tabular-nums">
+                    {formatEurFromCents(item.original_price)}
+                  </span>
+                ) : null}
+              </li>
+            );
+          })}
         </ul>
       </Modal>
     </form>

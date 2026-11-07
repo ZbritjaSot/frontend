@@ -25,11 +25,20 @@ function galleryQueryString(params?: GalleryQuery): string {
   return query ? `?${query}` : "";
 }
 
-function imageBody(file: File, title?: string | null): FormData {
+type UploadOptions = { clientToken?: string; signal?: AbortSignal };
+
+function imageBody(
+  file: File,
+  title?: string | null,
+  clientToken?: string,
+): FormData {
   const body = new FormData();
   body.set("image", file);
   if (title?.trim()) {
     body.set("title", title.trim());
+  }
+  if (clientToken) {
+    body.set("client_token", clientToken);
   }
   return body;
 }
@@ -55,11 +64,13 @@ export async function fetchBizPlatformGallery(
 export async function uploadBizGallery(
   file: File,
   title?: string | null,
+  options?: UploadOptions,
 ): Promise<OfferImage> {
   const payload = await apiFetch<ImagePayload>("/biz/gallery", {
     method: "POST",
     auth: true,
-    body: imageBody(file, title),
+    body: imageBody(file, title, options?.clientToken),
+    signal: options?.signal,
   });
   return payload.data;
 }
@@ -94,13 +105,15 @@ export async function uploadAdminGallery(
   businessId: string,
   file: File,
   title?: string | null,
+  options?: UploadOptions,
 ): Promise<OfferImage> {
   const payload = await apiFetch<ImagePayload>(
     `/admin/businesses/${businessId}/gallery`,
     {
       method: "POST",
       auth: true,
-      body: imageBody(file, title),
+      body: imageBody(file, title, options?.clientToken),
+      signal: options?.signal,
     },
   );
   return payload.data;
@@ -128,11 +141,13 @@ export async function fetchAdminPlatformGallery(
 export async function uploadAdminPlatformGallery(
   file: File,
   title: string,
+  options?: UploadOptions,
 ): Promise<OfferImage> {
   const payload = await apiFetch<ImagePayload>("/admin/platform-gallery", {
     method: "POST",
     auth: true,
-    body: imageBody(file, title),
+    body: imageBody(file, title, options?.clientToken),
+    signal: options?.signal,
   });
   return payload.data;
 }

@@ -65,7 +65,9 @@ export async function updateCategory(
   }
   if (input.slug !== undefined) {
     const slug = input.slug.trim();
-    body.slug = slug || null;
+    if (slug) {
+      body.slug = slug;
+    }
   }
   if (input.sort_order !== undefined) {
     body.sort_order = input.sort_order;
