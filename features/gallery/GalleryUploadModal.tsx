@@ -1,7 +1,7 @@
 "use client";
 
 import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { titleFromFilename } from "@/features/gallery/titleFromFilename";
 import { useLeaveGuard } from "@/hooks/useLeaveGuard";
@@ -34,7 +34,8 @@ type GalleryUploadModalProps = {
   title?: string;
   busy?: boolean;
   error?: string | null;
-  progress?: { done: number; total: number } | null;
+  /** Once uploading has started, swap the picker for a per-file status view. */
+  statusView?: ReactNode;
   onClose: () => void;
   onSubmit: (photos: PendingGalleryPhoto[]) => void;
 };
@@ -44,7 +45,7 @@ export function GalleryUploadModal({
   title = "Shto foto",
   busy = false,
   error = null,
-  progress = null,
+  statusView = null,
   onClose,
   onSubmit,
 }: GalleryUploadModalProps) {
@@ -58,13 +59,29 @@ export function GalleryUploadModal({
   return (
     <Modal open={open} title={title} size="md" onClose={close}>
       {open ? (
-        <GalleryUploadForm
-          busy={busy}
-          error={error}
-          progress={progress}
-          onClose={close}
-          onSubmit={onSubmit}
-        />
+        statusView ? (
+          <div className="grid gap-3">
+            {statusView}
+            <div className="mt-1 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className={button({ variant: "secondary" })}
+                disabled={busy}
+                aria-busy={busy}
+                onClick={close}
+              >
+                Mbyll
+              </button>
+            </div>
+          </div>
+        ) : (
+          <GalleryUploadForm
+            busy={busy}
+            error={error}
+            onClose={close}
+            onSubmit={onSubmit}
+          />
+        )
       ) : null}
     </Modal>
   );
@@ -73,13 +90,11 @@ export function GalleryUploadModal({
 function GalleryUploadForm({
   busy,
   error,
-  progress,
   onClose,
   onSubmit,
 }: {
   busy: boolean;
   error: string | null;
-  progress: { done: number; total: number } | null;
   onClose: () => void;
   onSubmit: (photos: PendingGalleryPhoto[]) => void;
 }) {
@@ -210,11 +225,7 @@ function GalleryUploadForm({
           aria-busy={busy}
           className={button({ size: "sm" })}
         >
-          {busy
-            ? progress && progress.total > 1
-              ? `Duke ngarkuar ${progress.done}/${progress.total}…`
-              : "Duke ruajtur…"
-            : "Ruaj"}
+          {busy ? "Duke ruajtur…" : "Ruaj"}
         </button>
         <button
           type="button"

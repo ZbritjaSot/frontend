@@ -18,7 +18,9 @@ import {
   updateAdminPlatformGallery,
   uploadAdminPlatformGallery,
 } from "@/features/gallery/api";
+import { BulkUploadStatus } from "@/features/gallery/BulkUploadStatus";
 import { titleFromFilename } from "@/features/gallery/titleFromFilename";
+import { useBulkUpload } from "@/features/gallery/useBulkUpload";
 import { useLeaveGuard } from "@/hooks/useLeaveGuard";
 import { validationMessage } from "@/lib/api";
 import {
@@ -60,12 +62,12 @@ export function AdminPlatformGallery() {
   const [editor, setEditor] = useState<"new" | OfferImage | null>(null);
   const [title, setTitle] = useState("");
   const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<{
-    done: number;
-    total: number;
-  } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<OfferImage | null>(null);
-  useLeaveGuard(busy);
+  const upload = useBulkUpload(
+    uploadAdminPlatformGallery,
+    (caught) => validationMessage(caught, "Nuk mundëm ta ruajmë foton."),
+  );
+  useLeaveGuard(busy || upload.busy);
 
   function applySearch(event: FormEvent) {
     event.preventDefault();
@@ -113,7 +115,7 @@ export function AdminPlatformGallery() {
     setEditor("new");
     setTitle("");
     setPhotos([]);
-    setUploadProgress(null);
+    upload.reset();
     setFormError(null);
   }
 
@@ -121,14 +123,14 @@ export function AdminPlatformGallery() {
     setEditor(image);
     setTitle(image.title ?? "");
     setPhotos([]);
-    setUploadProgress(null);
+    upload.reset();
     setFormError(null);
   }
 
   function closeEditor() {
     setEditor(null);
     setPhotos([]);
-    setUploadProgress(null);
+    upload.reset();
     setFormError(null);
   }
 
@@ -148,29 +150,12 @@ export function AdminPlatformGallery() {
         setFormError(`Skedari “${untitled.file.name}” nuk ka titull të vlefshëm.`);
         return;
       }
-      setBusy(true);
-      setUploadProgress({ done: 0, total: pendingPhotos.length });
-      try {
-        for (let index = 0; index < pendingPhotos.length; index += 1) {
-          const photo = pendingPhotos[index];
-          if (!photo) {
-            continue;
-          }
-          await uploadAdminPlatformGallery(photo.file, photo.title.trim());
-          setUploadProgress({ done: index + 1, total: pendingPhotos.length });
-        }
-        await queryClient.invalidateQueries({
-          queryKey: adminPlatformGalleryQueryKey,
-        });
+      const result = await upload.start(pendingPhotos);
+      await queryClient.invalidateQueries({
+        queryKey: adminPlatformGalleryQueryKey,
+      });
+      if (result.failed === 0) {
         closeEditor();
-      } catch (caught) {
-        setFormError(validationMessage(caught, "Nuk mundëm ta ruajmë foton."));
-        await queryClient.invalidateQueries({
-          queryKey: adminPlatformGalleryQueryKey,
-        });
-      } finally {
-        setBusy(false);
-        setUploadProgress(null);
       }
       return;
     }
@@ -341,7 +326,24 @@ export function AdminPlatformGallery() {
             </p>
           ) : null}
 
-          {editor === "new" ? (
+          {editor === "new" && upload.items.length > 0 ? (
+            <BulkUploadStatus
+              items={upload.items}
+              summary={upload.summary}
+              busy={upload.busy}
+              onRetry={() => {
+                void (async () => {
+                  const result = await upload.retryFailed();
+                  await queryClient.invalidateQueries({
+                    queryKey: adminPlatformGalleryQueryKey,
+                  });
+                  if (result.failed === 0) {
+                    closeEditor();
+                  }
+                })();
+              }}
+            />
+          ) : editor === "new" ? (
             <div className="grid min-w-0 gap-2">
               <button
                 type="button"
@@ -404,7 +406,7 @@ export function AdminPlatformGallery() {
                         value={photo.title}
                         maxLength={160}
                         required
-                        disabled={busy}
+                        disabled={upload.busy}
                         aria-label={`Titulli i fotos ${index + 1}`}
                         onChange={(event) => {
                           const value = event.target.value;
@@ -447,28 +449,37 @@ export function AdminPlatformGallery() {
             </>
           ) : null}
 
-          <div className="mt-1 flex flex-wrap gap-2">
-            <button
-              type="submit"
-              disabled={busy}
-              aria-busy={busy}
-              className={button({ size: "sm" })}
-            >
-              {busy
-                ? uploadProgress && uploadProgress.total > 1
-                  ? `Duke ngarkuar ${uploadProgress.done}/${uploadProgress.total}…`
-                  : "Duke ruajtur…"
-                : "Ruaj"}
-            </button>
-            <button
-              type="button"
-              className={button({ variant: "secondary" })}
-              disabled={busy}
-              onClick={closeEditor}
-            >
-              Anulo
-            </button>
-          </div>
+          {editor === "new" && upload.items.length > 0 ? (
+            <div className="mt-1 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className={button({ variant: "secondary" })}
+                disabled={upload.busy}
+                onClick={closeEditor}
+              >
+                Mbyll
+              </button>
+            </div>
+          ) : (
+            <div className="mt-1 flex flex-wrap gap-2">
+              <button
+                type="submit"
+                disabled={busy || upload.busy}
+                aria-busy={busy || upload.busy}
+                className={button({ size: "sm" })}
+              >
+                {busy || upload.busy ? "Duke ruajtur…" : "Ruaj"}
+              </button>
+              <button
+                type="button"
+                className={button({ variant: "secondary" })}
+                disabled={busy || upload.busy}
+                onClick={closeEditor}
+              >
+                Anulo
+              </button>
+            </div>
+          )}
         </form>
       </Modal>
 

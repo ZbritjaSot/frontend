@@ -12,7 +12,9 @@ import {
   fetchAdminGallery,
   uploadAdminGallery,
 } from "@/features/gallery/api";
+import { BulkUploadStatus } from "@/features/gallery/BulkUploadStatus";
 import { titleFromFilename } from "@/features/gallery/titleFromFilename";
+import { useBulkUpload } from "@/features/gallery/useBulkUpload";
 import { useLeaveGuard } from "@/hooks/useLeaveGuard";
 import { validationMessage } from "@/lib/api";
 import { fieldError, input } from "@/lib/ui";
@@ -37,7 +39,11 @@ export function AdminGallery({ businessId }: { businessId: string }) {
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState<(typeof GALLERY_PAGE_SIZES)[number]>(25);
-  useLeaveGuard(busy);
+  const upload = useBulkUpload(
+    (file, title, options) => uploadAdminGallery(businessId, file, title, options),
+    (caught) => validationMessage(caught, "Fotoja nuk u ngarkua."),
+  );
+  useLeaveGuard(busy || upload.busy);
 
   function applySearch(event: FormEvent) {
     event.preventDefault();
@@ -118,10 +124,13 @@ export function AdminGallery({ businessId }: { businessId: string }) {
           <li>
             <button
               type="button"
-              disabled={busy}
+              disabled={busy || upload.busy}
               aria-label="Shto foto"
               className="grid aspect-square w-full place-items-center rounded-lg border border-dashed border-line bg-sunken text-muted disabled:opacity-60"
-              onClick={() => inputRef.current?.click()}
+              onClick={() => {
+                upload.reset();
+                inputRef.current?.click();
+              }}
             >
               <AddOutlinedIcon fontSize="small" />
             </button>
@@ -144,7 +153,7 @@ export function AdminGallery({ businessId }: { businessId: string }) {
               </p>
               <button
                 type="button"
-                disabled={busy}
+                disabled={busy || upload.busy}
                 aria-label="Hiq foton"
                 className="absolute -top-1.5 -right-1.5 grid size-6 place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated"
                 onClick={async () => {
@@ -180,13 +189,26 @@ export function AdminGallery({ businessId }: { businessId: string }) {
           }}
         />
       ) : null}
+      {upload.items.length > 0 ? (
+        <BulkUploadStatus
+          items={upload.items}
+          summary={upload.summary}
+          busy={upload.busy}
+          onRetry={() => {
+            void (async () => {
+              await upload.retryFailed();
+              await refresh();
+            })();
+          }}
+        />
+      ) : null}
       <input
         ref={inputRef}
         className="sr-only"
         type="file"
         accept="image/jpeg,image/png,image/webp"
         multiple
-        onChange={async (event) => {
+        onChange={(event) => {
           const files = Array.from(event.target.files ?? []);
           event.target.value = "";
           if (files.length === 0) {
@@ -200,22 +222,15 @@ export function AdminGallery({ businessId }: { businessId: string }) {
             return;
           }
           setError(null);
-          setBusy(true);
-          try {
-            for (const file of files) {
-              await uploadAdminGallery(
-                businessId,
+          void (async () => {
+            await upload.start(
+              files.map((file) => ({
                 file,
-                titleFromFilename(file.name),
-              );
-            }
+                title: titleFromFilename(file.name),
+              })),
+            );
             await refresh();
-          } catch (caught) {
-            setError(validationMessage(caught, "Fotoja nuk u ngarkua."));
-            await refresh();
-          } finally {
-            setBusy(false);
-          }
+          })();
         }}
       />
     </div>

@@ -10,11 +10,13 @@ import {
   fetchBizGallery,
   uploadBizGallery,
 } from "@/features/gallery/api";
+import { BulkUploadStatus } from "@/features/gallery/BulkUploadStatus";
 import {
   GalleryUploadModal,
   type PendingGalleryPhoto,
 } from "@/features/gallery/GalleryUploadModal";
 import { bizGalleryQueryKey } from "@/features/gallery/ItemPhoto";
+import { useBulkUpload } from "@/features/gallery/useBulkUpload";
 import { validationMessage } from "@/lib/api";
 import { fieldError, input } from "@/lib/ui";
 
@@ -26,17 +28,15 @@ function galleryKey(q = "", page = 1, perPage: number = 25) {
 
 export function BizGallery() {
   const queryClient = useQueryClient();
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
   const [uploaderOpen, setUploaderOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState<(typeof GALLERY_PAGE_SIZES)[number]>(25);
-  const [uploadProgress, setUploadProgress] = useState<{
-    done: number;
-    total: number;
-  } | null>(null);
+  const upload = useBulkUpload(
+    uploadBizGallery,
+    (caught) => validationMessage(caught, "Fotoja nuk u ngarkua."),
+  );
 
   function applySearch(event: FormEvent) {
     event.preventDefault();
@@ -72,11 +72,6 @@ export function BizGallery() {
 
   return (
     <div className="relative grid gap-2">
-      {error && !uploaderOpen ? (
-        <p className={fieldError} role="alert">
-          {error}
-        </p>
-      ) : null}
       {gallery.isError ? (
         <p className={fieldError} role="alert">
           {validationMessage(gallery.error, "Galeria nuk u ngarkua.")}
@@ -113,11 +108,11 @@ export function BizGallery() {
           <li>
             <button
               type="button"
-              disabled={busy}
+              disabled={upload.busy}
               aria-label="Shto foto"
               className="grid aspect-square w-full place-items-center rounded-lg border border-dashed border-line bg-sunken text-muted disabled:opacity-60"
               onClick={() => {
-                setError(null);
+                upload.reset();
                 setUploaderOpen(true);
               }}
             >
@@ -160,38 +155,37 @@ export function BizGallery() {
       ) : null}
       <GalleryUploadModal
         open={uploaderOpen}
-        busy={busy}
-        error={error}
-        progress={uploadProgress}
+        busy={upload.busy}
+        statusView={
+          upload.items.length > 0 ? (
+            <BulkUploadStatus
+              items={upload.items}
+              summary={upload.summary}
+              busy={upload.busy}
+              onRetry={() => {
+                void (async () => {
+                  const result = await upload.retryFailed();
+                  setPage(1);
+                  await refresh();
+                  if (result.failed === 0) {
+                    setUploaderOpen(false);
+                  }
+                })();
+              }}
+            />
+          ) : null
+        }
         onClose={() => {
           setUploaderOpen(false);
-          setError(null);
-          setUploadProgress(null);
+          upload.reset();
         }}
         onSubmit={(photos: PendingGalleryPhoto[]) => {
           void (async () => {
-            setError(null);
-            setBusy(true);
-            setUploadProgress({ done: 0, total: photos.length });
-            try {
-              for (let index = 0; index < photos.length; index += 1) {
-                const photo = photos[index];
-                if (!photo) {
-                  continue;
-                }
-                await uploadBizGallery(photo.file, photo.title.trim());
-                setUploadProgress({ done: index + 1, total: photos.length });
-              }
-              setPage(1);
-              await refresh();
+            const result = await upload.start(photos);
+            setPage(1);
+            await refresh();
+            if (result.failed === 0) {
               setUploaderOpen(false);
-              setError(null);
-            } catch (caught) {
-              setError(validationMessage(caught, "Fotoja nuk u ngarkua."));
-              await refresh();
-            } finally {
-              setBusy(false);
-              setUploadProgress(null);
             }
           })();
         }}
