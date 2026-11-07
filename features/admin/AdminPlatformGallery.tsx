@@ -128,6 +128,9 @@ export function AdminPlatformGallery() {
   }
 
   function closeEditor() {
+    if (upload.busy) {
+      return;
+    }
     setEditor(null);
     setPhotos([]);
     upload.reset();
