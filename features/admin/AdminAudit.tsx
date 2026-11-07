@@ -36,6 +36,7 @@ const actionCopy: Record<AuditAction, string> = {
   manager_removed: "Hoqi menaxherin",
   newsletter_sent: "Dërgoi buletinin",
   home_hero_ordered: "Renditi pjesën e parë",
+  home_spotlight_ordered: "Renditi Zbritjet e forta",
   home_shops_ordered: "Renditi dyqanet",
   home_flyers_ordered: "Renditi fletushkat",
   home_recommended_ordered: "Renditi të rekomanduarat",

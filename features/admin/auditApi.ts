@@ -23,6 +23,7 @@ export type AuditAction =
   | "manager_removed"
   | "newsletter_sent"
   | "home_hero_ordered"
+  | "home_spotlight_ordered"
   | "home_shops_ordered"
   | "home_flyers_ordered"
   | "home_recommended_ordered"
