@@ -10,7 +10,7 @@ import { ProductList } from "@/features/public/ProductPoster";
 import { DiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { fetchPublicFolder, isNotFound } from "@/features/offers/api";
-import { formatDateSq, formatDiscountPercent, formatEurFromCents } from "@/lib/format";
+import { formatDateSq, formatEurFromCents } from "@/lib/format";
 import { publicPageMetadata } from "@/lib/metadata";
 import { SITE_NAME } from "@/lib/site";
 import type { PublicFolder } from "@/types";
@@ -138,18 +138,11 @@ export default async function FolderPage({ params }: FolderPageProps) {
                 <span className="mt-3 line-clamp-2 block font-extrabold tracking-tight text-ivory">
                   {lead.name}
                 </span>
-                <span className="mt-1 flex min-w-0 items-baseline gap-3">
-                  {lead.discounted_price != null ? (
-                    <span className="text-lg font-extrabold text-accent tabular-nums">
-                      {formatEurFromCents(lead.discounted_price)}
-                    </span>
-                  ) : null}
-                  {lead.discount_percent != null && lead.discount_percent > 0 ? (
-                    <span className="text-sm font-bold">
-                      {formatDiscountPercent(lead.discount_percent)}
-                    </span>
-                  ) : null}
-                </span>
+                {lead.discounted_price != null ? (
+                  <span className="mt-1 block text-lg font-extrabold text-accent tabular-nums">
+                    {formatEurFromCents(lead.discounted_price)}
+                  </span>
+                ) : null}
               </Link>
             ) : null}
           </div>
