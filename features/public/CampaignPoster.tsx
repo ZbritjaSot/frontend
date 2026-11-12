@@ -136,7 +136,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="(max-width: 1024px) 100vw, 640px"
           />
-          {percent > 0 ? <DiscountRail percent={percent} size="lg" /> : null}
+          {percent > 0 ? <DiscountRail percent={percent} size="md" /> : null}
           <span className="absolute top-4 right-4 z-20">
             <FavoriteButton
               kind="flyer"
