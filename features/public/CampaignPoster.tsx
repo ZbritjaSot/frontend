@@ -30,9 +30,8 @@ export function CampaignPoster({
   const count = folderCount(folder);
   const percent = lead?.discount_percent ?? folder.lead_discount_percent ?? 0;
   const photo = flyerPhoto(folder);
-  const coverName = folder.image?.thumb_url
-    ? folder.title
-    : (folder.cover?.name ?? lead?.name ?? folder.title);
+  const hasFlyerImage = Boolean(folder.image?.thumb_url);
+  const coverName = hasFlyerImage ? folder.title : (folder.cover?.name ?? lead?.name ?? folder.title);
   const coverUrl = photo.thumbUrl ?? lead?.image?.thumb_url;
   const meta = `${count} ${offerWord(count)} · deri më ${formatDateShortSq(folder.expires_at)}`;
   const heartButton = (
@@ -89,7 +88,7 @@ export function CampaignPoster({
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className="group grid h-full min-h-24 grid-cols-[5.75rem_minmax(0,1fr)] overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 dark:bg-[#1a2420]"
+        className="group grid h-full min-h-24 grid-cols-[10.5rem_minmax(0,1fr)] overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 dark:bg-[#1a2420]"
       >
         <span className="relative h-full min-h-24">
           <ProductVisual
@@ -97,7 +96,7 @@ export function CampaignPoster({
             eager={eager}
             name={coverName}
             imageUrl={coverUrl}
-            sizes="108px"
+            sizes="168px"
           />
           {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
           <span className="absolute top-1 right-1 z-20 scale-90">
@@ -135,7 +134,7 @@ export function CampaignPoster({
           <ProductVisual
             fill
             eager={eager}
-            fit="contain"
+            fit={hasFlyerImage ? "cover" : "contain"}
             name={coverName}
             imageUrl={coverUrl}
             sizes="(max-width: 1024px) 100vw, 640px"
@@ -175,28 +174,30 @@ export function CampaignPoster({
       <div className="relative h-full min-w-0">
         <Link
           href={`/dosje/${folder.id}`}
-          className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420]"
+          className="group grid h-full min-h-32 grid-cols-[9.5rem_minmax(0,1fr)] overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 sm:min-h-40 sm:grid-cols-[15rem_minmax(0,1fr)] dark:border-white/10 dark:bg-[#1a2420]"
         >
-          <span className="relative block aspect-[5/4] overflow-hidden">
+          <span className="relative h-full min-h-32 overflow-hidden sm:min-h-40">
             <ProductVisual
               fill
               name={coverName}
               imageUrl={coverUrl}
               eager={eager}
-              sizes="(max-width: 640px) 100vw, 50vw"
+              sizes="(max-width: 640px) 38vw, 240px"
             />
-            {percent > 0 ? <DiscountRail percent={percent} size="md" /> : null}
+            {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
           </span>
-          <span className="flex flex-1 flex-col p-5">
-            <span className="flex items-center gap-2.5">
+          <span className="flex min-w-0 flex-col justify-center gap-1.5 p-4 sm:p-5">
+            <span className="flex min-w-0 items-center gap-2.5">
               <ShopLogo name={shop} logoUrl={folder.business?.logo_url} size="sm" />
-              <span className="truncate text-sm font-semibold">{shop}</span>
+              <span className="min-w-0 truncate text-sm font-semibold">{shop}</span>
             </span>
-            <span className="mt-3 line-clamp-2 h-12 overflow-hidden text-lg leading-6 font-extrabold tracking-tight">
+            <span className="line-clamp-2 text-base leading-5 font-extrabold tracking-tight sm:text-lg sm:leading-6">
               {folder.title}
             </span>
-            <span className="mt-auto pt-4 text-sm leading-relaxed text-muted">{meta}</span>
-            <span className="mt-3 text-sm font-extrabold tracking-tight">Hap fletushkën</span>
+            <span className="truncate text-xs text-muted sm:text-sm">{meta}</span>
+            <span className="truncate text-xs font-extrabold tracking-tight sm:text-sm">
+              Hap fletushkën
+            </span>
           </span>
         </Link>
         <span className="absolute top-3 right-3 z-20">{heartButton}</span>
