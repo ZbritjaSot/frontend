@@ -295,7 +295,7 @@ export function ItemPhoto({
                 {busy ? "Duke ngarkuar…" : "Ngarko foto"}
               </span>
               <span className="text-xs font-medium text-muted">
-                JPEG, PNG ose WebP — deri në 8MB.
+                Rekomandohet 1200 × 1200 px. JPEG, PNG ose WebP — deri në 8MB.
               </span>
             </button>
           </div>

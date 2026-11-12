@@ -75,6 +75,7 @@ export function ViewOfferScreen({ id, catalog = "flyers" }: ViewOfferScreenProps
 
   const count = bundle.items?.length ?? bundle.items_count ?? 0;
   const cover =
+    bundle.image ??
     bundle.items?.find((item) => item.image?.id === bundle.cover_gallery_image_id)?.image ??
     bundle.items?.find((item) => item.image)?.image ??
     null;

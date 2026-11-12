@@ -304,7 +304,7 @@ export function DashboardShell({
       <main
         id="dash-main"
         tabIndex={-1}
-        className="col-start-1 row-start-2 min-h-0 min-w-0 overflow-y-auto lg:col-start-2 lg:row-start-1"
+        className="relative col-start-1 row-start-2 min-h-0 min-w-0 overflow-y-auto overscroll-y-contain lg:col-start-2 lg:row-start-1"
       >
         <div className="p-5 sm:p-8">{children}</div>
       </main>

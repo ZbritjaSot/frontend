@@ -158,7 +158,7 @@ function GalleryUploadForm({
           </span>
           <span className="text-xs font-medium text-muted">
             {photos.length === 0
-              ? "JPEG, PNG ose WebP. Mund të zgjedhësh disa."
+              ? "Rekomandohet 1200 × 1200 px. JPEG, PNG ose WebP. Mund të zgjedhësh disa."
               : photos.length === 1
                 ? "1 foto e zgjedhur"
                 : `${photos.length} foto të zgjedhura`}

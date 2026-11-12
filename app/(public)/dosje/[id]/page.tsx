@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { leadProduct, offerWord, withCampaign } from "@/features/public/compose";
+import { flyerPhoto } from "@/features/public/flyerPhoto";
 import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
 import { Breadcrumbs, flyerCrumbs } from "@/features/public/Breadcrumbs";
 import { Band, EmptyNote, Frame, SectionHeading } from "@/features/public/Frame";
@@ -27,13 +28,14 @@ export async function generateMetadata({
   try {
     const folder = await fetchPublicFolder(id);
     const shop = folder.business?.name;
+    const photo = flyerPhoto(folder);
     return publicPageMetadata({
       title: shop ? `${folder.title} · ${shop}` : folder.title,
       description: shop
         ? `${folder.title} nga ${shop}. ${SITE_NAME}`
         : `${folder.title}. ${SITE_NAME}`,
       path: `/dosje/${folder.id}`,
-      image: folder.cover?.detail_url ?? folder.cover?.thumb_url,
+      image: photo.detailUrl ?? photo.thumbUrl,
     });
   } catch {
     return { title: "Fletushka", robots: { index: false, follow: false } };
@@ -65,8 +67,11 @@ export default async function FolderPage({ params }: FolderPageProps) {
   const lead =
     folder.items.find((item) => item.id === folder.cover?.id) ??
     leadProduct(folder);
-  const coverName = folder.cover?.name ?? lead?.name ?? folder.title;
-  const coverUrl = folder.cover?.thumb_url ?? lead?.image?.thumb_url;
+  const photo = flyerPhoto(folder);
+  const coverName = folder.image?.thumb_url
+    ? folder.title
+    : (folder.cover?.name ?? lead?.name ?? folder.title);
+  const coverUrl = photo.thumbUrl ?? lead?.image?.thumb_url;
 
   return (
     <article>

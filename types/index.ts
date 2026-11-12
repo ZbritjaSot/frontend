@@ -196,6 +196,11 @@ export type PublicFolder = {
     thumb_url: string;
     detail_url: string;
   } | null;
+  /** Dedicated landscape image. Falls back to `cover` when empty. */
+  image?: {
+    thumb_url: string;
+    detail_url: string;
+  } | null;
   items: PublicOffer[];
   /** Other public branches that carry this flyer. Detail only. */
   also_at?: BusinessSummary[];

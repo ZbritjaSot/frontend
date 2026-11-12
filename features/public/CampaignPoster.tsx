@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { folderCount, leadProduct, offerWord } from "@/features/public/compose";
+import { flyerPhoto } from "@/features/public/flyerPhoto";
 import { Rail } from "@/features/public/Frame";
 import { DiscountRail, MultiDiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
@@ -28,8 +29,11 @@ export function CampaignPoster({
   const lead = leadProduct(folder);
   const count = folderCount(folder);
   const percent = lead?.discount_percent ?? folder.lead_discount_percent ?? 0;
-  const coverName = folder.cover?.name ?? lead?.name ?? folder.title;
-  const coverUrl = folder.cover?.thumb_url ?? lead?.image?.thumb_url;
+  const photo = flyerPhoto(folder);
+  const coverName = folder.image?.thumb_url
+    ? folder.title
+    : (folder.cover?.name ?? lead?.name ?? folder.title);
+  const coverUrl = photo.thumbUrl ?? lead?.image?.thumb_url;
   const meta = `${count} ${offerWord(count)} · deri më ${formatDateShortSq(folder.expires_at)}`;
   const heartButton = (
     <FavoriteButton

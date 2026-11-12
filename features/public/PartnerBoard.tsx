@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { campaignWord, offerWord } from "@/features/public/compose";
+import { flyerPhoto } from "@/features/public/flyerPhoto";
 import { fetchPublicBusinesses, PUBLIC_BUSINESSES_PAGE_SIZE } from "@/features/offers/api";
 import { DiscountRail } from "@/features/public/price";
 import { StepRail, type RailNav } from "@/features/public/StepRail";
@@ -225,7 +226,8 @@ const slideWidth = "block w-[9.5rem] shrink-0 sm:w-[11rem]";
 
 function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
   const percent = flyer.lead_discount_percent ?? 0;
-  const coverName = flyer.cover?.name ?? flyer.title;
+  const photo = flyerPhoto(flyer);
+  const coverName = photo.name;
 
   return (
     <Link
@@ -242,7 +244,7 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
             eager
             wash="plain"
             name={coverName}
-            imageUrl={flyer.cover?.thumb_url}
+            imageUrl={photo.thumbUrl}
             sizes="176px"
           />
           {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
@@ -250,7 +252,7 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
             <FavoriteButton
               kind="flyer"
               id={flyer.id}
-              thumbnailUrl={flyer.cover?.thumb_url}
+              thumbnailUrl={photo.thumbUrl}
               thumbnailName={coverName}
             />
           </span>

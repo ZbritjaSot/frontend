@@ -10,6 +10,8 @@ import {
 } from "@/features/branches/api";
 import { fetchManagerCompanyShops } from "@/features/biz/managerApi";
 import { ItemPhoto } from "@/features/gallery/ItemPhoto";
+import { FlyerImageField } from "@/features/offers/FlyerImageField";
+import { deleteFlyerImage, uploadFlyerImage } from "@/features/offers/flyerImageApi";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { DateTimeField } from "@/components/ui/DateTimeField";
@@ -181,10 +183,22 @@ export function OfferForm({
       offer.items?.find((item) => item.image?.id === imageId)?.id ?? null
     );
   });
+  const [flyerFile, setFlyerFile] = useState<File | null>(null);
+  const [flyerRemoved, setFlyerRemoved] = useState(false);
+  const [flyerPreview, setFlyerPreview] = useState<string | null>(null);
+  const flyerPreviewRef = useRef<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    return () => {
+      if (flyerPreviewRef.current) {
+        URL.revokeObjectURL(flyerPreviewRef.current);
+      }
+    };
+  }, []);
 
   const pending =
-    createMutation.isPending || updateMutation.isPending || submitBiz.isPending;
+    saving || createMutation.isPending || updateMutation.isPending || submitBiz.isPending;
   const sendsForApproval = audience === "biz" || (audience === "manager" && mode === "create");
   const confirmsBeforeSave = sendsForApproval || audience === "admin";
   const primaryLabel =
@@ -324,9 +338,19 @@ export function OfferForm({
       return;
     }
 
+    setSaving(true);
     try {
       if (mode === "create") {
         const created = await createMutation.mutateAsync(parsed.data);
+        try {
+          await persistFlyerImage(created.id);
+        } catch (err) {
+          const message = validationMessage(err, "Imazhi i fletushkës nuk u ngarkua.");
+          setError(message);
+          showToast(message, { tone: "error" });
+          router.replace(editPath(created.id));
+          return;
+        }
         let didSubmit = false;
         if (thenSubmit && audience === "biz") {
           await submitBiz.mutateAsync(created.id);
@@ -343,6 +367,14 @@ export function OfferForm({
         );
       } else if (offer) {
         await updateMutation.mutateAsync(parsed.data);
+        try {
+          await persistFlyerImage(offer.id);
+        } catch (err) {
+          const message = validationMessage(err, "Imazhi i fletushkës nuk u ngarkua.");
+          setError(message);
+          showToast(message, { tone: "error" });
+          return;
+        }
         let didSubmit = false;
         if (thenSubmit && audience === "biz") {
           await submitBiz.mutateAsync(offer.id);
@@ -358,7 +390,53 @@ export function OfferForm({
       if (thenSubmit) {
         setReviewOpen(true);
       }
+    } finally {
+      setSaving(false);
     }
+  }
+
+  function editPath(id: string): string {
+    if (audience === "admin") {
+      return `/admin/offers/${id}/edit`;
+    }
+    if (audience === "manager") {
+      return `/biz/review/${id}/edit`;
+    }
+    return isFlyer ? `/biz/flyers/${id}/edit` : `/biz/offers/${id}/edit`;
+  }
+
+  async function persistFlyerImage(id: string) {
+    if (!isFlyer) {
+      return;
+    }
+    if (flyerFile) {
+      await uploadFlyerImage(audience, id, flyerFile);
+      return;
+    }
+    if (flyerRemoved && offer?.image) {
+      await deleteFlyerImage(audience, id);
+    }
+  }
+
+  function rememberFlyerFile(file: File) {
+    if (flyerPreviewRef.current) {
+      URL.revokeObjectURL(flyerPreviewRef.current);
+    }
+    const url = URL.createObjectURL(file);
+    flyerPreviewRef.current = url;
+    setFlyerPreview(url);
+    setFlyerFile(file);
+    setFlyerRemoved(false);
+  }
+
+  function clearFlyerFile() {
+    if (flyerPreviewRef.current) {
+      URL.revokeObjectURL(flyerPreviewRef.current);
+      flyerPreviewRef.current = null;
+    }
+    setFlyerPreview(null);
+    setFlyerFile(null);
+    setFlyerRemoved(true);
   }
 
   /** Copy mirrors the audit's tone ("U dërgua për aprovim") across every
@@ -475,6 +553,16 @@ export function OfferForm({
             />
           </label>
         </div>
+        {isFlyer ? (
+          <FlyerImageField
+            previewUrl={
+              flyerPreview ?? (flyerRemoved ? null : (offer?.image?.detail_url ?? offer?.image?.thumb_url))
+            }
+            disabled={pending}
+            onPick={rememberFlyerFile}
+            onClear={clearFlyerFile}
+          />
+        ) : null}
       </section>
 
       {allowShare && (companyShops.data?.length ?? 0) > 0 ? (
@@ -540,27 +628,32 @@ export function OfferForm({
       ) : null}
 
       <section>
-        <div className="mb-3 flex items-baseline justify-between gap-3">
-          <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">
-            {isFlyer ? "Produktet" : "Ofertat"}
-          </h2>
-          <p className="m-0 text-sm font-semibold text-muted tabular-nums">
-            {items.length}{" "}
-            {isFlyer
-              ? items.length === 1
-                ? "produkt"
-                : "produkte"
-              : items.length === 1
-                ? "ofertë"
-                : "oferta"}
+        <div className="mb-3">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="m-0 text-xl font-bold tracking-[-0.03em]">
+              {isFlyer ? "Produktet" : "Ofertat"}
+            </h2>
+            <p className="m-0 text-sm font-semibold text-muted tabular-nums">
+              {items.length}{" "}
+              {isFlyer
+                ? items.length === 1
+                  ? "produkt"
+                  : "produkte"
+                : items.length === 1
+                  ? "ofertë"
+                  : "oferta"}
+            </p>
+          </div>
+          <p className="m-0 mt-1 text-sm text-muted">
+            Fotoja e produktit rekomandohet 1200 × 1200 px.
           </p>
         </div>
 
         {isFlyer ? (
           <div className="mb-4 rounded-2xl border border-line p-4">
-            <p className="m-0 text-sm font-semibold">Foto e fletushkës</p>
+            <p className="m-0 text-sm font-semibold">Foto e produktit</p>
             <p className="m-0 mt-1 text-sm text-muted">
-              Opsionale. Zgjidh foton e një produkti. Pa të, fletushka del pa foto.
+              Opsionale. Nëse fletushka nuk ka imazhin e vet, karta përdor foton e një produkti.
             </p>
             {items.some((item) => item.thumb_url) ? (
               <ul className="m-0 mt-3 flex list-none flex-wrap gap-3 p-0">

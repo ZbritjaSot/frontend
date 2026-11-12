@@ -5,6 +5,7 @@ import {
   exclusiveMedia,
   exclusiveShell,
 } from "@/features/public/exclusiveChrome";
+import { flyerPhoto } from "@/features/public/flyerPhoto";
 import { DiscountRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import type { ExclusiveItem } from "@/features/offers/api";
@@ -182,11 +183,12 @@ type CardMeta = {
 function cardMeta(item: ExclusiveItem): CardMeta {
   if (item.kind === "flyer") {
     const folder = item.flyer;
+    const photo = flyerPhoto(folder);
     return {
       href: `/dosje/${folder.id}`,
       title: folder.title,
-      imageName: folder.cover?.name ?? folder.title,
-      thumbUrl: folder.cover?.thumb_url,
+      imageName: photo.name,
+      thumbUrl: photo.thumbUrl,
       shop: folder.business?.name,
       logoUrl: folder.business?.logo_url,
       kindLabel: "Fletushkë",
