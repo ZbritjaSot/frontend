@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { SITE_TAGLINE } from "@/lib/site";
+import { SiteFooter } from "@/features/site/SiteFooter";
+import { SITE_EMAIL, SITE_TAGLINE } from "@/lib/site";
 
 export default function Home() {
   return (
@@ -35,12 +36,35 @@ export default function Home() {
           <p className="coming-soon__copy">
             Zbritjet nga dyqanet lokale në një vend.
           </p>
-          <a className="coming-soon__mail" href="mailto:info@zbritjasot.com">
-            info@zbritjasot.com
+          <a className="coming-soon__mail" href={`mailto:${SITE_EMAIL}`}>
+            {SITE_EMAIL}
           </a>
           <p className="coming-soon__tagline">{SITE_TAGLINE}</p>
         </section>
       </div>
+
+      <section className="coming-soon__about" aria-labelledby="about-heading">
+        <h2 id="about-heading" className="coming-soon__about-title">
+          Çka është ZbritjaSot
+        </h2>
+        <p className="coming-soon__about-copy">
+          ZbritjaSot është platforma që mbledh zbritjet, ofertat dhe
+          fletushkat e dyqaneve lokale në Kosovë në një vend të vetëm — që
+          çdo klient t&rsquo;i gjejë më shpejt, pa i kërkuar nëpër dhjetëra
+          faqe e rrjete sociale.
+        </p>
+        <p className="coming-soon__about-copy">
+          Shikimi i ofertave është pa pagesë dhe nuk kërkon llogari. Ofertat
+          përditësohen nga vetë dyqanet dhe publikohen vetëm pasi
+          miratohen — ZbritjaSot nuk shet produkte dhe nuk merr porosi.
+        </p>
+        <p className="coming-soon__about-copy">
+          ZbritjaSot zhvillohet dhe operohet nga një ekip i vogël, i
+          dedikuar për tregun e Kosovës.
+        </p>
+      </section>
+
+      <SiteFooter />
     </main>
   );
 }
