@@ -59,9 +59,9 @@ export function CampaignPoster({
             sizes="(max-width: 640px) 100vw, 420px"
           />
           {discountSegments && discountSegments.length > 0 ? (
-            <MultiDiscountRail segments={discountSegments} />
+            <MultiDiscountRail segments={discountSegments} size="md" />
           ) : percent > 0 ? (
-            <DiscountRail percent={percent} size="lg" />
+            <DiscountRail percent={percent} size="md" />
           ) : null}
           {heart}
         </span>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPublicFolder } from "@/features/offers/api";
 import { CampaignPoster } from "@/features/public/CampaignPoster";
@@ -27,11 +28,19 @@ export function CampaignSection({
     enabled: Boolean(lead),
   });
 
+  // `discountSegments` now picks randomly (see its own doc comment) —
+  // memoized on the actual fetched folder so the colors don't reshuffle on
+  // every unrelated re-render, only when the data itself changes. Computed
+  // unconditionally (ahead of the `folders.length` early return below) to
+  // keep this hook call order stable across renders.
+  const segments = useMemo(
+    () => (leadFolder ? discountSegments(leadFolder.items) : []),
+    [leadFolder],
+  );
+
   if (folders.length === 0) {
     return null;
   }
-
-  const segments = leadFolder ? discountSegments(leadFolder.items) : [];
 
   return (
     <Frame className="pt-10 pb-12 sm:pt-12 sm:pb-16">
