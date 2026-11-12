@@ -237,6 +237,11 @@ export type OfferBundle = {
   is_standalone?: boolean;
   rejection_reason: string | null;
   cover_gallery_image_id?: string | null;
+  /** Dedicated landscape image. Falls back to a product photo when empty. */
+  image?: {
+    thumb_url: string;
+    detail_url: string;
+  } | null;
   items_count?: number;
   items?: OfferItem[];
   business?: BusinessSummary;
