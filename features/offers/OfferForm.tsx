@@ -1,7 +1,6 @@
 "use client";
 
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import { AddOutlinedIcon, DeleteOutlinedIcon } from "@/components/ui/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {

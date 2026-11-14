@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { browsePath, type CatalogSort, type Katalog } from "@/lib/browse";
 import type { CategorySummary } from "@/types";
+import { NavIcon } from "@/components/chrome/NavIcon";
 
 type FilterChipsProps = {
   basePath: string;
@@ -70,14 +71,7 @@ function FilterChip({ label, href }: { label: string; href: string }) {
       className="inline-flex h-7 max-w-52 shrink-0 items-center gap-1.5 rounded-full border border-line bg-sunken px-3 text-xs font-semibold text-ink no-underline hover:border-slate/45 hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 dark:bg-white/[0.06]"
     >
       <span className="min-w-0 truncate">{label}</span>
-      <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3 shrink-0" fill="none">
-        <path
-          d="M4 4l8 8M12 4l-8 8"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-        />
-      </svg>
+      <NavIcon name="close" className="size-3 shrink-0" />
     </Link>
   );
 }

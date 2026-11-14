@@ -1,7 +1,6 @@
 "use client";
 
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 
 type CategoryChipsProps = {
   /** Category ids in the order the business chose — index 0 is the primary category. */

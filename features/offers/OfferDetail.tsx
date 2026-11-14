@@ -1,4 +1,4 @@
-import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
+import { OpenInNewOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { OfferPlace } from "@/components/place/OfferPlace";

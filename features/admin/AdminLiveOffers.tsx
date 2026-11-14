@@ -1,6 +1,6 @@
 "use client";
 
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { VisibilityOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";

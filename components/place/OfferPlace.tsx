@@ -3,6 +3,7 @@
 import { PlaceMap } from "@/components/place/PlaceMap";
 import { mapsUrl, type MapPlace } from "@/lib/maps";
 import { useWideScreen } from "@/lib/useWideScreen";
+import { NavIcon } from "@/components/chrome/NavIcon";
 
 type OfferPlaceProps = {
   name: string;
@@ -20,11 +21,7 @@ type OfferPlaceProps = {
 };
 
 function PinIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className ?? "size-4 fill-current"}>
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7m0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5" />
-    </svg>
-  );
+  return <NavIcon name="pin" className={className ?? "size-4"} />;
 }
 
 type PlacePinRowProps = {
@@ -82,7 +79,7 @@ export function PlacePinRow({
         className="inline-grid size-8 shrink-0 place-items-center rounded-full bg-accent text-on-accent shadow-[0_1px_2px_rgba(11,15,14,0.12)] transition-transform duration-150 group-hover:scale-105"
         aria-hidden="true"
       >
-        <PinIcon className="size-[14px] fill-current" />
+        <PinIcon className="size-[14px]" />
       </span>
     </a>
   );
@@ -115,7 +112,7 @@ export function OfferPlace({
     >
       {showHeading ? (
         <p className="m-0 flex items-center gap-1 text-kicker text-muted uppercase">
-          <PinIcon className="size-[15px] fill-current" />
+          <PinIcon className="size-[15px]" />
           Ku e gjen
         </p>
       ) : null}

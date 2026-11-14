@@ -1,17 +1,6 @@
 "use client";
 
-import AccountTreeOutlinedIcon from "@mui/icons-material/AccountTreeOutlined";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import CategoryIcon from "@mui/icons-material/Category";
-import CollectionsOutlinedIcon from "@mui/icons-material/CollectionsOutlined";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
-import MailOutlinedIcon from "@mui/icons-material/MailOutlined";
-import PaymentsIcon from "@mui/icons-material/Payments";
-import PendingActionsIcon from "@mui/icons-material/PendingActions";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import StoreIcon from "@mui/icons-material/Store";
+import { AccountTreeOutlinedIcon, AddOutlinedIcon, CategoryIcon, CollectionsOutlinedIcon, DashboardIcon, HistoryOutlinedIcon, HomeOutlinedIcon, MailOutlinedIcon, PaymentsIcon, PendingActionsIcon, PersonOutlinedIcon, StoreIcon } from "@/components/ui/icons";
 import type { ReactNode } from "react";
 import {
   DashboardShell,

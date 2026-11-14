@@ -1,9 +1,6 @@
 "use client";
 
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { DeleteOutlinedIcon, EditOutlinedIcon, SendOutlinedIcon, VisibilityOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";

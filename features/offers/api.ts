@@ -143,7 +143,7 @@ export async function fetchPublicCities(options?: { shops?: boolean }): Promise<
 }
 
 export async function fetchPublicCategories(): Promise<CategorySummary[]> {
-  const payload = await apiFetch<{ data: CategorySummary[] }>("/categories", {
+  const payload = await apiFetch<{ data: CategorySummary[] }>("/categories?has_offers=1", {
     next: { revalidate: 300 },
   });
   return payload.data;

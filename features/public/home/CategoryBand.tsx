@@ -16,7 +16,7 @@ export function CategoryBand({ categories }: { categories: CategorySummary[] }) 
       >
         <CategoryChip
           name="Të gjitha"
-          icon="grid_view"
+          icon="category"
           active
           href={browsePath("/", { katalog: "oferta" })}
         />

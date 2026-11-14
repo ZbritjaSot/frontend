@@ -1,7 +1,6 @@
 "use client";
 
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined";
+import { DeleteOutlinedIcon, PhotoCameraOutlinedIcon } from "@/components/ui/icons";
 import { useRef, useState } from "react";
 import { flyerImageFileError, readImageSize } from "@/features/offers/flyerImageFile";
 import { fieldError } from "@/lib/ui";

@@ -2,12 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
-import MailOutlinedIcon from "@mui/icons-material/MailOutlined";
-import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { ChevronRightIcon, DarkModeIcon, LightModeIcon, LoginOutlinedIcon, MailOutlinedIcon, StorefrontOutlinedIcon } from "@/components/ui/icons";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import { Band } from "@/features/public/Frame";
 import { kicker } from "@/features/public/tone";

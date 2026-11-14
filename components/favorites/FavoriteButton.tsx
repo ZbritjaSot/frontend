@@ -1,10 +1,9 @@
 "use client";
 
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { useRouter } from "next/navigation";
 import type { MouseEvent } from "react";
 import { useToast } from "@/components/ui/Toast";
+import { NavIcon } from "@/components/chrome/NavIcon";
 import { useFavorites } from "@/hooks/useFavorites";
 import type { FavoriteKind } from "@/lib/favorites";
 
@@ -33,7 +32,6 @@ export function FavoriteButton({
   const { isFavorite, toggleFavorite } = useFavorites();
   const active = isFavorite(kind, id);
   const dim = size === "md" ? "size-11" : "size-9";
-  const iconSize = size === "md" ? "medium" : "small";
   const router = useRouter();
   const { showToast } = useToast();
 
@@ -73,11 +71,7 @@ export function FavoriteButton({
         .filter(Boolean)
         .join(" ")}
     >
-      {active ? (
-        <FavoriteIcon fontSize={iconSize} className="text-[#ff6b7a]" />
-      ) : (
-        <FavoriteBorderIcon fontSize={iconSize} />
-      )}
+      <NavIcon name="favorites" filled={active} size={size === "md" ? 22 : 18} />
     </button>
   );
 }

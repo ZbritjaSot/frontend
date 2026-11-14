@@ -1,6 +1,6 @@
 "use client";
 
-import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import { DragIndicatorIcon } from "@/components/ui/icons";
 import { useState, type ReactNode } from "react";
 
 export function DragList<T extends { id: string }>({

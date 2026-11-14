@@ -1,9 +1,6 @@
 "use client";
 
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import { AddOutlinedIcon, CheckOutlinedIcon, DeleteOutlinedIcon, HomeOutlinedIcon } from "@/components/ui/icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";

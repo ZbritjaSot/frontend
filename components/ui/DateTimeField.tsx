@@ -1,8 +1,6 @@
 "use client";
 
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { ChevronLeftIcon, ChevronRightIcon, KeyboardArrowDownIcon } from "@/components/ui/icons";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { SelectField } from "@/components/ui/SelectField";

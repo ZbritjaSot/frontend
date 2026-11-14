@@ -1,8 +1,6 @@
 "use client";
 
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
-import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
+import { ArrowBackIcon, LocalOfferOutlinedIcon, MenuBookOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { pageTitle, panelLead } from "@/lib/ui";
 

@@ -1,12 +1,6 @@
 "use client";
 
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
+import { AddOutlinedIcon, CheckOutlinedIcon, EditOutlinedIcon, ExpandMoreIcon, LockOpenOutlinedIcon, LockOutlinedIcon, StarBorderOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";

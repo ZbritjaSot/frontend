@@ -1,8 +1,6 @@
 "use client";
 
-import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
-import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { HistoryOutlinedIcon, LockOpenOutlinedIcon, LockOutlinedIcon } from "@/components/ui/icons";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";

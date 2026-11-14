@@ -1,18 +1,6 @@
 "use client";
 
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
-import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { AddOutlinedIcon, CheckOutlinedIcon, DeleteOutlinedIcon, DragIndicatorIcon, EditOutlinedIcon, ExpandMoreIcon, HistoryOutlinedIcon, HomeOutlinedIcon, LockOpenOutlinedIcon, LockOutlinedIcon, SendOutlinedIcon, StarBorderOutlinedIcon, VisibilityOutlinedIcon } from "@/components/ui/icons";
 import { offerStatusClass } from "@/lib/ui";
 
 export type IndicatorMark =

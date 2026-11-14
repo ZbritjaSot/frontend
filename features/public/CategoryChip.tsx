@@ -23,7 +23,7 @@ export function CategoryChip({
           active ? "bg-accent text-charcoal" : "text-muted"
         }`}
       >
-        <CategoryGlyph name={icon} active={active} size={24} />
+        <CategoryGlyph name={icon} size={24} />
       </span>
       <span
         className={`line-clamp-2 w-full text-center text-xs leading-tight ${

@@ -8,8 +8,7 @@ import {
   type ReactNode,
   type MouseEvent,
 } from "react";
-import CloseIcon from "@mui/icons-material/Close";
-import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
+import { CloseIcon, WarningAmberOutlinedIcon } from "@/components/ui/icons";
 import { createPortal } from "react-dom";
 
 type ModalProps = {

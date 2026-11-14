@@ -1,6 +1,6 @@
 "use client";
 
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import { DeleteOutlinedIcon } from "@/components/ui/icons";
 import { useEffect, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { adminNewsletterKey, IndicatorKey } from "@/components/ui/IndicatorKey";

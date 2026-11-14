@@ -1,6 +1,6 @@
 "use client";
 
-import AddPhotoAlternateOutlinedIcon from "@mui/icons-material/AddPhotoAlternateOutlined";
+import { AddPhotoAlternateOutlinedIcon } from "@/components/ui/icons";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { titleFromFilename } from "@/features/gallery/titleFromFilename";

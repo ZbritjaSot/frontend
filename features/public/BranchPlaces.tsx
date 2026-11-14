@@ -3,6 +3,7 @@ import { mapsUrl } from "@/lib/maps";
 import { kicker } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
 import type { BusinessSummary } from "@/types";
+import { NavIcon } from "@/components/chrome/NavIcon";
 
 type BranchPlacesProps = {
   places: BusinessSummary[] | undefined;
@@ -14,11 +15,7 @@ type BranchPlacesProps = {
 };
 
 function PinIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className ?? "size-[14px] fill-current"}>
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7m0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5" />
-    </svg>
-  );
+  return <NavIcon name="pin" className={className ?? "size-4"} />;
 }
 
 function placeRole(place: Pick<BusinessSummary, "parent_id">): string {

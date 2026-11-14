@@ -1,7 +1,6 @@
 "use client";
 
-import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
+import { CheckCircleOutlinedIcon, ErrorOutlineOutlinedIcon } from "@/components/ui/icons";
 import { Spinner } from "@/components/ui/Spinner";
 import type { UploadItem, UploadSummary } from "@/features/gallery/useBulkUpload";
 import { button } from "@/lib/ui";

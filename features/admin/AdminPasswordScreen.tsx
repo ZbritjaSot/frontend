@@ -1,6 +1,6 @@
 "use client";
 
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { ArrowBackIcon } from "@/components/ui/icons";
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";

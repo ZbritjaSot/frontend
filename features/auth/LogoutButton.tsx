@@ -1,6 +1,6 @@
 "use client";
 
-import LogoutIcon from "@mui/icons-material/Logout";
+import { LogoutIcon } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { useLogout } from "@/hooks/useAuth";
 import { useState } from "react";

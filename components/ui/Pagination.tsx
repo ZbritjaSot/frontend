@@ -1,7 +1,6 @@
 "use client";
 
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { SelectField } from "@/components/ui/SelectField";
 
 const pageButton =

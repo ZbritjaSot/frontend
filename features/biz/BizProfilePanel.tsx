@@ -1,6 +1,6 @@
 "use client";
 
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import { EditOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/Spinner";

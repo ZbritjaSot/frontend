@@ -1,11 +1,6 @@
 "use client";
 
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import PendingActionsIcon from "@mui/icons-material/PendingActions";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import StoreIcon from "@mui/icons-material/Store";
+import { DashboardIcon, DescriptionOutlinedIcon, LocalOfferIcon, PendingActionsIcon, PersonOutlinedIcon, StoreIcon } from "@/components/ui/icons";
 import type { ReactNode } from "react";
 import {
   DashboardShell,

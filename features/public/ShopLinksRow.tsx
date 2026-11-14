@@ -1,5 +1,6 @@
 import { shopLinks, type ShopLink } from "@/features/business/links";
 import type { PublicBusiness } from "@/types";
+import { NavIcon } from "@/components/chrome/NavIcon";
 
 export function ShopLinksRow({
   business,
@@ -52,9 +53,7 @@ function SocialIcon({ link }: { link: ShopLink }) {
   switch (link.key) {
     case "website":
       return (
-        <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
-          <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm7.4 9h-3.1a15.4 15.4 0 0 0-1.3-5.1A8 8 0 0 1 19.4 11ZM12 4a13.5 13.5 0 0 1 1.7 6H10.3A13.5 13.5 0 0 1 12 4ZM4.6 13h3.1a15.4 15.4 0 0 0 1.3 5.1A8 8 0 0 1 4.6 13Zm3.1-2H4.6a8 8 0 0 1 4.4-5.1A15.4 15.4 0 0 0 7.7 11Zm2.6 2h3.4a13.5 13.5 0 0 1-1.7 6 13.5 13.5 0 0 1-1.7-6Zm4.7 5.1A15.4 15.4 0 0 0 16.3 13h3.1a8 8 0 0 1-4.4 5.1Z" />
-        </svg>
+        <NavIcon name="globe" className={className} />
       );
     case "instagram":
       return (

@@ -1,7 +1,6 @@
 "use client";
 
-import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { CheckOutlinedIcon, VisibilityOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { Fragment, useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";

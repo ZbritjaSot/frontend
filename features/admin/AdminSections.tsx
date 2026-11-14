@@ -1,6 +1,6 @@
 "use client";
 
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { LockOutlinedIcon } from "@/components/ui/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Spinner } from "@/components/ui/Spinner";

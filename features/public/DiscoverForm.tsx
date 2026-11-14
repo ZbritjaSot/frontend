@@ -2,6 +2,7 @@ import { CategoryChip } from "@/features/public/CategoryChip";
 import { browsePath, type CatalogSort, type Katalog } from "@/lib/browse";
 import { button } from "@/lib/ui";
 import type { CategorySummary } from "@/types";
+import { NavIcon } from "@/components/chrome/NavIcon";
 
 type DiscoverFormProps = {
   basePath?: string;
@@ -48,24 +49,14 @@ export function DiscoverForm({
         {sort !== "newest" ? <input type="hidden" name="sort" value={sort} /> : null}
         <label className="relative min-w-0 flex-1">
           <span className="sr-only">Kërko</span>
-          <svg
-            viewBox="0 0 24 24"
-            aria-hidden="true"
+          <NavIcon
+            name="search"
             className={
               catalog
                 ? "pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted"
                 : "pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted"
             }
-            fill="none"
-          >
-            <circle cx="11" cy="11" r="6.25" stroke="currentColor" strokeWidth="2" />
-            <path
-              d="M15.5 15.5 20 20"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
+          />
           <input
             name="q"
             defaultValue={q}
@@ -97,7 +88,7 @@ export function DiscoverForm({
         >
           <CategoryChip
             name="Të gjitha"
-            icon="grid_view"
+            icon="category"
             active={!category}
             href={browsePath(basePath, { q, katalog, city, sort })}
           />

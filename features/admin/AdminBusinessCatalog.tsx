@@ -1,7 +1,6 @@
 "use client";
 
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { EditOutlinedIcon, VisibilityOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { adminBusinessCatalogKey, IndicatorKey } from "@/components/ui/IndicatorKey";

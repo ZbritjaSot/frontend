@@ -1,6 +1,6 @@
 "use client";
 
-import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
+import { SendOutlinedIcon } from "@/components/ui/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";

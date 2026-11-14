@@ -3,11 +3,9 @@
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import { usePathname } from "next/navigation";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
+import { NavIcon } from "@/components/chrome/NavIcon";
 const links = [
   { href: "/oferta", label: "Ofertat", match: "oferta" },
   { href: "/fletushka", label: "Fletushkat", match: "fletushka" },
@@ -116,11 +114,7 @@ export function SiteHeader() {
                 : "hover:bg-white/10"
             }`}
           >
-            {onFavorites ? (
-              <FavoriteIcon fontSize="small" />
-            ) : (
-              <FavoriteBorderIcon fontSize="small" />
-            )}
+            <NavIcon name="favorites" filled={onFavorites} />
           </Link>
           <Link
             href="/cilesimet"
@@ -134,7 +128,7 @@ export function SiteHeader() {
                 : "hover:bg-white/10"
             }`}
           >
-            <SettingsOutlinedIcon fontSize="small" />
+            <NavIcon name="settings" />
           </Link>
         </div>
       </div>

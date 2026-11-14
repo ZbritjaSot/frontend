@@ -183,7 +183,7 @@ describe("ConfirmModal danger", () => {
     expect(dialog.className).not.toContain("#c62828");
     expect(dialog.className).not.toContain("#3a0d0d");
     expect(screen.getByText("Fshi “Bukë”? Nuk kthehet.").className).toContain("text-muted");
-    expect(dialog.querySelector("[data-testid='WarningAmberOutlinedIcon']")).toBeTruthy();
+    expect(dialog.querySelector("[data-icon='warning']")).toBeTruthy();
 
     const confirm = screen.getByRole("button", { name: "Fshi" });
     expect(confirm.className).toContain("bg-danger");

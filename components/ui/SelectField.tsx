@@ -9,7 +9,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { createPortal } from "react-dom";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { KeyboardArrowDownIcon } from "@/components/ui/icons";
 import { ShopLogo } from "@/features/public/visuals";
 import { input, triggerClass } from "@/lib/ui";
 

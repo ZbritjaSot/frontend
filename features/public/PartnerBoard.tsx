@@ -14,6 +14,7 @@ import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { normalizePage, uniqueById } from "@/lib/pages";
 import { useInfiniteSentinel } from "@/lib/useInfiniteSentinel";
 import type { PublicBusiness, PublicFolder, PublicOffer } from "@/types";
+import { NavIcon } from "@/components/chrome/NavIcon";
 
 type RailItem =
   | { kind: "flyer"; flyer: PublicFolder }
@@ -209,15 +210,7 @@ function RailButton({
       onClick={onClick}
       className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-line bg-elevated text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-default disabled:opacity-35 dark:border-white/10 dark:bg-[#1a2420]"
     >
-      <svg viewBox="0 0 20 20" className="size-4" aria-hidden="true" fill="none">
-        <path
-          d={direction === "left" ? "M12.5 4.5 7 10l5.5 5.5" : "M7.5 4.5 13 10l-5.5 5.5"}
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <NavIcon name={direction === "left" ? "chevron-left" : "chevron-right"} className="size-4" />
     </button>
   );
 }

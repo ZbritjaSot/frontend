@@ -1,11 +1,6 @@
 "use client";
 
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { AddOutlinedIcon, DeleteOutlinedIcon, DragIndicatorIcon, EditOutlinedIcon, LockOpenOutlinedIcon, LockOutlinedIcon } from "@/components/ui/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";

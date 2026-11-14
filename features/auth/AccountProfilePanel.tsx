@@ -1,6 +1,6 @@
 "use client";
 
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { LockOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/Spinner";
 import { useMe } from "@/hooks/useAuth";

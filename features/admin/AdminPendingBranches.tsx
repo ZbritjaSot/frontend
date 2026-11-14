@@ -1,6 +1,6 @@
 "use client";
 
-import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
+import { CheckOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/Spinner";
 import { useApproveBranch, usePendingBranches } from "@/hooks/useAdminBusinesses";

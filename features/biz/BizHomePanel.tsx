@@ -1,6 +1,6 @@
 "use client";
 
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { ExpandMoreIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { useState } from "react";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";

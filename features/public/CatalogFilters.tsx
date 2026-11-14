@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { browsePath, type CatalogSort, type Katalog } from "@/lib/browse";
+import { NavIcon } from "@/components/chrome/NavIcon";
 
 const SORTS: Array<{ id: CatalogSort; label: string }> = [
   { id: "newest", label: "Më të rejat" },
@@ -198,20 +199,10 @@ function CityMenu({
         }}
       >
         <span id={valueId}>{current}</span>
-        <svg
-          viewBox="0 0 20 20"
-          aria-hidden="true"
+        <NavIcon
+          name="chevron-down"
           className={`size-3.5 text-muted transition-transform duration-150 ${open ? "rotate-180" : ""}`}
-          fill="none"
-        >
-          <path
-            d="M5 7.5 10 12.5 15 7.5"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        />
       </button>
       {open ? (
         <ul

@@ -27,7 +27,7 @@ export function CategoryIconPicker({
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-3">
         <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-sunken text-accent-fg">
-          <CategoryGlyph name={value} active size={30} />
+          <CategoryGlyph name={value} size={30} />
         </span>
         <div className="min-w-0">
           <p className="m-0 text-sm font-bold">{selected?.label ?? "Pa ikonë"}</p>
@@ -60,7 +60,7 @@ export function CategoryIconPicker({
               }`}
               onClick={() => onChange(icon.id)}
             >
-              <CategoryGlyph name={icon.id} active={active} size={26} />
+              <CategoryGlyph name={icon.id} size={26} />
               <span className="line-clamp-1 text-center text-[0.7rem] leading-tight font-semibold">
                 {icon.label}
               </span>

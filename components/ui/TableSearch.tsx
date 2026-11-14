@@ -1,4 +1,4 @@
-import SearchIcon from "@mui/icons-material/Search";
+import { SearchIcon } from "@/components/ui/icons";
 
 export function TableSearch({
   value,

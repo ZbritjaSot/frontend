@@ -2,6 +2,7 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { NavIcon } from "@/components/chrome/NavIcon";
 import {
   fetchPublicFolders,
   fetchPublicOffers,
@@ -185,12 +186,7 @@ function BackToTop() {
         window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
       }}
     >
-      <svg viewBox="0 0 16 16" className="size-4" aria-hidden="true">
-        <path
-          d="M8 3.5 3 8.5l1.1 1.1L7.2 6.5V13h1.6V6.5l3.1 3.1L13 8.5 8 3.5Z"
-          fill="currentColor"
-        />
-      </svg>
+      <NavIcon name="arrow-up" className="size-4" />
     </button>
   );
 }

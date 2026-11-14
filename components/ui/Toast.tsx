@@ -1,6 +1,6 @@
 "use client";
 
-import CloseIcon from "@mui/icons-material/Close";
+import { CloseIcon } from "@/components/ui/icons";
 import Image from "next/image";
 import {
   createContext,
