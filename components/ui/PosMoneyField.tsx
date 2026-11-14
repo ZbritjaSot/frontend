@@ -9,6 +9,8 @@ type PosMoneyFieldProps = {
   disabled?: boolean;
   "aria-label"?: string;
   id?: string;
+  "aria-invalid"?: boolean;
+  "aria-describedby"?: string;
   /** Soft cap in cents (default €1_000_000.00). */
   maxCents?: number;
 };
@@ -36,6 +38,8 @@ export function PosMoneyField({
   disabled = false,
   "aria-label": ariaLabel,
   id,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
   maxCents = 100_000_000,
 }: PosMoneyFieldProps) {
   const autoId = useId();
@@ -86,6 +90,8 @@ export function PosMoneyField({
       spellCheck={false}
       disabled={disabled}
       aria-label={ariaLabel}
+      aria-invalid={ariaInvalid || undefined}
+      aria-describedby={ariaDescribedBy}
       value={display}
       onKeyDown={onKeyDown}
       onPaste={onPaste}
