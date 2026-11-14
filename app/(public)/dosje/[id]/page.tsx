@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
+import { NavIcon } from "@/components/chrome/NavIcon";
+import { SmoothScrollLink } from "@/components/ui/SmoothScrollLink";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { leadProduct, offerWord, withCampaign } from "@/features/public/compose";
 import { flyerPhoto } from "@/features/public/flyerPhoto";
@@ -8,10 +10,10 @@ import { BranchPlaces, PlaceBranchRow } from "@/features/public/BranchPlaces";
 import { Breadcrumbs, flyerCrumbs } from "@/features/public/Breadcrumbs";
 import { Band, EmptyNote, Frame, SectionHeading } from "@/features/public/Frame";
 import { ProductList } from "@/features/public/ProductPoster";
-import { DiscountRail } from "@/features/public/price";
-import { ProductVisual, ShopLogo } from "@/features/public/visuals";
+import { FlyerRail } from "@/features/public/price";
+import { ProductVisual } from "@/features/public/visuals";
 import { fetchPublicFolder, isNotFound } from "@/features/offers/api";
-import { formatDateSq, formatEurFromCents } from "@/lib/format";
+import { formatDateShortSq } from "@/lib/format";
 import { publicPageMetadata } from "@/lib/metadata";
 import { SITE_NAME } from "@/lib/site";
 import type { PublicFolder } from "@/types";
@@ -62,7 +64,6 @@ export default async function FolderPage({ params }: FolderPageProps) {
     );
   }
 
-  const shop = folder.business?.name ?? "Dyqan";
   const count = folder.items.length;
   const lead =
     folder.items.find((item) => item.id === folder.cover?.id) ??
@@ -73,10 +74,30 @@ export default async function FolderPage({ params }: FolderPageProps) {
     : (folder.cover?.name ?? lead?.name ?? folder.title);
   const coverUrl = photo.thumbUrl ?? lead?.image?.thumb_url;
 
+  const hasFlyerImage = Boolean(folder.image?.thumb_url);
+  const backdrop = photo.thumbUrl ?? lead?.image?.thumb_url;
+
   return (
     <article>
-      <section className="bg-forest text-ivory [--color-focus:var(--color-lime)]">
-        <Frame className="py-10 sm:py-14">
+      <section className="relative isolate overflow-hidden bg-forest text-ivory [--color-focus:var(--color-lime)]">
+        {backdrop ? (
+          <>
+            <Image
+              src={backdrop}
+              alt=""
+              aria-hidden="true"
+              fill
+              unoptimized
+              priority
+              className="-z-20 scale-125 object-cover opacity-40 blur-3xl"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 -z-10 bg-gradient-to-b from-forest/60 via-forest/80 to-forest"
+            />
+          </>
+        ) : null}
+        <Frame className="py-8 sm:py-12">
           <div className="flex items-center justify-between gap-3">
             <Breadcrumbs
               items={flyerCrumbs(folder)}
@@ -92,33 +113,40 @@ export default async function FolderPage({ params }: FolderPageProps) {
               thumbnailName={coverName}
             />
           </div>
-          <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.7fr)]">
-            <div>
-              <p className="m-0 flex min-w-0 items-center gap-3 text-sm font-semibold">
-                <ShopLogo
-                  name={shop}
-                  logoUrl={folder.business?.logo_url}
-                  size="sm"
+          <div className="mt-8 grid items-center gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] lg:gap-14">
+            <div className="relative">
+              <span
+                aria-hidden="true"
+                className="absolute -inset-3 -z-10 rounded-[2rem] bg-lime/15 blur-2xl"
+              />
+              <span
+                className={`relative block aspect-[16/10] overflow-hidden rounded-hero shadow-2xl ring-1 ring-ivory/15 ${
+                  hasFlyerImage ? "bg-forest" : "bg-white"
+                }`}
+              >
+                <ProductVisual
+                  fill
+                  eager
+                  fit={hasFlyerImage ? "cover" : "contain"}
+                  name={photo.name}
+                  imageUrl={photo.detailUrl ?? coverUrl}
+                  sizes="(max-width: 1024px) 100vw, 720px"
                 />
-                {folder.business ? (
-                  <Link
-                    href={`/biznese/${folder.business.id}`}
-                    className="min-w-0 truncate underline-offset-4 hover:underline"
-                  >
-                    {shop}
-                  </Link>
-                ) : (
-                  <span className="min-w-0 truncate">{shop}</span>
-                )}
-              </p>
-              <h1 className="m-0 mt-5 max-w-3xl text-title-1 break-words line-clamp-3">
+                <FlyerRail folder={folder} size="md" />
+              </span>
+            </div>
+            <div className="min-w-0">
+              <h1 className="m-0 max-w-3xl text-title-1 break-words line-clamp-3">
                 {folder.title}
               </h1>
-              <p className="mt-5 mb-0 max-w-xl text-lg leading-relaxed text-ivory/75 dark:text-muted">
-                {count} {offerWord(count)} nga {shop}. Nga{" "}
-                {formatDateSq(folder.starts_at)} deri më{" "}
-                {formatDateSq(folder.expires_at)}.
-              </p>
+              <ul className="m-0 mt-5 flex list-none flex-wrap gap-2 p-0 text-sm font-semibold">
+                <li className="rounded-full bg-ivory/10 px-3.5 py-1.5 ring-1 ring-ivory/15">
+                  {count} {offerWord(count)}
+                </li>
+                <li className="rounded-full bg-lime px-3.5 py-1.5 text-charcoal">
+                  {formatDateShortSq(folder.starts_at)} – {formatDateShortSq(folder.expires_at)}
+                </li>
+              </ul>
               {folder.business ? (
                 <PlaceBranchRow
                   place={folder.business}
@@ -126,35 +154,22 @@ export default async function FolderPage({ params }: FolderPageProps) {
                   className="mt-5 max-w-md"
                 />
               ) : null}
+              {count > 0 ? (
+                <SmoothScrollLink
+                  targetId="ofertat"
+                  className="mt-6 inline-flex h-12 items-center gap-2 rounded-full bg-lime px-6 text-base font-extrabold text-charcoal no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                >
+                  Shiko ofertat
+                  <NavIcon name="chevron-down" size={20} />
+                </SmoothScrollLink>
+              ) : null}
             </div>
-            {lead ? (
-              <Link href={`/offers/${lead.id}`} className="group block max-w-sm">
-                <span className="relative block overflow-hidden rounded-hero">
-                  <ProductVisual
-                    name={lead.name}
-                    imageUrl={lead.image?.thumb_url}
-                    eager
-                    className="aspect-[4/5] w-full"
-                  />
-                  {lead.discount_percent != null && lead.discount_percent > 0 ? (
-                    <DiscountRail percent={lead.discount_percent} size="lg" />
-                  ) : null}
-                </span>
-                <span className="mt-3 line-clamp-2 block font-extrabold tracking-tight text-ivory">
-                  {lead.name}
-                </span>
-                {lead.discounted_price != null ? (
-                  <span className="mt-1 block text-lg font-extrabold text-accent tabular-nums">
-                    {formatEurFromCents(lead.discounted_price)}
-                  </span>
-                ) : null}
-              </Link>
-            ) : null}
           </div>
         </Frame>
       </section>
 
       <Band>
+        <div id="ofertat" className="scroll-mt-20" />
         <SectionHeading title="Ofertat" />
         {count > 0 ? (
           <ProductList offers={withCampaign(folder)} />
