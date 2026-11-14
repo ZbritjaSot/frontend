@@ -113,3 +113,17 @@ describe("discountSegments", () => {
     expect(result.every((segment) => segment.from === YELLOW.from)).toBe(true);
   });
 });
+
+describe("discountSegments with a seed", () => {
+  const items = [20, 40, 60, 80, 30, 55].map((discount_percent) => ({ discount_percent }));
+
+  it("returns the same colors for the same flyer every time", () => {
+    expect(discountSegments(items, "flyer-1")).toEqual(discountSegments(items, "flyer-1"));
+  });
+
+  it("can differ between flyers", () => {
+    const first = discountSegments(items, "flyer-1");
+    const others = ["flyer-2", "flyer-3", "flyer-4", "flyer-5"].map((seed) => discountSegments(items, seed));
+    expect(others.some((segments) => JSON.stringify(segments) !== JSON.stringify(first))).toBe(true);
+  });
+});

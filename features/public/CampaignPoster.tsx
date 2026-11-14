@@ -3,7 +3,7 @@ import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { folderCount, leadProduct, offerWord } from "@/features/public/compose";
 import { flyerPhoto } from "@/features/public/flyerPhoto";
 import { Rail } from "@/features/public/Frame";
-import { DiscountRail, MultiDiscountRail } from "@/features/public/price";
+import { FlyerRail } from "@/features/public/price";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
 import { formatDateShortSq, formatDateSq } from "@/lib/format";
 import type { PublicFolder } from "@/types";
@@ -12,23 +12,14 @@ export function CampaignPoster({
   folder,
   eager = false,
   layout = "rail",
-  discountSegments,
 }: {
   folder: PublicFolder;
   eager?: boolean;
   layout?: "rail" | "card" | "feature" | "shelf" | "editorial";
-  /**
-   * Homepage lead flyer only: up to 4 discount-band color segments computed
-   * from the flyer's own items (see `discountSegments` in
-   * `features/public/price.tsx`). Only consumed by the `editorial` layout;
-   * every other layout keeps rendering the single-band `DiscountRail`.
-   */
-  discountSegments?: { from: string; to: string }[];
 }) {
   const shop = folder.business?.name ?? "Dyqan";
   const lead = leadProduct(folder);
   const count = folderCount(folder);
-  const percent = lead?.discount_percent ?? folder.lead_discount_percent ?? 0;
   const photo = flyerPhoto(folder);
   const hasFlyerImage = Boolean(folder.image?.thumb_url);
   const coverName = hasFlyerImage ? folder.title : (folder.cover?.name ?? lead?.name ?? folder.title);
@@ -61,11 +52,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="(max-width: 640px) 100vw, 420px"
           />
-          {discountSegments && discountSegments.length > 0 ? (
-            <MultiDiscountRail segments={discountSegments} size="md" />
-          ) : percent > 0 ? (
-            <DiscountRail percent={percent} size="md" />
-          ) : null}
+          <FlyerRail folder={folder} size="md" />
           {heart}
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-2 px-4 py-4 sm:px-6">
@@ -98,7 +85,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="168px"
           />
-          {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
+          <FlyerRail folder={folder} size="sm" />
           <span className="absolute top-1 right-1 z-20 scale-90">
             <FavoriteButton
               kind="flyer"
@@ -139,7 +126,7 @@ export function CampaignPoster({
             imageUrl={coverUrl}
             sizes="(max-width: 1024px) 100vw, 640px"
           />
-          {percent > 0 ? <DiscountRail percent={percent} size="md" /> : null}
+          <FlyerRail folder={folder} size="md" />
           <span className="absolute top-4 right-4 z-20">
             <FavoriteButton
               kind="flyer"
@@ -184,7 +171,7 @@ export function CampaignPoster({
               eager={eager}
               sizes="(max-width: 640px) 38vw, 240px"
             />
-            {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
+            <FlyerRail folder={folder} size="sm" />
           </span>
           <span className="flex min-w-0 flex-col justify-center gap-1.5 p-4 sm:p-5">
             <span className="flex min-w-0 items-center gap-2.5">
@@ -224,7 +211,7 @@ export function CampaignPoster({
       </span>
       <span className="relative w-[42%] shrink-0 self-stretch overflow-hidden">
         <ProductVisual fill name={coverName} imageUrl={coverUrl} eager={eager} sizes="240px" />
-        {percent > 0 ? <DiscountRail percent={percent} size="md" /> : null}
+        <FlyerRail folder={folder} size="md" />
         {heart}
       </span>
     </Link>

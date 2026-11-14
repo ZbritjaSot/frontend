@@ -189,6 +189,8 @@ export type PublicFolder = {
   items_count?: number;
   /** Strongest discount in the folder. Set on the list so the page does not need every product. */
   lead_discount_percent?: number | null;
+  /** One entry per discounted product. Drives the flyer's colored rail. */
+  discount_percents?: number[];
   /** Photo the shop chose for the flyer card. */
   cover?: {
     id: string;

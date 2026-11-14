@@ -1,4 +1,5 @@
 import { formatDiscountPercent, formatEurFromCents } from "@/lib/format";
+import type { PublicFolder } from "@/types";
 
 /**
  * Four fixed families. -25% stays green and -26% is orange. `text` is
@@ -91,6 +92,45 @@ export function DiscountRail({
   );
 }
 
+/** Small deterministic PRNG (mulberry32) so server and client render the same colors. */
+function seededRandom(seed: string): () => number {
+  let state = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    state = (Math.imul(state, 31) + seed.charCodeAt(index)) | 0;
+  }
+  return () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Rail for any flyer card: one colored block per discounted product (the same
+ * rail as the homepage lead flyer), stable for a given flyer. Falls back to the
+ * single band of the strongest discount when the list carries no per-item data.
+ */
+export function FlyerRail({
+  folder,
+  size = "md",
+}: {
+  folder: Pick<PublicFolder, "id" | "discount_percents" | "lead_discount_percent">;
+  size?: keyof typeof railSize;
+}) {
+  const segments = discountSegments(
+    (folder.discount_percents ?? []).map((percent) => ({ discount_percent: percent })),
+    folder.id,
+  );
+
+  if (segments.length > 0) {
+    return <MultiDiscountRail segments={segments} size={size} />;
+  }
+
+  const percent = folder.lead_discount_percent ?? 0;
+  return percent > 0 ? <DiscountRail percent={percent} size={size} /> : null;
+}
+
 /**
  * 6-8 segments (clamped to the flyer's own item count) filling the rail,
  * each randomly assigned one of the PO-approved bands actually present
@@ -102,6 +142,7 @@ export function DiscountRail({
  */
 export function discountSegments(
   items: { discount_percent?: number | null }[],
+  seed?: string,
 ): { from: string; to: string }[] {
   const percents = items
     .map((item) => item.discount_percent)
@@ -121,8 +162,10 @@ export function discountSegments(
 
   const length = Math.min(8, Math.max(6, percents.length));
 
+  const random = seed === undefined ? Math.random : seededRandom(seed);
+
   return Array.from({ length }, () => {
-    const band = presentBands[Math.floor(Math.random() * presentBands.length)];
+    const band = presentBands[Math.floor(random() * presentBands.length)];
     return { from: band.from, to: band.to };
   });
 }

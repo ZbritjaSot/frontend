@@ -7,7 +7,7 @@ import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { campaignWord, offerWord } from "@/features/public/compose";
 import { flyerPhoto } from "@/features/public/flyerPhoto";
 import { fetchPublicBusinesses, PUBLIC_BUSINESSES_PAGE_SIZE } from "@/features/offers/api";
-import { DiscountRail } from "@/features/public/price";
+import { DiscountRail, FlyerRail } from "@/features/public/price";
 import { StepRail, type RailNav } from "@/features/public/StepRail";
 import { kicker } from "@/features/public/tone";
 import { ProductVisual, ShopLogo } from "@/features/public/visuals";
@@ -218,7 +218,6 @@ function RailButton({
 const slideWidth = "block w-[9.5rem] shrink-0 sm:w-[11rem]";
 
 function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
-  const percent = flyer.lead_discount_percent ?? 0;
   const photo = flyerPhoto(flyer);
   const coverName = photo.name;
 
@@ -240,7 +239,7 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
             imageUrl={photo.thumbUrl}
             sizes="176px"
           />
-          {percent > 0 ? <DiscountRail percent={percent} size="sm" /> : null}
+          <FlyerRail folder={flyer} size="sm" />
           <span className="absolute top-2 right-2 z-10">
             <FavoriteButton
               kind="flyer"
