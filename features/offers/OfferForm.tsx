@@ -13,10 +13,13 @@ import { FlyerImageField } from "@/features/offers/FlyerImageField";
 import { deleteFlyerImage, uploadFlyerImage } from "@/features/offers/flyerImageApi";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DateTimeField } from "@/components/ui/DateTimeField";
+import { FieldError } from "@/components/ui/Field";
 import { Modal } from "@/components/ui/Modal";
 import { SelectField } from "@/components/ui/SelectField";
 import { useToast } from "@/components/ui/Toast";
+import { useLeaveGuard } from "@/hooks/useLeaveGuard";
 import { useCreateAdminOffer, useUpdateAdminOffer } from "@/hooks/useAdminOffers";
 import { useCreateManagerBundle, useUpdateManagerBundle } from "@/hooks/useManagerReview";
 import {
@@ -40,6 +43,13 @@ import type { BundleCatalog } from "@/features/offers/bizApi";
 import { CategoryChips } from "@/features/offers/CategoryChips";
 import { DiscountModeFields } from "@/features/offers/DiscountModeFields";
 import {
+  itemErrorCount,
+  mapOfferIssues,
+  offerFormSnapshot,
+  sameIds,
+  type OfferFormErrors,
+} from "@/features/offers/offerFormState";
+import {
   emptyItem,
   itemDraftsFromOffer,
   itemDraftToPayload,
@@ -50,6 +60,9 @@ import {
   offerBundleFormSchema,
 } from "@/schemas/offer";
 import type { OfferBundle } from "@/types";
+
+const NO_ERRORS: OfferFormErrors = { form: {}, items: {}, count: 0 };
+const errorCardClass = "border-l-4 border-l-danger";
 
 type OfferFormProps = {
   mode: "create" | "edit";
@@ -148,6 +161,7 @@ export function OfferForm({
     }
     return carriers;
   });
+  const [branchBaseline, setBranchBaseline] = useState<string[]>(branchIds);
   const companyShopId =
     audience === "manager" || audience === "admin"
       ? ownerShopId
@@ -171,7 +185,10 @@ export function OfferForm({
       return;
     }
     seededBranches.current = true;
-    setBranchIds(companyShops.data.map((shop) => shop.id));
+    const ids = companyShops.data.map((shop) => shop.id);
+    setBranchIds(ids);
+    // The default selection is not a user edit.
+    setBranchBaseline(ids);
   }, [companyShops.data]);
   const [coverKey, setCoverKey] = useState<string | null>(() => {
     const imageId = offer?.cover_gallery_image_id;
@@ -188,6 +205,23 @@ export function OfferForm({
   const flyerPreviewRef = useRef<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [scrollTick, setScrollTick] = useState(0);
+  const [activeAction, setActiveAction] = useState<"draft" | "primary" | null>(null);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  /** Set right before a post-save navigation so the leave guard stays quiet. */
+  const [leaving, setLeaving] = useState(false);
+  const [baseline] = useState(() =>
+    offerFormSnapshot({
+      title,
+      startsAt,
+      expiresAt,
+      items,
+      coverKey,
+      flyerPicked: false,
+      flyerRemoved: false,
+    }),
+  );
   useEffect(() => {
     return () => {
       if (flyerPreviewRef.current) {
@@ -251,32 +285,63 @@ export function OfferForm({
     title,
   ]);
 
-  const reviewValidationError = useMemo(() => {
-    for (const item of items) {
-      const percent = Number(item.discount_percent);
-      if (
-        item.discount_percent.trim() !== "" &&
-        (!Number.isFinite(percent) || percent < 1 || percent > 99)
-      ) {
-        return "Zbritja duhet të jetë midis 1% dhe 99%.";
-      }
-    }
-
-    if (items.length < 1) {
-      return "Shto të paktën një ofertë.";
-    }
-
+  // `scrollTick` is a dependency on purpose: the schema's start-time rule depends on the
+  // current clock, so revealing errors must re-run validation instead of reusing a stale result.
+  const validation = useMemo<OfferFormErrors>(() => {
+    void scrollTick;
     const parsed = formSchema.safeParse(formPayload);
+    return parsed.success ? NO_ERRORS : mapOfferIssues(parsed.error.issues);
+  }, [formPayload, formSchema, scrollTick]);
+  /** Errors stay hidden until the first submit attempt, then update live. */
+  const errors = submitAttempted ? validation : NO_ERRORS;
 
-    if (!parsed.success) {
-      return parsed.error.issues[0]?.message ?? "Të dhënat nuk janë të vlefshme.";
+  const isDirty = useMemo(
+    () =>
+      offerFormSnapshot({
+        title,
+        startsAt,
+        expiresAt,
+        items,
+        coverKey,
+        flyerPicked: flyerFile !== null,
+        // Removing a picked-but-unsaved file is not a change when nothing is stored yet.
+        flyerRemoved: flyerRemoved && Boolean(offer?.image),
+      }) !== baseline || !sameIds(branchIds, branchBaseline),
+    [
+      baseline,
+      branchBaseline,
+      branchIds,
+      coverKey,
+      expiresAt,
+      flyerFile,
+      flyerRemoved,
+      items,
+      offer?.image,
+      startsAt,
+      title,
+    ],
+  );
+  useLeaveGuard(isDirty && !leaving);
+
+  function revealErrors() {
+    setSubmitAttempted(true);
+    setScrollTick((tick) => tick + 1);
+  }
+
+  useEffect(() => {
+    if (scrollTick === 0) {
+      return;
     }
-
-    return null;
-  }, [formPayload, formSchema, items]);
-
-  const modalError = reviewValidationError ?? error;
-  const submitBlocked = Boolean(reviewValidationError);
+    const target = document.querySelector<HTMLElement>("[data-offer-error]");
+    if (!target) {
+      return;
+    }
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
+    target
+      .querySelector<HTMLElement>('[aria-invalid="true"]')
+      ?.focus({ preventScroll: true });
+  }, [scrollTick]);
 
   function patchItem(key: string, patch: Partial<ItemDraft>) {
     setItems((prev) =>
@@ -307,36 +372,21 @@ export function OfferForm({
     );
   }
 
-  async function save(thenSubmit: boolean) {
+  async function save(thenSubmit: boolean, source: "draft" | "primary") {
     setError(null);
     if (!thenSubmit) {
       setReviewOpen(false);
     }
 
-    if (thenSubmit && reviewValidationError) {
-      return;
-    }
-
-    for (const item of items) {
-      const percent = Number(item.discount_percent);
-      if (
-        item.discount_percent.trim() !== "" &&
-        (!Number.isFinite(percent) || percent < 1 || percent > 99)
-      ) {
-        setError("Zbritja duhet të jetë midis 1% dhe 99%.");
-        return;
-      }
-    }
-
     const parsed = formSchema.safeParse(formPayload);
 
     if (!parsed.success) {
-      setError(
-        parsed.error.issues[0]?.message ?? "Të dhënat nuk janë të vlefshme.",
-      );
+      setReviewOpen(false);
+      revealErrors();
       return;
     }
 
+    setActiveAction(source);
     setSaving(true);
     try {
       if (mode === "create") {
@@ -347,6 +397,7 @@ export function OfferForm({
           const message = validationMessage(err, "Imazhi i fletushkës nuk u ngarkua.");
           setError(message);
           showToast(message, { tone: "error" });
+          setLeaving(true);
           router.replace(editPath(created.id));
           return;
         }
@@ -356,6 +407,7 @@ export function OfferForm({
           didSubmit = true;
         }
         showToast(saveSuccessMessage(didSubmit));
+        setLeaving(true);
         router.replace(
           doneHref ??
             (audience === "manager"
@@ -380,6 +432,7 @@ export function OfferForm({
           didSubmit = true;
         }
         showToast(saveSuccessMessage(didSubmit));
+        setLeaving(true);
         router.replace(leaveHref);
       }
     } catch (err) {
@@ -391,6 +444,7 @@ export function OfferForm({
       }
     } finally {
       setSaving(false);
+      setActiveAction(null);
     }
   }
 
@@ -469,11 +523,15 @@ export function OfferForm({
       noValidate
       onSubmit={(event) => {
         event.preventDefault();
+        if (!formSchema.safeParse(formPayload).success) {
+          revealErrors();
+          return;
+        }
         if (confirmsBeforeSave) {
           setReviewOpen(true);
           return;
         }
-        void save(false);
+        void save(false, "primary");
       }}
     >
       <div className="sticky top-0 z-20 -mx-5 flex flex-wrap items-center justify-between gap-3 border-b border-line bg-canvas px-5 py-3 sm:-mx-8 sm:px-8">
@@ -483,17 +541,36 @@ export function OfferForm({
             {isFlyer ? title.trim() || kindTitle : "Oferta individuale"}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button className={button({ variant: "secondary" })} type="button" disabled={pending} onClick={() => router.push(leaveHref)}>
+        <div className="flex flex-wrap items-center gap-2">
+          <p
+            className={`m-0 text-sm font-semibold text-danger tabular-nums ${errors.count > 0 ? "" : "sr-only"}`}
+            role="status"
+          >
+            {errors.count > 0
+              ? `${errors.count} ${errors.count === 1 ? "gabim" : "gabime"} për t’u rregulluar`
+              : ""}
+          </p>
+          <button
+            className={button({ variant: "secondary" })}
+            type="button"
+            disabled={pending}
+            onClick={() => {
+              if (isDirty) {
+                setCancelOpen(true);
+                return;
+              }
+              router.push(leaveHref);
+            }}
+          >
             Anulo
           </button>
           {audience === "biz" ? (
-            <button className={button({ variant: "secondary" })} type="button" disabled={pending} aria-busy={pending} onClick={() => void save(false)}>
-              {pending ? "Duke u ruajtur…" : "Ruaj draft"}
+            <button className={button({ variant: "secondary" })} type="button" disabled={pending} aria-busy={pending && activeAction === "draft"} onClick={() => void save(false, "draft")}>
+              {pending && activeAction === "draft" ? "Duke u ruajtur…" : "Ruaj draft"}
             </button>
           ) : null}
-          <button className={button()} type="submit" disabled={pending} aria-busy={pending}>
-            {pending ? "Duke u ruajtur…" : primaryLabel}
+          <button className={button()} type="submit" disabled={pending} aria-busy={pending && activeAction !== "draft"}>
+            {pending && activeAction !== "draft" ? "Duke u ruajtur…" : primaryLabel}
           </button>
         </div>
       </div>
@@ -507,7 +584,10 @@ export function OfferForm({
             : "Shto një ose më shumë oferta individuale (jo fletushkë)."}
         </p>
         {isFlyer ? (
-          <label className="mt-5 flex flex-col gap-2">
+          <label
+            className="mt-5 flex flex-col gap-2"
+            data-offer-error={errors.form.title ? "" : undefined}
+          >
             <span className={micro}>Titulli i fletushkës</span>
             <input
               className={`${input()} text-2xl! font-bold tracking-[-0.03em]`}
@@ -519,7 +599,10 @@ export function OfferForm({
               maxLength={255}
               placeholder="p.sh. Nëntor 2026"
               aria-label="Titulli i fletushkës"
+              aria-invalid={errors.form.title ? true : undefined}
+              aria-describedby={errors.form.title ? "offer-title-error" : undefined}
             />
+            <FieldError id="offer-title-error">{errors.form.title}</FieldError>
           </label>
         ) : null}
         <p className={`${micro} ${isFlyer ? "mt-6" : "mt-5"} mb-3`}>Periudha</p>
@@ -529,7 +612,10 @@ export function OfferForm({
             : `Fillimi së paku ${OFFER_START_LEAD_HOURS} orë nga tani — kohë për shqyrtim nga menaxheri ose admini. Ora vetëm me :00.`}
         </p>
         <div className="grid gap-5 md:grid-cols-2 md:gap-8">
-          <label className="flex flex-col gap-2">
+          <label
+            className="flex flex-col gap-2"
+            data-offer-error={errors.form.starts_at ? "" : undefined}
+          >
             <span className={micro}>Fillon</span>
             <DateTimeField
               value={startsAt}
@@ -539,8 +625,12 @@ export function OfferForm({
               hourOnly
               minDate={localCalendarDayKey()}
             />
+            <FieldError id="offer-starts-error">{errors.form.starts_at}</FieldError>
           </label>
-          <label className="flex flex-col gap-2">
+          <label
+            className="flex flex-col gap-2"
+            data-offer-error={errors.form.expires_at ? "" : undefined}
+          >
             <span className={micro}>Skadon</span>
             <DateTimeField
               value={expiresAt}
@@ -550,6 +640,7 @@ export function OfferForm({
               hourOnly
               minDate={localCalendarDayKey()}
             />
+            <FieldError id="offer-expires-error">{errors.form.expires_at}</FieldError>
           </label>
         </div>
         {isFlyer ? (
@@ -700,12 +791,15 @@ export function OfferForm({
 
         <div className="grid gap-3">
           {items.map((item, index) => {
+            const rowErrors = errors.items[index];
+            const rowErrorCount = itemErrorCount(rowErrors);
             return (
               <div
                 key={item.key}
+                data-offer-error={rowErrorCount > 0 ? "" : undefined}
                 className={`rounded-2xl border px-4 py-4 ${
                   isFlyer && coverKey === item.key ? "border-accent" : "border-line"
-                }`}
+                } ${rowErrorCount > 0 ? errorCardClass : ""}`}
               >
                 <div className="flex items-stretch gap-4">
                   <ItemPhoto
@@ -745,6 +839,7 @@ export function OfferForm({
                   <div className="grid min-w-0 flex-1 gap-3">
                     <div className="flex items-start gap-3">
                       <div className="grid min-w-0 flex-1 gap-3 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+                        <div className="flex min-w-0 flex-col gap-1.5">
                         <input
                           className={input()}
                           type="text"
@@ -757,7 +852,12 @@ export function OfferForm({
                           maxLength={255}
                           placeholder="Emri i produktit"
                           aria-label={`Emri i produktit ${index + 1}`}
+                          aria-invalid={rowErrors?.name ? true : undefined}
+                          aria-describedby={rowErrors?.name ? `item-${index + 1}-name-error` : undefined}
                         />
+                        <FieldError id={`item-${index + 1}-name-error`}>{rowErrors?.name}</FieldError>
+                        </div>
+                        <div className="flex min-w-0 flex-col gap-1.5">
                         <SelectField
                           value=""
                           onChange={(value) => {
@@ -780,6 +880,8 @@ export function OfferForm({
                           disabled={pending || categoriesLoading}
                           aria-label={`Kategoritë e produktit ${index + 1}`}
                         />
+                        <FieldError id={`item-${index + 1}-categories-error`}>{rowErrors?.category_ids}</FieldError>
+                        </div>
                       </div>
                       {items.length > 1 ? (
                         <button
@@ -822,6 +924,11 @@ export function OfferForm({
                       onPercentChange={(value) => onPercentChange(item.key, value)}
                       disabled={pending}
                       idPrefix={String(index + 1)}
+                      errors={{
+                        original: rowErrors?.original_price,
+                        discounted: rowErrors?.discounted_price,
+                        percent: rowErrors?.discount_percent,
+                      }}
                     />
                     <label className="flex min-w-0 flex-col gap-1.5">
                       <span className={micro}>Linku i blerjes (opsional)</span>
@@ -836,6 +943,8 @@ export function OfferForm({
                         placeholder="https://…"
                         disabled={pending}
                         aria-label={`Linku i blerjes i produktit ${index + 1}`}
+                        aria-invalid={rowErrors?.purchase_url ? true : undefined}
+                        aria-describedby={rowErrors?.purchase_url ? `item-${index + 1}-url-error` : undefined}
                         onChange={(event) =>
                           patchItem(item.key, {
                             purchase_url: event.target.value,
@@ -845,7 +954,9 @@ export function OfferForm({
                       <span className="text-xs font-medium text-muted">
                         Nëse e plotëson, vizitori mund ta hapë te dyqani online.
                       </span>
+                      <FieldError id={`item-${index + 1}-url-error`}>{rowErrors?.purchase_url}</FieldError>
                     </label>
+                    <FieldError id={`item-${index + 1}-other-error`}>{rowErrors?.other}</FieldError>
                   </div>
                 </div>
 
@@ -862,6 +973,11 @@ export function OfferForm({
             <AddOutlinedIcon fontSize="small" />
             {isFlyer ? "Shto produkt" : "Shto ofertë"}
           </button>
+          <div data-offer-error={errors.form.items || errors.form.other ? "" : undefined}>
+            <FieldError id="offer-items-error" announce>
+              {errors.form.items ?? errors.form.other}
+            </FieldError>
+          </div>
         </div>
       </section>
 
@@ -897,11 +1013,11 @@ export function OfferForm({
             <button
               className={button()}
               type="button"
-              disabled={pending || submitBlocked}
-              aria-busy={pending}
-              onClick={() => void save(audience === "biz")}
+              disabled={pending || validation.count > 0}
+              aria-busy={pending && activeAction === "primary"}
+              onClick={() => void save(audience === "biz", "primary")}
             >
-              {pending ? "Duke u ruajtur…" : primaryLabel}
+              {pending && activeAction === "primary" ? "Duke u ruajtur…" : primaryLabel}
             </button>
           </>
         }
@@ -913,9 +1029,9 @@ export function OfferForm({
               : "Ndryshimet ruhen pa e kthyer dosjen në pritje."}
           </p>
         ) : null}
-        {modalError ? (
+        {error ? (
           <p className={`${fieldError} mb-4`} role="alert">
-            {modalError}
+            {error}
           </p>
         ) : null}
         <p className="m-0 text-sm text-muted">
@@ -949,6 +1065,20 @@ export function OfferForm({
           })}
         </ul>
       </Modal>
+      <ConfirmModal
+        open={cancelOpen}
+        title="Të largohesh pa ruajtur?"
+        message="Ndryshimet që ke bërë nuk janë ruajtur dhe do të humbasin."
+        confirmLabel="Largohu"
+        cancelLabel="Vazhdo editimin"
+        danger
+        onClose={() => setCancelOpen(false)}
+        onConfirm={() => {
+          setLeaving(true);
+          setCancelOpen(false);
+          router.push(leaveHref);
+        }}
+      />
     </form>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ClipboardEvent, type KeyboardEvent } from "react";
+import { FieldError } from "@/components/ui/Field";
 import { Modal } from "@/components/ui/Modal";
 import { PosMoneyField } from "@/components/ui/PosMoneyField";
 import { DiscountRail } from "@/features/public/price";
@@ -65,6 +66,8 @@ type DiscountModeFieldsProps = {
   disabled?: boolean;
   /** Used to build unique aria-labels, e.g. the product's index. */
   idPrefix: string;
+  /** Inline validation messages from the form. */
+  errors?: { original?: string; discounted?: string; percent?: string };
 };
 
 const micro = "text-xs font-bold tracking-[0.08em] text-muted uppercase";
@@ -93,7 +96,13 @@ export function DiscountModeFields({
   onPercentChange,
   disabled = false,
   idPrefix,
+  errors,
 }: DiscountModeFieldsProps) {
+  const originalErrorId = `discount-original-error-${idPrefix}`;
+  const discountedErrorId = `discount-discounted-error-${idPrefix}`;
+  const percentErrorId = `discount-percent-error-${idPrefix}`;
+  // In percent mode the schema reports "set a price or a percent" on the price field.
+  const percentError = errors?.percent ?? errors?.discounted;
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
 
   function switchTo(next: PricingMode) {
@@ -164,7 +173,10 @@ export function DiscountModeFields({
               onChangeCents={onOriginalChange}
               disabled={disabled}
               aria-label={`Çmimi origjinal i produktit ${idPrefix}`}
+              aria-invalid={Boolean(errors?.original)}
+              aria-describedby={errors?.original ? originalErrorId : undefined}
             />
+            <FieldError id={originalErrorId}>{errors?.original}</FieldError>
           </label>
           <label className="flex min-w-0 flex-col gap-1.5">
             <span className={micro}>Zbritja % (automatike)</span>
@@ -189,7 +201,10 @@ export function DiscountModeFields({
               onChangeCents={onDiscountedChange}
               disabled={disabled}
               aria-label={`Çmimi me zbritje i produktit ${idPrefix}`}
+              aria-invalid={Boolean(errors?.discounted)}
+              aria-describedby={errors?.discounted ? discountedErrorId : undefined}
             />
+            <FieldError id={discountedErrorId}>{errors?.discounted}</FieldError>
           </label>
         </div>
       ) : (
@@ -197,7 +212,7 @@ export function DiscountModeFields({
           <span className={micro}>Zbritja %</span>
           <div className="relative">
             <input
-              className="w-full rounded-lg border border-line bg-elevated px-3 py-2 pr-8 text-right text-sm font-semibold tabular-nums"
+              className="w-full rounded-lg border border-line bg-elevated px-3 py-2 pr-8 text-right text-sm font-semibold tabular-nums aria-[invalid=true]:border-danger"
               type="text"
               inputMode="numeric"
               autoComplete="off"
@@ -214,11 +229,14 @@ export function DiscountModeFields({
               disabled={disabled}
               placeholder="0"
               aria-label={`Zbritja në përqindje e produktit ${idPrefix}`}
+              aria-invalid={percentError ? true : undefined}
+              aria-describedby={percentError ? percentErrorId : undefined}
             />
             <span aria-hidden="true" className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm font-bold text-muted">
               %
             </span>
           </div>
+          <FieldError id={percentErrorId}>{percentError}</FieldError>
         </label>
       )}
 
