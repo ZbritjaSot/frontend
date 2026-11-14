@@ -16,7 +16,9 @@ const nextConfig: NextConfig = {
   // Feature app needs a Node host for SSR + Sanctum cookie auth — no static export here.
   poweredByHeader: false,
   images: {
-    // Photos are already resized WebP on the public bucket. `unoptimized` skips a second pass.
+    // The Image Optimization endpoint (/_next/image) stays enabled; `remotePatterns` limits which
+    // hosts it may proxy. Photos are already resized WebP on the public bucket, so setting
+    // `unoptimized: true` would be a valid hardening step later — it is NOT set today.
     // Add custom CDN hosts via NEXT_PUBLIC_IMAGE_HOSTS (comma-separated hostnames).
     remotePatterns: imageRemoteHostnames().map((hostname) => ({
       protocol: "https" as const,
