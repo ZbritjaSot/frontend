@@ -7,6 +7,8 @@ import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { NavIcon } from "@/components/chrome/NavIcon";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { useFavorites } from "@/hooks/useFavorites";
+
 const links = [
   { href: "/oferta", label: "Ofertat", match: "oferta" },
   { href: "/fletushka", label: "Fletushkat", match: "fletushka" },
@@ -24,6 +26,11 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const onSettings = pathname.startsWith("/cilesimet");
   const onFavorites = pathname.startsWith("/preferuarat");
+  // useSyncExternalStore serves the server snapshot (empty) during hydration, so
+  // count is 0 on the first client render and the badge only appears afterwards.
+  const { count: favoritesCount } = useFavorites();
+  const favoritesLabel =
+    favoritesCount > 0 ? `Të preferuarat, ${favoritesCount}` : "Të preferuarat";
 
   useEffect(() => {
     if (!open) {
@@ -103,19 +110,28 @@ export function SiteHeader() {
           >
             {open ? <CloseIcon /> : <MenuIcon />}
           </button>
-          <Tooltip content="Të preferuarat">
+          <Tooltip content={favoritesLabel}>
             <Link
               href="/preferuarat"
-              aria-label="Të preferuarat"
+              aria-label={favoritesLabel}
               aria-current={onFavorites ? "page" : undefined}
               onClick={() => setOpen(false)}
-              className={`${iconHit} ${
+              className={`${iconHit} relative ${
                 onFavorites
                   ? "border border-line bg-elevated text-[#ff6b7a]"
                   : "hover:bg-white/10"
               }`}
             >
               <NavIcon name="favorites" filled={onFavorites} />
+              {favoritesCount > 0 ? (
+                <span
+                  aria-hidden="true"
+                  data-testid="favorites-badge"
+                  className="pointer-events-none absolute top-0.5 right-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 ring-2 ring-chrome text-[0.625rem] leading-none font-bold text-on-accent tabular-nums"
+                >
+                  {favoritesCount > 99 ? "99+" : favoritesCount}
+                </span>
+              ) : null}
             </Link>
           </Tooltip>
           <Tooltip content="Cilësimet">
