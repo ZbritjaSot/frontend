@@ -1,6 +1,14 @@
 import { button } from "@/lib/ui";
 
-export function OfflineNote({ onRetry }: { onRetry: () => void }) {
+export function OfflineNote({
+  onRetry,
+  title = "Nuk ka lidhje",
+  body = "Kontrollo internetin dhe provo përsëri.",
+}: {
+  onRetry: () => void;
+  title?: string;
+  body?: string;
+}) {
   return (
     <div role="alert" className="mt-10 flex flex-col items-center gap-3 px-4 py-8 text-center">
       <div className="flex h-36 w-44 items-center justify-center rounded-hero bg-forest">
@@ -12,8 +20,8 @@ export function OfflineNote({ onRetry }: { onRetry: () => void }) {
           <path d="M80 70h12M86 64v12" stroke="#0b0f0e" strokeWidth="2.4" strokeLinecap="round" />
         </svg>
       </div>
-      <h2 className="m-0 text-title-2">Nuk ka lidhje</h2>
-      <p className="m-0 max-w-sm text-muted">Kontrollo internetin dhe provo përsëri.</p>
+      <h2 className="m-0 text-title-2">{title}</h2>
+      <p className="m-0 max-w-sm text-muted">{body}</p>
       <button
         type="button"
         onClick={onRetry}

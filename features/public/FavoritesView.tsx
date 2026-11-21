@@ -1,91 +1,61 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useQueries } from "@tanstack/react-query";
+import Link from "next/link";
 import { CampaignPoster } from "@/features/public/CampaignPoster";
 import { Band, EmptyNote, SectionHeading } from "@/features/public/Frame";
 import { OfflineNote } from "@/features/public/OfflineNote";
 import { ProductPoster } from "@/features/public/ProductPoster";
 import { FavoritesSkeleton } from "@/features/public/skeletons";
 import { kicker } from "@/features/public/tone";
-import {
-  fetchPublicFolder,
-  fetchPublicOffer,
-  isNotFound,
-} from "@/features/offers/api";
+import { useFavoriteItems } from "@/hooks/useFavoriteItems";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useHydrated } from "@/hooks/useHydrated";
 import { isNetworkError } from "@/lib/api";
 import { removeFavoriteStored } from "@/lib/favorites";
-import type { PublicFolder, PublicOffer } from "@/types";
+import { button } from "@/lib/ui";
 
 export function FavoritesView() {
   const { refs } = useFavorites();
-  const offerRefs = refs.filter((item) => item.kind === "offer");
-  const flyerRefs = refs.filter((item) => item.kind === "flyer");
+  const hydrated = useHydrated();
   const pruned = useRef(new Set<string>());
+  const { offers: offerBatch, flyers: flyerBatch } = useFavoriteItems(refs);
+  const offers = offerBatch.items;
+  const flyers = flyerBatch.items;
 
-  const offerQueries = useQueries({
-    queries: offerRefs.map((item) => ({
-      queryKey: ["favorite-offer", item.id],
-      queryFn: () => fetchPublicOffer(item.id),
-      retry: false,
-      staleTime: 60_000,
-    })),
-  });
-
-  const flyerQueries = useQueries({
-    queries: flyerRefs.map((item) => ({
-      queryKey: ["favorite-flyer", item.id],
-      queryFn: () => fetchPublicFolder(item.id),
-      retry: false,
-      staleTime: 60_000,
-    })),
-  });
-
+  // Ids the API no longer returns (expired/removed) are dropped from storage once.
+  const missingOffers = offerBatch.missing;
+  const missingFlyers = flyerBatch.missing;
   useEffect(() => {
-    offerQueries.forEach((query, index) => {
-      const id = offerRefs[index]?.id;
-      if (!id || !query.isError || !isNotFound(query.error)) {
-        return;
+    const prune = (kind: "offer" | "flyer", ids: string[]) => {
+      ids.forEach((id) => {
+        const key = `${kind}:${id}`;
+        if (pruned.current.has(key)) {
+          return;
+        }
+        pruned.current.add(key);
+        removeFavoriteStored(kind, id);
+      });
+    };
+    prune("offer", missingOffers);
+    prune("flyer", missingFlyers);
+  }, [missingOffers, missingFlyers]);
+
+  const batches = [offerBatch, flyerBatch];
+  // Before hydration the store always reads empty, so show the skeleton instead.
+  const loading = !hydrated || batches.some((batch) => batch.loading);
+  const networkFailed = batches.some((batch) => batch.error != null && isNetworkError(batch.error));
+  const unresolved = batches.some((batch) => batch.error != null);
+  const empty = hydrated && refs.length === 0;
+  const nothingLeft = hydrated && !empty && !loading && !unresolved && offers.length === 0 && flyers.length === 0;
+
+  const retry = () => {
+    batches.forEach((batch) => {
+      if (batch.error != null) {
+        void batch.refetch();
       }
-      const key = `offer:${id}`;
-      if (pruned.current.has(key)) {
-        return;
-      }
-      pruned.current.add(key);
-      removeFavoriteStored("offer", id);
     });
-    flyerQueries.forEach((query, index) => {
-      const id = flyerRefs[index]?.id;
-      if (!id || !query.isError || !isNotFound(query.error)) {
-        return;
-      }
-      const key = `flyer:${id}`;
-      if (pruned.current.has(key)) {
-        return;
-      }
-      pruned.current.add(key);
-      removeFavoriteStored("flyer", id);
-    });
-  }, [offerQueries, flyerQueries, offerRefs, flyerRefs]);
-
-  const loading =
-    offerQueries.some((query) => query.isPending) ||
-    flyerQueries.some((query) => query.isPending);
-
-  const offers = offerQueries
-    .map((query) => query.data)
-    .filter((offer): offer is PublicOffer => offer != null);
-
-  const flyers = flyerQueries
-    .map((query) => query.data)
-    .filter((folder): folder is PublicFolder => folder != null);
-
-  const queries = [...offerQueries, ...flyerQueries];
-  const networkFailed = queries.some((query) => query.isError && isNetworkError(query.error));
-  const unresolved = queries.some((query) => query.isError && !isNotFound(query.error));
-  const empty = refs.length === 0;
-  const nothingLeft = !empty && !loading && !unresolved && offers.length === 0 && flyers.length === 0;
+  };
 
   return (
     <Band pad="page">
@@ -102,17 +72,26 @@ export function FavoritesView() {
           <EmptyNote
             title="Ende bosh"
             body="Shto një zemër te një ofertë ose fletushkë. Lista mbetet në këtë shfletues."
+            action={
+              <Link href="/oferta" className={button({ shape: "pill" })}>
+                Shfleto ofertat
+              </Link>
+            }
           />
         </div>
       ) : null}
 
       {networkFailed && offers.length === 0 && flyers.length === 0 ? (
         <OfflineNote
-          onRetry={() => {
-            queries.forEach((query) => {
-              void query.refetch();
-            });
-          }}
+          onRetry={retry}
+        />
+      ) : null}
+
+      {unresolved && !networkFailed && offers.length === 0 && flyers.length === 0 ? (
+        <OfflineNote
+          title="Diçka shkoi keq"
+          body="Nuk mundëm t'i ngarkonim të preferuarat. Provo përsëri."
+          onRetry={retry}
         />
       ) : null}
 

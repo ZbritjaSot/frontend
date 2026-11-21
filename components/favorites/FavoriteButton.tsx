@@ -5,7 +5,7 @@ import type { MouseEvent } from "react";
 import { useToast } from "@/components/ui/Toast";
 import { NavIcon } from "@/components/chrome/NavIcon";
 import { useFavorites } from "@/hooks/useFavorites";
-import type { FavoriteKind } from "@/lib/favorites";
+import { isFavoriteStored, toggleFavoriteStored, type FavoriteKind } from "@/lib/favorites";
 
 type FavoriteButtonProps = {
   kind: FavoriteKind;
@@ -48,7 +48,22 @@ export function FavoriteButton({
         thumbnail,
       });
     } else {
-      showToast("U hoq nga të preferuarat", { tone: "success", key: "favorite", thumbnail });
+      showToast("U hoq nga të preferuarat", {
+        tone: "success",
+        key: "favorite",
+        thumbnail,
+        action: {
+          label: "Kthe",
+          // Re-add the exact same kind:id. Guarded so a second add elsewhere
+          // (or a stale toast) can never toggle it back off. No new toast:
+          // the action button dismisses this one.
+          onClick: () => {
+            if (!isFavoriteStored(kind, id)) {
+              toggleFavoriteStored(kind, id);
+            }
+          },
+        },
+      });
     }
   }
 
