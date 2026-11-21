@@ -67,6 +67,10 @@
   /* Error toast surface — intentionally identical in both themes, already an
      always-dark surface regardless of light/dark mode. */
   --color-danger-surface: #3a0d0d;
+  /* Error text on forest (#243528), which stays dark in both themes.
+     Light-theme --color-danger (#b42318) is about 2:1 on that green.
+     This matches the dark-theme danger (#ff8e8e), about 6:1. */
+  --color-danger-on-forest: #ff8e8e;
 
   /* Light theme — warm ivory paper, forest for editorial blocks, lime as accent. */
   --color-bg: #f4f1e8;
