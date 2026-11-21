@@ -3,7 +3,6 @@
 import { DeleteOutlinedIcon } from "@/components/ui/icons";
 import { useEffect, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { adminNewsletterKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
@@ -21,9 +20,7 @@ import {
 import { validationMessage } from "@/lib/api";
 import { formatDateSq } from "@/lib/format";
 import { button, fieldError, fieldLabel, iconButton, input, pageTitle, panelLead } from "@/lib/ui";
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 type Kind = "offer" | "bundle" | "business";
 
@@ -221,7 +218,6 @@ export function AdminNewsletter() {
       <p className={`${panelLead} mb-6 max-w-xl`}>
         Zgjidh ofertat, fletushkat dhe dyqanet. Çdo adresë merr email-in e vet.
       </p>
-      <IndicatorKey items={adminNewsletterKey} />
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
         <form
@@ -331,16 +327,18 @@ export function AdminNewsletter() {
                                 <span className="block truncate text-xs text-muted">{item.detail}</span>
                               ) : null}
                             </span>
-                            <button
-                              type="button"
-                              className={iconButton}
-                              aria-label={`Hiq ${item.title}`}
-                              onClick={() =>
-                                group.clear(group.items.filter((pickedItem) => pickedItem.id !== item.id))
-                              }
-                            >
-                              <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
-                            </button>
+                            <Tooltip content="Hiq">
+                              <button
+                                type="button"
+                                className={iconButton}
+                                aria-label={`Hiq ${item.title}`}
+                                onClick={() =>
+                                  group.clear(group.items.filter((pickedItem) => pickedItem.id !== item.id))
+                                }
+                              >
+                                <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
+                              </button>
+                            </Tooltip>
                           </li>
                         ))}
                       </ul>
@@ -417,14 +415,16 @@ export function AdminNewsletter() {
                         </span>
                       ) : null}
                     </span>
-                    <button
-                      type="button"
-                      className={rowButton}
-                      aria-label={`Hiq ${subscriber.email}`}
-                      onClick={() => setPendingDelete(subscriber)}
-                    >
-                      <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
-                    </button>
+                    <Tooltip content="Hiq">
+                      <button
+                        type="button"
+                        className={iconButton}
+                        aria-label={`Hiq ${subscriber.email}`}
+                        onClick={() => setPendingDelete(subscriber)}
+                      >
+                        <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
+                      </button>
+                    </Tooltip>
                   </li>
                 ))}
               </ul>

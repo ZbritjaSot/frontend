@@ -5,11 +5,12 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/Spinner";
 import { OfferForm } from "@/features/offers/OfferForm";
-import { OFFER_STATUS_LABEL } from "@/features/offers/status";
+import { OFFER_STATUS_LABEL, OFFER_STATUS_HINT } from "@/features/offers/status";
 import { useAdminOfferBundle } from "@/hooks/useAdminOffers";
 import { validationMessage } from "@/lib/api";
 import { safeNextPath } from "@/lib/safeNextPath";
 import { button, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 export function AdminEditOfferScreen({ id }: { id: string }) {
   const params = useSearchParams();
@@ -49,9 +50,12 @@ export function AdminEditOfferScreen({ id }: { id: string }) {
         </Link>
         <div className="col-start-2 mt-3 flex flex-wrap items-center gap-3">
           <h1 className={`${pageTitle} mb-0!`}>Ndrysho dosjen</h1>
-          <span className={`${offerStatusClass(bundle.status)} mt-0! self-center!`}>
-            {OFFER_STATUS_LABEL[bundle.status]}
-          </span>
+          <Tooltip content={OFFER_STATUS_HINT[bundle.status]}>
+            <span
+              className={`${offerStatusClass(bundle.status)} mt-0! self-center!`}>
+              {OFFER_STATUS_LABEL[bundle.status]}
+            </span>
+          </Tooltip>
         </div>
       </div>
       <OfferForm

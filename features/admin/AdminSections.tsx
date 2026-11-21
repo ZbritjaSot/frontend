@@ -13,6 +13,7 @@ import {
 import { validationMessage } from "@/lib/api";
 import { EXCLUSIVE_LABEL } from "@/lib/exclusive";
 import { fieldError, input } from "@/lib/ui";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 const sectionKey = ["admin", "sections"] as const;
 
@@ -100,52 +101,53 @@ export function AdminSections() {
               )
             }
             trailing={(row) => (
-              <button
-                type="button"
-                role="switch"
-                aria-checked={row.is_visible}
-                aria-label={
-                  row.is_visible
-                    ? `Fike ${hints[row.key] ?? row.key}`
-                    : `Ndize ${hints[row.key] ?? row.key}`
-                }
-                disabled={row.can_enable === false}
-                title={
-                  row.can_enable === false
-                    ? "Ky seksion nuk mund të ndizet tani."
-                    : row.is_visible
-                      ? "Fike"
-                      : "Ndize"
-                }
-                className={`inline-flex items-center gap-2 border-0 bg-transparent p-0 ${
-                  row.can_enable === false ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-                }`}
-                onClick={() => {
-                  if (row.can_enable === false) {
-                    return;
+              <Tooltip content={
+                    row.can_enable === false
+                      ? "Ky seksion nuk mund të ndizet tani."
+                      : row.is_visible
+                        ? "Fike"
+                        : "Ndize"
+                  }>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={row.is_visible}
+                  aria-label={
+                    row.is_visible
+                      ? `Fike ${hints[row.key] ?? row.key}`
+                      : `Ndize ${hints[row.key] ?? row.key}`
                   }
-                  persist(
-                    rows.map(({ key, title, is_visible }) => ({
-                      key,
-                      title,
-                      is_visible: key === row.key ? !is_visible : is_visible,
-                    })),
-                  );
-                }}
-              >
-                <span
-                  className={`relative h-7 w-12 shrink-0 rounded-full motion-safe:transition-colors motion-safe:duration-200 motion-safe:ease-out ${
-                    row.is_visible ? "bg-accent" : "bg-line"
+                  disabled={row.can_enable === false}
+                  className={`inline-flex items-center gap-2 border-0 bg-transparent p-0 ${
+                    row.can_enable === false ? "cursor-not-allowed opacity-50" : "cursor-pointer"
                   }`}
+                  onClick={() => {
+                    if (row.can_enable === false) {
+                      return;
+                    }
+                    persist(
+                      rows.map(({ key, title, is_visible }) => ({
+                        key,
+                        title,
+                        is_visible: key === row.key ? !is_visible : is_visible,
+                      })),
+                    );
+                  }}
                 >
                   <span
-                    aria-hidden
-                    className={`absolute top-0.5 left-0.5 size-6 rounded-full bg-charcoal motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out ${
-                      row.is_visible ? "translate-x-5" : "translate-x-0"
+                    className={`relative h-7 w-12 shrink-0 rounded-full motion-safe:transition-colors motion-safe:duration-200 motion-safe:ease-out ${
+                      row.is_visible ? "bg-accent" : "bg-line"
                     }`}
-                  />
-                </span>
-              </button>
+                  >
+                    <span
+                      aria-hidden
+                      className={`absolute top-0.5 left-0.5 size-6 rounded-full bg-charcoal motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out ${
+                        row.is_visible ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </span>
+                </button>
+              </Tooltip>
             )}
           >
             {(row) => (

@@ -4,3 +4,4 @@ export { ConfirmModal } from "./ConfirmModal";
 export { Spinner } from "./Spinner";
 export { SelectField, type SelectOption } from "./SelectField";
 export { DateTimeField } from "./DateTimeField";
+export { Tooltip } from "./Tooltip";

@@ -1,12 +1,11 @@
 "use client";
 
-import { DeleteOutlinedIcon, EditOutlinedIcon, SendOutlinedIcon, VisibilityOutlinedIcon } from "@/components/ui/icons";
+import { DeleteOutlinedIcon, EditOutlinedIcon, VisibilityOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { OfferStatusFilters } from "@/components/ui/OfferStatusFilters";
-import { bizOfferKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
@@ -15,13 +14,7 @@ import { hasRole } from "@/features/auth/api";
 import { ManagerReview } from "@/features/biz/ManagerReview";
 import { BIZ_OFFERS_PAGE_SIZE, type BundleCatalog } from "@/features/offers/bizApi";
 import { useMe } from "@/hooks/useAuth";
-import {
-  bundleDisplayTitle,
-  canDeleteOffer,
-  canEditOffer,
-  canSubmitOffer,
-  OFFER_STATUS_LABEL,
-} from "@/features/offers/status";
+import { bundleDisplayTitle, canDeleteOffer, canEditOffer, canSubmitOffer, OFFER_STATUS_LABEL, OFFER_STATUS_HINT } from "@/features/offers/status";
 import {
   useBizOffers,
   useDeleteBizOffer,
@@ -29,11 +22,9 @@ import {
 } from "@/hooks/useBizOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { button, fieldError, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
+import { button, fieldError, iconButton, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 import type { OfferBundle } from "@/types";
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }) {
   const router = useRouter();
@@ -108,7 +99,6 @@ export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }
     return (
       <div>
         {header}
-        <IndicatorKey items={bizOfferKey} />
         <Spinner
           label={isFlyer ? "Duke ngarkuar fletushkat" : "Duke ngarkuar ofertat"}
         />
@@ -120,7 +110,6 @@ export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }
     return (
       <div>
         {header}
-        <IndicatorKey items={bizOfferKey} />
         <div className="max-w-[40rem]">
           <p className={panelLead}>
             {validationMessage(
@@ -176,7 +165,6 @@ export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }
   return (
     <div>
       {header}
-      <IndicatorKey items={bizOfferKey} />
 
       {actionError ? (
         <p className={fieldError} role="alert">
@@ -242,62 +230,64 @@ export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }
                     <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
                       {formatDateShortSq(bundle.expires_at)}
                     </p>
-                    <span
-                      className={`${offerStatusClass(bundle.status)} mt-0! w-fit self-center! md:ml-6`}
-                    >
-                      {OFFER_STATUS_LABEL[bundle.status]}
-                    </span>
-                    <div className="grid grid-cols-4 gap-1.5 border-l border-line pl-4">
-                      <Link
-                        href={`${basePath}/${bundle.id}`}
-                        className={rowButton}
-                        aria-label={`Shiko ${bundleDisplayTitle(bundle)}`}
+                    <Tooltip content={OFFER_STATUS_HINT[bundle.status]} className="w-fit self-center md:ml-6">
+                      <span
+                        className={`${offerStatusClass(bundle.status)} mt-0!`}
                       >
-                        <VisibilityOutlinedIcon fontSize="small" />
-                      </Link>
-                      {canEditOffer(bundle.status) ? (
+                        {OFFER_STATUS_LABEL[bundle.status]}
+                      </span>
+                    </Tooltip>
+                    <div className="flex flex-wrap items-center gap-1.5 border-l border-line pl-4">
+                      <Tooltip content="Shiko">
                         <Link
-                          href={`${basePath}/${bundle.id}/edit`}
-                          className={rowButton}
-                          aria-label={`Ndrysho ${bundleDisplayTitle(bundle)}`}
+                          href={`${basePath}/${bundle.id}`}
+                          className={iconButton}
+                          aria-label={`Shiko ${bundleDisplayTitle(bundle)}`}
                         >
-                          <EditOutlinedIcon fontSize="small" />
+                          <VisibilityOutlinedIcon fontSize="small" />
                         </Link>
-                      ) : (
-                        <span className="size-9" aria-hidden />
-                      )}
+                      </Tooltip>
+                      {canEditOffer(bundle.status) ? (
+                        <Tooltip content="Ndrysho">
+                          <Link
+                            href={`${basePath}/${bundle.id}/edit`}
+                            className={iconButton}
+                            aria-label={`Ndrysho ${bundleDisplayTitle(bundle)}`}
+                          >
+                            <EditOutlinedIcon fontSize="small" />
+                          </Link>
+                        </Tooltip>
+                      ) : null}
                       {canSubmitOffer(bundle.status) ? (
-                        <button
-                          type="button"
-                          className={rowButton}
-                          aria-label={`Dërgo ${bundleDisplayTitle(bundle)}`}
-                          disabled={submitMutation.isPending}
-                          onClick={() => onSubmit(bundle)}
-                        >
-                          <SendOutlinedIcon
-                            fontSize="small"
-                            className="text-accent-fg!"
-                          />
-                        </button>
-                      ) : (
-                        <span className="size-9" aria-hidden />
-                      )}
+                        <Tooltip content="Dërgo për aprovim">
+                          <button
+                            type="button"
+                            className={button({ size: "sm" })}
+                            aria-label={`Dërgo ${bundleDisplayTitle(bundle)}`}
+                            aria-busy={submitMutation.isPending}
+                            disabled={submitMutation.isPending}
+                            onClick={() => onSubmit(bundle)}
+                          >
+                            Dërgo
+                          </button>
+                        </Tooltip>
+                      ) : null}
                       {canDeleteOffer(bundle.status) ? (
-                        <button
-                          type="button"
-                          className={rowButton}
-                          aria-label={`Fshi ${bundleDisplayTitle(bundle)}`}
-                          disabled={deleteMutation.isPending}
-                          onClick={() => setBundleToDelete(bundle)}
-                        >
-                          <DeleteOutlinedIcon
-                            fontSize="small"
-                            className="text-danger!"
-                          />
-                        </button>
-                      ) : (
-                        <span className="size-9" aria-hidden />
-                      )}
+                        <Tooltip content="Fshi">
+                          <button
+                            type="button"
+                            className={iconButton}
+                            aria-label={`Fshi ${bundleDisplayTitle(bundle)}`}
+                            disabled={deleteMutation.isPending}
+                            onClick={() => setBundleToDelete(bundle)}
+                          >
+                            <DeleteOutlinedIcon
+                              fontSize="small"
+                              className="text-danger!"
+                            />
+                          </button>
+                        </Tooltip>
+                      ) : null}
                     </div>
                   </li>
                 );

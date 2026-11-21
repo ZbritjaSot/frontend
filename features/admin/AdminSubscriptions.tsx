@@ -4,7 +4,6 @@ import { HistoryOutlinedIcon, LockOpenOutlinedIcon, LockOutlinedIcon } from "@/c
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";
-import { adminSubscriptionKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { DateTimeField } from "@/components/ui/DateTimeField";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
@@ -32,7 +31,7 @@ import {
   formatEurFromCents,
 } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { button, fieldError, fieldLabel, input, pageTitle, panelLead } from "@/lib/ui";
+import { button, fieldError, fieldLabel, iconButton, input, pageTitle, panelLead } from "@/lib/ui";
 import {
   PAYMENT_METHOD_OPTIONS,
   subscriptionFormSchema,
@@ -45,16 +44,15 @@ import {
   isTrialSubscription,
   sortSubscriptionsForGroup,
   subscriptionStatusClass,
+  subscriptionStatusNote,
   subscriptionStatusLabel,
 } from "@/features/admin/subscriptionDisplay";
 import type { PaymentMethod, Subscription } from "@/types";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 const textAreaClass = `${input({ multiline: true })} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`;
 
 const SUBSCRIPTIONS_PAGE_SIZE = 15;
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
 
 const tableGrid =
   "md:grid md:grid-cols-[minmax(0,1.2fr)_auto_auto_auto_auto_auto] md:gap-x-4";
@@ -230,7 +228,6 @@ export function AdminSubscriptions() {
           </button>
         </div>
       </div>
-      <IndicatorKey items={adminSubscriptionKey} />
       <div className="mb-5 flex flex-wrap gap-x-8 gap-y-4">
         {(
           [
@@ -399,60 +396,68 @@ export function AdminSubscriptions() {
                         : paymentMethodLabel(group.latest.payment_method)}
                     </p>
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <span
-                        className={`${subscriptionStatusClass(group.latest)} mt-0! w-fit self-center!`}
-                      >
-                        {subscriptionStatusLabel(group.latest)}
-                      </span>
-                      {isEndingSoon(group.latest) ? (
+                      <Tooltip content={subscriptionStatusNote(group.latest)}>
                         <span
-                          className={`${endingSoonClass()} mt-0! w-fit self-center!`}
+                          className={`${subscriptionStatusClass(group.latest)} mt-0! w-fit self-center!`}
                         >
-                          {ENDING_SOON_LABEL}
+                          {subscriptionStatusLabel(group.latest)}
                         </span>
+                      </Tooltip>
+                      {isEndingSoon(group.latest) ? (
+                        <Tooltip content="Mbaron brenda 7 ditëve. Zgjat datat ose regjistro pagesë.">
+                          <span
+                            className={`${endingSoonClass()} mt-0! w-fit self-center!`}
+                          >
+                            {ENDING_SOON_LABEL}
+                          </span>
+                        </Tooltip>
                       ) : null}
                     </div>
                     <div className="flex items-center gap-1.5 border-l border-line pl-4">
-                      <button
-                        className={`${rowButton}${open ? " border-accent/60" : ""}`}
-                        type="button"
-                        aria-expanded={open}
-                        aria-label={
-                          open
-                            ? `Mbyll historinë e ${group.businessName}`
-                            : `Shiko historinë e ${group.businessName}`
-                        }
-                        onClick={() =>
-                          setOpenBusinessId((id) =>
-                            id === group.businessId ? null : group.businessId,
-                          )
-                        }
-                      >
-                        <HistoryOutlinedIcon
-                          fontSize="small"
-                          className={open ? "text-accent-fg!" : undefined}
-                        />
-                      </button>
-                      <button
-                        className={rowButton}
-                        type="button"
-                        aria-label={
-                          group.latest.is_active
-                            ? `Çaktivizo ${group.businessName}`
-                            : `Aktivizo ${group.businessName}`
-                        }
-                        disabled={updateMutation.isPending}
-                        onClick={() => setToToggle(group.latest)}
-                      >
-                        {group.latest.is_active ? (
-                          <LockOutlinedIcon fontSize="small" />
-                        ) : (
-                          <LockOpenOutlinedIcon
+                      <Tooltip content={open ? "Mbyll historinë" : "Shiko historinë"}>
+                        <button
+                          className={`${iconButton}${open ? " border-accent/60" : ""}`}
+                          type="button"
+                          aria-expanded={open}
+                          aria-label={
+                            open
+                              ? `Mbyll historinë e ${group.businessName}`
+                              : `Shiko historinë e ${group.businessName}`
+                          }
+                          onClick={() =>
+                            setOpenBusinessId((id) =>
+                              id === group.businessId ? null : group.businessId,
+                            )
+                          }
+                        >
+                          <HistoryOutlinedIcon
                             fontSize="small"
-                            className="text-accent-fg!"
+                            className={open ? "text-accent-fg!" : undefined}
                           />
-                        )}
-                      </button>
+                        </button>
+                      </Tooltip>
+                      <Tooltip content={group.latest.is_active ? "Çaktivizo abonimin" : "Aktivizo abonimin"}>
+                        <button
+                          className={iconButton}
+                          type="button"
+                          aria-label={
+                            group.latest.is_active
+                              ? `Çaktivizo ${group.businessName}`
+                              : `Aktivizo ${group.businessName}`
+                          }
+                          disabled={updateMutation.isPending}
+                          onClick={() => setToToggle(group.latest)}
+                        >
+                          {group.latest.is_active ? (
+                            <LockOutlinedIcon fontSize="small" />
+                          ) : (
+                            <LockOpenOutlinedIcon
+                              fontSize="small"
+                              className="text-accent-fg!"
+                            />
+                          )}
+                        </button>
+                      </Tooltip>
                     </div>
                     {open ? (
                       <div className="-mx-4 border-t border-line bg-sunken px-4 py-2 md:col-span-6">
@@ -482,17 +487,21 @@ export function AdminSubscriptions() {
                                     Fundit
                                   </span>
                                 ) : null}
-                                <span
-                                  className={`${subscriptionStatusClass(sub)} mt-0! self-center!`}
-                                >
-                                  {subscriptionStatusLabel(sub)}
-                                </span>
-                                {isEndingSoon(sub) ? (
+                                <Tooltip content={subscriptionStatusNote(sub)}>
                                   <span
-                                    className={`${endingSoonClass()} mt-0! self-center!`}
+                                    className={`${subscriptionStatusClass(sub)} mt-0! self-center!`}
                                   >
-                                    {ENDING_SOON_LABEL}
+                                    {subscriptionStatusLabel(sub)}
                                   </span>
+                                </Tooltip>
+                                {isEndingSoon(sub) ? (
+                                  <Tooltip content="Mbaron brenda 7 ditëve. Zgjat datat ose regjistro pagesë.">
+                                    <span
+                                      className={`${endingSoonClass()} mt-0! self-center!`}
+                                    >
+                                      {ENDING_SOON_LABEL}
+                                    </span>
+                                  </Tooltip>
                                 ) : null}
                               </div>
                             </div>

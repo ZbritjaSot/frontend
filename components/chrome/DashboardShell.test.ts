@@ -26,7 +26,7 @@ vi.mock("next/link", () => ({
   }) => createElement("a", { href, onClick, className, ...rest }, children),
 }));
 
-const { DashboardShell } = await import("@/components/chrome/DashboardShell");
+const { DashboardShell, groupNav } = await import("@/components/chrome/DashboardShell");
 
 function installMatchMedia() {
   window.matchMedia = ((query: string) => ({
@@ -155,6 +155,33 @@ describe("DashboardShell mobile drawer", () => {
     const drawer = document.getElementById("dash-nav");
     expect(drawer?.hasAttribute("inert")).toBe(false);
     expect(screen.getByRole("link", { name: "Në pritje" }).tabIndex).toBe(0);
+    expect(screen.getByRole("link", { name: "Në pritje" }).getAttribute("aria-current")).toBe("page");
+  });
+});
+
+describe("DashboardShell grouped nav", () => {
+  const nav = [
+    { href: "/admin", label: "Paneli" },
+    { href: "/admin/offers", label: "Në pritje", group: "Moderimi" },
+    { href: "/admin/audit", label: "Historiku", group: "Moderimi" },
+    { href: "/admin/businesses", label: "Bizneset", group: "Katalogu" },
+  ];
+
+  it("groups consecutive items by section label and keeps ungrouped items first", () => {
+    const sections = groupNav(nav);
+    expect(sections.map((section) => section.label)).toEqual([undefined, "Moderimi", "Katalogu"]);
+    expect(sections[1].items.map((item) => item.href)).toEqual(["/admin/offers", "/admin/audit"]);
+  });
+
+  it("renders labelled groups with unchanged hrefs and aria-current", () => {
+    installMatchMedia();
+    desktop = true;
+    render(createElement(DashboardShell, { area: "admin", nav }, createElement("p", null, "x")));
+
+    const moderation = screen.getByRole("group", { name: "Moderimi" });
+    expect(moderation.querySelectorAll("a")).toHaveLength(2);
+    expect(screen.getByRole("group", { name: "Katalogu" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Historiku" }).getAttribute("href")).toBe("/admin/audit");
     expect(screen.getByRole("link", { name: "Në pritje" }).getAttribute("aria-current")).toBe("page");
   });
 });

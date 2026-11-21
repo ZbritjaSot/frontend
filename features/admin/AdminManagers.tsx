@@ -5,7 +5,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { adminManagerKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
@@ -22,13 +21,11 @@ import {
 } from "@/features/branches/api";
 import { useApproveOffer } from "@/hooks/useAdminOffers";
 import { validationMessage } from "@/lib/api";
-import { button, checkInput, fieldError, fieldLabel, input, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
+import { button, checkInput, fieldError, fieldLabel, iconButton, input, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 import type { ManagerAccount, ManagerPendingOffer } from "@/types";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 const managersKey = ["admin", "managers"] as const;
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
 
 function managerError(error: unknown, fallback: string): string {
   const message = validationMessage(error, fallback);
@@ -119,7 +116,6 @@ export function AdminManagers() {
         Çdo dyqan i caktohet një menaxheri. Fletushkat në pritje shfaqen këtu dhe te
         Në pritje (të etiketuar). Aprovoji këtu ose atje kur menaxheri mungon.
       </p>
-      <IndicatorKey items={adminManagerKey} />
 
       {!managers.isLoading && !managers.isError ? (
         <div className="mb-5 flex flex-wrap gap-x-8 gap-y-4">
@@ -194,27 +190,35 @@ export function AdminManagers() {
                           ))}
                         </div>
                         <div className="flex items-center gap-1.5 border-l border-line pl-4">
-                          <button
-                            className={rowButton}
-                            type="button"
-                            aria-label={`Ndrysho dyqanet e ${manager.name || manager.email}`}
-                            onClick={() => setEditing(manager)}
-                          >
-                            <EditOutlinedIcon fontSize="small" />
-                          </button>
-                          <button
-                            className={rowButton}
-                            type="button"
-                            disabled={waiting.length > 0 || remove.isPending}
-                            aria-label={
-                              waiting.length > 0
-                                ? `Aprovoji fletushkat e ${manager.name || manager.email} para fshirjes`
-                                : `Fshi ${manager.name || manager.email}`
-                            }
-                            onClick={() => setPendingDelete(manager)}
-                          >
-                            <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
-                          </button>
+                          <Tooltip content="Ndrysho">
+                            <button
+                              className={iconButton}
+                              type="button"
+                              aria-label={`Ndrysho dyqanet e ${manager.name || manager.email}`}
+                              onClick={() => setEditing(manager)}
+                            >
+                              <EditOutlinedIcon fontSize="small" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip content={
+                                waiting.length > 0
+                                  ? "Aprovo fletushkat në pritje para fshirjes"
+                                  : "Fshi llogarinë"
+                              }>
+                            <button
+                              className={iconButton}
+                              type="button"
+                              disabled={waiting.length > 0 || remove.isPending}
+                              aria-label={
+                                waiting.length > 0
+                                  ? `Aprovoji fletushkat e ${manager.name || manager.email} para fshirjes`
+                                  : `Fshi ${manager.name || manager.email}`
+                              }
+                              onClick={() => setPendingDelete(manager)}
+                            >
+                              <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
+                            </button>
+                          </Tooltip>
                         </div>
                       </div>
                       {waiting.length > 0 ? (
@@ -224,7 +228,13 @@ export function AdminManagers() {
                               key={offer.id}
                               className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-2.5 last:border-b-0"
                             >
-                              <span className={offerStatusClass("pending")}>Në pritje</span>
+                              <Tooltip content="Fletushka pret aprovimin tënd.">
+                                <span
+                                  className={offerStatusClass("pending")}
+                                >
+                                  Në pritje
+                                </span>
+                              </Tooltip>
                               <span className="min-w-0 flex-1 truncate text-sm font-semibold">
                                 {offer.is_standalone
                                   ? "Oferta individuale"
@@ -242,13 +252,15 @@ export function AdminManagers() {
                               >
                                 Ndrysho
                               </Link>
-                              <button
-                                className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-accent-fg hover:underline"
-                                type="button"
-                                onClick={() => setApproving(offer)}
-                              >
-                                Aprovo
-                              </button>
+                              <Tooltip content="Aprovo fletushkën">
+                                <button
+                                  className={button({ size: "sm" })}
+                                  type="button"
+                                  onClick={() => setApproving(offer)}
+                                >
+                                  Aprovo
+                                </button>
+                              </Tooltip>
                             </li>
                           ))}
                         </ul>

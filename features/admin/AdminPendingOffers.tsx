@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckOutlinedIcon, VisibilityOutlinedIcon } from "@/components/ui/icons";
+import { VisibilityOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { Fragment, useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -9,19 +9,13 @@ import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
 import { useToast } from "@/components/ui/Toast";
 import { PENDING_OFFERS_PAGE_SIZE } from "@/features/admin/offersApi";
-import {
-  bundleDisplayTitle,
-  OFFER_STATUS_LABEL,
-  publicBundlePath,
-} from "@/features/offers/status";
+import { bundleDisplayTitle, OFFER_STATUS_LABEL, publicBundlePath, OFFER_STATUS_HINT } from "@/features/offers/status";
 import { useApproveOffer, usePendingOffers } from "@/hooks/useAdminOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { button, offerStatusClass, panelLead } from "@/lib/ui";
+import { button, iconButton, offerStatusClass, panelLead } from "@/lib/ui";
 import type { OfferBundle } from "@/types";
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 function PendingRow({
   bundle,
@@ -49,28 +43,35 @@ function PendingRow({
       <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
         {formatDateShortSq(bundle.expires_at)}
       </p>
-      <span
-        className={`${offerStatusClass(bundle.status)} mt-0! w-fit self-center! md:ml-6`}
-      >
-        {OFFER_STATUS_LABEL[bundle.status]}
-      </span>
+      <Tooltip content={OFFER_STATUS_HINT[bundle.status]} className="w-fit self-center md:ml-6">
+        <span
+          className={`${offerStatusClass(bundle.status)} mt-0!`}
+        >
+          {OFFER_STATUS_LABEL[bundle.status]}
+        </span>
+      </Tooltip>
       <div className="flex items-center gap-1.5 border-l border-line pl-4">
-        <Link
-          href={`/admin/offers/${bundle.id}`}
-          className={rowButton}
-          aria-label={`Shiko ${bundleDisplayTitle(bundle)}`}
-        >
-          <VisibilityOutlinedIcon fontSize="small" />
-        </Link>
-        <button
-          type="button"
-          className={rowButton}
-          aria-label={`Aprovo ${bundleDisplayTitle(bundle)}`}
-          disabled={pending}
-          onClick={() => onApprove(bundle)}
-        >
-          <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
-        </button>
+        <Tooltip content="Shiko">
+          <Link
+            href={`/admin/offers/${bundle.id}`}
+            className={iconButton}
+            aria-label={`Shiko ${bundleDisplayTitle(bundle)}`}
+          >
+            <VisibilityOutlinedIcon fontSize="small" />
+          </Link>
+        </Tooltip>
+        <Tooltip content="Aprovo dosjen">
+          <button
+            type="button"
+            className={button({ size: "sm" })}
+            aria-label={`Aprovo ${bundleDisplayTitle(bundle)}`}
+            aria-busy={pending}
+            disabled={pending}
+            onClick={() => onApprove(bundle)}
+          >
+            Aprovo
+          </button>
+        </Tooltip>
       </div>
     </li>
   );

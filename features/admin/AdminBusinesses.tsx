@@ -1,10 +1,9 @@
 "use client";
 
-import { AddOutlinedIcon, CheckOutlinedIcon, EditOutlinedIcon, ExpandMoreIcon, LockOpenOutlinedIcon, LockOutlinedIcon, StarBorderOutlinedIcon } from "@/components/ui/icons";
+import { AddOutlinedIcon, EditOutlinedIcon, ExpandMoreIcon, LockOpenOutlinedIcon, LockOutlinedIcon, StarBorderOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { DashboardKpi } from "@/components/ui/DashboardKpi";
-import { adminBusinessKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
@@ -18,9 +17,10 @@ import {
   useUpdateBusiness,
 } from "@/hooks/useAdminBusinesses";
 import { accountEmailMessage, validationMessage } from "@/lib/api";
-import { button, checkInput, fieldError, fieldLabel, input, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
+import { button, checkInput, fieldError, fieldLabel, iconButton, input, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 import { businessFormSchema, type BusinessFormInput } from "@/schemas/business";
 import type { Business } from "@/types";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 const emptyForm: BusinessFormInput = {
   name: "",
@@ -28,9 +28,6 @@ const emptyForm: BusinessFormInput = {
   owner_email: "",
   is_active: true,
 };
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
 
 const checkLabelClass =
   "flex cursor-pointer flex-row items-start gap-3 font-medium text-ink select-none";
@@ -95,9 +92,13 @@ function ShopLine({
           ) : null}
         </p>
         {business.location_status === "pending" ? (
-          <span className={`${offerStatusClass("pending")} mt-2`}>
-            Adresë në pritje
-          </span>
+          <Tooltip content="Adresa e re pret aprovim.">
+            <span
+              className={`${offerStatusClass("pending")} mt-2`}
+            >
+              Adresë në pritje
+            </span>
+          </Tooltip>
         ) : null}
       </div>
       <div className="min-w-0">
@@ -110,94 +111,120 @@ function ShopLine({
       </div>
       <div className="flex flex-wrap items-center gap-1.5 md:ml-6">
         {business.is_approved === false ? (
-          <span className={`${offerStatusClass("pending")} mt-0! w-fit self-center!`}>
-            Pret aprovim
-          </span>
+          <Tooltip content="Biznesi pret aprovimin e administratës.">
+            <span
+              className={`${offerStatusClass("pending")} mt-0! w-fit self-center!`}
+            >
+              Pret aprovim
+            </span>
+          </Tooltip>
         ) : (
-          <span
-            className={`${offerStatusClass(business.is_active ? "approved" : "rejected")} mt-0! w-fit self-center!`}
-          >
-            {business.is_active ? "Aktive" : "Joaktive"}
-          </span>
+          <Tooltip content={
+                business.is_active
+                  ? "Biznesi mund të ketë oferta publike."
+                  : "Ofertat e biznesit nuk shfaqen."
+              }>
+            <span
+              className={`${offerStatusClass(business.is_active ? "approved" : "rejected")} mt-0! w-fit self-center!`}
+            >
+              {business.is_active ? "Aktive" : "Joaktive"}
+            </span>
+          </Tooltip>
         )}
         {business.is_approved !== false && business.on_trial ? (
-          <span className={`${offerStatusClass("pending")} mt-0! w-fit self-center!`}>
-            Provë falas
-          </span>
+          <Tooltip content="Provë falas. Ofertat mund të dalin, pa pagesë.">
+            <span
+              className={`${offerStatusClass("pending")} mt-0! w-fit self-center!`}
+            >
+              Provë falas
+            </span>
+          </Tooltip>
         ) : null}
         {business.is_approved !== false && business.ending_soon ? (
-          <span className={`${offerStatusClass("expired")} mt-0! w-fit self-center!`}>
-            Skadon së shpejti
-          </span>
+          <Tooltip content="Mbaron brenda 7 ditëve. Zgjat datat ose regjistro pagesë.">
+            <span
+              className={`${offerStatusClass("expired")} mt-0! w-fit self-center!`}
+            >
+              Skadon së shpejti
+            </span>
+          </Tooltip>
         ) : null}
       </div>
-      <div className="grid grid-cols-4 gap-1.5 border-l border-line pl-4">
+      <div className="flex flex-wrap items-center gap-1.5 border-l border-line pl-4">
         {branchCount > 0 ? (
-          <button
-            type="button"
-            className={`${rowButton}${open ? " border-accent/60" : ""}`}
-            aria-expanded={open}
-            aria-label={open ? `Mbyll degët e ${business.name}` : `Hap degët e ${business.name}`}
-            onClick={onToggle}
+          <Tooltip content={open ? "Mbyll degët" : "Hap degët"}>
+            <button
+              type="button"
+              className={`${iconButton}${open ? " border-accent/60" : ""}`}
+              aria-expanded={open}
+              aria-label={open ? `Mbyll degët e ${business.name}` : `Hap degët e ${business.name}`}
+              onClick={onToggle}
+            >
+              <ExpandMoreIcon
+                fontSize="small"
+                className={open ? "rotate-180 text-accent-fg!" : ""}
+              />
+            </button>
+          </Tooltip>
+        ) : needsBranchApproval && onApprove ? (
+          <Tooltip content="Aprovo degën">
+            <button
+              type="button"
+              className={button({ size: "sm" })}
+              aria-label={`Aprovo degën ${business.name}`}
+              aria-busy={pending}
+              disabled={pending}
+              onClick={onApprove}
+            >
+              Aprovo
+            </button>
+          </Tooltip>
+        ) : null}
+        <Tooltip content="Ndrysho">
+          <Link
+            className={`${iconButton} no-underline`}
+            href={`/admin/businesses/${business.id}`}
+            aria-label={`Ndrysho ${business.name}`}
           >
-            <ExpandMoreIcon
+            <EditOutlinedIcon fontSize="small" />
+          </Link>
+        </Tooltip>
+        <Tooltip content={business.is_active ? "Çaktivizo biznesin" : "Aktivizo biznesin"}>
+          <button
+            className={iconButton}
+            type="button"
+            aria-label={
+              business.is_active ? `Çaktivizo ${business.name}` : `Aktivizo ${business.name}`
+            }
+            disabled={pending}
+            onClick={onActive}
+          >
+            {business.is_active ? (
+              <LockOutlinedIcon fontSize="small" />
+            ) : (
+              <LockOpenOutlinedIcon fontSize="small" className="text-accent-fg!" />
+            )}
+          </button>
+        </Tooltip>
+        <Tooltip content={business.is_priority ? "Hiq prioritetin" : "Jepi prioritet"}>
+          <button
+            className={iconButton}
+            type="button"
+            aria-label={
+              business.is_priority
+                ? `Hiq prioritetin e ${business.name}`
+                : `Jepi prioritet ${business.name}`
+            }
+            aria-pressed={business.is_priority === true}
+            disabled={pending}
+            onClick={onPriority}
+          >
+            <StarBorderOutlinedIcon
               fontSize="small"
-              className={open ? "rotate-180 text-accent-fg!" : ""}
+              className={business.is_priority ? "text-accent-fg!" : undefined}
             />
           </button>
-        ) : needsBranchApproval && onApprove ? (
-          <button
-            type="button"
-            className={rowButton}
-            aria-label={`Aprovo degën ${business.name}`}
-            disabled={pending}
-            onClick={onApprove}
-          >
-            <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
-          </button>
-        ) : (
-          <span className="size-9" aria-hidden />
-        )}
-        <Link
-          className={`${rowButton} no-underline`}
-          href={`/admin/businesses/${business.id}`}
-          aria-label={`Ndrysho ${business.name}`}
-        >
-          <EditOutlinedIcon fontSize="small" />
-        </Link>
-        <button
-          className={rowButton}
-          type="button"
-          aria-label={
-            business.is_active ? `Çaktivizo ${business.name}` : `Aktivizo ${business.name}`
-          }
-          disabled={pending}
-          onClick={onActive}
-        >
-          {business.is_active ? (
-            <LockOutlinedIcon fontSize="small" />
-          ) : (
-            <LockOpenOutlinedIcon fontSize="small" className="text-accent-fg!" />
-          )}
-        </button>
-        <button
-          className={rowButton}
-          type="button"
-          title={business.is_priority ? "Hiq prioritetin" : "Jepi prioritet"}
-          aria-label={
-            business.is_priority
-              ? `Hiq prioritetin e ${business.name}`
-              : `Jepi prioritet ${business.name}`
-          }
-          aria-pressed={business.is_priority === true}
-          disabled={pending}
-          onClick={onPriority}
-        >
-          <StarBorderOutlinedIcon
-            fontSize="small"
-            className={business.is_priority ? "text-accent-fg!" : undefined}
-          />
-        </button>
+        </Tooltip>
       </div>
     </li>
   );
@@ -281,7 +308,6 @@ export function AdminBusinesses({ initialScope = "" }: { initialScope?: string }
           Shto biznes
         </button>
       </div>
-      <IndicatorKey items={adminBusinessKey} />
     </>
   );
 

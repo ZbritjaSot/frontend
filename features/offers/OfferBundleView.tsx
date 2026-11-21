@@ -4,9 +4,10 @@ import {
   formatDiscountPercent,
   formatEurFromCents,
 } from "@/lib/format";
-import { OFFER_STATUS_LABEL } from "@/features/offers/status";
+import { OFFER_STATUS_LABEL, OFFER_STATUS_HINT } from "@/features/offers/status";
 import { checkInput, offerStatusClass, panelLead } from "@/lib/ui";
 import type { OfferBundle } from "@/types";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 type OfferBundleViewProps = {
   bundle: OfferBundle;
@@ -54,9 +55,12 @@ export function OfferBundleView({
       {showHeading ? (
         <>
           <header className="mb-8 flex flex-col items-start gap-3">
-            <span className={offerStatusClass(bundle.status)}>
-              {OFFER_STATUS_LABEL[bundle.status]}
-            </span>
+            <Tooltip content={OFFER_STATUS_HINT[bundle.status]}>
+              <span
+                className={offerStatusClass(bundle.status)}>
+                {OFFER_STATUS_LABEL[bundle.status]}
+              </span>
+            </Tooltip>
             <h1 className="m-0 text-[clamp(1.5rem,3vw,2rem)] leading-[1.15] font-bold tracking-[-0.03em]">
               {bundle.title}
             </h1>

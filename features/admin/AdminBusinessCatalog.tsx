@@ -3,18 +3,18 @@
 import { EditOutlinedIcon, VisibilityOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { adminBusinessCatalogKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { OfferStatusFilters } from "@/components/ui/OfferStatusFilters";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
 import { PENDING_OFFERS_PAGE_SIZE } from "@/features/admin/offersApi";
 import type { BundleCatalog } from "@/features/offers/bizApi";
-import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status";
+import { bundleDisplayTitle, OFFER_STATUS_LABEL, OFFER_STATUS_HINT } from "@/features/offers/status";
 import { useAdminBusinessBundles } from "@/hooks/useAdminOffers";
 import { validationMessage } from "@/lib/api";
 import { formatDateShortSq } from "@/lib/format";
-import { button, offerStatusClass, panelLead } from "@/lib/ui";
+import { button, iconButton, offerStatusClass, panelLead } from "@/lib/ui";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 const STATUS_OPTIONS = [
   ["", "Të gjitha"],
@@ -26,9 +26,6 @@ const STATUS_OPTIONS = [
 ] as const;
 
 type CatalogStatus = (typeof STATUS_OPTIONS)[number][0];
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60";
 
 export function AdminBusinessCatalog({
   businessId,
@@ -94,7 +91,6 @@ export function AdminBusinessCatalog({
           setStatus(value);
         }}
       />
-      <IndicatorKey items={adminBusinessCatalogKey} />
 
       {isLoading ? (
         <Spinner label={isFlyer ? "Duke ngarkuar fletushkat" : "Duke ngarkuar ofertat"} />
@@ -168,18 +164,26 @@ export function AdminBusinessCatalog({
                       <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
                         {formatDateShortSq(bundle.expires_at)}
                       </p>
-                      <span
-                        className={`${offerStatusClass(bundle.status)} mt-0! w-fit self-center! md:ml-6`}
-                      >
-                        {OFFER_STATUS_LABEL[bundle.status]}
-                      </span>
+                      <Tooltip content={OFFER_STATUS_HINT[bundle.status]} className="w-fit self-center md:ml-6">
+                        <span
+                          className={`${offerStatusClass(bundle.status)} mt-0!`}
+                        >
+                          {OFFER_STATUS_LABEL[bundle.status]}
+                        </span>
+                      </Tooltip>
                       <div className="flex items-center gap-1.5 border-l border-line pl-4">
-                        <Link href={viewHref} className={rowButton} aria-label={`Shiko ${title}`}>
-                          <VisibilityOutlinedIcon fontSize="small" />
-                        </Link>
-                        <Link href={editHref} className={rowButton} aria-label={`Ndrysho ${title}`}>
-                          <EditOutlinedIcon fontSize="small" />
-                        </Link>
+                        <Tooltip content="Shiko">
+                          <Link
+                            href={viewHref} className={iconButton} aria-label={`Shiko ${title}`}>
+                            <VisibilityOutlinedIcon fontSize="small" />
+                          </Link>
+                        </Tooltip>
+                        <Tooltip content="Ndrysho">
+                          <Link
+                            href={editHref} className={iconButton} aria-label={`Ndrysho ${title}`}>
+                            <EditOutlinedIcon fontSize="small" />
+                          </Link>
+                        </Tooltip>
                       </div>
                     </li>
                   );

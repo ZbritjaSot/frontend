@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { NavIcon } from "@/components/chrome/NavIcon";
+import { Tooltip } from "@/components/ui/Tooltip";
 const links = [
   { href: "/oferta", label: "Ofertat", match: "oferta" },
   { href: "/fletushka", label: "Fletushkat", match: "fletushka" },
@@ -102,34 +103,36 @@ export function SiteHeader() {
           >
             {open ? <CloseIcon /> : <MenuIcon />}
           </button>
-          <Link
-            href="/preferuarat"
-            aria-label="Të preferuarat"
-            aria-current={onFavorites ? "page" : undefined}
-            title="Të preferuarat"
-            onClick={() => setOpen(false)}
-            className={`${iconHit} ${
-              onFavorites
-                ? "border border-line bg-elevated text-[#ff6b7a]"
-                : "hover:bg-white/10"
-            }`}
-          >
-            <NavIcon name="favorites" filled={onFavorites} />
-          </Link>
-          <Link
-            href="/cilesimet"
-            aria-label="Cilësimet"
-            aria-current={onSettings ? "page" : undefined}
-            title="Cilësimet"
-            onClick={() => setOpen(false)}
-            className={`${iconHit} ${
-              onSettings
-                ? "border border-line bg-elevated"
-                : "hover:bg-white/10"
-            }`}
-          >
-            <NavIcon name="settings" />
-          </Link>
+          <Tooltip content="Të preferuarat">
+            <Link
+              href="/preferuarat"
+              aria-label="Të preferuarat"
+              aria-current={onFavorites ? "page" : undefined}
+              onClick={() => setOpen(false)}
+              className={`${iconHit} ${
+                onFavorites
+                  ? "border border-line bg-elevated text-[#ff6b7a]"
+                  : "hover:bg-white/10"
+              }`}
+            >
+              <NavIcon name="favorites" filled={onFavorites} />
+            </Link>
+          </Tooltip>
+          <Tooltip content="Cilësimet">
+            <Link
+              href="/cilesimet"
+              aria-label="Cilësimet"
+              aria-current={onSettings ? "page" : undefined}
+              onClick={() => setOpen(false)}
+              className={`${iconHit} ${
+                onSettings
+                  ? "border border-line bg-elevated"
+                  : "hover:bg-white/10"
+              }`}
+            >
+              <NavIcon name="settings" />
+            </Link>
+          </Tooltip>
         </div>
       </div>
 

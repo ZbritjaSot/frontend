@@ -1,14 +1,11 @@
 "use client";
 
-import { CheckOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/Spinner";
 import { useApproveBranch, usePendingBranches } from "@/hooks/useAdminBusinesses";
 import { validationMessage } from "@/lib/api";
 import { button, offerStatusClass, panelLead } from "@/lib/ui";
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 export function AdminPendingBranches() {
   const { data, isLoading, isError, error, refetch } = usePendingBranches(1, 8);
@@ -70,18 +67,25 @@ export function AdminPendingBranches() {
                     .join(" · ")}
                 </p>
               </div>
-              <span className={`${offerStatusClass("pending")} mt-0!`}>
-                Pret aprovim
-              </span>
-              <button
-                type="button"
-                className={rowButton}
-                aria-label={`Aprovo degën ${branch.name}`}
-                disabled={approve.isPending}
-                onClick={() => approve.mutate(branch.id)}
-              >
-                <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
-              </button>
+              <Tooltip content="Pret aprovimin e administratës.">
+                <span
+                  className={`${offerStatusClass("pending")} mt-0!`}
+                >
+                  Pret aprovim
+                </span>
+              </Tooltip>
+              <Tooltip content="Aprovo degën">
+                <button
+                  type="button"
+                  className={button({ size: "sm" })}
+                  aria-label={`Aprovo degën ${branch.name}`}
+                  aria-busy={approve.isPending}
+                  disabled={approve.isPending}
+                  onClick={() => approve.mutate(branch.id)}
+                >
+                  Aprovo
+                </button>
+              </Tooltip>
               <Link
                 href={`/admin/businesses/${branch.parent_id ?? branch.id}`}
                 className="text-sm font-semibold text-muted no-underline hover:text-ink"

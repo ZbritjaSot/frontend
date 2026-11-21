@@ -5,20 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { bizOfferDetailKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Spinner } from "@/components/ui/Spinner";
 import type { BundleCatalog } from "@/features/offers/bizApi";
 import { OfferBundleView } from "@/features/offers/OfferBundleView";
-import {
-  bundleDisplayTitle,
-  canEditOffer,
-  canSubmitOffer,
-  OFFER_STATUS_LABEL,
-} from "@/features/offers/status";
+import { bundleDisplayTitle, canEditOffer, canSubmitOffer, OFFER_STATUS_LABEL, OFFER_STATUS_HINT } from "@/features/offers/status";
 import { useBizOffer, useSubmitBizOffer } from "@/hooks/useBizOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
 import { button, fieldError, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 type ViewOfferScreenProps = {
   id: string;
@@ -95,11 +90,13 @@ export function ViewOfferScreen({ id, catalog = "flyers" }: ViewOfferScreenProps
           </Link>
           <div className="col-start-2 mt-3 flex flex-wrap items-center gap-3">
             <h1 className={`${pageTitle} mb-0!`}>{bundleDisplayTitle(bundle)}</h1>
-            <span
-              className={`${offerStatusClass(bundle.status)} mt-0! self-center!`}
-            >
-              {OFFER_STATUS_LABEL[bundle.status]}
-            </span>
+            <Tooltip content={OFFER_STATUS_HINT[bundle.status]}>
+              <span
+                className={`${offerStatusClass(bundle.status)} mt-0! self-center!`}
+              >
+                {OFFER_STATUS_LABEL[bundle.status]}
+              </span>
+            </Tooltip>
           </div>
           <p className="col-start-2 m-0 mt-2 text-sm text-muted">
             {formatDateShortSq(bundle.starts_at)} →{" "}
@@ -135,7 +132,6 @@ export function ViewOfferScreen({ id, catalog = "flyers" }: ViewOfferScreenProps
         </div>
       </div>
 
-      <IndicatorKey items={bizOfferDetailKey} />
 
       {actionError ? (
         <p className={fieldError} role="alert">

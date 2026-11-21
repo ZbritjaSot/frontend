@@ -8,6 +8,15 @@ export const OFFER_STATUS_LABEL: Record<OfferStatus, string> = {
   expired: "Skaduar",
 };
 
+/** Tooltip text (title) explaining each status badge. */
+export const OFFER_STATUS_HINT: Record<OfferStatus, string> = {
+  draft: "Ende nuk është dërguar për aprovim.",
+  pending: "Pret aprovimin para publikimit.",
+  approved: "Mund të dalë në faqen publike.",
+  taken_down: "Është hequr nga faqja publike.",
+  expired: "Data ka kaluar. Nuk shfaqet.",
+};
+
 /** List/detail label for standalone product batches vs flyer folders. */
 export function bundleDisplayTitle(bundle: {
   title: string;

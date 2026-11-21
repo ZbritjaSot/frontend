@@ -1,11 +1,10 @@
 "use client";
 
-import { AddOutlinedIcon, CheckOutlinedIcon, DeleteOutlinedIcon, HomeOutlinedIcon } from "@/components/ui/icons";
+import { AddOutlinedIcon, DeleteOutlinedIcon, HomeOutlinedIcon } from "@/components/ui/icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { adminBranchKey, bizBranchKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { PlaceMap } from "@/components/place/PlaceMap";
 import { geocodeAdminAddress } from "@/features/admin/businessesApi";
 import {
@@ -23,6 +22,7 @@ import { accountEmailMessage, validationMessage } from "@/lib/api";
 import { button, fieldError, fieldLabel, iconButton, input, offerStatusClass } from "@/lib/ui";
 import { useWideScreen } from "@/lib/useWideScreen";
 import type { Business } from "@/types";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 type BranchPanelProps = {
   mode: "admin" | "biz";
@@ -184,12 +184,6 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
 
   return (
     <section className="mt-8 rounded-2xl border border-line p-5 lg:col-span-2">
-      {mode === "admin" ? <IndicatorKey items={adminBranchKey} /> : null}
-      {mode === "biz" ? (
-        <IndicatorKey
-          items={canCreate ? bizBranchKey : bizBranchKey.filter((item) => item.mark !== "add")}
-        />
-      ) : null}
       <p className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">
         Degët
       </p>
@@ -251,66 +245,76 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
               <span
                 className={
                   mode === "admin"
-                    ? "grid shrink-0 grid-cols-[7.75rem_2.25rem_2.25rem_2.25rem] items-center gap-1.5"
+                    ? "flex shrink-0 items-center gap-1.5"
                     : "flex shrink-0 items-center"
                 }
               >
-                <span
-                  className={`${offerStatusClass(
-                    branch.is_approved === false
-                      ? "pending"
+                <Tooltip content={
+                      branch.is_approved === false
+                        ? "Pret aprovimin e administratës."
+                        : branch.is_active
+                          ? "Degë e aprovuar."
+                          : "E ndalur. Nuk del publike."
+                    }>
+                  <span
+                    className={`${offerStatusClass(
+                      branch.is_approved === false
+                        ? "pending"
+                        : branch.is_active
+                          ? "approved"
+                          : "rejected",
+                    )} mt-0! justify-self-end self-center!`}
+                  >
+                    {branch.is_approved === false
+                      ? "Pret aprovim"
                       : branch.is_active
-                        ? "approved"
-                        : "rejected",
-                  )} mt-0! justify-self-end self-center!`}
-                >
-                  {branch.is_approved === false
-                    ? "Pret aprovim"
-                    : branch.is_active
-                      ? "Aktive"
-                      : "Joaktive"}
-                </span>
+                        ? "Aktive"
+                        : "Joaktive"}
+                  </span>
+                </Tooltip>
                 {mode === "admin" ? (
                   branch.is_approved === false ? (
-                    <button
-                      type="button"
-                      className={iconButton}
-                      aria-label={`Aprovo degën në ${branch.city || branch.name}`}
-                      disabled={pending}
-                      aria-busy={pending}
-                      onClick={() => void onApprove(branch.id)}
-                    >
-                      <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
-                    </button>
-                  ) : (
-                    <span className="size-9" aria-hidden />
-                  )
+                    <Tooltip content="Aprovo degën">
+                      <button
+                        type="button"
+                        className={button({ size: "sm" })}
+                        aria-label={`Aprovo degën në ${branch.city || branch.name}`}
+                        disabled={pending}
+                        aria-busy={pending}
+                        onClick={() => void onApprove(branch.id)}
+                      >
+                        Aprovo
+                      </button>
+                    </Tooltip>
+                  ) : null
                 ) : null}
                 {mode === "admin" ? (
                   branch.is_approved !== false ? (
+                    <Tooltip content="Bëje kryesore">
+                      <button
+                        type="button"
+                        className={iconButton}
+                        aria-label={`Bëje kryesore degën në ${branch.city || branch.name}`}
+                        disabled={pending}
+                        onClick={() => setConfirm({ kind: "main", id: branch.id })}
+                      >
+                        <HomeOutlinedIcon fontSize="small" />
+                      </button>
+                    </Tooltip>
+                  ) : null
+                ) : null}
+                {mode === "admin" ? (
+                  <Tooltip content="Fshi">
                     <button
                       type="button"
                       className={iconButton}
-                      aria-label={`Bëje kryesore degën në ${branch.city || branch.name}`}
+                      aria-label={`Fshi degën në ${branch.city || branch.name}`}
                       disabled={pending}
-                      onClick={() => setConfirm({ kind: "main", id: branch.id })}
+                      onClick={() => setConfirm({ kind: "delete", id: branch.id })}
                     >
-                      <HomeOutlinedIcon fontSize="small" />
+                      <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
                     </button>
-                  ) : (
-                    <span className="size-9" aria-hidden />
-                  )
-                ) : null}
-                {mode === "admin" ? (
-                  <button
-                    type="button"
-                    className={iconButton}
-                    aria-label={`Fshi degën në ${branch.city || branch.name}`}
-                    disabled={pending}
-                    onClick={() => setConfirm({ kind: "delete", id: branch.id })}
-                  >
-                    <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
-                  </button>
+                  </Tooltip>
                 ) : null}
               </span>
             </li>
@@ -321,18 +325,20 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
       {canCreate ? (
         <div className="mt-5 border-t border-line pt-5">
           {mode === "biz" ? (
-            <button
-              type="button"
-              className={iconButton}
-              aria-label="Shto degë"
-              aria-expanded={panel === "create"}
-              onClick={() => {
-                setError(null);
-                setPanel((current) => (current === "create" ? "none" : "create"));
-              }}
-            >
-              <AddOutlinedIcon fontSize="small" className="text-accent-fg!" />
-            </button>
+            <Tooltip content="Shto degë">
+              <button
+                type="button"
+                className={iconButton}
+                aria-label="Shto degë"
+                aria-expanded={panel === "create"}
+                onClick={() => {
+                  setError(null);
+                  setPanel((current) => (current === "create" ? "none" : "create"));
+                }}
+              >
+                <AddOutlinedIcon fontSize="small" className="text-accent-fg!" />
+              </button>
+            </Tooltip>
           ) : (
             <button
               type="button"
@@ -502,58 +508,68 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
       ) : null}
 
       {mode === "admin" && business.parent_id ? (
-        <div className="mt-5 grid w-fit grid-cols-[7.75rem_2.25rem_2.25rem_2.25rem] items-center gap-1.5 border-t border-line pt-5">
-          <span
-            className={`${offerStatusClass(
-              business.is_approved === false
-                ? "pending"
+        <div className="mt-5 flex w-fit items-center gap-1.5 border-t border-line pt-5">
+          <Tooltip content={
+                business.is_approved === false
+                  ? "Pret aprovimin e administratës."
+                  : business.is_active
+                    ? "Degë e aprovuar."
+                    : "E ndalur. Nuk del publike."
+              }>
+            <span
+              className={`${offerStatusClass(
+                business.is_approved === false
+                  ? "pending"
+                  : business.is_active
+                    ? "approved"
+                    : "rejected",
+              )} mt-0! justify-self-end self-center!`}
+            >
+              {business.is_approved === false
+                ? "Pret aprovim"
                 : business.is_active
-                  ? "approved"
-                  : "rejected",
-            )} mt-0! justify-self-end self-center!`}
-          >
-            {business.is_approved === false
-              ? "Pret aprovim"
-              : business.is_active
-                ? "Aktive"
-                : "Joaktive"}
-          </span>
+                  ? "Aktive"
+                  : "Joaktive"}
+            </span>
+          </Tooltip>
           {business.is_approved === false ? (
-            <button
-              className={iconButton}
-              type="button"
-              aria-label="Aprovo degën"
-              disabled={pending}
-              aria-busy={pending}
-              onClick={() => void onApprove(business.id)}
-            >
-              <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
-            </button>
-          ) : (
-            <span className="size-9" aria-hidden />
-          )}
+            <Tooltip content="Aprovo degën">
+              <button
+                className={button({ size: "sm" })}
+                type="button"
+                aria-label="Aprovo degën"
+                disabled={pending}
+                aria-busy={pending}
+                onClick={() => void onApprove(business.id)}
+              >
+                Aprovo
+              </button>
+            </Tooltip>
+          ) : null}
           {business.is_approved !== false ? (
+            <Tooltip content="Bëje kryesore">
+              <button
+                className={iconButton}
+                type="button"
+                aria-label="Bëje kryesore"
+                disabled={pending}
+                onClick={() => setConfirm({ kind: "main", id: business.id })}
+              >
+                <HomeOutlinedIcon fontSize="small" />
+              </button>
+            </Tooltip>
+          ) : null}
+          <Tooltip content="Fshi">
             <button
               className={iconButton}
               type="button"
-              aria-label="Bëje kryesore"
+              aria-label="Fshi degën"
               disabled={pending}
-              onClick={() => setConfirm({ kind: "main", id: business.id })}
+              onClick={() => setConfirm({ kind: "delete", id: business.id })}
             >
-              <HomeOutlinedIcon fontSize="small" />
+              <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
             </button>
-          ) : (
-            <span className="size-9" aria-hidden />
-          )}
-          <button
-            className={iconButton}
-            type="button"
-            aria-label="Fshi degën"
-            disabled={pending}
-            onClick={() => setConfirm({ kind: "delete", id: business.id })}
-          >
-            <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
-          </button>
+          </Tooltip>
         </div>
       ) : null}
 

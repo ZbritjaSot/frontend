@@ -4,7 +4,6 @@ import { SendOutlinedIcon } from "@/components/ui/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { mailResendKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import {
   fetchMailResends,
   resendBusinessMail,
@@ -15,6 +14,7 @@ import {
 import { validationMessage } from "@/lib/api";
 import { formatDateTimeShortSq } from "@/lib/format";
 import { fieldError, iconButton } from "@/lib/ui";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 const copy: Record<
   MailTemplate,
@@ -92,9 +92,6 @@ export function MailResends({ businessId, offerBundleId, templates }: MailResend
     <section className="grid gap-4">
       <div>
         <p className="m-0 text-xs font-bold tracking-[0.08em] text-muted uppercase">Emailet</p>
-        <div className="mt-3">
-          <IndicatorKey items={mailResendKey} />
-        </div>
       </div>
       {error ? (
         <p className={fieldError} role="alert">
@@ -108,19 +105,21 @@ export function MailResends({ businessId, offerBundleId, templates }: MailResend
             className="flex items-center justify-between gap-3 border-t border-line py-3"
           >
             <span className="font-semibold">{copy[template].label}</span>
-            <button
-              type="button"
-              className={iconButton}
-              aria-label={`Ridërgo ${copy[template].label}`}
-              disabled={send.isPending}
-              aria-busy={send.isPending}
-              onClick={() => {
-                setError(null);
-                setPendingTemplate(template);
-              }}
-            >
-              <SendOutlinedIcon fontSize="small" className="text-accent-fg!" />
-            </button>
+            <Tooltip content="Ridërgo">
+              <button
+                type="button"
+                className={iconButton}
+                aria-label={`Ridërgo ${copy[template].label}`}
+                disabled={send.isPending}
+                aria-busy={send.isPending}
+                onClick={() => {
+                  setError(null);
+                  setPendingTemplate(template);
+                }}
+              >
+                <SendOutlinedIcon fontSize="small" className="text-accent-fg!" />
+              </button>
+            </Tooltip>
           </li>
         ))}
       </ul>

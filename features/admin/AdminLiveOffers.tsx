@@ -6,14 +6,12 @@ import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
 import { PENDING_OFFERS_PAGE_SIZE } from "@/features/admin/offersApi";
-import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status";
+import { bundleDisplayTitle, OFFER_STATUS_LABEL, OFFER_STATUS_HINT } from "@/features/offers/status";
 import { useApprovedOffers } from "@/hooks/useAdminOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { button, offerStatusClass, panelLead } from "@/lib/ui";
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+import { button, iconButton, offerStatusClass, panelLead } from "@/lib/ui";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 export function AdminLiveOffers({
   query,
@@ -119,19 +117,23 @@ export function AdminLiveOffers({
                     <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
                       {formatDateShortSq(bundle.expires_at)}
                     </p>
-                    <span
-                      className={`${offerStatusClass(bundle.status)} mt-0! w-fit self-center! md:ml-6`}
-                    >
-                      {OFFER_STATUS_LABEL[bundle.status]}
-                    </span>
-                    <div className="flex items-center gap-1.5 border-l border-line pl-4">
-                      <Link
-                        href={`/admin/offers/${bundle.id}`}
-                        className={rowButton}
-                        aria-label={`Shiko ${bundleDisplayTitle(bundle)}`}
+                    <Tooltip content={OFFER_STATUS_HINT[bundle.status]} className="w-fit self-center md:ml-6">
+                      <span
+                        className={`${offerStatusClass(bundle.status)} mt-0!`}
                       >
-                        <VisibilityOutlinedIcon fontSize="small" />
-                      </Link>
+                        {OFFER_STATUS_LABEL[bundle.status]}
+                      </span>
+                    </Tooltip>
+                    <div className="flex items-center gap-1.5 border-l border-line pl-4">
+                      <Tooltip content="Shiko">
+                        <Link
+                          href={`/admin/offers/${bundle.id}`}
+                          className={iconButton}
+                          aria-label={`Shiko ${bundleDisplayTitle(bundle)}`}
+                        >
+                          <VisibilityOutlinedIcon fontSize="small" />
+                        </Link>
+                      </Tooltip>
                     </div>
                   </li>
                 );

@@ -25,6 +25,8 @@ export type DashboardNavItem = {
   badgeTone?: "pending" | "danger";
   /** Screen-reader text. Defaults from the tone. */
   badgeLabel?: string;
+  /** Section heading. Consecutive items with the same group are rendered under one label. */
+  group?: string;
 };
 
 type DashboardShellProps = PropsWithChildren<{
@@ -73,6 +75,19 @@ function focusableItems(drawer: HTMLElement, trigger: HTMLElement | null) {
   return drawerItems;
 }
 
+export function groupNav(nav: DashboardNavItem[]) {
+  const sections: { label?: string; items: DashboardNavItem[] }[] = [];
+  for (const item of nav) {
+    const last = sections[sections.length - 1];
+    if (last && last.label === item.group) {
+      last.items.push(item);
+    } else {
+      sections.push({ label: item.group, items: [item] });
+    }
+  }
+  return sections;
+}
+
 export function DashboardShell({
   area,
   label,
@@ -91,6 +106,7 @@ export function DashboardShell({
   const areaLabel = label ?? (area === "admin" ? "Admin" : "Biznes");
   const logoutTo = logoutRedirectTo ?? "/login";
   const drawerClosed = !isDesktop && !menuOpen;
+  const navSections = groupNav(nav);
 
   useLayoutEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");
@@ -234,53 +250,70 @@ export function DashboardShell({
         </Link>
 
         <nav className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto" aria-label={areaLabel}>
-          {nav.map((item) => {
-            const active =
-              pathname === item.href ||
-              (item.href !== homeHref && pathname.startsWith(`${item.href}/`));
+          {navSections.map((section, sectionIndex) => (
+            <div
+              key={section.label ?? `section-${sectionIndex}`}
+              role={section.label ? "group" : undefined}
+              aria-labelledby={section.label ? `dash-nav-group-${sectionIndex}` : undefined}
+              className={`flex flex-col gap-1.5 ${section.label ? "mt-3" : ""}`}
+            >
+              {section.label ? (
+                <p
+                  id={`dash-nav-group-${sectionIndex}`}
+                  className="m-0 px-3 text-[0.6875rem] font-bold tracking-[0.08em] text-muted uppercase"
+                >
+                  {section.label}
+                </p>
+              ) : null}
+              {section.items.map((item) => {
+                const active =
+                  pathname === item.href ||
+                  (item.href !== homeHref && pathname.startsWith(`${item.href}/`));
 
-            const badge =
-              typeof item.badge === "number" && item.badge > 0
-                ? item.badge
-                : null;
-            const badgeLabel =
-              item.badgeLabel ??
-              (item.badgeTone === "danger"
-                ? `${badge} të skaduara`
-                : `${badge} në pritje`);
+                const badge =
+                  typeof item.badge === "number" && item.badge > 0
+                    ? item.badge
+                    : null;
+                const badgeLabel =
+                  item.badgeLabel ??
+                  (item.badgeTone === "danger"
+                    ? `${badge} të skaduara`
+                    : `${badge} në pritje`);
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                tabIndex={drawerClosed ? -1 : undefined}
-                className={`flex min-h-11 items-center justify-between gap-2 rounded-lg px-3 py-3 text-[0.9375rem] font-semibold text-ink/80 hover:bg-slate/12 hover:text-ink ${focusRing} ${
-                  active ? "bg-accent/28 text-ink" : ""
-                }`}
-                onClick={() => setMenuOpen(false)}
-              >
-                <span className="flex min-w-0 items-center gap-2">
-                  {item.icon}
-                  <span className="min-w-0">{item.label}</span>
-                </span>
-                {badge !== null ? (
-                  <span
-                    className={`inline-flex h-[1.35rem] min-w-[1.35rem] shrink-0 items-center justify-center rounded-full px-1.5 text-[0.6875rem] leading-none font-extrabold ${
-                      item.badgeTone === "danger"
-                        ? "bg-danger-soft text-charcoal"
-                        : item.badgeTone === "pending"
-                          ? "bg-pending text-charcoal"
-                          : "bg-accent text-on-accent"
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    tabIndex={drawerClosed ? -1 : undefined}
+                    className={`flex min-h-11 items-center justify-between gap-2 rounded-lg px-3 py-3 text-[0.9375rem] font-semibold text-ink/80 hover:bg-slate/12 hover:text-ink ${focusRing} ${
+                      active ? "bg-accent/28 text-ink" : ""
                     }`}
-                    aria-label={badgeLabel}
+                    onClick={() => setMenuOpen(false)}
                   >
-                    {badge > 99 ? "99+" : badge}
-                  </span>
-                ) : null}
-              </Link>
-            );
-          })}
+                    <span className="flex min-w-0 items-center gap-2">
+                      {item.icon}
+                      <span className="min-w-0">{item.label}</span>
+                    </span>
+                    {badge !== null ? (
+                      <span
+                        className={`inline-flex h-[1.35rem] min-w-[1.35rem] shrink-0 items-center justify-center rounded-full px-1.5 text-[0.6875rem] leading-none font-extrabold ${
+                          item.badgeTone === "danger"
+                            ? "bg-danger-soft text-charcoal"
+                            : item.badgeTone === "pending"
+                              ? "bg-pending text-charcoal"
+                              : "bg-accent text-on-accent"
+                        }`}
+                        aria-label={badgeLabel}
+                      >
+                        {badge > 99 ? "99+" : badge}
+                      </span>
+                    ) : null}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         <div className="flex shrink-0 flex-col items-start gap-3">

@@ -4,6 +4,7 @@ import { DeleteOutlinedIcon, PhotoCameraOutlinedIcon } from "@/components/ui/ico
 import { useRef, useState } from "react";
 import { flyerImageFileError, readImageSize } from "@/features/offers/flyerImageFile";
 import { fieldError } from "@/lib/ui";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 export function FlyerImageField({
   previewUrl,
@@ -59,44 +60,46 @@ export function FlyerImageField({
         Pa të, karta përdor foton e një produkti.
       </p>
       <div className="relative mt-3 w-full max-w-md">
-        <button
-          type="button"
-          disabled={disabled || reading}
-          aria-label={replaceLabel}
-          title={replaceLabel}
-          className="relative block aspect-video w-full cursor-pointer overflow-hidden rounded-2xl border border-dashed border-line bg-sunken disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-          onClick={() => inputRef.current?.click()}
-        >
-          {previewUrl ? (
-            // Native img: the preview is a local blob or an already-hosted flyer file.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={previewUrl} alt="" className="absolute inset-0 size-full object-cover" />
-          ) : (
-            <span className="grid size-full place-items-center text-sm font-semibold text-muted">
-              <PhotoCameraOutlinedIcon sx={{ fontSize: 28 }} />
-              16:9
-            </span>
-          )}
-          {previewUrl ? (
-            <span className="pointer-events-none absolute right-2 bottom-2 grid size-8 place-items-center rounded-full bg-charcoal text-accent ring-2 ring-elevated">
-              <PhotoCameraOutlinedIcon sx={{ fontSize: 18 }} />
-            </span>
-          ) : null}
-        </button>
-        {previewUrl ? (
+        <Tooltip content={replaceLabel}>
           <button
             type="button"
             disabled={disabled || reading}
-            aria-label="Hiq imazhin e fletushkës"
-            title="Hiq imazhin e fletushkës"
-            className="absolute -top-1.5 -right-1.5 grid size-6 cursor-pointer place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-60"
-            onClick={() => {
-              setError(null);
-              onClear();
-            }}
+            aria-label={replaceLabel}
+            className="relative block aspect-video w-full cursor-pointer overflow-hidden rounded-2xl border border-dashed border-line bg-sunken disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            onClick={() => inputRef.current?.click()}
           >
-            <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
+            {previewUrl ? (
+              // Native img: the preview is a local blob or an already-hosted flyer file.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={previewUrl} alt="" className="absolute inset-0 size-full object-cover" />
+            ) : (
+              <span className="grid size-full place-items-center text-sm font-semibold text-muted">
+                <PhotoCameraOutlinedIcon sx={{ fontSize: 28 }} />
+                16:9
+              </span>
+            )}
+            {previewUrl ? (
+              <span className="pointer-events-none absolute right-2 bottom-2 grid size-8 place-items-center rounded-full bg-charcoal text-accent ring-2 ring-elevated">
+                <PhotoCameraOutlinedIcon sx={{ fontSize: 18 }} />
+              </span>
+            ) : null}
           </button>
+        </Tooltip>
+        {previewUrl ? (
+          <Tooltip content="Hiq imazhin e fletushkës">
+            <button
+              type="button"
+              disabled={disabled || reading}
+              aria-label="Hiq imazhin e fletushkës"
+              className="absolute -top-1.5 -right-1.5 grid size-6 cursor-pointer place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-60"
+              onClick={() => {
+                setError(null);
+                onClear();
+              }}
+            >
+              <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
+            </button>
+          </Tooltip>
         ) : null}
       </div>
       {error ? (
