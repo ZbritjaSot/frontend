@@ -164,18 +164,20 @@ export function Pager({
 }
 
 export function EmptyNote({
+  kicker: kickerText,
   title,
   body,
   action,
 }: {
+  kicker?: string;
   title: string;
   body: string;
   action?: ReactNode;
 }) {
   return (
     <div className="max-w-xl py-6" role="status">
-      <p className={kicker}>ZbritjaSot</p>
-      <h2 className="m-0 mt-3 text-title-2">{title}</h2>
+      {kickerText ? <p className={kicker}>{kickerText}</p> : null}
+      <h2 className={kickerText ? "m-0 mt-3 text-title-2" : "m-0 text-title-2"}>{title}</h2>
       <p className="mt-4 mb-0 text-base leading-relaxed text-muted">{body}</p>
       {action ? <div className="mt-6">{action}</div> : null}
     </div>

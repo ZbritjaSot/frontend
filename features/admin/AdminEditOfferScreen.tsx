@@ -21,14 +21,14 @@ export function AdminEditOfferScreen({ id }: { id: string }) {
     : `/admin/offers/${id}`;
 
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar dosjen" />;
+    return <Spinner label="Duke ngarkuar fletushkën" />;
   }
 
   if (isError || !bundle) {
     return (
       <div className="max-w-[40rem]">
         <p className={panelLead}>
-          {validationMessage(error, "Dosja nuk u gjet.")}
+          {validationMessage(error, "Fletushka nuk u gjet.")}
         </p>
         <Link href="/admin/offers" className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
@@ -46,10 +46,10 @@ export function AdminEditOfferScreen({ id }: { id: string }) {
           className="col-span-2 grid grid-cols-subgrid items-center text-sm font-semibold text-muted no-underline hover:text-ink"
         >
           <ArrowBackIcon fontSize="small" />
-          <span>Dosja</span>
+          <span>Fletushka</span>
         </Link>
         <div className="col-start-2 mt-3 flex flex-wrap items-center gap-3">
-          <h1 className={`${pageTitle} mb-0!`}>Ndrysho dosjen</h1>
+          <h1 className={`${pageTitle} mb-0!`}>Ndrysho fletushkën</h1>
           <Tooltip content={OFFER_STATUS_HINT[bundle.status]}>
             <span
               className={`${offerStatusClass(bundle.status)} mt-0! self-center!`}>

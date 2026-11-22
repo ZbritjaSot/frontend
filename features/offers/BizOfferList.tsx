@@ -64,15 +64,21 @@ export function BizOfferList({ catalog = "flyers" }: { catalog?: BundleCatalog }
     return () => window.clearTimeout(timer);
   }, [query]);
 
-  if (manager) {
-    return <ManagerReview catalog={catalog} />;
-  }
-
   const bundles = data?.data ?? [];
   const lastPage = data?.meta?.last_page;
   const total = data?.meta?.total ?? bundles.length;
-  if (!isLoading && lastPage !== undefined && page > lastPage) {
+
+  useEffect(() => {
+    if (manager || isLoading || lastPage === undefined || page <= lastPage) {
+      return;
+    }
+    // Persist the clamp so the query key matches the pager. Stops once page <= lastPage.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(lastPage);
+  }, [manager, isLoading, lastPage, page]);
+
+  if (manager) {
+    return <ManagerReview catalog={catalog} />;
   }
 
   const header = (

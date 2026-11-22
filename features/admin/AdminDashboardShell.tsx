@@ -60,7 +60,7 @@ const baseNav: DashboardNavItem[] = [
   },
   {
     href: "/admin/newsletter",
-    label: "Newsletter",
+    label: "Buletini",
     icon: <MailOutlinedIcon fontSize="small" />,
     group: "Rritja",
   },

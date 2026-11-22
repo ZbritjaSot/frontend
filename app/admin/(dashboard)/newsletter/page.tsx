@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AdminNewsletter } from "@/features/admin/AdminNewsletter";
 
 export const metadata: Metadata = {
-  title: "Newsletter",
+  title: "Buletini",
   robots: { index: false, follow: false },
 };
 

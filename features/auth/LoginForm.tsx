@@ -1,16 +1,19 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Spinner } from "@/components/ui/Spinner";
 import { loginWithCookies, logout } from "@/features/auth/api";
+import { PasswordField } from "@/features/auth/PasswordField";
 import { hasDashboardRole, postLoginPath } from "@/features/auth/postLoginPath";
 import { meQueryKey } from "@/hooks/useAuth";
 import { validationMessage } from "@/lib/api";
 import { button, fieldError, fieldLabel, input } from "@/lib/ui";
 import { loginSchema } from "@/schemas/login";
+
+type InvalidField = "email" | "password" | "credentials";
 
 type LoginFormProps = {
   next?: string | null;
@@ -23,15 +26,24 @@ export function LoginForm({ next, forgotHref }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [invalid, setInvalid] = useState<InvalidField | null>(null);
   const [pending, setPending] = useState(false);
+  const errorId = useId();
+
+  function fieldInvalid(field: "email" | "password") {
+    return invalid === field || invalid === "credentials";
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setInvalid(null);
 
     const parsed = loginSchema.safeParse({ email, password });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Të dhënat nuk janë të vlefshme.");
+      const issue = parsed.error.issues[0];
+      setInvalid(issue?.path[0] === "password" ? "password" : "email");
+      setError(issue?.message ?? "Të dhënat nuk janë të vlefshme.");
       return;
     }
 
@@ -47,6 +59,7 @@ export function LoginForm({ next, forgotHref }: LoginFormProps) {
         }
         queryClient.setQueryData(meQueryKey, null);
         await queryClient.invalidateQueries({ queryKey: meQueryKey });
+        setInvalid("credentials");
         setError("Kjo llogari nuk ka qasje.");
         return;
       }
@@ -54,6 +67,7 @@ export function LoginForm({ next, forgotHref }: LoginFormProps) {
       queryClient.setQueryData(meQueryKey, user);
       router.replace(postLoginPath(user, next));
     } catch (err) {
+      setInvalid("credentials");
       setError(validationMessage(err, "Email ose fjalëkalim i pasaktë."));
     } finally {
       setPending(false);
@@ -62,9 +76,10 @@ export function LoginForm({ next, forgotHref }: LoginFormProps) {
 
   return (
     <form className="flex flex-col gap-5" onSubmit={onSubmit} noValidate>
-      <label className={fieldLabel}>
+      <label className={fieldLabel} htmlFor={`${errorId}-email`}>
         <span>Email</span>
         <input
+          id={`${errorId}-email`}
           className={input()}
           type="email"
           name="email"
@@ -73,22 +88,21 @@ export function LoginForm({ next, forgotHref }: LoginFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           disabled={pending}
           required
+          aria-invalid={fieldInvalid("email") || undefined}
+          aria-describedby={fieldInvalid("email") ? errorId : undefined}
         />
       </label>
 
-      <label className={fieldLabel}>
-        <span>Fjalëkalimi</span>
-        <input
-          className={input()}
-          type="password"
-          name="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={pending}
-          required
-        />
-      </label>
+      <PasswordField
+        label="Fjalëkalimi"
+        name="password"
+        autoComplete="current-password"
+        value={password}
+        onChange={setPassword}
+        disabled={pending}
+        invalid={fieldInvalid("password")}
+        describedBy={fieldInvalid("password") ? errorId : undefined}
+      />
 
       {forgotHref ? (
         <Link
@@ -100,7 +114,7 @@ export function LoginForm({ next, forgotHref }: LoginFormProps) {
       ) : null}
 
       {error ? (
-        <p className={fieldError} role="alert">
+        <p id={errorId} className={fieldError} role="alert">
           {error}
         </p>
       ) : null}

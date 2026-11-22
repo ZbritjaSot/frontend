@@ -169,7 +169,7 @@ export function OfferDetailSkeleton() {
 
 export function FlyerDetailSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Duke ngarkuar dosjen">
+    <div aria-busy="true" aria-label="Duke ngarkuar fletushkën">
       <div className="bg-forest px-5 py-8 sm:px-8">
         <div className="mx-auto grid w-full max-w-6xl gap-3">
           <Bone className="h-4 w-56 max-w-full bg-white/15" />

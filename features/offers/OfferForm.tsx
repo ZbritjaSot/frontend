@@ -38,7 +38,7 @@ import {
 import { computeDiscountPercent } from "@/lib/discount";
 import { formatDateShortSq, formatEurFromCents } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { button, fieldError, input } from "@/lib/ui";
+import { button, fieldError, fieldLabel, input } from "@/lib/ui";
 import type { BundleCatalog } from "@/features/offers/bizApi";
 import { CategoryChips } from "@/features/offers/CategoryChips";
 import { DiscountModeFields } from "@/features/offers/DiscountModeFields";
@@ -243,7 +243,7 @@ export function OfferForm({
           ? "Dërgo për aprovim"
           : "Përditëso";
   const kindLabel = isFlyer ? "Fletushkë" : "Oferta";
-  const kindTitle = isFlyer ? "Dosje e re" : "Oferta të reja";
+  const kindTitle = isFlyer ? "Fletushkë e re" : "Oferta të reja";
   const allowShare =
     audience === "biz" ||
     (audience === "admin" && (mode === "edit" || canShare)) ||
@@ -366,10 +366,32 @@ export function OfferForm({
   }
 
   function removeItem(key: string) {
+    const index = items.findIndex((item) => item.key === key);
+    if (index < 0 || items.length <= 1) {
+      return;
+    }
+    const removed = items[index];
+    const wasCover = coverKey === key;
     setCoverKey((current) => (current === key ? null : current));
-    setItems((prev) =>
-      prev.length <= 1 ? prev : prev.filter((i) => i.key !== key),
-    );
+    setItems((prev) => (prev.length <= 1 ? prev : prev.filter((item) => item.key !== key)));
+    showToast("U hoq produkti.", {
+      action: {
+        label: "Kthe",
+        onClick: () => {
+          setItems((prev) => {
+            if (prev.some((item) => item.key === removed.key)) {
+              return prev;
+            }
+            const next = [...prev];
+            next.splice(Math.min(index, next.length), 0, removed);
+            return next;
+          });
+          if (wasCover) {
+            setCoverKey((current) => current ?? removed.key);
+          }
+        },
+      },
+    });
   }
 
   async function save(thenSubmit: boolean, source: "draft" | "primary") {
@@ -588,7 +610,7 @@ export function OfferForm({
             className="mt-5 flex flex-col gap-2"
             data-offer-error={errors.form.title ? "" : undefined}
           >
-            <span className={micro}>Titulli i fletushkës</span>
+            <span className={fieldLabel}>Titulli i fletushkës</span>
             <input
               className={`${input()} text-2xl! font-bold tracking-[-0.03em]`}
               type="text"
@@ -616,7 +638,7 @@ export function OfferForm({
             className="flex flex-col gap-2"
             data-offer-error={errors.form.starts_at ? "" : undefined}
           >
-            <span className={micro}>Fillon</span>
+            <span className={fieldLabel}>Fillon</span>
             <DateTimeField
               value={startsAt}
               onChange={setStartsAt}
@@ -631,7 +653,7 @@ export function OfferForm({
             className="flex flex-col gap-2"
             data-offer-error={errors.form.expires_at ? "" : undefined}
           >
-            <span className={micro}>Skadon</span>
+            <span className={fieldLabel}>Skadon</span>
             <DateTimeField
               value={expiresAt}
               onChange={setExpiresAt}
@@ -931,7 +953,7 @@ export function OfferForm({
                       }}
                     />
                     <label className="flex min-w-0 flex-col gap-1.5">
-                      <span className={micro}>Linku i blerjes (opsional)</span>
+                      <span className={fieldLabel}>Linku i blerjes (opsional)</span>
                       <input
                         className={input()}
                         type="url"
@@ -1026,7 +1048,7 @@ export function OfferForm({
           <p className="m-0 mb-3 text-sm leading-relaxed text-muted">
             {mode === "create"
               ? "Ruhet e aprovuar menjëherë. Nuk kalon në pritje."
-              : "Ndryshimet ruhen pa e kthyer dosjen në pritje."}
+              : "Ndryshimet ruhen pa e kthyer fletushkën në pritje."}
           </p>
         ) : null}
         {error ? (

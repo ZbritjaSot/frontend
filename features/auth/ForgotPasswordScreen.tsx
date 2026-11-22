@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { ArrowBackIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { LogoMark } from "@/components/brand/LogoMark";
@@ -15,6 +15,7 @@ export function ForgotPasswordScreen() {
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [pending, setPending] = useState(false);
+  const errorId = useId();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -46,15 +47,15 @@ export function ForgotPasswordScreen() {
           aria-label="ZbritjaSot"
         >
           <LogoMark size={40} priority />
-          <Wordmark className="text-2xl" as="h1" />
+          <Wordmark className="text-2xl" />
         </Link>
 
         <p className="m-0 text-kicker text-accent-fg uppercase">
           Biznes
         </p>
-        <p className="m-0 mt-3 mb-8 text-xl font-semibold">
+        <h1 className="m-0 mt-3 mb-8 text-xl font-semibold">
           Ke harruar fjalëkalimin?
-        </p>
+        </h1>
 
         {sent ? (
           <p className="m-0 text-sm leading-relaxed text-muted">
@@ -70,6 +71,7 @@ export function ForgotPasswordScreen() {
             <label className={fieldLabel}>
               <span>Email</span>
               <input
+                id={errorId}
                 className={input()}
                 type="email"
                 name="email"
@@ -78,10 +80,12 @@ export function ForgotPasswordScreen() {
                 onChange={(event) => setEmail(event.target.value)}
                 disabled={pending}
                 required
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? `${errorId}-error` : undefined}
               />
             </label>
             {error ? (
-              <p className={fieldError} role="alert">
+              <p id={`${errorId}-error`} className={fieldError} role="alert">
                 {error}
               </p>
             ) : null}

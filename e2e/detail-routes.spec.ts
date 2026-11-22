@@ -114,7 +114,7 @@ test("admin business detail/address and pending offer edit load", async ({
     await page.goto(`/admin/offers/${created}/edit`);
     await expect(page.getByText("Diçka shkoi keq")).toHaveCount(0);
     await expect(
-      page.getByRole("heading", { name: "Ndrysho dosjen" }),
+      page.getByRole("heading", { name: "Ndrysho fletushkën" }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Përditëso" })).toBeVisible();
   } finally {

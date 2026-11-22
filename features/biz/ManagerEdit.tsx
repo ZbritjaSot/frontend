@@ -13,13 +13,13 @@ export function ManagerEdit({ id }: { id: string }) {
   const { data: bundle, isLoading, isError, error } = useManagerBundle(id);
 
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar dosjen" />;
+    return <Spinner label="Duke ngarkuar fletushkën" />;
   }
 
   if (isError || !bundle) {
     return (
       <div className="max-w-[40rem]">
-        <p className={panelLead}>{validationMessage(error, "Dosja nuk u gjet.")}</p>
+        <p className={panelLead}>{validationMessage(error, "Fletushka nuk u gjet.")}</p>
         <Link href="/biz" className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
           Në pritje
@@ -32,11 +32,11 @@ export function ManagerEdit({ id }: { id: string }) {
     return (
       <div className="max-w-[40rem]">
         <p className={panelLead}>
-          Kjo dosje nuk mund të ndryshohet (statusi: {OFFER_STATUS_LABEL[bundle.status]}).
+          Kjo fletushkë nuk mund të ndryshohet (statusi: {OFFER_STATUS_LABEL[bundle.status]}).
         </p>
         <Link href={`/biz/review/${bundle.id}`} className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
-          Dosja
+          Fletushka
         </Link>
       </div>
     );
@@ -50,9 +50,9 @@ export function ManagerEdit({ id }: { id: string }) {
           className="inline-flex items-center gap-1 text-sm font-semibold text-muted no-underline hover:text-ink"
         >
           <ArrowBackIcon fontSize="small" />
-          Dosja
+          Fletushka
         </Link>
-        <h1 className={`${pageTitle} mt-3 mb-0!`}>Ndrysho dosjen</h1>
+        <h1 className={`${pageTitle} mt-3 mb-0!`}>Ndrysho fletushkën</h1>
       </div>
       <OfferForm mode="edit" audience="manager" offer={bundle} />
     </>

@@ -4,7 +4,7 @@ test("guests are sent to login for dashboard areas", async ({ page }) => {
   await page.goto("/admin/offers");
   await expect(page).toHaveURL(/\/login/);
   await expect(page.url()).toContain("next=");
-  await expect(page.getByText("Login", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Hyr", level: 1 })).toBeVisible();
   await expect(page.getByRole("button", { name: "Hyr" })).toBeVisible();
 
   await page.goto("/biz/flyers");
@@ -17,18 +17,18 @@ test("legacy login URLs land on the unified login page", async ({ page }) => {
   await page.goto("/admin/login?next=%2Fadmin%2Foffers");
   await expect(page).toHaveURL(/\/login/);
   await expect(page.url()).toContain("next=");
-  await expect(page.getByText("Login", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Hyr", level: 1 })).toBeVisible();
 
   await page.goto("/biz/login?next=%2Fbiz%2Fflyers");
   await expect(page).toHaveURL(/\/login/);
   await expect(page.url()).toContain("next=");
-  await expect(page.getByText("Login", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Hyr", level: 1 })).toBeVisible();
 });
 
 test("invalid credentials stay on login", async ({ page }) => {
   await page.goto("/login");
   await page.getByLabel("Email").fill("nobody@test.com");
-  await page.getByLabel("Fjalëkalimi").fill("wrong-password");
+  await page.getByLabel("Fjalëkalimi", { exact: true }).fill("wrong-password");
   await page.getByRole("button", { name: "Hyr" }).click();
   await expect(page.locator("p[role='alert']")).toBeVisible();
   await expect(page).toHaveURL(/\/login/);
@@ -42,7 +42,7 @@ test("business credentials keep the session and open the business panel", async 
 
   await page.goto("/login");
   await page.getByLabel("Email").fill(bizEmail);
-  await page.getByLabel("Fjalëkalimi").fill(password);
+  await page.getByLabel("Fjalëkalimi", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Hyr" }).click();
   await expect(page).toHaveURL(/\/biz$/);
 
@@ -56,7 +56,7 @@ test("admin credentials open the admin panel", async ({ page }) => {
 
   await page.goto("/login");
   await page.getByLabel("Email").fill(adminEmail);
-  await page.getByLabel("Fjalëkalimi").fill(password);
+  await page.getByLabel("Fjalëkalimi", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Hyr" }).click();
   await expect(page).toHaveURL(/\/admin$/);
 
@@ -83,5 +83,5 @@ test("login pages keep focusable email fields", async ({ page }) => {
   await page.getByLabel("Email").focus();
   await expect(page.getByLabel("Email")).toBeFocused();
   await page.keyboard.press("Tab");
-  await expect(page.getByLabel("Fjalëkalimi")).toBeFocused();
+  await expect(page.getByLabel("Fjalëkalimi", { exact: true })).toBeFocused();
 });

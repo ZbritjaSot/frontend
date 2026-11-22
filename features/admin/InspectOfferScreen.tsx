@@ -48,14 +48,14 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
   const [takeDownReason, setTakeDownReason] = useState("");
 
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar dosjen" />;
+    return <Spinner label="Duke ngarkuar fletushkën" />;
   }
 
   if (isError || !bundle) {
     return (
       <div className="max-w-[40rem]">
         <p className={panelLead}>
-          {validationMessage(error, "Dosja nuk u gjet.")}
+          {validationMessage(error, "Fletushka nuk u gjet.")}
         </p>
         <Link href="/admin/offers" className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
@@ -89,7 +89,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
       });
       router.replace("/admin/offers");
     } catch (err) {
-      const message = validationMessage(err, "Nuk mundëm ta aprovojmë dosjen.");
+      const message = validationMessage(err, "Nuk mundëm ta aprovojmë fletushkën.");
       setActionError(message);
       showToast(message, { tone: "error" });
       setConfirmApprove(false);
@@ -121,7 +121,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
       showToast("U hoq nga faqja", { tone: "success" });
       router.replace("/admin/offers?status=approved");
     } catch (err) {
-      const message = validationMessage(err, "Nuk mundëm ta heqim dosjen.");
+      const message = validationMessage(err, "Nuk mundëm ta heqim fletushkën.");
       setActionError(message);
       showToast(message, { tone: "error" });
       setConfirmTakeDown(false);
@@ -213,7 +213,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
 
       <ConfirmModal
         open={confirmApprove}
-        title="Aprovo dosjen"
+        title="Aprovo fletushkën"
         message={`Aprovo “${bundleDisplayTitle(bundle)}”? Dalin në faqen publike.`}
         confirmLabel="Aprovo"
         cancelLabel="Anulo"

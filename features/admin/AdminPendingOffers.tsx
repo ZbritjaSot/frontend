@@ -2,7 +2,7 @@
 
 import { VisibilityOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
@@ -60,7 +60,7 @@ function PendingRow({
             <VisibilityOutlinedIcon fontSize="small" />
           </Link>
         </Tooltip>
-        <Tooltip content="Aprovo dosjen">
+        <Tooltip content="Aprovo fletushkën">
           <button
             type="button"
             className={button({ size: "sm" })}
@@ -94,6 +94,14 @@ export function AdminPendingOffers({
   const approve = useApproveOffer();
   const [confirm, setConfirm] = useState<OfferBundle | null>(null);
   const { showToast } = useToast();
+  const lastPage = data?.meta?.last_page;
+
+  useEffect(() => {
+    if (isLoading || isError || lastPage === undefined || page <= lastPage) {
+      return;
+    }
+    onPageChange(lastPage);
+  }, [isLoading, isError, lastPage, page, onPageChange]);
 
   if (isLoading) {
     return <Spinner label="Duke ngarkuar listën" />;
@@ -113,11 +121,7 @@ export function AdminPendingOffers({
   }
 
   const bundles = data?.data ?? [];
-  const lastPage = data?.meta?.last_page;
   const total = data?.meta?.total ?? bundles.length;
-  if (lastPage !== undefined && page > lastPage) {
-    onPageChange(lastPage);
-  }
 
   const direct = bundles.filter((bundle) => bundle.awaits_manager !== true);
   const managed = bundles.filter((bundle) => bundle.awaits_manager === true);
@@ -197,7 +201,7 @@ export function AdminPendingOffers({
       )}
       <ConfirmModal
         open={confirm !== null}
-        title="Aprovo dosjen"
+        title="Aprovo fletushkën"
         message={
           approve.isError
             ? validationMessage(approve.error, "Nuk mundëm ta aprovojmë.")

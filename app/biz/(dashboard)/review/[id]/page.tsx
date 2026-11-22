@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ManagerInspect } from "@/features/biz/ManagerInspect";
 
 export const metadata: Metadata = {
-  title: "Shiko dosjen",
+  title: "Shiko fletushkën",
   robots: { index: false, follow: false },
 };
 

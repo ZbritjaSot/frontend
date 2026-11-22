@@ -20,8 +20,7 @@ export function SettingsPanel() {
   return (
     <Band pad="page">
       <div className="max-w-xl">
-        <p className={kicker}>Aplikacioni</p>
-        <h1 className="m-0 mt-2 text-title-1">
+        <h1 className="m-0 text-title-1">
           Cilësimet
         </h1>
         <p className="mt-3 mb-0 text-base leading-relaxed text-muted">

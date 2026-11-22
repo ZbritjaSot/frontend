@@ -111,7 +111,7 @@ export function OfferBundleView({
 
       <h2 className="sr-only">Produktet</h2>
       {items.length === 0 ? (
-        <p className={panelLead}>Nuk ka produkte në këtë dosje.</p>
+        <p className={panelLead}>Nuk ka produkte në këtë fletushkë.</p>
       ) : selectable ? (
         <div className="overflow-hidden rounded-2xl border border-line">
           <div className={`overflow-x-auto md:grid ${columnClass} md:gap-x-4`}>

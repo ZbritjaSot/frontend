@@ -22,13 +22,13 @@ export function ManagerInspect({ id }: { id: string }) {
   const { showToast } = useToast();
 
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar dosjen" />;
+    return <Spinner label="Duke ngarkuar fletushkën" />;
   }
 
   if (isError || !bundle) {
     return (
       <div className="max-w-[40rem]">
-        <p className={panelLead}>{validationMessage(error, "Dosja nuk u gjet.")}</p>
+        <p className={panelLead}>{validationMessage(error, "Fletushka nuk u gjet.")}</p>
         <Link href="/biz" className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
           Në pritje
@@ -53,7 +53,7 @@ export function ManagerInspect({ id }: { id: string }) {
       });
       router.replace("/biz");
     } catch (err) {
-      const message = validationMessage(err, "Nuk mundëm ta aprovojmë dosjen.");
+      const message = validationMessage(err, "Nuk mundëm ta aprovojmë fletushkën.");
       setActionError(message);
       showToast(message, { tone: "error" });
       setConfirm(false);
@@ -91,7 +91,7 @@ export function ManagerInspect({ id }: { id: string }) {
       <OfferBundleView bundle={bundle} showBusiness showHeading={false} />
       <ConfirmModal
         open={confirm}
-        title="Aprovo dosjen"
+        title="Aprovo fletushkën"
         message={`Aprovo “${bundleDisplayTitle(bundle)}”? Del në faqen publike.`}
         confirmLabel="Aprovo"
         pending={approve.isPending}

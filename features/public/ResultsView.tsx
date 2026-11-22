@@ -7,7 +7,6 @@ import { FilterChips } from "@/features/public/FilterChips";
 import { Band, EmptyNote, Pager, SectionHeading } from "@/features/public/Frame";
 import { ProductGrid } from "@/features/public/ProductPoster";
 import { locationLabel } from "@/features/public/compose";
-import { kicker as kickerClass } from "@/features/public/tone";
 import { ShopLogo } from "@/features/public/visuals";
 import {
   browsePath,
@@ -67,7 +66,6 @@ export function ResultsView({
       : katalog === "oferta"
         ? (categoryName ?? "Ofertat")
         : (categoryName ?? "Zbritjet");
-  const kicker = katalog === "fletushka" ? "Katalogu" : q ? "Kërkimi" : "Katalogu";
   const flyerCatalogue = katalog === "fletushka";
   const catalogue = katalog === "oferta" || katalog === "fletushka";
   const showFlyerGrid = flyerCatalogue;
@@ -99,8 +97,7 @@ export function ResultsView({
 
   return (
     <Band pad="page">
-      <p className={kickerClass}>{kicker}</p>
-      <h1 className="m-0 mt-2 max-w-4xl text-title-1 break-words line-clamp-2">
+      <h1 className="m-0 max-w-4xl text-title-1 break-words line-clamp-2">
         {title}
       </h1>
       {!noActiveFlyers ? (
