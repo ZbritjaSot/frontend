@@ -88,6 +88,7 @@ export function withCampaign(folder: PublicFolder): PublicOffer[] {
     bundle: item.bundle ?? {
       id: folder.id,
       title: folder.title,
+      is_standalone: false,
       starts_at: folder.starts_at,
       expires_at: folder.expires_at,
     },

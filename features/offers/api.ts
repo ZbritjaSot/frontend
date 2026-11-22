@@ -217,6 +217,41 @@ export async function fetchPublicOffer(id: string): Promise<PublicOffer> {
   return payload.data;
 }
 
+/** Backend cap per batch request (BatchPublicOffersRequest::MAX_IDS). */
+export const BATCH_MAX_IDS = 50;
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** The batch endpoints 422 on anything that is not a uuid, so callers filter first. */
+export function isBatchableId(id: string): boolean {
+  return UUID_PATTERN.test(id);
+}
+
+async function fetchBatch<T>(path: string, ids: string[]): Promise<T[]> {
+  const chunks: string[][] = [];
+  for (let index = 0; index < ids.length; index += BATCH_MAX_IDS) {
+    chunks.push(ids.slice(index, index + BATCH_MAX_IDS));
+  }
+  const pages = await Promise.all(
+    chunks.map((chunk) =>
+      apiFetch<{ data: T[] }>(`${path}?ids=${chunk.map(encodeURIComponent).join(",")}`, {
+        ...PUBLIC_FETCH,
+      }),
+    ),
+  );
+  return pages.flatMap((page) => page.data);
+}
+
+/** Favourites hydration: live offers by id. Missing/expired ids are omitted, not errors. */
+export function fetchPublicOffersBatch(ids: string[]): Promise<PublicOffer[]> {
+  return fetchBatch<PublicOffer>("/offers/batch", ids);
+}
+
+/** Favourites hydration: live flyers by id, in card shape (`items` is empty). */
+export function fetchPublicFoldersBatch(ids: string[]): Promise<PublicFolder[]> {
+  return fetchBatch<PublicFolder>("/offer-folders/batch", ids);
+}
+
 export function isNotFound(error: unknown): boolean {
   return error instanceof ApiError && error.status === 404;
 }

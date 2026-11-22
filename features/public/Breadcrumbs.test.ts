@@ -42,6 +42,24 @@ describe("offerCrumbs", () => {
     ]);
   });
 
+  it("skips a standalone batch flagged is_standalone even with a product-style title", () => {
+    const crumbs = offerCrumbs({
+      name: "Këmishë",
+      categories: [mode],
+      bundle: { id: "b-2", title: "Këmisha polo", is_standalone: true, starts_at: "", expires_at: "" },
+    });
+    expect(crumbs.map((crumb) => crumb.label)).toEqual(["Ofertat", "Modë", "Këmishë"]);
+  });
+
+  it("uses is_standalone=false over the title when the field is present", () => {
+    const crumbs = offerCrumbs({
+      name: "Qumësht",
+      categories: [],
+      bundle: { id: "f-2", title: "Oferta individuale", is_standalone: false, starts_at: "", expires_at: "" },
+    });
+    expect(crumbs[1]).toEqual({ label: "Oferta individuale", href: "/dosje/f-2" });
+  });
+
   it("still trails up to Ofertat when the offer has no category and no flyer", () => {
     expect(
       offerCrumbs({

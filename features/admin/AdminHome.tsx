@@ -15,6 +15,7 @@ import {
 } from "@/features/admin/homeCurationApi";
 import { validationMessage } from "@/lib/api";
 import { button, fieldError, iconButton, input, panelLead } from "@/lib/ui";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 const homeKey = ["admin", "home"] as const;
 
@@ -110,20 +111,22 @@ export function AdminHome() {
                 label={(offer) => offer.name}
                 onReorder={(ids) => saveHero.mutate(ids)}
                 trailing={(offer) => (
-                  <button
-                    className={iconButton}
-                    type="button"
-                    aria-label={`Hiq ${offer.name}`}
-                    disabled={saveHero.isPending}
-                    aria-busy={saveHero.isPending}
-                    onClick={() =>
-                      saveHero.mutate(
-                        heroes.filter((item) => item.id !== offer.id).map((item) => item.id),
-                      )
-                    }
-                  >
-                    <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
-                  </button>
+                  <Tooltip content="Hiq">
+                    <button
+                      className={iconButton}
+                      type="button"
+                      aria-label={`Hiq ${offer.name}`}
+                      disabled={saveHero.isPending}
+                      aria-busy={saveHero.isPending}
+                      onClick={() =>
+                        saveHero.mutate(
+                          heroes.filter((item) => item.id !== offer.id).map((item) => item.id),
+                        )
+                      }
+                    >
+                      <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
+                    </button>
+                  </Tooltip>
                 )}
               >
                 {(offer) => (
@@ -203,18 +206,20 @@ export function AdminHome() {
                             .join(" · ")}
                         </p>
                       </div>
-                      <button
-                        className={iconButton}
-                        type="button"
-                        aria-label={`Shto ${offer.name}`}
-                        disabled={saveHero.isPending}
-                        aria-busy={saveHero.isPending}
-                        onClick={() =>
-                          saveHero.mutate([...heroes.map((item) => item.id), offer.id])
-                        }
-                      >
-                        <AddOutlinedIcon fontSize="small" className="text-accent-fg!" />
-                      </button>
+                      <Tooltip content="Shto">
+                        <button
+                          className={iconButton}
+                          type="button"
+                          aria-label={`Shto ${offer.name}`}
+                          disabled={saveHero.isPending}
+                          aria-busy={saveHero.isPending}
+                          onClick={() =>
+                            saveHero.mutate([...heroes.map((item) => item.id), offer.id])
+                          }
+                        >
+                          <AddOutlinedIcon fontSize="small" className="text-accent-fg!" />
+                        </button>
+                      </Tooltip>
                     </li>
                   ))}
                 </ul>
@@ -247,22 +252,24 @@ export function AdminHome() {
                 label={(category) => category.name}
                 onReorder={(ids) => saveSpotlight.mutate(ids)}
                 trailing={(category) => (
-                  <button
-                    className={iconButton}
-                    type="button"
-                    aria-label={`Hiq ${category.name}`}
-                    disabled={saveSpotlight.isPending}
-                    aria-busy={saveSpotlight.isPending}
-                    onClick={() =>
-                      saveSpotlight.mutate(
-                        spotlight
-                          .filter((item) => item.id !== category.id)
-                          .map((item) => item.id),
-                      )
-                    }
-                  >
-                    <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
-                  </button>
+                  <Tooltip content="Hiq">
+                    <button
+                      className={iconButton}
+                      type="button"
+                      aria-label={`Hiq ${category.name}`}
+                      disabled={saveSpotlight.isPending}
+                      aria-busy={saveSpotlight.isPending}
+                      onClick={() =>
+                        saveSpotlight.mutate(
+                          spotlight
+                            .filter((item) => item.id !== category.id)
+                            .map((item) => item.id),
+                        )
+                      }
+                    >
+                      <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
+                    </button>
+                  </Tooltip>
                 )}
               >
                 {(category) => (
@@ -292,21 +299,23 @@ export function AdminHome() {
                           <p className="m-0 truncate text-sm text-muted">{category.slug}</p>
                         ) : null}
                       </div>
-                      <button
-                        className={iconButton}
-                        type="button"
-                        aria-label={`Shto ${category.name}`}
-                        disabled={saveSpotlight.isPending}
-                        aria-busy={saveSpotlight.isPending}
-                        onClick={() =>
-                          saveSpotlight.mutate([
-                            ...spotlight.map((item) => item.id),
-                            category.id,
-                          ])
-                        }
-                      >
-                        <AddOutlinedIcon fontSize="small" className="text-accent-fg!" />
-                      </button>
+                      <Tooltip content="Shto">
+                        <button
+                          className={iconButton}
+                          type="button"
+                          aria-label={`Shto ${category.name}`}
+                          disabled={saveSpotlight.isPending}
+                          aria-busy={saveSpotlight.isPending}
+                          onClick={() =>
+                            saveSpotlight.mutate([
+                              ...spotlight.map((item) => item.id),
+                              category.id,
+                            ])
+                          }
+                        >
+                          <AddOutlinedIcon fontSize="small" className="text-accent-fg!" />
+                        </button>
+                      </Tooltip>
                     </li>
                   ))}
                 </ul>

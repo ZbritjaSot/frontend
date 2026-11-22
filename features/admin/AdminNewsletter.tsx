@@ -1,12 +1,12 @@
 "use client";
 
 import { DeleteOutlinedIcon } from "@/components/ui/icons";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useId, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { adminNewsletterKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
+import { TabPanel, Tabs } from "@/components/ui/Tabs";
 import {
   NEWSLETTER_PAGE_SIZE,
   type NewsletterPick,
@@ -21,9 +21,7 @@ import {
 import { validationMessage } from "@/lib/api";
 import { formatDateSq } from "@/lib/format";
 import { button, fieldError, fieldLabel, iconButton, input, pageTitle, panelLead } from "@/lib/ui";
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 type Kind = "offer" | "bundle" | "business";
 
@@ -124,6 +122,7 @@ export function AdminNewsletter() {
   const [offers, setOffers] = useState<NewsletterPick[]>([]);
   const [bundles, setBundles] = useState<NewsletterPick[]>([]);
   const [shops, setShops] = useState<NewsletterPick[]>([]);
+  const tabsId = useId();
   const [tab, setTab] = useState<Kind>("offer");
   const [formError, setFormError] = useState<string | null>(null);
   const [sentCount, setSentCount] = useState<number | null>(null);
@@ -221,7 +220,6 @@ export function AdminNewsletter() {
       <p className={`${panelLead} mb-6 max-w-xl`}>
         Zgjidh ofertat, fletushkat dhe dyqanet. Çdo adresë merr email-in e vet.
       </p>
-      <IndicatorKey items={adminNewsletterKey} />
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
         <form
@@ -274,36 +272,33 @@ export function AdminNewsletter() {
               <p className="m-0 text-sm font-semibold text-ink">Përmbajtja</p>
               <p className="m-0 text-xs text-muted">Deri në 12 për lloj</p>
             </div>
-            <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Lloji i përmbajtjes">
-              {kinds.map((item) => {
+            <Tabs
+              variant="pill"
+              label="Lloji i përmbajtjes"
+              idPrefix={tabsId}
+              value={tab}
+              onChange={setTab}
+              tabs={kinds.map((item) => {
                 const count =
                   item.kind === "offer"
                     ? offers.length
                     : item.kind === "bundle"
                       ? bundles.length
                       : shops.length;
-                const selected = tab === item.kind;
-                return (
-                  <button
-                    key={item.kind}
-                    type="button"
-                    role="tab"
-                    aria-selected={selected}
-                    className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border px-3 text-sm font-semibold ${
-                      selected
-                        ? "border-accent bg-accent/15 text-ink"
-                        : "border-line bg-transparent text-muted hover:text-ink"
-                    }`}
-                    onClick={() => setTab(item.kind)}
-                  >
-                    {item.label}
-                    <span className={count > 0 ? "text-xs text-ink" : "text-xs text-muted"}>
-                      {count}
-                    </span>
-                  </button>
-                );
+                return {
+                  id: item.kind,
+                  label: (
+                    <>
+                      {item.label}
+                      <span className={count > 0 ? "text-xs text-ink" : "text-xs text-muted"}>
+                        {count}
+                      </span>
+                    </>
+                  ),
+                };
               })}
-            </div>
+            />
+            <TabPanel idPrefix={tabsId} id={tab}>
             <PickSearch
               key={tab}
               kind={activeKind.kind}
@@ -311,6 +306,7 @@ export function AdminNewsletter() {
               selected={activeSelected}
               onAdd={(item) => setActive([...activeSelected, item])}
             />
+            </TabPanel>
             {picked.length > 0 ? (
               <div className="grid gap-4">
                 {groups.map((group) =>
@@ -331,16 +327,18 @@ export function AdminNewsletter() {
                                 <span className="block truncate text-xs text-muted">{item.detail}</span>
                               ) : null}
                             </span>
-                            <button
-                              type="button"
-                              className={iconButton}
-                              aria-label={`Hiq ${item.title}`}
-                              onClick={() =>
-                                group.clear(group.items.filter((pickedItem) => pickedItem.id !== item.id))
-                              }
-                            >
-                              <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
-                            </button>
+                            <Tooltip content="Hiq">
+                              <button
+                                type="button"
+                                className={iconButton}
+                                aria-label={`Hiq ${item.title}`}
+                                onClick={() =>
+                                  group.clear(group.items.filter((pickedItem) => pickedItem.id !== item.id))
+                                }
+                              >
+                                <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
+                              </button>
+                            </Tooltip>
                           </li>
                         ))}
                       </ul>
@@ -417,14 +415,16 @@ export function AdminNewsletter() {
                         </span>
                       ) : null}
                     </span>
-                    <button
-                      type="button"
-                      className={rowButton}
-                      aria-label={`Hiq ${subscriber.email}`}
-                      onClick={() => setPendingDelete(subscriber)}
-                    >
-                      <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
-                    </button>
+                    <Tooltip content="Hiq">
+                      <button
+                        type="button"
+                        className={iconButton}
+                        aria-label={`Hiq ${subscriber.email}`}
+                        onClick={() => setPendingDelete(subscriber)}
+                      >
+                        <DeleteOutlinedIcon fontSize="small" className="text-danger!" />
+                      </button>
+                    </Tooltip>
                   </li>
                 ))}
               </ul>

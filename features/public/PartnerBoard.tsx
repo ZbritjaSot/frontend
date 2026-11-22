@@ -208,7 +208,7 @@ function RailButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border border-line bg-elevated text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-default disabled:opacity-35 dark:border-white/10 dark:bg-[#1a2420]"
+      className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-line bg-elevated text-ink hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-default disabled:opacity-35 disabled:hover:bg-elevated dark:border-white/10 dark:bg-[#1a2420] dark:hover:bg-hover dark:disabled:hover:bg-[#1a2420]"
     >
       <NavIcon name={direction === "left" ? "chevron-left" : "chevron-right"} className="size-4" />
     </button>

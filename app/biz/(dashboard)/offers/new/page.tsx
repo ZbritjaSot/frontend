@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BizNewOfferScreen } from "@/features/offers/BizNewOfferScreen";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Oferta të reja",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function BizNewOffersPage() {
-  return <BizNewOfferScreen catalog="offers" />;
+  return <PageWidth variant="form"><BizNewOfferScreen catalog="offers" /></PageWidth>;
 }

@@ -91,6 +91,27 @@ export function formatDateTimeShortSq(value: string | Date): string {
   return `${parts.day}.${parts.month}.${parts.year} ${parts.hour}:${parts.minute}`;
 }
 
+const WEEKDAYS_SQ = [
+  "e hënë",
+  "e martë",
+  "e mërkurë",
+  "e enjte",
+  "e premte",
+  "e shtunë",
+  "e diel",
+] as const;
+
+/** Full weekday date for a calendar cell, e.g. `e hënë, 12 nëntor 2026`. */
+export function formatWeekdayDateSq(year: number, month: number, day: number): string {
+  const monthName = MONTHS_SQ[month - 1];
+  if (!monthName) {
+    return "—";
+  }
+  const sundayBased = new Date(year, month - 1, day).getDay();
+  const weekday = WEEKDAYS_SQ[(sundayBased + 6) % 7];
+  return `${weekday}, ${day} ${monthName} ${year}`;
+}
+
 /** Calendar day already chosen in the form, e.g. `22 shtator 2026`. */
 export function formatCalendarDateSq(
   year: number,

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BizHomeGate } from "@/features/biz/BizHomeGate";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Biznes",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function BizHomePage() {
-  return <BizHomeGate />;
+  return <PageWidth variant="wide"><BizHomeGate /></PageWidth>;
 }

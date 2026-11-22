@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { adminInspectKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
 import { useToast } from "@/components/ui/Toast";
@@ -19,11 +18,7 @@ import {
 import { validationMessage } from "@/lib/api";
 import { safeNextPath } from "@/lib/safeNextPath";
 import { formatDateShortSq } from "@/lib/format";
-import {
-  bundleDisplayTitle,
-  OFFER_STATUS_LABEL,
-  publicBundlePath,
-} from "@/features/offers/status";
+import { bundleDisplayTitle, OFFER_STATUS_LABEL, publicBundlePath, OFFER_STATUS_HINT } from "@/features/offers/status";
 import {
   button,
   fieldError,
@@ -33,6 +28,7 @@ import {
   pageTitle,
   panelLead,
 } from "@/lib/ui";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 type InspectOfferScreenProps = {
   id: string;
@@ -52,14 +48,14 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
   const [takeDownReason, setTakeDownReason] = useState("");
 
   if (isLoading) {
-    return <Spinner label="Duke ngarkuar dosjen" />;
+    return <Spinner label="Duke ngarkuar fletushkën" />;
   }
 
   if (isError || !bundle) {
     return (
       <div className="max-w-[40rem]">
         <p className={panelLead}>
-          {validationMessage(error, "Dosja nuk u gjet.")}
+          {validationMessage(error, "Fletushka nuk u gjet.")}
         </p>
         <Link href="/admin/offers" className={button({ variant: "secondary" })}>
           <ArrowBackIcon fontSize="small" />
@@ -93,7 +89,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
       });
       router.replace("/admin/offers");
     } catch (err) {
-      const message = validationMessage(err, "Nuk mundëm ta aprovojmë dosjen.");
+      const message = validationMessage(err, "Nuk mundëm ta aprovojmë fletushkën.");
       setActionError(message);
       showToast(message, { tone: "error" });
       setConfirmApprove(false);
@@ -125,7 +121,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
       showToast("U hoq nga faqja", { tone: "success" });
       router.replace("/admin/offers?status=approved");
     } catch (err) {
-      const message = validationMessage(err, "Nuk mundëm ta heqim dosjen.");
+      const message = validationMessage(err, "Nuk mundëm ta heqim fletushkën.");
       setActionError(message);
       showToast(message, { tone: "error" });
       setConfirmTakeDown(false);
@@ -145,11 +141,13 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
           </Link>
           <div className="col-start-2 mt-3 flex flex-wrap items-center gap-3">
             <h1 className={`${pageTitle} mb-0!`}>{bundleDisplayTitle(bundle)}</h1>
-            <span
-              className={`${offerStatusClass(bundle.status)} mt-0! self-center!`}
-            >
-              {OFFER_STATUS_LABEL[bundle.status]}
-            </span>
+            <Tooltip content={OFFER_STATUS_HINT[bundle.status]}>
+              <span
+                className={`${offerStatusClass(bundle.status)} mt-0! self-center!`}
+              >
+                {OFFER_STATUS_LABEL[bundle.status]}
+              </span>
+            </Tooltip>
           </div>
           <p className="col-start-2 m-0 mt-2 text-sm text-muted">
             {bundle.business?.name ?? "Biznes"}
@@ -195,7 +193,6 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
         </div>
       </div>
 
-      <IndicatorKey items={adminInspectKey} />
 
       {actionError ? (
         <p className={fieldError} role="alert">
@@ -216,7 +213,7 @@ export function InspectOfferScreen({ id }: InspectOfferScreenProps) {
 
       <ConfirmModal
         open={confirmApprove}
-        title="Aprovo dosjen"
+        title="Aprovo fletushkën"
         message={`Aprovo “${bundleDisplayTitle(bundle)}”? Dalin në faqen publike.`}
         confirmLabel="Aprovo"
         cancelLabel="Anulo"

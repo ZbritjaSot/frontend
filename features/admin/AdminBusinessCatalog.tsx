@@ -3,18 +3,19 @@
 import { EditOutlinedIcon, VisibilityOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { adminBusinessCatalogKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { OfferStatusFilters } from "@/components/ui/OfferStatusFilters";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
 import { PENDING_OFFERS_PAGE_SIZE } from "@/features/admin/offersApi";
 import type { BundleCatalog } from "@/features/offers/bizApi";
-import { bundleDisplayTitle, OFFER_STATUS_LABEL } from "@/features/offers/status";
+import { bundleDisplayTitle, OFFER_STATUS_LABEL, OFFER_STATUS_HINT } from "@/features/offers/status";
 import { useAdminBusinessBundles } from "@/hooks/useAdminOffers";
 import { validationMessage } from "@/lib/api";
 import { formatDateShortSq } from "@/lib/format";
-import { button, offerStatusClass, panelLead } from "@/lib/ui";
+import { button, iconButton, offerStatusClass, panelLead } from "@/lib/ui";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { CellLabel, dataCell, dataRowCard } from "@/components/ui/DataRow";
 
 const STATUS_OPTIONS = [
   ["", "Të gjitha"],
@@ -26,9 +27,6 @@ const STATUS_OPTIONS = [
 ] as const;
 
 type CatalogStatus = (typeof STATUS_OPTIONS)[number][0];
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60";
 
 export function AdminBusinessCatalog({
   businessId,
@@ -94,7 +92,6 @@ export function AdminBusinessCatalog({
           setStatus(value);
         }}
       />
-      <IndicatorKey items={adminBusinessCatalogKey} />
 
       {isLoading ? (
         <Spinner label={isFlyer ? "Duke ngarkuar fletushkat" : "Duke ngarkuar ofertat"} />
@@ -149,37 +146,49 @@ export function AdminBusinessCatalog({
                   return (
                     <li
                       key={bundle.id}
-                      className="col-span-5 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
+                      className={`col-span-5 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4 ${dataRowCard}`}
                     >
-                      <div className="min-w-0">
+                      <div className={`min-w-0 ${dataCell.title}`}>
                         <Link
                           href={viewHref}
-                          className="truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg"
+                          className={`truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg ${dataCell.titleText}`}
                         >
                           {title}
                         </Link>
                         {bundle.status === "taken_down" && bundle.rejection_reason ? (
-                          <p className="m-0 truncate text-sm font-semibold text-danger">
+                          <p className={`m-0 truncate text-sm font-semibold text-danger ${dataCell.titleText}`}>
                             {bundle.rejection_reason}
                           </p>
                         ) : null}
                       </div>
-                      <p className="m-0 text-sm font-semibold tabular-nums md:pl-6">{count}</p>
-                      <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
+                      <p className={`m-0 text-sm font-semibold tabular-nums md:pl-6 ${dataCell.metaNowrap}`}>
+                        <CellLabel>{isFlyer ? "Produkte" : "Artikuj"}</CellLabel>
+                        {count}
+                      </p>
+                      <p className={`m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6 ${dataCell.metaNowrap}`}>
+                        <CellLabel>Skadon</CellLabel>
                         {formatDateShortSq(bundle.expires_at)}
                       </p>
-                      <span
-                        className={`${offerStatusClass(bundle.status)} mt-0! w-fit self-center! md:ml-6`}
-                      >
-                        {OFFER_STATUS_LABEL[bundle.status]}
-                      </span>
-                      <div className="flex items-center gap-1.5 border-l border-line pl-4">
-                        <Link href={viewHref} className={rowButton} aria-label={`Shiko ${title}`}>
-                          <VisibilityOutlinedIcon fontSize="small" />
-                        </Link>
-                        <Link href={editHref} className={rowButton} aria-label={`Ndrysho ${title}`}>
-                          <EditOutlinedIcon fontSize="small" />
-                        </Link>
+                      <Tooltip content={OFFER_STATUS_HINT[bundle.status]} className={`w-fit self-center md:ml-6 ${dataCell.status}`}>
+                        <span
+                          className={`${offerStatusClass(bundle.status)} mt-0!`}
+                        >
+                          {OFFER_STATUS_LABEL[bundle.status]}
+                        </span>
+                      </Tooltip>
+                      <div className={`flex items-center gap-1.5 border-l border-line pl-4 ${dataCell.actions}`}>
+                        <Tooltip content="Shiko">
+                          <Link
+                            href={viewHref} className={iconButton} aria-label={`Shiko ${title}`}>
+                            <VisibilityOutlinedIcon fontSize="small" />
+                          </Link>
+                        </Tooltip>
+                        <Tooltip content="Ndrysho">
+                          <Link
+                            href={editHref} className={iconButton} aria-label={`Ndrysho ${title}`}>
+                            <EditOutlinedIcon fontSize="small" />
+                          </Link>
+                        </Tooltip>
                       </div>
                     </li>
                   );

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ManagerShops } from "@/features/biz/ManagerShops";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Dyqanet",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function ManagerShopsPage() {
-  return <ManagerShops />;
+  return <PageWidth variant="list"><ManagerShops /></PageWidth>;
 }

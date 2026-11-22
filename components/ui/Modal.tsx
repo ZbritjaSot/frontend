@@ -49,6 +49,10 @@ function trapTab(event: KeyboardEvent, dialog: HTMLElement | null) {
   if (event.key !== "Tab" || event.defaultPrevented || !dialog) {
     return;
   }
+  // Popups portaled to <body> (the date calendar) manage their own Tab.
+  if (event.target instanceof Element && event.target.closest("[data-focus-trap-ignore]")) {
+    return;
+  }
   const items = focusableElements(dialog);
   if (items.length === 0) {
     event.preventDefault();
@@ -136,6 +140,10 @@ export function Modal({
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        // A child (an open date calendar) already used this Escape.
+        if (event.defaultPrevented) {
+          return;
+        }
         event.preventDefault();
         onCloseRef.current();
         return;

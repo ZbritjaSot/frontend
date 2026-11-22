@@ -30,6 +30,7 @@
   --color-chrome: var(--color-chrome);
   --color-chrome-text: var(--color-chrome-text);
   --color-chrome-muted: var(--color-chrome-muted);
+  --color-favorite: var(--color-favorite);
   --color-forest: var(--color-forest);
   --color-ivory: var(--color-ivory);
   --color-danger-surface: var(--color-danger-surface);
@@ -67,6 +68,10 @@
   /* Error toast surface — intentionally identical in both themes, already an
      always-dark surface regardless of light/dark mode. */
   --color-danger-surface: #3a0d0d;
+  /* Error text on forest (#243528), which stays dark in both themes.
+     Light-theme --color-danger (#b42318) is about 2:1 on that green.
+     This matches the dark-theme danger (#ff8e8e), about 6:1. */
+  --color-danger-on-forest: #ff8e8e;
 
   /* Light theme — warm ivory paper, forest for editorial blocks, lime as accent. */
   --color-bg: #f4f1e8;
@@ -95,6 +100,8 @@
   --color-chrome: rgba(244, 241, 232, 0.9);
   --color-chrome-text: #182018;
   --color-chrome-muted: #5c6558;
+  /* Filled heart. #d6334a on elevated (#fffdf8) is about 4.7:1. */
+  --color-favorite: #d6334a;
   --color-chrome-footer: var(--color-bg-elevated);
   --color-chrome-footer-text: var(--color-text-muted);
 
@@ -123,6 +130,8 @@ html[data-theme="dark"] {
   --color-chrome: color-mix(in srgb, var(--color-charcoal) 92%, transparent);
   --color-chrome-text: var(--color-off-white);
   --color-chrome-muted: #8a9388;
+  /* #ff6b7a on elevated (#121816) is about 6.5:1. */
+  --color-favorite: #ff6b7a;
   --color-chrome-footer: var(--color-bg-elevated);
   --color-chrome-footer-text: var(--color-text-muted);
   color-scheme: dark;
@@ -132,6 +141,7 @@ html[data-theme="dark"] {
   html,
   body {
     height: 100%;
+    transition: background-color 150ms ease, color 150ms ease;
   }
 
   body {
@@ -172,6 +182,11 @@ html[data-theme="dark"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html,
+  body {
+    transition: none;
+  }
+
   [data-shop-clone] {
     display: none;
   }
@@ -179,4 +194,15 @@ html[data-theme="dark"] {
   .partner-dot-pulse {
     animation: none;
   }
+}
+
+/* Dashboards scroll the document: keep the 4rem sticky mobile top bar from covering
+   skip-link targets, focused fields and the first form error. */
+@media (width < 64rem) {
+  html:has(#dash-main) {
+    scroll-padding-top: 4rem;
+  }
+}
+[data-offer-error] {
+  scroll-margin-top: 7rem;
 }

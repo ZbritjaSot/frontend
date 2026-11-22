@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminPasswordScreen } from "@/features/admin/AdminPasswordScreen";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Fjalëkalimi",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminProfilePasswordPage() {
-  return <AdminPasswordScreen />;
+  return <PageWidth variant="form"><AdminPasswordScreen /></PageWidth>;
 }

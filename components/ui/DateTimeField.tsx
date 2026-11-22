@@ -1,10 +1,10 @@
 "use client";
 
 import { ChevronLeftIcon, ChevronRightIcon, KeyboardArrowDownIcon } from "@/components/ui/icons";
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { SelectField } from "@/components/ui/SelectField";
-import { formatCalendarDateSq, formatMonthYearSq } from "@/lib/format";
+import { formatCalendarDateSq, formatMonthYearSq, formatWeekdayDateSq } from "@/lib/format";
 import { triggerClass } from "@/lib/ui";
 
 const dayClass =
@@ -130,6 +130,7 @@ export function DateTimeField({
   const panelId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const [panelBox, setPanelBox] = useState<{
     left: number;
     width: number;
@@ -142,6 +143,18 @@ export function DateTimeField({
   const [cursor, setCursor] = useState<{ year: number; month: number } | null>(
     null,
   );
+  /** The one day in the grid that is in the tab order. */
+  const [focusDay, setFocusDay] = useState<{
+    year: number;
+    month: number;
+    day: number;
+  } | null>(null);
+
+  /**
+   * DOM focus only follows `focusDay` into the grid when the grid keys or the
+   * opening moved it. The month buttons keep their own focus.
+   */
+  const moveFocusRef = useRef(false);
 
   const now = new Date();
   const viewYear = cursor?.year ?? parsed?.year ?? now.getFullYear();
@@ -195,19 +208,44 @@ export function DateTimeField({
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-        setCursor(null);
+      if (event.key !== "Escape" || event.defaultPrevented) {
+        return;
       }
+      // Only when the key came from this field, not from another control.
+      const target = event.target;
+      if (
+        !(target instanceof Node) ||
+        (!rootRef.current?.contains(target) && !panelRef.current?.contains(target))
+      ) {
+        return;
+      }
+      // Capture phase: the calendar closes first and a parent Modal does not
+      // see this Escape, so it stays open.
+      event.stopPropagation();
+      event.preventDefault();
+      moveFocusRef.current = false;
+      setOpen(false);
+      setCursor(null);
+      setFocusDay(null);
+      triggerRef.current?.focus();
     };
 
     window.addEventListener("mousedown", onPointerDown);
-    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keydown", onKeyDown, true);
     return () => {
       window.removeEventListener("mousedown", onPointerDown);
-      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keydown", onKeyDown, true);
     };
   }, [open]);
+
+  useEffect(() => {
+    if (!open || !focusDay || !moveFocusRef.current) {
+      return;
+    }
+    moveFocusRef.current = false;
+    const key = dayKey(focusDay.year, focusDay.month, focusDay.day);
+    panelRef.current?.querySelector<HTMLButtonElement>(`[data-date="${key}"]`)?.focus();
+  }, [open, focusDay]);
 
   useLayoutEffect(() => {
     if (!open) {
@@ -276,6 +314,8 @@ export function DateTimeField({
     );
     setOpen(false);
     setCursor(null);
+    setFocusDay(null);
+    triggerRef.current?.focus();
   }
 
   function commitTime(nextHour: string, nextMinute: string) {
@@ -311,7 +351,177 @@ export function DateTimeField({
       return;
     }
     const date = new Date(viewYear, viewMonth - 1 + delta, 1);
-    setCursor({ year: date.getFullYear(), month: date.getMonth() + 1 });
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    setCursor({ year, month });
+    const next = firstEnabledDay(year, month, focusDay?.day ?? parsed?.day ?? 1);
+    if (next) {
+      setFocusDay(next);
+    }
+  }
+
+  function firstEnabledDay(
+    year: number,
+    month: number,
+    preferredDay: number,
+  ): { year: number; month: number; day: number } | null {
+    const total = daysInMonth(year, month);
+    const start = Math.min(Math.max(preferredDay, 1), total);
+    if (!isOutOfRange(year, month, start)) {
+      return { year, month, day: start };
+    }
+    for (let day = 1; day <= total; day += 1) {
+      if (!isOutOfRange(year, month, day)) {
+        return { year, month, day };
+      }
+    }
+    return null;
+  }
+
+  function addDays(
+    point: { year: number; month: number; day: number },
+    delta: number,
+  ): { year: number; month: number; day: number } {
+    const date = new Date(point.year, point.month - 1, point.day + delta);
+    return {
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      day: date.getDate(),
+    };
+  }
+
+  function skipEnabled(
+    target: { year: number; month: number; day: number },
+    direction: 1 | -1,
+    stayInMonth = false,
+  ): { year: number; month: number; day: number } | null {
+    const monthKey = target.year * 12 + target.month;
+    let point = target;
+    for (let step = 0; step < 800; step += 1) {
+      if (stayInMonth && point.year * 12 + point.month !== monthKey) {
+        break;
+      }
+      if (!isOutOfRange(point.year, point.month, point.day)) {
+        return point;
+      }
+      point = addDays(point, direction);
+    }
+    if (!stayInMonth) {
+      return null;
+    }
+    point = addDays(target, direction === 1 ? -1 : 1);
+    for (let step = 0; step < 31; step += 1) {
+      if (point.year * 12 + point.month !== monthKey) {
+        break;
+      }
+      if (!isOutOfRange(point.year, point.month, point.day)) {
+        return point;
+      }
+      point = addDays(point, direction === 1 ? -1 : 1);
+    }
+    return null;
+  }
+
+  function moveFocus(
+    target: { year: number; month: number; day: number },
+    direction: 1 | -1,
+    stayInMonth = false,
+  ) {
+    const landed = skipEnabled(target, direction, stayInMonth);
+    if (!landed) {
+      return;
+    }
+    moveFocusRef.current = true;
+    setCursor({ year: landed.year, month: landed.month });
+    setFocusDay(landed);
+  }
+
+  function monthInRange(year: number, month: number): boolean {
+    if (
+      maxParsed &&
+      (year > maxParsed.year || (year === maxParsed.year && month > maxParsed.month))
+    ) {
+      return false;
+    }
+    if (
+      minParsed &&
+      (year < minParsed.year || (year === minParsed.year && month < minParsed.month))
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  function onDayKeyDown(
+    event: ReactKeyboardEvent<HTMLButtonElement>,
+    day: number,
+  ) {
+    // The cell that got the key, not `focusDay`, so a stale roving day never
+    // sends the move from the wrong date.
+    const current = { year: viewYear, month: viewMonth, day };
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      commitDate(current.year, current.month, current.day);
+      return;
+    }
+
+    let target: { year: number; month: number; day: number } | null = null;
+    let direction: 1 | -1 = 1;
+    if (event.key === "ArrowLeft") {
+      target = addDays(current, -1);
+      direction = -1;
+    } else if (event.key === "ArrowRight") {
+      target = addDays(current, 1);
+    } else if (event.key === "ArrowUp") {
+      target = addDays(current, -7);
+      direction = -1;
+    } else if (event.key === "ArrowDown") {
+      target = addDays(current, 7);
+    } else if (event.key === "Home") {
+      const sundayBased = new Date(current.year, current.month - 1, current.day).getDay();
+      target = addDays(current, -((sundayBased + 6) % 7));
+    } else if (event.key === "End") {
+      const sundayBased = new Date(current.year, current.month - 1, current.day).getDay();
+      target = addDays(current, 6 - ((sundayBased + 6) % 7));
+      direction = -1;
+    } else if (event.key === "PageUp" || event.key === "PageDown") {
+      const sign = event.key === "PageUp" ? -1 : 1;
+      const delta = sign * (event.shiftKey ? 12 : 1);
+      const date = new Date(current.year, current.month - 1 + delta, 1);
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      if (!monthInRange(year, month)) {
+        event.preventDefault();
+        return;
+      }
+      target = {
+        year,
+        month,
+        day: Math.min(current.day, daysInMonth(year, month)),
+      };
+      direction = sign === 1 ? 1 : -1;
+    } else {
+      return;
+    }
+
+    event.preventDefault();
+    const stayInMonth = event.key === "PageUp" || event.key === "PageDown";
+    moveFocus(target, direction, stayInMonth);
+  }
+
+  function initialFocusDay(): { year: number; month: number; day: number } | null {
+    if (parsed && !isOutOfRange(parsed.year, parsed.month, parsed.day)) {
+      return { year: parsed.year, month: parsed.month, day: parsed.day };
+    }
+    const today = {
+      year: now.getFullYear(),
+      month: now.getMonth() + 1,
+      day: now.getDate(),
+    };
+    if (!isOutOfRange(today.year, today.month, today.day)) {
+      return today;
+    }
+    return firstEnabledDay(viewYear, viewMonth, 1);
   }
 
   const leading = mondayIndex(viewYear, viewMonth);
@@ -324,13 +534,49 @@ export function DateTimeField({
     cells.push({ day, key: `d-${day}` });
   }
 
+  /** Date-picker dialog pattern: Tab and Shift+Tab loop inside the open panel. */
+  function onPanelKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Tab") {
+      return;
+    }
+    const panel = panelRef.current;
+    if (!panel) {
+      return;
+    }
+    const items = Array.from(
+      panel.querySelectorAll<HTMLElement>(
+        "button, input, select, textarea, [tabindex]",
+      ),
+    ).filter((el) => el.tabIndex >= 0 && !el.hasAttribute("disabled"));
+    if (items.length === 0) {
+      return;
+    }
+    const first = items[0];
+    const last = items[items.length - 1];
+    const active = document.activeElement;
+    if (event.shiftKey && (active === first || active === panel)) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   function toggle() {
-    setOpen((v) => {
-      if (v) {
-        setCursor(null);
-      }
-      return !v;
-    });
+    if (open) {
+      setOpen(false);
+      setCursor(null);
+      setFocusDay(null);
+      return;
+    }
+    const start = initialFocusDay();
+    moveFocusRef.current = start !== null;
+    setFocusDay(start);
+    if (start) {
+      setCursor({ year: start.year, month: start.month });
+    }
+    setOpen(true);
   }
 
   const timeRow = dateOnly ? null : (
@@ -377,6 +623,7 @@ export function DateTimeField({
           aria-controls={panelId}
           aria-label={ariaLabel ?? caption}
           disabled={disabled}
+          ref={triggerRef}
           onClick={toggle}
         >
           {caption ? (
@@ -402,6 +649,7 @@ export function DateTimeField({
             aria-controls={panelId}
             aria-label={ariaLabel}
             disabled={disabled}
+            ref={triggerRef}
             onClick={toggle}
           >
             <span>{label}</span>
@@ -419,6 +667,8 @@ export function DateTimeField({
         <div
           ref={panelRef}
           id={panelId}
+          data-focus-trap-ignore=""
+          onKeyDown={onPanelKeyDown}
           className="fixed z-[105] overflow-y-auto overscroll-contain rounded-lg border border-line bg-elevated p-3.5 shadow-[0_12px_32px_var(--color-shadow)]"
           style={{
             left: panelBox?.left ?? 12,
@@ -460,49 +710,65 @@ export function DateTimeField({
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-0.5">
-            {cells.map((cell) => {
-              if (cell.day === null) {
-                return <span key={cell.key} className="aspect-square" />;
-              }
+          <div className="grid gap-0.5" role="grid" aria-label="Ditët">
+            {Array.from({ length: Math.ceil(cells.length / 7) }, (_, week) => (
+              <div key={`week-${week}`} role="row" className="grid grid-cols-7 gap-0.5">
+                {cells.slice(week * 7, week * 7 + 7).map((cell) => {
+                  if (cell.day === null) {
+                    return <span key={cell.key} role="gridcell" className="aspect-square" />;
+                  }
 
-              const selected =
-                parsed !== null &&
-                parsed.year === viewYear &&
-                parsed.month === viewMonth &&
-                parsed.day === cell.day;
+                  const selected =
+                    parsed !== null &&
+                    parsed.year === viewYear &&
+                    parsed.month === viewMonth &&
+                    parsed.day === cell.day;
 
-              const isToday =
-                now.getFullYear() === viewYear &&
-                now.getMonth() + 1 === viewMonth &&
-                now.getDate() === cell.day;
+                  const isToday =
+                    now.getFullYear() === viewYear &&
+                    now.getMonth() + 1 === viewMonth &&
+                    now.getDate() === cell.day;
 
-              const blocked = isOutOfRange(viewYear, viewMonth, cell.day);
+                  const blocked = isOutOfRange(viewYear, viewMonth, cell.day);
+                  const focused =
+                    focusDay !== null &&
+                    focusDay.year === viewYear &&
+                    focusDay.month === viewMonth &&
+                    focusDay.day === cell.day;
 
-              return (
-                <button
-                  key={cell.key}
-                  type="button"
-                  disabled={blocked}
-                  aria-disabled={blocked}
-                  className={[
-                    dayClass,
-                    isToday
-                      ? "shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-accent)_55%,transparent)]"
-                      : "",
-                    selected ? "bg-accent text-on-accent" : "",
-                    blocked
-                      ? "cursor-not-allowed text-muted/40 hover:bg-transparent"
-                      : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  onClick={() => commitDate(viewYear, viewMonth, cell.day!)}
-                >
-                  {cell.day}
-                </button>
-              );
-            })}
+                  return (
+                    <button
+                      key={cell.key}
+                      type="button"
+                      role="gridcell"
+                      data-date={dayKey(viewYear, viewMonth, cell.day)}
+                      disabled={blocked}
+                      tabIndex={blocked ? -1 : focused ? 0 : -1}
+                      aria-disabled={blocked || undefined}
+                      aria-label={formatWeekdayDateSq(viewYear, viewMonth, cell.day)}
+                      aria-selected={selected}
+                      aria-current={isToday ? "date" : undefined}
+                      className={[
+                        dayClass,
+                        isToday
+                          ? "shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-accent)_55%,transparent)]"
+                          : "",
+                        selected ? "bg-accent text-on-accent" : "",
+                        blocked
+                          ? "cursor-not-allowed text-muted/40 hover:bg-transparent"
+                          : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      onClick={() => commitDate(viewYear, viewMonth, cell.day!)}
+                      onKeyDown={(event) => onDayKeyDown(event, cell.day!)}
+                    >
+                      {cell.day}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
           </div>
           {variant === "card" && timeRow ? (
             <div className="mt-3 flex justify-center border-t border-line pt-3">

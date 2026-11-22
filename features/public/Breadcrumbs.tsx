@@ -7,16 +7,21 @@ export type Crumb = {
   href?: string;
 };
 
-/**
- * Public standalone batches are not flyers and have no `/dosje` page.
- * TODO: Revisit how individual offers are associated with bundles and handle this more robustly.
- */
-const STANDALONE_BUNDLE_TITLE = "Oferta individuale";
+/** Public standalone bundles (individual offers) are not flyers and have no `/dosje` page. */
+const LEGACY_STANDALONE_TITLE = "Oferta individuale";
 
-export function isPublicFlyerBundle<T extends { title: string }>(
+export function isPublicFlyerBundle<T extends { title: string; is_standalone?: boolean }>(
   bundle: T | null | undefined,
 ): bundle is T {
-  return bundle != null && bundle.title !== STANDALONE_BUNDLE_TITLE;
+  if (bundle == null) {
+    return false;
+  }
+  if (bundle.is_standalone !== undefined) {
+    return !bundle.is_standalone;
+  }
+  // Fallback for API responses (or cached ones) without `is_standalone`.
+  // Remove once the backend field is live everywhere.
+  return bundle.title !== LEGACY_STANDALONE_TITLE;
 }
 
 function categoryCrumb(offer: Pick<PublicOffer, "categories">): Crumb | null {

@@ -17,6 +17,7 @@ import {
   uploadAdminGallery,
   uploadBizGallery,
 } from "@/features/gallery/api";
+import { DROP_HERE_LABEL, fileDropZoneClass, useFileDrop } from "@/hooks/useFileDrop";
 import { validationMessage } from "@/lib/api";
 import { button, fieldError, fieldLabel, input } from "@/lib/ui";
 import type { OfferImage, Paginated } from "@/types";
@@ -77,6 +78,8 @@ export function ItemPhoto({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [title, setTitle] = useState("");
+  /** A dropped file waiting for a title, so it is not lost when the name is empty. */
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [search, setSearch] = useState("");
   const [q, setQ] = useState("");
 
@@ -138,6 +141,7 @@ export function ItemPhoto({
 
   function close() {
     setOpen(false);
+    setPendingFile(null);
     setError(null);
     setTab("upload");
     setSearch("");
@@ -145,6 +149,7 @@ export function ItemPhoto({
   }
 
   function openPicker() {
+    setPendingFile(null);
     setTitle(name.trim());
     setError(null);
     setTab("upload");
@@ -153,11 +158,11 @@ export function ItemPhoto({
     setOpen(true);
   }
 
-  async function upload(file: File | undefined) {
+  async function upload(file: File | undefined, titleSource = title) {
     if (!file) {
       return;
     }
-    const cleanTitle = title.trim();
+    const cleanTitle = titleSource.trim();
     if (!cleanTitle) {
       setError("Titulli është i detyrueshëm.");
       return;
@@ -179,6 +184,7 @@ export function ItemPhoto({
               ? (["admin", "gallery", businessId] as const)
               : bizGalleryQueryKey,
       });
+      setPendingFile(null);
       onPick(image);
       setTab("mine");
       setSearch("");
@@ -190,36 +196,98 @@ export function ItemPhoto({
     }
   }
 
+  const tileDrop = useFileDrop({
+    disabled: disabled || busy,
+    onFiles: (files, rejection) => {
+      const clean = name.trim();
+      setTitle(clean);
+      setOpen(true);
+      if (files.length === 0) {
+        if (rejection) {
+          setError(rejection);
+        }
+        return;
+      }
+      if (!clean) {
+        // No product name to use as the title: keep the file and ask for one.
+        setPendingFile(files[0]);
+        setError(rejection ?? "Titulli është i detyrueshëm.");
+        return;
+      }
+      // Kept until the upload succeeds, so a failed upload can be retried.
+      setPendingFile(files[0]);
+      if (rejection) {
+        setError(rejection);
+      }
+      void upload(files[0], clean);
+    },
+  });
+  const pickerDrop = useFileDrop({
+    disabled: busy,
+    onFiles: (files, rejection) => {
+      if (files.length === 0) {
+        if (rejection) {
+          setError(rejection);
+        }
+        return;
+      }
+      if (!title.trim()) {
+        setPendingFile(files[0]);
+        setError(rejection ?? "Titulli është i detyrueshëm.");
+        return;
+      }
+      if (rejection) {
+        setError(rejection);
+      }
+      setPendingFile(files[0]);
+      void upload(files[0]);
+    },
+  });
+
   const activePhotos = tab === "mine" ? minePhotos : platformPhotos;
   const images =
     activePhotos.data?.pages.flatMap((page) => page.data) ?? [];
 
   return (
     <div className="relative size-16 shrink-0 sm:size-[4.75rem]">
+      {/* Only the thumb and its remove button take drops. The Modal and the
+          file input stay outside so portaled drags never reach this zone. */}
+      <div className="relative size-full" {...tileDrop.dropProps}>
       <button
         type="button"
         disabled={disabled || busy}
         aria-label={thumbUrl ? `Ndërro foton e ${name || "produktit"}` : "Shto foto"}
-        className="relative grid size-full place-items-center overflow-hidden rounded-2xl border border-line bg-sunken text-muted disabled:opacity-60"
-        onClick={openPicker}
+        className={`relative grid size-full place-items-center overflow-hidden rounded-2xl text-muted disabled:pointer-events-none disabled:opacity-60 ${fileDropZoneClass(tileDrop.active)}`}
+        onClick={() => {
+          openPicker();
+        }}
       >
         {thumbUrl ? (
           <Image src={thumbUrl} alt="" fill unoptimized className="object-cover" sizes="76px" />
         ) : (
           <ImageOutlinedIcon fontSize="small" />
         )}
+        {tileDrop.active ? (
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 grid place-items-center bg-accent/10 px-1 text-center text-[10px] font-bold leading-tight text-ink"
+          >
+            {DROP_HERE_LABEL}
+          </span>
+        ) : null}
       </button>
       {thumbUrl ? (
         <button
           type="button"
           disabled={disabled || busy}
           aria-label="Hiq foton"
-          className="absolute -top-1.5 -right-1.5 grid size-6 place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated"
+          className="absolute -top-1.5 -right-1.5 grid size-6 place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated disabled:pointer-events-none"
           onClick={onClear}
         >
           <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
         </button>
       ) : null}
+      </div>
       <input
         ref={inputRef}
         className="sr-only"
@@ -275,26 +343,43 @@ export function ItemPhoto({
                 onChange={(event) => setTitle(event.target.value)}
               />
             </label>
+            <div {...pickerDrop.dropProps}>
             <button
               type="button"
               disabled={busy}
-              className="grid w-full place-items-center gap-1 rounded-2xl border border-dashed border-line bg-sunken px-4 py-7 text-center text-ink hover:border-accent/60 disabled:opacity-60"
+              className={`grid w-full place-items-center gap-1 rounded-2xl px-4 py-7 text-center text-ink hover:border-accent/60 disabled:pointer-events-none disabled:opacity-60 ${fileDropZoneClass(pickerDrop.active)}`}
               onClick={() => {
                 if (!title.trim()) {
                   setError("Titulli është i detyrueshëm.");
+                  return;
+                }
+                if (pendingFile) {
+                  void upload(pendingFile);
                   return;
                 }
                 inputRef.current?.click();
               }}
             >
               <AddPhotoAlternateOutlinedIcon className="text-muted" />
+              {pickerDrop.active ? (
+                <span aria-hidden="true" className="text-sm font-bold text-ink">
+                  {DROP_HERE_LABEL}
+                </span>
+              ) : null}
               <span className="text-base font-bold">
-                {busy ? "Duke ngarkuar…" : "Ngarko foto"}
+                {busy
+                  ? "Duke ngarkuar…"
+                  : pendingFile
+                    ? `Ngarko “${pendingFile.name}”`
+                    : "Ngarko foto"}
               </span>
               <span className="text-xs font-medium text-muted">
-                Rekomandohet 1200 × 1200 px. JPEG, PNG ose WebP — deri në 8MB.
+                {pendingFile
+                  ? "Shkruaj titullin, pastaj kliko për ta ngarkuar."
+                  : "Rekomandohet 1200 × 1200 px. JPEG, PNG ose WebP — deri në 8MB."}
               </span>
             </button>
+            </div>
           </div>
         ) : (
           <div className="grid gap-3">

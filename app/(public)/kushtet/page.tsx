@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Band } from "@/features/public/Frame";
+import { TERMS_LEGAL_LAST_UPDATED, legalUpdatedText } from "@/features/public/legal";
 import { kicker } from "@/features/public/tone";
 import { publicPageMetadata } from "@/lib/metadata";
 import { SITE_EMAIL } from "@/lib/site";
@@ -41,24 +42,30 @@ const points = [
   },
 ];
 
+const body = "mt-2 mb-0 text-base leading-7 text-ink/85";
+
 export default function TermsPage() {
+  const updated = legalUpdatedText(TERMS_LEGAL_LAST_UPDATED);
   return (
     <Band pad="page">
-      <p className={kicker}>ZbritjaSot</p>
-      <h1 className="m-0 mt-2 text-title-1">Kushtet</h1>
-      <p className="mt-4 mb-0 max-w-xl text-sm leading-relaxed text-muted">
-        Pyetje për këto rregulla:{" "}
-        <a href={`mailto:${SITE_EMAIL}`} className="font-semibold text-ink underline-offset-4 hover:underline">
-          {SITE_EMAIL}
-        </a>
-      </p>
-      <div className="mt-10 max-w-2xl space-y-8">
-        {points.map((point) => (
-          <section key={point.title}>
-            <h2 className="m-0 text-xl font-extrabold tracking-tight">{point.title}</h2>
-            <p className="mt-2 mb-0 text-sm leading-relaxed text-muted">{point.body}</p>
-          </section>
-        ))}
+      <div className="max-w-prose">
+        <p className={kicker}>ZbritjaSot</p>
+        <h1 className="m-0 mt-2 text-title-1">Kushtet</h1>
+        {updated ? <p className="mt-3 mb-0 text-sm text-muted">{updated}</p> : null}
+        <p className="mt-4 mb-0 text-base leading-7 text-ink/85">
+          Pyetje për këto rregulla:{" "}
+          <a href={`mailto:${SITE_EMAIL}`} className="font-semibold text-ink underline-offset-4 hover:underline">
+            {SITE_EMAIL}
+          </a>
+        </p>
+        <div className="mt-10 space-y-8">
+          {points.map((point) => (
+            <section key={point.title}>
+              <h2 className="m-0 text-xl font-extrabold tracking-tight">{point.title}</h2>
+              <p className={body}>{point.body}</p>
+            </section>
+          ))}
+        </div>
       </div>
     </Band>
   );

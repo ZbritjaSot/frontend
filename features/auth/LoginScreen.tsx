@@ -27,19 +27,17 @@ export function LoginScreen() {
   return (
     <main className="flex min-h-dvh items-center justify-center p-8">
       <div className="w-full max-w-sm">
-        <Link
-          href="/"
-          className="mb-14 inline-flex items-center gap-3"
-          aria-label="ZbritjaSot"
-        >
-          <LogoMark size={40} priority />
-          <span className="flex min-w-0 flex-col gap-0.5">
-            <Wordmark className="text-2xl" as="h1" />
-            <span className="text-kicker text-accent-fg uppercase">
-              Login
-            </span>
-          </span>
-        </Link>
+        <div className="mb-14 flex items-center gap-3">
+          <Link href="/" aria-hidden tabIndex={-1}>
+            <LogoMark size={40} priority />
+          </Link>
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <Link href="/" aria-label="ZbritjaSot">
+              <Wordmark className="text-2xl" />
+            </Link>
+            <h1 className="m-0 text-kicker text-accent-fg uppercase">Hyr</h1>
+          </div>
+        </div>
 
         <LoginForm next={next} forgotHref="/biz/forgot-password" />
 

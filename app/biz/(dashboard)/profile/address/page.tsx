@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BizAddressScreen } from "@/features/biz/BizAddressScreen";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Adresa",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function BizAddressPage() {
-  return <BizAddressScreen />;
+  return <PageWidth variant="form"><BizAddressScreen /></PageWidth>;
 }

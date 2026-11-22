@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { SiteFooter } from "@/components/chrome/SiteFooter";
 import { SiteHeader } from "@/components/chrome/SiteHeader";
 import { BackLink, EmptyNote, Frame } from "@/features/public/Frame";
+import { NotFoundRecovery } from "@/features/public/NotFoundRecovery";
 
 export const metadata: Metadata = {
   title: "Faqja nuk u gjet",
@@ -25,6 +26,7 @@ export default function GlobalNotFound() {
             title="Faqja nuk u gjet"
             body="Kjo adresë nuk ekziston ose është zhvendosur. Provo nga faqja kryesore."
           />
+          <NotFoundRecovery />
           <p className="mt-6">
             <BackLink href="/">Kthehu te ofertat</BackLink>
           </p>

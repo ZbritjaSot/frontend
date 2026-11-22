@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowBackIcon, CloseIcon, MenuIcon } from "@/components/ui/icons";
+import { CloseIcon, MenuIcon, OpenInNewOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -25,6 +25,8 @@ export type DashboardNavItem = {
   badgeTone?: "pending" | "danger";
   /** Screen-reader text. Defaults from the tone. */
   badgeLabel?: string;
+  /** Section heading. Consecutive items with the same group are rendered under one label. */
+  group?: string;
 };
 
 type DashboardShellProps = PropsWithChildren<{
@@ -34,7 +36,17 @@ type DashboardShellProps = PropsWithChildren<{
   nav: DashboardNavItem[];
   showLogout?: boolean;
   logoutRedirectTo?: string;
+  /** Who is signed in. Shown above Logout. */
+  identity?: DashboardIdentity;
+  /** Extra rows in the identity block, e.g. the active shop or the shop switcher. */
+  identityExtra?: ReactNode;
 }>;
+
+export type DashboardIdentity = {
+  /** Display name, or the email when there is no name. */
+  name: string;
+  roleLabel: string;
+};
 
 const focusRing =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
@@ -73,6 +85,19 @@ function focusableItems(drawer: HTMLElement, trigger: HTMLElement | null) {
   return drawerItems;
 }
 
+export function groupNav(nav: DashboardNavItem[]) {
+  const sections: { label?: string; items: DashboardNavItem[] }[] = [];
+  for (const item of nav) {
+    const last = sections[sections.length - 1];
+    if (last && last.label === item.group) {
+      last.items.push(item);
+    } else {
+      sections.push({ label: item.group, items: [item] });
+    }
+  }
+  return sections;
+}
+
 export function DashboardShell({
   area,
   label,
@@ -80,6 +105,8 @@ export function DashboardShell({
   children,
   showLogout = false,
   logoutRedirectTo,
+  identity,
+  identityExtra,
 }: DashboardShellProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -91,6 +118,7 @@ export function DashboardShell({
   const areaLabel = label ?? (area === "admin" ? "Admin" : "Biznes");
   const logoutTo = logoutRedirectTo ?? "/login";
   const drawerClosed = !isDesktop && !menuOpen;
+  const navSections = groupNav(nav);
 
   useLayoutEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");
@@ -162,14 +190,14 @@ export function DashboardShell({
   }, [isDesktop, menuOpen]);
 
   return (
-    <div className="grid h-dvh grid-cols-1 grid-rows-[auto_minmax(0,1fr)] overflow-hidden lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:grid-rows-1">
+    <div className="grid min-h-dvh grid-cols-1 grid-rows-[auto_minmax(0,1fr)] lg:grid-cols-[17.5rem_minmax(0,1fr)] lg:grid-rows-1">
       <a
         href="#dash-main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-charcoal"
       >
         Kalo te përmbajtja
       </a>
-      <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-5 border-b border-line bg-elevated px-5 py-2.5 lg:hidden">
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-5 border-b border-line bg-elevated px-5 lg:hidden">
         <Link
           href={homeHref}
           className={`flex min-w-0 items-center gap-3 rounded-lg ${focusRing}`}
@@ -214,7 +242,7 @@ export function DashboardShell({
         id="dash-nav"
         inert={drawerClosed ? true : undefined}
         aria-hidden={drawerClosed ? true : undefined}
-        className={`fixed top-0 bottom-0 left-0 z-[40] flex h-dvh w-[min(18rem,86vw)] flex-col gap-8 overflow-hidden border-r border-line bg-elevated p-8 transition-transform lg:static lg:z-auto lg:h-auto lg:w-auto lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-[40] flex h-dvh w-[min(18rem,86vw)] flex-col gap-8 overflow-x-hidden overflow-y-auto border-r border-line bg-elevated px-6 py-8 transition-transform [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:px-7 lg:sticky lg:bottom-auto lg:z-auto lg:w-auto lg:translate-x-0 lg:self-start ${
           menuOpen ? "translate-x-0" : "-translate-x-[105%]"
         }`}
       >
@@ -233,57 +261,93 @@ export function DashboardShell({
           </div>
         </Link>
 
-        <nav className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto" aria-label={areaLabel}>
-          {nav.map((item) => {
-            const active =
-              pathname === item.href ||
-              (item.href !== homeHref && pathname.startsWith(`${item.href}/`));
+        <nav
+          className="flex min-h-32 flex-1 flex-col gap-1.5 overflow-x-hidden overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          aria-label={areaLabel}
+        >
+          {navSections.map((section, sectionIndex) => (
+            <div
+              key={section.label ?? `section-${sectionIndex}`}
+              role={section.label ? "group" : undefined}
+              aria-labelledby={section.label ? `dash-nav-group-${sectionIndex}` : undefined}
+              className={`flex flex-col gap-1.5 ${section.label ? "mt-3" : ""}`}
+            >
+              {section.label ? (
+                <p
+                  id={`dash-nav-group-${sectionIndex}`}
+                  className="m-0 px-3 text-[0.6875rem] font-bold tracking-[0.08em] text-muted uppercase"
+                >
+                  {section.label}
+                </p>
+              ) : null}
+              {section.items.map((item) => {
+                const active =
+                  pathname === item.href ||
+                  (item.href !== homeHref && pathname.startsWith(`${item.href}/`));
 
-            const badge =
-              typeof item.badge === "number" && item.badge > 0
-                ? item.badge
-                : null;
-            const badgeLabel =
-              item.badgeLabel ??
-              (item.badgeTone === "danger"
-                ? `${badge} të skaduara`
-                : `${badge} në pritje`);
+                const badge =
+                  typeof item.badge === "number" && item.badge > 0
+                    ? item.badge
+                    : null;
+                const badgeLabel =
+                  item.badgeLabel ??
+                  (item.badgeTone === "danger"
+                    ? `${badge} të skaduara`
+                    : `${badge} në pritje`);
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                tabIndex={drawerClosed ? -1 : undefined}
-                className={`flex min-h-11 items-center justify-between gap-2 rounded-lg px-3 py-3 text-[0.9375rem] font-semibold text-ink/80 hover:bg-slate/12 hover:text-ink ${focusRing} ${
-                  active ? "bg-accent/28 text-ink" : ""
-                }`}
-                onClick={() => setMenuOpen(false)}
-              >
-                <span className="flex min-w-0 items-center gap-2">
-                  {item.icon}
-                  <span className="min-w-0">{item.label}</span>
-                </span>
-                {badge !== null ? (
-                  <span
-                    className={`inline-flex h-[1.35rem] min-w-[1.35rem] shrink-0 items-center justify-center rounded-full px-1.5 text-[0.6875rem] leading-none font-extrabold ${
-                      item.badgeTone === "danger"
-                        ? "bg-danger-soft text-charcoal"
-                        : item.badgeTone === "pending"
-                          ? "bg-pending text-charcoal"
-                          : "bg-accent text-on-accent"
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    tabIndex={drawerClosed ? -1 : undefined}
+                    className={`flex min-h-11 items-center justify-between gap-2 rounded-lg px-3 py-3 text-[0.9375rem] font-semibold text-ink/80 hover:bg-slate/12 hover:text-ink ${focusRing} ${
+                      active ? "bg-accent/28 text-ink" : ""
                     }`}
-                    aria-label={badgeLabel}
+                    onClick={() => setMenuOpen(false)}
                   >
-                    {badge > 99 ? "99+" : badge}
-                  </span>
-                ) : null}
-              </Link>
-            );
-          })}
+                    <span className="flex min-w-0 items-center gap-2">
+                      {item.icon}
+                      <span className="min-w-0">{item.label}</span>
+                    </span>
+                    {badge !== null ? (
+                      <span
+                        className={`inline-flex h-[1.35rem] min-w-[1.35rem] shrink-0 items-center justify-center rounded-full px-1.5 text-[0.6875rem] leading-none font-extrabold ${
+                          item.badgeTone === "danger"
+                            ? "bg-danger-soft text-charcoal"
+                            : item.badgeTone === "pending"
+                              ? "bg-pending text-charcoal"
+                              : "bg-accent text-on-accent"
+                        }`}
+                        aria-label={badgeLabel}
+                      >
+                        {badge > 99 ? "99+" : badge}
+                      </span>
+                    ) : null}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         <div className="flex shrink-0 flex-col items-start gap-3">
+          {identity ? (
+            <div
+              className="flex w-full min-w-0 flex-col gap-2 border-t border-line pt-4"
+              data-dash-identity
+              role="group"
+              aria-label="Llogaria"
+            >
+              <div className="min-w-0">
+                <p className="m-0 truncate text-sm font-bold text-ink" title={identity.name}>
+                  {identity.name}
+                </p>
+                <p className="m-0 truncate text-xs font-semibold text-muted">{identity.roleLabel}</p>
+              </div>
+              {identityExtra}
+            </div>
+          ) : null}
           {showLogout ? <LogoutButton redirectTo={logoutTo} /> : null}
           <Link
             href="/"
@@ -293,8 +357,9 @@ export function DashboardShell({
             className={`inline-flex min-h-10 items-center gap-1 rounded-lg text-sm font-semibold text-muted hover:text-accent-fg ${focusRing}`}
             onClick={() => setMenuOpen(false)}
           >
-            <ArrowBackIcon fontSize="small" />
+            <OpenInNewOutlinedIcon fontSize="small" />
             Faqja publike
+            <span className="sr-only"> (hapet në skedë të re)</span>
           </Link>
         </div>
       </aside>
@@ -302,7 +367,7 @@ export function DashboardShell({
       <main
         id="dash-main"
         tabIndex={-1}
-        className="relative col-start-1 row-start-2 min-h-0 min-w-0 overflow-y-auto overscroll-y-contain lg:col-start-2 lg:row-start-1"
+        className="relative col-start-1 row-start-2 min-w-0 lg:col-start-2 lg:row-start-1"
       >
         <div className="p-5 sm:p-8">{children}</div>
       </main>

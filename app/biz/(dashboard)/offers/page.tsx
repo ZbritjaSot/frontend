@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BizOfferList } from "@/features/offers/BizOfferList";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Ofertat",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function BizOffersPage() {
-  return <BizOfferList catalog="offers" />;
+  return <PageWidth variant="list"><BizOfferList catalog="offers" /></PageWidth>;
 }

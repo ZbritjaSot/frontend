@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BizPasswordScreen } from "@/features/biz/BizPasswordScreen";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Fjalëkalimi",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function BizPasswordPage() {
-  return <BizPasswordScreen />;
+  return <PageWidth variant="form"><BizPasswordScreen /></PageWidth>;
 }

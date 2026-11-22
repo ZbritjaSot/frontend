@@ -4,6 +4,7 @@ import { AddPhotoAlternateOutlinedIcon } from "@/components/ui/icons";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { titleFromFilename } from "@/features/gallery/titleFromFilename";
+import { DROP_HERE_LABEL, fileDropZoneClass, useFileDrop } from "@/hooks/useFileDrop";
 import { useLeaveGuard } from "@/hooks/useLeaveGuard";
 import { button, fieldError, input } from "@/lib/ui";
 
@@ -118,6 +119,21 @@ function GalleryUploadForm({
     setPhotos(next);
   }
 
+  const drop = useFileDrop({
+    multiple: true,
+    disabled: busy,
+    onFiles: (files, rejection) => {
+      if (files.length === 0) {
+        if (rejection) {
+          setLocalError(rejection);
+        }
+        return;
+      }
+      setLocalError(rejection);
+      replacePhotos(photosFromFiles(files));
+    },
+  });
+
   return (
     <form
       className="grid gap-3"
@@ -145,14 +161,22 @@ function GalleryUploadForm({
       ) : null}
 
       <div className="grid min-w-0 gap-2">
+<div {...drop.dropProps}>
         <button
           type="button"
-          className={`grid w-full place-items-center gap-1 rounded-2xl border border-dashed border-line bg-sunken px-4 text-center text-ink hover:border-accent/60 ${
+          className={`grid w-full place-items-center gap-1 rounded-2xl px-4 text-center text-ink hover:border-accent/60 ${fileDropZoneClass(drop.active)} ${
             photos.length === 0 ? "py-7" : "py-3"
           }`}
-          onClick={() => inputRef.current?.click()}
+          onClick={() => {
+            inputRef.current?.click();
+          }}
         >
           <AddPhotoAlternateOutlinedIcon className="text-muted" />
+          {drop.active ? (
+            <span aria-hidden="true" className="text-sm font-bold text-ink">
+              {DROP_HERE_LABEL}
+            </span>
+          ) : null}
           <span className="text-base font-bold">
             {photos.length === 0 ? "Ngarko foto" : "Ndrysho fotot"}
           </span>
@@ -164,6 +188,7 @@ function GalleryUploadForm({
                 : `${photos.length} foto të zgjedhura`}
           </span>
         </button>
+</div>
         <input
           ref={inputRef}
           type="file"

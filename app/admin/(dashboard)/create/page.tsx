@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminAddContent } from "@/features/admin/AdminAddContent";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Shto përmbajtje",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminCreatePage() {
-  return <AdminAddContent />;
+  return <PageWidth variant="list"><AdminAddContent /></PageWidth>;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useId, useState, type FormEvent } from "react";
 import { FieldError } from "@/components/ui/Field";
 import { apiFetch, validationMessage } from "@/lib/api";
@@ -76,7 +77,7 @@ export function NewsletterSignup({ variant }: { variant: "footer" | "home" }) {
           <label className={compact ? "min-w-0 flex-1 sm:w-52 sm:flex-none" : "min-w-0 flex-1"}>
             <span className="sr-only">Email</span>
             <input
-              className={input({ size: compact ? "sm" : "md", shape: "pill", tone: "inverse" })}
+              className={input({ size: "md", shape: "pill", tone: "inverse" })}
               type="email"
               name="email"
               autoComplete="email"
@@ -90,7 +91,7 @@ export function NewsletterSignup({ variant }: { variant: "footer" | "home" }) {
             />
           </label>
           <button
-            className={button({ size: compact ? "sm" : "md", shape: "pill" })}
+            className={button({ size: "md", shape: "pill" })}
             type="submit"
             disabled={pending}
             aria-busy={pending}
@@ -106,6 +107,17 @@ export function NewsletterSignup({ variant }: { variant: "footer" | "home" }) {
           </FieldError>
         </div>
       ) : null}
+      {done ? null : (
+        <p className="m-0 w-full text-sm leading-relaxed text-ivory/75">
+          Duke u abonuar pranon{" "}
+          <Link
+            href="/privatesia"
+            className="font-semibold text-ivory underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
+          >
+            Privatësinë
+          </Link>
+        </p>
+      )}
     </form>
   );
 }

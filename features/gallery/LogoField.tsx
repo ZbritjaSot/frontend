@@ -3,6 +3,7 @@
 import { DeleteOutlinedIcon, PhotoCameraOutlinedIcon } from "@/components/ui/icons";
 import { useRef, useState } from "react";
 import { ShopLogo } from "@/features/public/visuals";
+import { DROP_HERE_LABEL, useFileDrop } from "@/hooks/useFileDrop";
 import { validationMessage } from "@/lib/api";
 import { fieldError } from "@/lib/ui";
 
@@ -24,10 +25,6 @@ export function LogoField({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (readOnly) {
-    return <ShopLogo name={name} logoUrl={logoUrl} size="xl" />;
-  }
-
   async function onFile(file: File | undefined) {
     if (!file || !onUpload) {
       return;
@@ -43,17 +40,49 @@ export function LogoField({
     }
   }
 
+  const drop = useFileDrop({
+    disabled: busy || readOnly,
+    onFiles: (files, rejection) => {
+      if (files.length === 0) {
+        if (rejection) {
+          setError(rejection);
+        }
+        return;
+      }
+      if (rejection) {
+        setError(rejection);
+      }
+      void onFile(files[0]);
+    },
+  });
+
+  if (readOnly) {
+    return <ShopLogo name={name} logoUrl={logoUrl} size="xl" />;
+  }
+
   return (
     <div className="relative grid justify-items-start gap-2">
-      <div className="relative">
+      <div className="relative" {...drop.dropProps}>
         <button
           type="button"
           disabled={busy}
           aria-label={logoUrl ? "Ndërro logon" : "Ngarko logon"}
-          className="rounded-hero disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-          onClick={() => inputRef.current?.click()}
+          className={`relative rounded-hero disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${
+            drop.active ? "ring-2 ring-accent" : ""
+          }`}
+          onClick={() => {
+            inputRef.current?.click();
+          }}
         >
           <ShopLogo name={name} logoUrl={logoUrl} size="xl" />
+          {drop.active ? (
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 grid place-items-center rounded-hero bg-accent/10 px-1 text-center text-[10px] font-bold leading-tight text-ink"
+            >
+              {DROP_HERE_LABEL}
+            </span>
+          ) : null}
           <span className="absolute -right-1 -bottom-1 grid size-7 place-items-center rounded-full bg-charcoal text-accent ring-2 ring-elevated">
             <PhotoCameraOutlinedIcon sx={{ fontSize: 16 }} />
           </span>
@@ -63,7 +92,7 @@ export function LogoField({
             type="button"
             disabled={busy}
             aria-label="Hiq logon"
-            className="absolute -top-1 -left-1 grid size-6 place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated"
+            className="absolute -top-1 -left-1 grid size-6 place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated disabled:pointer-events-none"
             onClick={async () => {
               setError(null);
               setBusy(true);

@@ -12,6 +12,7 @@ import {
 } from "@/features/gallery/api";
 import { BulkUploadStatus } from "@/features/gallery/BulkUploadStatus";
 import { titleFromFilename } from "@/features/gallery/titleFromFilename";
+import { DROP_HERE_LABEL, fileDropZoneClass, useFileDrop } from "@/hooks/useFileDrop";
 import { useBulkUpload } from "@/features/gallery/useBulkUpload";
 import { useLeaveGuard } from "@/hooks/useLeaveGuard";
 import { validationMessage } from "@/lib/api";
@@ -78,6 +79,39 @@ export function AdminGallery({ businessId }: { businessId: string }) {
     });
   }
 
+  function receiveFiles(files: File[], rejection: string | null = null) {
+    if (files.length === 0) {
+      if (rejection) {
+        setError(rejection);
+      }
+      return;
+    }
+    const untitled = files.find((file) => titleFromFilename(file.name) === "");
+    if (untitled) {
+      setError(`Skedari “${untitled.name}” nuk ka titull të vlefshëm.`);
+      return;
+    }
+    setError(rejection);
+    void (async () => {
+      await upload.start(
+        files.map((file) => ({
+          file,
+          title: titleFromFilename(file.name),
+        })),
+      );
+      await refresh();
+    })();
+  }
+
+  const drop = useFileDrop({
+    multiple: true,
+    disabled: busy || upload.busy,
+    onFiles: (files, rejection) => {
+      upload.reset();
+      receiveFiles(files, rejection);
+    },
+  });
+
   return (
     <div className="relative grid gap-2">
       {error ? (
@@ -119,18 +153,24 @@ export function AdminGallery({ businessId }: { businessId: string }) {
 
       <div className="max-h-[min(28rem,calc(100dvh-16rem))] overflow-y-auto overscroll-contain rounded-2xl border border-line p-2">
         <ul className="m-0 grid list-none grid-cols-4 gap-2 p-0 sm:grid-cols-6 md:grid-cols-8">
-          <li>
+          <li {...drop.dropProps}>
             <button
               type="button"
               disabled={busy || upload.busy}
               aria-label="Shto foto"
-              className="grid aspect-square w-full place-items-center rounded-lg border border-dashed border-line bg-sunken text-muted disabled:opacity-60"
+              className={`grid aspect-square w-full place-items-center rounded-lg text-muted disabled:pointer-events-none disabled:opacity-60 ${fileDropZoneClass(drop.active)}`}
               onClick={() => {
                 upload.reset();
                 inputRef.current?.click();
               }}
             >
-              <AddOutlinedIcon fontSize="small" />
+              {drop.active ? (
+                <span aria-hidden="true" className="px-1 text-center text-[10px] font-bold leading-tight text-ink">
+                  {DROP_HERE_LABEL}
+                </span>
+              ) : (
+                <AddOutlinedIcon fontSize="small" />
+              )}
             </button>
             <p className="m-0 mt-1 truncate text-xs font-medium text-muted">Shto</p>
           </li>
@@ -209,26 +249,7 @@ export function AdminGallery({ businessId }: { businessId: string }) {
         onChange={(event) => {
           const files = Array.from(event.target.files ?? []);
           event.target.value = "";
-          if (files.length === 0) {
-            return;
-          }
-          const untitled = files.find(
-            (file) => titleFromFilename(file.name) === "",
-          );
-          if (untitled) {
-            setError(`Skedari “${untitled.name}” nuk ka titull të vlefshëm.`);
-            return;
-          }
-          setError(null);
-          void (async () => {
-            await upload.start(
-              files.map((file) => ({
-                file,
-                title: titleFromFilename(file.name),
-              })),
-            );
-            await refresh();
-          })();
+          receiveFiles(files);
         }}
       />
     </div>

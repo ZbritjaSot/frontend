@@ -1,4 +1,5 @@
 import { BackLink, EmptyNote, Frame } from "@/features/public/Frame";
+import { NotFoundRecovery } from "@/features/public/NotFoundRecovery";
 
 export default function OfferNotFound() {
   return (
@@ -7,6 +8,7 @@ export default function OfferNotFound() {
         title="Oferta nuk u gjet"
         body="Kjo ofertë nuk është aktive ose nuk ekziston më."
       />
+      <NotFoundRecovery />
       <p className="mt-6">
         <BackLink href="/">Kthehu te ofertat</BackLink>
       </p>

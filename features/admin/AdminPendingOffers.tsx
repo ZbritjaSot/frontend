@@ -1,27 +1,22 @@
 "use client";
 
-import { CheckOutlinedIcon, VisibilityOutlinedIcon } from "@/components/ui/icons";
+import { VisibilityOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
 import { useToast } from "@/components/ui/Toast";
 import { PENDING_OFFERS_PAGE_SIZE } from "@/features/admin/offersApi";
-import {
-  bundleDisplayTitle,
-  OFFER_STATUS_LABEL,
-  publicBundlePath,
-} from "@/features/offers/status";
+import { bundleDisplayTitle, OFFER_STATUS_LABEL, publicBundlePath, OFFER_STATUS_HINT } from "@/features/offers/status";
 import { useApproveOffer, usePendingOffers } from "@/hooks/useAdminOffers";
 import { formatDateShortSq } from "@/lib/format";
 import { validationMessage } from "@/lib/api";
-import { button, offerStatusClass, panelLead } from "@/lib/ui";
+import { button, iconButton, offerStatusClass, panelLead } from "@/lib/ui";
 import type { OfferBundle } from "@/types";
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink no-underline hover:border-accent/60 disabled:cursor-wait disabled:opacity-65";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { CellLabel, dataCell, dataRowCard } from "@/components/ui/DataRow";
 
 function PendingRow({
   bundle,
@@ -35,42 +30,54 @@ function PendingRow({
   const count = bundle.items_count ?? bundle.items?.length ?? 0;
 
   return (
-    <li className="col-span-6 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4">
+    <li className={`col-span-6 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4 ${dataRowCard}`}>
       <Link
         href={`/admin/offers/${bundle.id}`}
-        className="truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg"
+        className={`truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg ${dataCell.title} ${dataCell.titleText}`}
       >
         {bundleDisplayTitle(bundle)}
       </Link>
-      <p className="m-0 truncate text-sm font-semibold">
+      <p className={`m-0 truncate text-sm font-semibold ${dataCell.meta}`}>
+        <CellLabel>Biznesi</CellLabel>
         {bundle.business?.name ?? "Biznes"}
       </p>
-      <p className="m-0 text-sm font-semibold tabular-nums md:pl-6">{count}</p>
-      <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
+      <p className={`m-0 text-sm font-semibold tabular-nums md:pl-6 ${dataCell.metaNowrap}`}>
+        <CellLabel>Produkte</CellLabel>
+        {count}
+      </p>
+      <p className={`m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6 ${dataCell.metaNowrap}`}>
+        <CellLabel>Skadon</CellLabel>
         {formatDateShortSq(bundle.expires_at)}
       </p>
-      <span
-        className={`${offerStatusClass(bundle.status)} mt-0! w-fit self-center! md:ml-6`}
-      >
-        {OFFER_STATUS_LABEL[bundle.status]}
-      </span>
-      <div className="flex items-center gap-1.5 border-l border-line pl-4">
-        <Link
-          href={`/admin/offers/${bundle.id}`}
-          className={rowButton}
-          aria-label={`Shiko ${bundleDisplayTitle(bundle)}`}
+      <Tooltip content={OFFER_STATUS_HINT[bundle.status]} className={`w-fit self-center md:ml-6 ${dataCell.status}`}>
+        <span
+          className={`${offerStatusClass(bundle.status)} mt-0!`}
         >
-          <VisibilityOutlinedIcon fontSize="small" />
-        </Link>
-        <button
-          type="button"
-          className={rowButton}
-          aria-label={`Aprovo ${bundleDisplayTitle(bundle)}`}
-          disabled={pending}
-          onClick={() => onApprove(bundle)}
-        >
-          <CheckOutlinedIcon fontSize="small" className="text-accent-fg!" />
-        </button>
+          {OFFER_STATUS_LABEL[bundle.status]}
+        </span>
+      </Tooltip>
+      <div className={`flex items-center gap-1.5 border-l border-line pl-4 ${dataCell.actions}`}>
+        <Tooltip content="Shiko">
+          <Link
+            href={`/admin/offers/${bundle.id}`}
+            className={iconButton}
+            aria-label={`Shiko ${bundleDisplayTitle(bundle)}`}
+          >
+            <VisibilityOutlinedIcon fontSize="small" />
+          </Link>
+        </Tooltip>
+        <Tooltip content="Aprovo fletushkën">
+          <button
+            type="button"
+            className={button({ size: "sm" })}
+            aria-label={`Aprovo ${bundleDisplayTitle(bundle)}`}
+            aria-busy={pending}
+            disabled={pending}
+            onClick={() => onApprove(bundle)}
+          >
+            Aprovo
+          </button>
+        </Tooltip>
       </div>
     </li>
   );
@@ -93,6 +100,14 @@ export function AdminPendingOffers({
   const approve = useApproveOffer();
   const [confirm, setConfirm] = useState<OfferBundle | null>(null);
   const { showToast } = useToast();
+  const lastPage = data?.meta?.last_page;
+
+  useEffect(() => {
+    if (isLoading || isError || lastPage === undefined || page <= lastPage) {
+      return;
+    }
+    onPageChange(lastPage);
+  }, [isLoading, isError, lastPage, page, onPageChange]);
 
   if (isLoading) {
     return <Spinner label="Duke ngarkuar listën" />;
@@ -112,11 +127,7 @@ export function AdminPendingOffers({
   }
 
   const bundles = data?.data ?? [];
-  const lastPage = data?.meta?.last_page;
   const total = data?.meta?.total ?? bundles.length;
-  if (lastPage !== undefined && page > lastPage) {
-    onPageChange(lastPage);
-  }
 
   const direct = bundles.filter((bundle) => bundle.awaits_manager !== true);
   const managed = bundles.filter((bundle) => bundle.awaits_manager === true);
@@ -196,7 +207,7 @@ export function AdminPendingOffers({
       )}
       <ConfirmModal
         open={confirm !== null}
-        title="Aprovo dosjen"
+        title="Aprovo fletushkën"
         message={
           approve.isError
             ? validationMessage(approve.error, "Nuk mundëm ta aprovojmë.")

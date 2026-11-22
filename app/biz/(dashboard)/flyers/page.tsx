@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BizOfferList } from "@/features/offers/BizOfferList";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Fletushkat",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function BizFlyersPage() {
-  return <BizOfferList catalog="flyers" />;
+  return <PageWidth variant="list"><BizOfferList catalog="flyers" /></PageWidth>;
 }

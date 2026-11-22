@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { CatalogFilters } from "@/features/public/CatalogFilters";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
 import { FilterChips } from "@/features/public/FilterChips";
 import { Band, EmptyNote, Frame } from "@/features/public/Frame";
 import { PartnerBoard } from "@/features/public/PartnerBoard";
-import { kicker } from "@/features/public/tone";
 import {
   ApiError,
   fetchPublicBusinesses,
   fetchPublicCities,
   PUBLIC_BUSINESSES_PAGE_SIZE,
 } from "@/features/offers/api";
-import { showCatalogControls } from "@/lib/browse";
+import { browsePath, showCatalogControls } from "@/lib/browse";
 import { publicPageMetadata } from "@/lib/metadata";
+import { button } from "@/lib/ui";
 import type { PublicBusiness } from "@/types";
 
 type DirectoryPageProps = {
@@ -84,8 +85,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
 
   return (
     <Band pad="page">
-      <p className={kicker}>Partnerë</p>
-      <h1 className="m-0 mt-2 text-title-1">Partnerët</h1>
+      <h1 className="m-0 text-title-1">Partnerët</h1>
       <p className="mt-3 mb-0 max-w-xl text-sm leading-relaxed text-muted">
         {total} partnerë me fletushka aktive.
       </p>
@@ -120,6 +120,13 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
             city
               ? `Nuk ka partner në ${city}.`
               : "Provo një emër tjetër, ose kthehu te të gjithë partnerët."
+          }
+          action={
+            q || city ? (
+              <Link href={browsePath("/biznese", {})} className={button({ shape: "pill" })}>
+                Shiko të gjithë partnerët
+              </Link>
+            ) : null
           }
         />
       ) : (

@@ -2,8 +2,10 @@
 
 import { EditOutlinedIcon } from "@/components/ui/icons";
 import Link from "next/link";
+import { useId } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/Spinner";
+import { TabPanel, Tabs } from "@/components/ui/Tabs";
 import { useQueryClient } from "@tanstack/react-query";
 import { AccountProfilePanel } from "@/features/auth/AccountProfilePanel";
 import { hasRole } from "@/features/auth/api";
@@ -119,6 +121,7 @@ function subscriptionStatus(sub: BizSubscription): {
 
 export function BizProfilePanel() {
   const queryClient = useQueryClient();
+  const tabsId = useId();
   const { data: user } = useMe();
   const manager = !!user && hasRole(user, "manager");
   const businessQuery = useBizBusiness(!manager);
@@ -221,20 +224,16 @@ export function BizProfilePanel() {
           ) : null}
         </div>
       </section>
-      <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-b border-line" aria-label="Seksionet e profilit">
-        {tabs.map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            className={`cursor-pointer border-0 border-b-2 bg-transparent px-0 py-3 text-sm font-bold ${
-              section === id ? "border-accent text-ink" : "border-transparent text-muted"
-            }`}
-            onClick={() => setSection(id)}
-          >
-            {label}
-          </button>
-        ))}
-      </nav>
+      <Tabs
+        className="mt-4"
+        tabs={tabs.map(([id, label]) => ({ id, label }))}
+        value={section}
+        onChange={setSection}
+        idPrefix={tabsId}
+        label="Seksionet e profilit"
+        activation="manual"
+      />
+      <TabPanel idPrefix={tabsId} id={section}>
       {section === "biznesi" && business ? (
         <>
           <AddressLink business={business} />
@@ -307,6 +306,7 @@ export function BizProfilePanel() {
       </section>
       ) : null}
       {section === "deget" && business ? <BranchPanel mode="biz" business={business} /> : null}
+      </TabPanel>
     </div>
   );
 }

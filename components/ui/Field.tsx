@@ -35,7 +35,7 @@ export function FieldError({
     <p
       id={id}
       role={announce ? "alert" : undefined}
-      className={`m-0 text-sm font-semibold ${tone === "inverse" ? "text-[#ffb4b4]" : "text-danger"}`}
+      className={`m-0 text-sm font-semibold text-danger${tone === "inverse" ? " [--color-danger:var(--color-danger-on-forest)]" : ""}`}
     >
       {children}
     </p>

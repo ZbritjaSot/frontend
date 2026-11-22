@@ -17,6 +17,7 @@ import {
 } from "@/features/gallery/api";
 import { BulkUploadStatus } from "@/features/gallery/BulkUploadStatus";
 import { titleFromFilename } from "@/features/gallery/titleFromFilename";
+import { DROP_HERE_LABEL, fileDropZoneClass, useFileDrop } from "@/hooks/useFileDrop";
 import { useBulkUpload } from "@/features/gallery/useBulkUpload";
 import { useLeaveGuard } from "@/hooks/useLeaveGuard";
 import { validationMessage } from "@/lib/api";
@@ -95,6 +96,30 @@ export function AdminPlatformGallery() {
     pendingPhotosRef.current = next;
     setPendingPhotos(next);
   }
+
+  function photosFromFiles(files: File[]): PendingPhoto[] {
+    return files.map((file, index) => ({
+      key: `${file.name}-${file.size}-${file.lastModified}-${index}`,
+      file,
+      title: titleFromFilename(file.name),
+      previewUrl: URL.createObjectURL(file),
+    }));
+  }
+
+  const drop = useFileDrop({
+    multiple: true,
+    disabled: busy || upload.busy,
+    onFiles: (files, rejection) => {
+      if (files.length === 0) {
+        if (rejection) {
+          setFormError(rejection);
+        }
+        return;
+      }
+      setFormError(rejection);
+      setPhotos(photosFromFiles(files));
+    },
+  });
 
   const gallery = useQuery({
     queryKey: [...adminPlatformGalleryQueryKey, q, page, perPage],
@@ -345,14 +370,22 @@ export function AdminPlatformGallery() {
             />
           ) : editor === "new" ? (
             <div className="grid min-w-0 gap-2">
+<div {...drop.dropProps}>
               <button
                 type="button"
-                className={`grid w-full place-items-center gap-1 rounded-2xl border border-dashed border-line bg-sunken px-4 text-center text-ink hover:border-accent/60 ${
+                className={`grid w-full place-items-center gap-1 rounded-2xl px-4 text-center text-ink hover:border-accent/60 ${fileDropZoneClass(drop.active)} ${
                   pendingPhotos.length === 0 ? "py-7" : "py-3"
                 }`}
-                onClick={() => inputRef.current?.click()}
+                onClick={() => {
+                  inputRef.current?.click();
+                }}
               >
                 <AddPhotoAlternateOutlinedIcon className="text-muted" />
+                {drop.active ? (
+                  <span aria-hidden="true" className="text-sm font-bold text-ink">
+                    {DROP_HERE_LABEL}
+                  </span>
+                ) : null}
                 <span className="text-base font-bold">
                   {pendingPhotos.length === 0 ? "Ngarko foto" : "Ndrysho fotot"}
                 </span>
@@ -364,6 +397,7 @@ export function AdminPlatformGallery() {
                       : `${pendingPhotos.length} foto të zgjedhura`}
                 </span>
               </button>
+</div>
               <input
                 ref={inputRef}
                 type="file"
@@ -373,14 +407,7 @@ export function AdminPlatformGallery() {
                 onChange={(event) => {
                   const files = Array.from(event.target.files ?? []);
                   event.target.value = "";
-                  setPhotos(
-                    files.map((file, index) => ({
-                      key: `${file.name}-${file.size}-${file.lastModified}-${index}`,
-                      file,
-                      title: titleFromFilename(file.name),
-                      previewUrl: URL.createObjectURL(file),
-                    })),
-                  );
+                  setPhotos(photosFromFiles(files));
                 }}
               />
               <p className="m-0 text-xs text-muted">

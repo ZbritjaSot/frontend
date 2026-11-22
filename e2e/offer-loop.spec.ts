@@ -58,7 +58,7 @@ async function approve(page: Page, id: string) {
   await page.goto(`/admin/offers/${id}`);
   await page.getByRole("button", { name: "Aprovo" }).click();
   await page
-    .getByRole("dialog", { name: "Aprovo dosjen" })
+    .getByRole("dialog", { name: "Aprovo fletushkën" })
     .getByRole("button", { name: "Aprovo" })
     .click();
   await page.waitForURL("**/admin/offers");

@@ -129,13 +129,19 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
       {offer.business ? (
         <Band pad="compact">
           <p className={kicker}>Ku e gjen</p>
-          <div className="mt-3 max-w-xl grid gap-3">
-            <PlaceBranchRow place={offer.business} />
+          {/* Below lg: one column in the original order (branch, map, other branches). From lg the
+              map takes the right 5 columns (same split as the hero card above) and spans both
+              rows, so address + other branches stack on the left. */}
+          <div className="mt-3 grid max-w-xl gap-3 lg:max-w-none lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:content-start lg:gap-x-10">
+            <div className="lg:col-span-7 lg:row-start-1">
+              <PlaceBranchRow place={offer.business} />
+            </div>
             <OfferPlace
+              className="lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1"
               surface="plain"
               showHeading={false}
               showPin={false}
-              mapClassName="h-72"
+              mapClassName="h-72 lg:h-96"
               name={offer.business.name}
               place={{
                 address: offer.business.address,
@@ -143,7 +149,11 @@ export function OfferDetail({ offer, related = [], recommended = [] }: OfferDeta
                 longitude: offer.business.longitude,
               }}
             />
-            <BranchPlaces places={offer.also_at} showHeading={false} />
+            <BranchPlaces
+              className="lg:col-span-7 lg:row-start-2 lg:self-start"
+              places={offer.also_at}
+              showHeading={false}
+            />
           </div>
         </Band>
       ) : null}

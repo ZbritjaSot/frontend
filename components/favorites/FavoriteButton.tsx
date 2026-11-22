@@ -5,7 +5,7 @@ import type { MouseEvent } from "react";
 import { useToast } from "@/components/ui/Toast";
 import { NavIcon } from "@/components/chrome/NavIcon";
 import { useFavorites } from "@/hooks/useFavorites";
-import type { FavoriteKind } from "@/lib/favorites";
+import { isFavoriteStored, toggleFavoriteStored, type FavoriteKind } from "@/lib/favorites";
 
 type FavoriteButtonProps = {
   kind: FavoriteKind;
@@ -48,7 +48,22 @@ export function FavoriteButton({
         thumbnail,
       });
     } else {
-      showToast("U hoq nga të preferuarat", { tone: "success", key: "favorite", thumbnail });
+      showToast("U hoq nga të preferuarat", {
+        tone: "success",
+        key: "favorite",
+        thumbnail,
+        action: {
+          label: "Kthe",
+          // Re-add the exact same kind:id. Guarded so a second add elsewhere
+          // (or a stale toast) can never toggle it back off. No new toast:
+          // the action button dismisses this one.
+          onClick: () => {
+            if (!isFavoriteStored(kind, id)) {
+              toggleFavoriteStored(kind, id);
+            }
+          },
+        },
+      });
     }
   }
 
@@ -63,9 +78,9 @@ export function FavoriteButton({
         "inline-flex cursor-pointer items-center justify-center rounded-full border-0 p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
         dim,
         tone === "on-media"
-          ? "bg-charcoal/45 text-ivory backdrop-blur-sm hover:bg-charcoal/60"
-          : "border border-line bg-elevated text-ink hover:bg-hover",
-        active ? "text-[#ff6b7a]" : "",
+          ? "bg-charcoal/45 backdrop-blur-sm hover:bg-charcoal/60"
+          : "border border-line bg-elevated hover:bg-hover",
+        active ? "text-favorite" : tone === "on-media" ? "text-ivory" : "text-ink",
         className,
       ]
         .filter(Boolean)

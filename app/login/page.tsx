@@ -4,7 +4,7 @@ import { LoginScreen } from "@/features/auth/LoginScreen";
 import { Spinner } from "@/components/ui/Spinner";
 
 export const metadata: Metadata = {
-  title: "Login",
+  title: "Hyr",
   robots: { index: false, follow: false },
 };
 

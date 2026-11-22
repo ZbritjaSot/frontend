@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { EditOfferScreen } from "@/features/offers/EditOfferScreen";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Ndrysho fletushkën",
@@ -12,5 +13,5 @@ type PageProps = {
 
 export default async function EditBizFlyerPage({ params }: PageProps) {
   const { id } = await params;
-  return <EditOfferScreen id={id} catalog="flyers" />;
+  return <PageWidth variant="form"><EditOfferScreen id={id} catalog="flyers" /></PageWidth>;
 }

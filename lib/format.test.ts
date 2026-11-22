@@ -10,6 +10,7 @@ import {
   formatEur,
   formatEurFromCents,
   formatMonthYearSq,
+  formatWeekdayDateSq,
 } from "@/lib/format";
 
 describe("euro formatters", () => {
@@ -62,5 +63,18 @@ describe("Albanian dates", () => {
     expect(formatCalendarDateSq(2026, 9, 22)).toBe("22 shtator 2026");
     expect(formatMonthYearSq(2026, 9)).toBe("Shtator 2026");
     expect(formatMonthYearSq(2026, 13)).toBe("—");
+  });
+});
+
+describe("formatWeekdayDateSq", () => {
+  it("names the weekday, Monday first", () => {
+    expect(formatWeekdayDateSq(2026, 11, 12)).toBe("e enjte, 12 nëntor 2026");
+    expect(formatWeekdayDateSq(2026, 11, 16)).toBe("e hënë, 16 nëntor 2026");
+    expect(formatWeekdayDateSq(2026, 11, 22)).toBe("e diel, 22 nëntor 2026");
+  });
+
+  it("returns a dash for an invalid month", () => {
+    expect(formatWeekdayDateSq(2026, 13, 1)).toBe("—");
+    expect(formatWeekdayDateSq(2026, 0, 1)).toBe("—");
   });
 });

@@ -6,6 +6,9 @@ import { usePathname } from "next/navigation";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { NavIcon } from "@/components/chrome/NavIcon";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { useFavorites } from "@/hooks/useFavorites";
+
 const links = [
   { href: "/oferta", label: "Ofertat", match: "oferta" },
   { href: "/fletushka", label: "Fletushkat", match: "fletushka" },
@@ -15,7 +18,7 @@ const PARTNERS_HREF = "/biznese";
 const PARTNERS_LABEL = "Partnerët";
 
 const iconHit =
-  "inline-flex size-10 items-center justify-center rounded-lg text-chrome-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+  "inline-flex size-10 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -23,6 +26,11 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const onSettings = pathname.startsWith("/cilesimet");
   const onFavorites = pathname.startsWith("/preferuarat");
+  // useSyncExternalStore serves the server snapshot (empty) during hydration, so
+  // count is 0 on the first client render and the badge only appears afterwards.
+  const { count: favoritesCount } = useFavorites();
+  const favoritesLabel =
+    favoritesCount > 0 ? `Të preferuarat, ${favoritesCount}` : "Të preferuarat";
 
   useEffect(() => {
     if (!open) {
@@ -39,123 +47,58 @@ export function SiteHeader() {
 
   function active(match: (typeof links)[number]["match"]): boolean {
     if (match === "oferta") {
-      return pathname === "/oferta" || pathname.startsWith("/oferta/") || pathname.startsWith("/offers");
+      return (
+        pathname === "/oferta" ||
+        pathname.startsWith("/oferta/") ||
+        pathname.startsWith("/offers")
+      );
     }
-    return pathname === "/fletushka" || pathname.startsWith("/fletushka/") || pathname.startsWith("/dosje");
+    return (
+      pathname === "/fletushka" ||
+      pathname.startsWith("/fletushka/") ||
+      pathname.startsWith("/dosje")
+    );
   }
 
   const partnersActive =
     pathname === PARTNERS_HREF || pathname.startsWith(`${PARTNERS_HREF}/`);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-chrome text-chrome-text backdrop-blur-md dark:border-white/8 dark:bg-chrome/90">
-      <div className="mx-auto flex min-h-16 w-full max-w-7xl items-center gap-4 px-5 sm:gap-8 sm:px-8">
-        <Link
-          href="/"
-          className="inline-flex shrink-0 items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
-          aria-label="ZbritjaSot — kryefaqja"
-          onClick={() => setOpen(false)}
-        >
-          <LogoMark size={34} priority />
-          <Wordmark tone="chrome" className="text-xl" />
-        </Link>
-
-        <nav
-          aria-label="Kryesore"
-          className="hidden min-w-0 flex-1 items-center gap-5 overflow-x-auto [scrollbar-width:none] md:flex sm:gap-7 [&::-webkit-scrollbar]:hidden"
-        >
-          {links.map((link) => {
-            const current = active(link.match);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={current ? "page" : undefined}
-                onClick={() => setOpen(false)}
-                className={`inline-flex min-h-11 shrink-0 items-center border-b-2 text-sm font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus ${
-                  current
-                    ? "border-accent text-chrome-text"
-                    : "border-transparent text-chrome-muted hover:text-chrome-text"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-          <NavPill
-            href={PARTNERS_HREF}
-            label={PARTNERS_LABEL}
-            active={partnersActive}
-            pulse={!partnersActive}
-            onNavigate={() => setOpen(false)}
-          />
-        </nav>
-
-        <div className="ml-auto flex items-center gap-0.5 md:ml-0">
-          <button
-            type="button"
-            className={`${iconHit} cursor-pointer hover:bg-white/10 md:hidden`}
-            aria-label={open ? "Mbyll menynë" : "Hap menynë"}
-            aria-expanded={open}
-            aria-controls={menuId}
-            onClick={() => setOpen((value) => !value)}
-          >
-            {open ? <CloseIcon /> : <MenuIcon />}
-          </button>
+    <>
+      <header className="sticky top-0 z-40 border-b border-line bg-chrome text-chrome-text backdrop-blur-md dark:border-white/8 dark:bg-chrome/90">
+        <div className="relative z-10 mx-auto flex min-h-16 w-full max-w-7xl items-center gap-4 px-5 sm:gap-8 sm:px-8">
           <Link
-            href="/preferuarat"
-            aria-label="Të preferuarat"
-            aria-current={onFavorites ? "page" : undefined}
-            title="Të preferuarat"
+            href="/"
+            className="inline-flex shrink-0 items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
+            aria-label="ZbritjaSot — kryefaqja"
             onClick={() => setOpen(false)}
-            className={`${iconHit} ${
-              onFavorites
-                ? "border border-line bg-elevated text-[#ff6b7a]"
-                : "hover:bg-white/10"
-            }`}
           >
-            <NavIcon name="favorites" filled={onFavorites} />
+            <LogoMark size={34} priority />
+            <Wordmark tone="chrome" className="text-xl" />
           </Link>
-          <Link
-            href="/cilesimet"
-            aria-label="Cilësimet"
-            aria-current={onSettings ? "page" : undefined}
-            title="Cilësimet"
-            onClick={() => setOpen(false)}
-            className={`${iconHit} ${
-              onSettings
-                ? "border border-line bg-elevated"
-                : "hover:bg-white/10"
-            }`}
-          >
-            <NavIcon name="settings" />
-          </Link>
-        </div>
-      </div>
 
-      {open ? (
-        <nav
-          id={menuId}
-          aria-label="Kryesore"
-          className="mx-auto flex w-full max-w-7xl flex-col px-5 pt-1 pb-4 md:hidden"
-        >
-          {links.map((link) => {
-            const current = active(link.match);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={current ? "page" : undefined}
-                onClick={() => setOpen(false)}
-                className={`flex min-h-12 items-center border-b border-line/70 text-base font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus ${
-                  current ? "text-chrome-text" : "text-chrome-muted"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-          <span className="flex flex-wrap gap-3 pt-3">
+          <nav
+            aria-label="Kryesore"
+            className="hidden min-w-0 flex-1 items-center gap-5 overflow-x-auto [scrollbar-width:none] md:flex sm:gap-7 [&::-webkit-scrollbar]:hidden"
+          >
+            {links.map((link) => {
+              const current = active(link.match);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={current ? "page" : undefined}
+                  onClick={() => setOpen(false)}
+                  className={`inline-flex min-h-11 shrink-0 items-center border-b-2 text-sm font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus ${
+                    current
+                      ? "border-accent text-chrome-text"
+                      : "border-transparent text-chrome-muted hover:text-chrome-text"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
             <NavPill
               href={PARTNERS_HREF}
               label={PARTNERS_LABEL}
@@ -163,10 +106,114 @@ export function SiteHeader() {
               pulse={!partnersActive}
               onNavigate={() => setOpen(false)}
             />
-          </span>
-        </nav>
-      ) : null}
-    </header>
+          </nav>
+
+          <div className="ml-auto flex items-center gap-0.5 md:ml-0">
+            <button
+              type="button"
+              className={`${iconHit} cursor-pointer text-chrome-text hover:bg-hover md:hidden`}
+              aria-label={open ? "Mbyll menynë" : "Hap menynë"}
+              aria-expanded={open}
+              aria-controls={menuId}
+              onClick={() => setOpen((value) => !value)}
+            >
+              {open ? <CloseIcon /> : <MenuIcon />}
+            </button>
+            <Tooltip content={favoritesLabel}>
+              <Link
+                href="/preferuarat"
+                aria-label={favoritesLabel}
+                aria-current={onFavorites ? "page" : undefined}
+                onClick={() => setOpen(false)}
+                className={`${iconHit} relative ${
+                  onFavorites
+                    ? "border border-line bg-elevated text-favorite"
+                    : "text-chrome-text hover:bg-hover"
+                }`}
+              >
+                <NavIcon name="favorites" filled={onFavorites} />
+                {favoritesCount > 0 ? (
+                  <span
+                    aria-hidden="true"
+                    data-testid="favorites-badge"
+                    className="pointer-events-none absolute top-0.5 right-0 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 ring-2 ring-chrome text-[0.625rem] leading-none font-bold text-on-accent tabular-nums"
+                  >
+                    {favoritesCount > 99 ? "99+" : favoritesCount}
+                  </span>
+                ) : null}
+              </Link>
+            </Tooltip>
+            <Tooltip content="Cilësimet">
+              <Link
+                href="/cilesimet"
+                aria-label="Cilësimet"
+                aria-current={onSettings ? "page" : undefined}
+                onClick={() => setOpen(false)}
+                className={`${iconHit} text-chrome-text ${
+                  onSettings
+                    ? "border border-line bg-elevated"
+                    : "hover:bg-hover"
+                }`}
+              >
+                <NavIcon name="settings" />
+              </Link>
+            </Tooltip>
+          </div>
+        </div>
+
+        <div
+          className={`relative z-10 grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none md:hidden ${
+            open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          }`}
+        >
+          <div className="min-h-0 overflow-hidden">
+            <nav
+              id={menuId}
+              aria-label="Kryesore, mobile"
+              aria-hidden={open ? undefined : true}
+              inert={open ? undefined : true}
+              className="mx-auto flex w-full max-w-7xl flex-col px-5 pt-1 pb-4"
+            >
+              {links.map((link) => {
+                const current = active(link.match);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    aria-current={current ? "page" : undefined}
+                    onClick={() => setOpen(false)}
+                    className={`flex min-h-12 items-center border-b border-line/70 text-base font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus ${
+                      current ? "text-chrome-text" : "text-chrome-muted"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+              <span className="flex flex-wrap gap-3 pt-3">
+                <NavPill
+                  href={PARTNERS_HREF}
+                  label={PARTNERS_LABEL}
+                  active={partnersActive}
+                  pulse={!partnersActive}
+                  onNavigate={() => setOpen(false)}
+                />
+              </span>
+            </nav>
+          </div>
+        </div>
+      </header>
+      {/* Sibling of <header>: the header's backdrop-filter would otherwise become the containing
+        block for this fixed layer and confine it to the header box. */}
+      <div
+        data-testid="nav-backdrop"
+        aria-hidden="true"
+        className={`fixed inset-0 z-30 bg-charcoal/45 transition-opacity duration-200 ease-out motion-reduce:transition-none md:hidden ${
+          open ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={() => setOpen(false)}
+      />
+    </>
   );
 }
 

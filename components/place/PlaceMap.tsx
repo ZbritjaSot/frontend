@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { Map as LeafletMap, Marker } from "leaflet";
+import type { Map as LeafletMap, Marker, TileLayer } from "leaflet";
+import { currentTheme, tileLayersFor } from "@/components/place/mapTiles";
+import type { Theme } from "@/lib/theme";
 import "leaflet/dist/leaflet.css";
 
 const FALLBACK = { latitude: 42.6629, longitude: 21.1655 };
@@ -39,6 +41,7 @@ export function PlaceMap({
     }
 
     let cancelled = false;
+    let themeObserver: MutationObserver | null = null;
 
     void (async () => {
       const L = await import("leaflet");
@@ -55,18 +58,25 @@ export function PlaceMap({
         scrollWheelZoom: false,
       }).setView([lat, lng], hasPin ? 16 : 13);
 
-      L.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        {
-          attribution:
-            '&copy; Esri, Maxar, Earthstar Geographics',
-          maxZoom: 19,
-        },
-      ).addTo(map);
-      L.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-        { maxZoom: 19, pane: "overlayPane" },
-      ).addTo(map);
+      let tiles: TileLayer[] = [];
+      let tileTheme: Theme | null = null;
+      const syncTiles = () => {
+        const next = currentTheme();
+        if (next === tileTheme) {
+          return;
+        }
+        tileTheme = next;
+        tiles.forEach((layer) => layer.remove());
+        tiles = tileLayersFor(next).map((spec) =>
+          L.tileLayer(spec.url, spec.options).addTo(map),
+        );
+      };
+      syncTiles();
+      themeObserver = new MutationObserver(syncTiles);
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
 
       const icon = L.divIcon({
         className: "border-0 bg-transparent",
@@ -103,6 +113,7 @@ export function PlaceMap({
 
     return () => {
       cancelled = true;
+      themeObserver?.disconnect();
       mapRef.current?.remove();
       mapRef.current = null;
       markerRef.current = null;
@@ -127,7 +138,7 @@ export function PlaceMap({
   return (
     <div
       ref={nodeRef}
-      className="relative isolate z-0 h-full w-full bg-[#d7d2c4]"
+      className="relative isolate z-0 h-full w-full bg-[#d7d2c4] dark:bg-[#2b2b2b]"
       role="img"
       aria-label={label}
     />

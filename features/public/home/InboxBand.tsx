@@ -69,10 +69,9 @@ export function InboxBand({
             <h2 className="m-0 mt-3 max-w-lg text-title-1 break-words line-clamp-2">
               {title}
             </h2>
-            <p className="mt-4 mb-6 max-w-md text-base leading-relaxed text-ivory/75 dark:text-muted">
-              Merr oferta, ulje dhe zbulime të reja direkt në email.
-            </p>
-            <NewsletterSignup variant="home" />
+            <div className="mt-6">
+              <NewsletterSignup variant="home" />
+            </div>
             <ul className="mt-5 mb-0 flex list-none flex-wrap gap-x-4 gap-y-2 p-0 text-sm text-ivory/70 dark:text-muted">
               {["Oferta të reja", "Zbritje të zgjedhura", "Pa spam"].map((item) => (
                 <li key={item} className="inline-flex items-center gap-1.5">

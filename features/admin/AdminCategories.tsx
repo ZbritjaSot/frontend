@@ -4,11 +4,11 @@ import { AddOutlinedIcon, DeleteOutlinedIcon, DragIndicatorIcon, EditOutlinedIco
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { adminCategoryKey, IndicatorKey } from "@/components/ui/IndicatorKey";
 import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
+import { useStepReorder } from "@/features/admin/DragList";
 import {
   ADMIN_CATEGORIES_PAGE_SIZE,
   fetchAdminCategories,
@@ -22,11 +22,13 @@ import {
   useUpdateCategory,
 } from "@/hooks/useAdminCategories";
 import { validationMessage } from "@/lib/api";
-import { button, checkInput, fieldError, fieldLabel, input, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
+import { button, checkInput, fieldError, fieldLabel, iconButton, input, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 import { CategoryIconPicker } from "@/features/admin/CategoryIconPicker";
 import { CategoryGlyph, isCategoryIconId } from "@/lib/categoryIcons";
 import { categoryFormSchema, type CategoryFormInput } from "@/schemas/category";
 import type { Category } from "@/types";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { dataCell, dataRowCard } from "@/components/ui/DataRow";
 
 const emptyForm: CategoryFormInput = {
   name: "",
@@ -34,9 +36,6 @@ const emptyForm: CategoryFormInput = {
   icon: null,
   is_active: true,
 };
-
-const rowButton =
-  "inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border border-line bg-sunken text-ink hover:border-accent/60";
 
 export function AdminCategories() {
   const queryClient = useQueryClient();
@@ -147,6 +146,13 @@ export function AdminCategories() {
     setOverId(null);
   }
 
+  const { liveRegion, moveButtons } = useStepReorder({
+    items: categories,
+    getLabel: (category) => category.name,
+    onReorder: (ids) => reorderMutation.mutate(ids),
+    disabled: q !== "" || reorderMutation.isPending,
+  });
+
   const header = (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
@@ -156,7 +162,6 @@ export function AdminCategories() {
           Shto kategori
         </button>
       </div>
-      <IndicatorKey items={adminCategoryKey} />
     </>
   );
 
@@ -164,6 +169,7 @@ export function AdminCategories() {
     return (
       <div>
         {header}
+        {liveRegion}
         <Spinner label="Duke ngarkuar kategoritë" />
       </div>
     );
@@ -173,6 +179,7 @@ export function AdminCategories() {
     return (
       <div>
         {header}
+        {liveRegion}
         <div className="max-w-[40rem]">
           <p className={panelLead}>
             {validationMessage(error, "Nuk mundëm t’i ngarkojmë kategoritë.")}
@@ -188,6 +195,7 @@ export function AdminCategories() {
   return (
     <div>
       {header}
+      {liveRegion}
       {reorderMutation.isError ? (
         <p className={fieldError} role="alert">
           {validationMessage(
@@ -220,10 +228,10 @@ export function AdminCategories() {
             </span>
           </div>
           <ul className="col-span-4 m-0 list-none p-0 md:grid md:grid-cols-subgrid">
-            {categories.map((category) => (
+            {categories.map((category, index) => (
               <li
                 key={category.id}
-                className={`col-span-4 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4${
+                className={`col-span-4 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4 ${dataRowCard}${
                   draggingId === category.id ? " opacity-45" : ""
                 }${
                   overId === category.id
@@ -241,88 +249,107 @@ export function AdminCategories() {
                 }}
                 onDrop={() => dropOn(category.id)}
               >
-                <button
-                  type="button"
-                  className="inline-flex size-9 cursor-grab items-center justify-center rounded-lg text-muted hover:bg-sunken hover:text-ink active:cursor-grabbing"
-                  aria-label={`Rendit ${category.name}`}
-                  draggable={q === "" && !reorderMutation.isPending}
-                  hidden={q !== ""}
-                  onDragStart={(event) => {
-                    event.dataTransfer.effectAllowed = "move";
-                    event.dataTransfer.setData("text/plain", category.id);
-                    setDraggingId(category.id);
-                  }}
-                  onDragEnd={() => {
-                    setDraggingId(null);
-                    setOverId(null);
-                  }}
-                >
-                  <DragIndicatorIcon fontSize="small" />
-                </button>
-                <div className="flex min-w-0 items-center gap-3">
+                <Tooltip className="max-md:hidden" content="Tërhiq për ta renditur">
+                  <button
+                    type="button"
+                    className="inline-flex size-9 cursor-grab items-center justify-center rounded-lg text-muted hover:bg-sunken hover:text-ink active:cursor-grabbing max-md:hidden"
+                    aria-label={`Rendit ${category.name}`}
+                    draggable={q === "" && !reorderMutation.isPending}
+                    hidden={q !== ""}
+                    onDragStart={(event) => {
+                      event.dataTransfer.effectAllowed = "move";
+                      event.dataTransfer.setData("text/plain", category.id);
+                      setDraggingId(category.id);
+                    }}
+                    onDragEnd={() => {
+                      setDraggingId(null);
+                      setOverId(null);
+                    }}
+                  >
+                    <DragIndicatorIcon fontSize="small" />
+                  </button>
+                </Tooltip>
+                <div className={`flex min-w-0 items-center gap-3 ${dataCell.title}`}>
                   <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-sunken text-muted">
                     <CategoryGlyph name={category.icon} size={22} />
                   </span>
                   <div className="min-w-0">
-                  <p className="m-0 truncate text-base font-semibold">
+                  <p className={`m-0 truncate text-base font-semibold ${dataCell.titleText}`}>
                     {category.name}
                   </p>
-                  <p className="m-0 truncate text-sm text-muted">
+                  <p className={`m-0 truncate text-sm text-muted ${dataCell.titleText}`}>
                     {category.slug}
                   </p>
                   </div>
                 </div>
-                <span
-                  className={`${offerStatusClass(
-                    category.is_active ? "approved" : "rejected",
-                  )} mt-0! w-fit self-center!`}
-                >
-                  {category.is_active ? "Aktive" : "Joaktive"}
-                </span>
-                <div className="flex items-center gap-1.5 border-l border-line pl-4">
-                  <button
-                    className={rowButton}
-                    type="button"
-                    aria-label={`Ndrysho ${category.name}`}
-                    onClick={() => openEdit(category)}
-                  >
-                    <EditOutlinedIcon fontSize="small" />
-                  </button>
-                  <button
-                    className={rowButton}
-                    type="button"
-                    aria-label={
+                <Tooltip className={dataCell.status} content={
                       category.is_active
-                        ? `Çaktivizo ${category.name}`
-                        : `Aktivizo ${category.name}`
-                    }
-                    onClick={() =>
-                      updateMutation.mutate({
-                        id: category.id,
-                        is_active: !category.is_active,
-                      })
-                    }
+                        ? "Kategoria duket te bizneset."
+                        : "Kategoria është e fshehur."
+                    }>
+                  <span
+                    className={`${offerStatusClass(
+                      category.is_active ? "approved" : "rejected",
+                    )} mt-0! w-fit self-center!`}
                   >
-                    {category.is_active ? (
-                      <LockOutlinedIcon fontSize="small" />
-                    ) : (
-                      <LockOpenOutlinedIcon
+                    {category.is_active ? "Aktive" : "Joaktive"}
+                  </span>
+                </Tooltip>
+                <div className={`flex items-center gap-1.5 border-l border-line pl-4 ${dataCell.actions}`}>
+                  {q === "" ? (
+                    <span className="inline-flex gap-1.5 md:contents">
+                      {moveButtons(category, index)}
+                    </span>
+                  ) : null}
+                  <Tooltip content="Ndrysho">
+                    <button
+                      className={iconButton}
+                      type="button"
+                      aria-label={`Ndrysho ${category.name}`}
+                      onClick={() => openEdit(category)}
+                    >
+                      <EditOutlinedIcon fontSize="small" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip content={category.is_active ? "Çaktivizo" : "Aktivizo"}>
+                    <button
+                      className={iconButton}
+                      type="button"
+                      aria-label={
+                        category.is_active
+                          ? `Çaktivizo ${category.name}`
+                          : `Aktivizo ${category.name}`
+                      }
+                      onClick={() =>
+                        updateMutation.mutate({
+                          id: category.id,
+                          is_active: !category.is_active,
+                        })
+                      }
+                    >
+                      {category.is_active ? (
+                        <LockOutlinedIcon fontSize="small" />
+                      ) : (
+                        <LockOpenOutlinedIcon
+                          fontSize="small"
+                          className="text-accent-fg!"
+                        />
+                      )}
+                    </button>
+                  </Tooltip>
+                  <Tooltip content="Fshi">
+                    <button
+                      className={iconButton}
+                      type="button"
+                      aria-label={`Fshi ${category.name}`}
+                      onClick={() => setPendingDelete(category)}
+                    >
+                      <DeleteOutlinedIcon
                         fontSize="small"
-                        className="text-accent-fg!"
+                        className="text-danger!"
                       />
-                    )}
-                  </button>
-                  <button
-                    className={rowButton}
-                    type="button"
-                    aria-label={`Fshi ${category.name}`}
-                    onClick={() => setPendingDelete(category)}
-                  >
-                    <DeleteOutlinedIcon
-                      fontSize="small"
-                      className="text-danger!"
-                    />
-                  </button>
+                    </button>
+                  </Tooltip>
                 </div>
               </li>
             ))}
