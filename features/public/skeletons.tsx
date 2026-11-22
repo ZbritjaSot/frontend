@@ -1,3 +1,5 @@
+import { CAMPAIGN_GRID_COLUMNS } from "@/features/public/campaignGrid";
+
 /** Same shell as `Frame`: max-w-7xl with the page gutters. */
 const frame = "mx-auto w-full max-w-7xl px-5 sm:px-8";
 
@@ -121,8 +123,14 @@ export function FlyerCatalogueSkeleton() {
         <Bone className="h-11 w-36 rounded-full" />
       </div>
       <Bone className="mt-8 h-44 w-full rounded-2xl" />
-      <Bone className="mt-3 h-24 w-full rounded-2xl" />
-      <Bone className="mt-3 h-24 w-full rounded-2xl" />
+      <div className={`mt-4 grid gap-4 ${CAMPAIGN_GRID_COLUMNS}`}>
+        {Array.from({ length: 6 }, (_, index) => (
+          <Bone
+            key={index}
+            className={`h-32 w-full rounded-2xl sm:h-40 ${index >= 2 ? "hidden sm:block" : ""}`}
+          />
+        ))}
+      </div>
     </div>
   );
 }

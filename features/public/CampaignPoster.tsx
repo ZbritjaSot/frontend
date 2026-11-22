@@ -1,3 +1,8 @@
+import {
+  CAMPAIGN_CARD_COLUMNS,
+  CAMPAIGN_CARD_IMAGE_SIZES,
+  CAMPAIGN_GRID_CLASS,
+} from "@/features/public/campaignGrid";
 import Link from "next/link";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { folderCount, leadProduct, offerWord } from "@/features/public/compose";
@@ -161,7 +166,7 @@ export function CampaignPoster({
       <div className="relative h-full min-w-0">
         <Link
           href={`/dosje/${folder.id}`}
-          className="group grid h-full min-h-32 grid-cols-[9.5rem_minmax(0,1fr)] overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 sm:min-h-40 sm:grid-cols-[15rem_minmax(0,1fr)] dark:border-white/10 dark:bg-[#1a2420]"
+          className={`group grid h-full min-h-32 overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 sm:min-h-40 ${CAMPAIGN_CARD_COLUMNS} dark:border-white/10 dark:bg-[#1a2420]`}
         >
           <span className="relative h-full min-h-32 overflow-hidden sm:min-h-40">
             <ProductVisual
@@ -169,7 +174,7 @@ export function CampaignPoster({
               name={coverName}
               imageUrl={coverUrl}
               eager={eager}
-              sizes="(max-width: 640px) 38vw, 240px"
+              sizes={CAMPAIGN_CARD_IMAGE_SIZES}
             />
             <FlyerRail folder={folder} size="sm" />
           </span>
@@ -244,7 +249,7 @@ export function CampaignGrid({ folders }: { folders: PublicFolder[] }) {
   }
 
   return (
-    <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2">
+    <ul className={CAMPAIGN_GRID_CLASS}>
       {folders.map((folder) => (
         <li key={folder.id} className="min-w-0">
           <CampaignPoster folder={folder} layout="card" />

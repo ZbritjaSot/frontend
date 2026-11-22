@@ -93,4 +93,14 @@ describe("loading skeletons", () => {
     expect(cardTokens).not.toContain("bg-elevated");
     expect(cardTokens).not.toContain("animate-pulse");
   });
+
+  it("lays the flyer catalogue skeleton out in the same 1/2/3 columns as the real grid", () => {
+    render(createElement(FlyerCatalogueSkeleton));
+    const root = screen.getByLabelText("Duke ngarkuar fletushkat");
+    const grid = [...root.querySelectorAll("div")].find((node) =>
+      node.className.includes("xl:grid-cols-3"),
+    );
+    expect(grid?.className).toContain("sm:grid-cols-2");
+    expect(grid?.children).toHaveLength(6);
+  });
 });
