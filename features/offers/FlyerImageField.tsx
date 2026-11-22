@@ -3,6 +3,7 @@
 import { DeleteOutlinedIcon, PhotoCameraOutlinedIcon } from "@/components/ui/icons";
 import { useRef, useState } from "react";
 import { flyerImageFileError, readImageSize } from "@/features/offers/flyerImageFile";
+import { DROP_HERE_LABEL, fileDropZoneClass, useFileDrop } from "@/hooks/useFileDrop";
 import { fieldError } from "@/lib/ui";
 import { Tooltip } from "@/components/ui/Tooltip";
 
@@ -48,6 +49,20 @@ export function FlyerImageField({
     }
   }
 
+  const drop = useFileDrop({
+    disabled: disabled || reading,
+    validateFile: (file) => flyerImageFileError(file),
+    onFiles: (files, rejection) => {
+      if (files.length === 0) {
+        if (rejection) {
+          setError(rejection);
+        }
+        return;
+      }
+      void onFile(files[0]);
+    },
+  });
+
   const replaceLabel = previewUrl ? "Ndërro imazhin e fletushkës" : "Ngarko imazhin e fletushkës";
 
   return (
@@ -59,15 +74,28 @@ export function FlyerImageField({
         Opsionale. Foto e gjerë, 16:9. Rekomandohet 1920 × 1080 px. JPEG, PNG ose WebP, deri në 8 MB.
         Pa të, karta përdor foton e një produkti.
       </p>
-      <div className="relative mt-3 w-full max-w-md">
+      <div
+        className={`relative mt-3 w-full max-w-md ${reading ? "cursor-wait" : ""}`}
+        {...drop.dropProps}
+      >
         <Tooltip content={replaceLabel}>
           <button
             type="button"
             disabled={disabled || reading}
             aria-label={replaceLabel}
-            className="relative block aspect-video w-full cursor-pointer overflow-hidden rounded-2xl border border-dashed border-line bg-sunken disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-            onClick={() => inputRef.current?.click()}
+            className={`relative block aspect-video w-full cursor-pointer overflow-hidden rounded-2xl disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${fileDropZoneClass(drop.active)}`}
+            onClick={() => {
+              inputRef.current?.click();
+            }}
           >
+            {drop.active ? (
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-10 grid place-items-center bg-accent/10 text-sm font-bold text-ink"
+              >
+                {DROP_HERE_LABEL}
+              </span>
+            ) : null}
             {previewUrl ? (
               // Native img: the preview is a local blob or an already-hosted flyer file.
               // eslint-disable-next-line @next/next/no-img-element
@@ -91,7 +119,7 @@ export function FlyerImageField({
               type="button"
               disabled={disabled || reading}
               aria-label="Hiq imazhin e fletushkës"
-              className="absolute -top-1.5 -right-1.5 grid size-6 cursor-pointer place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-60"
+              className="absolute -top-1.5 -right-1.5 grid size-6 cursor-pointer place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:pointer-events-none disabled:opacity-60"
               onClick={() => {
                 setError(null);
                 onClear();
