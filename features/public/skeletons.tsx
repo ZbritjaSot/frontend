@@ -1,15 +1,26 @@
+/** Same shell as `Frame`: max-w-7xl with the page gutters. */
+const frame = "mx-auto w-full max-w-7xl px-5 sm:px-8";
+
 function Bone({
   className,
 }: {
   className: string;
 }) {
-  return <div className={`animate-pulse rounded-lg bg-elevated ${className}`} />;
+  // Defaults only when the caller did not set them, so rounded-2xl / rounded-hero
+  // and the forest-hero tints are the classes that actually paint.
+  const radius = /\brounded-/.test(className) ? "" : "rounded-lg";
+  const tone = /\bbg-/.test(className) ? "" : "bg-sunken";
+  return (
+    <div
+      className={["motion-safe:animate-pulse", radius, tone, className].filter(Boolean).join(" ")}
+    />
+  );
 }
 
 export function HomePageSkeleton() {
   return (
     <div aria-busy="true" aria-label="Duke ngarkuar kryefaqen" className="pb-16">
-      <div className="mx-auto w-full max-w-6xl px-5 pt-3 sm:px-8">
+      <div className={`${frame} pt-3`}>
         <Bone className="h-14 w-full rounded-full" />
         <div className="mt-4 flex gap-3 overflow-hidden">
           {Array.from({ length: 6 }, (_, index) => (
@@ -20,35 +31,39 @@ export function HomePageSkeleton() {
           ))}
         </div>
       </div>
-      <div className="mt-6 bg-forest px-5 py-8 text-ivory sm:px-8">
-        <div className="mx-auto grid w-full max-w-6xl gap-4">
-          <Bone className="h-10 w-3/5 bg-white/15" />
-          <div className="flex items-center gap-3">
-            <Bone className="size-12 rounded-2xl bg-white/15" />
-            <Bone className="h-5 w-40 bg-white/15" />
-          </div>
-          <Bone className="h-8 w-4/5 bg-white/15" />
-          <Bone className="h-5 w-28 bg-white/15" />
-          <Bone className="aspect-[4/3] w-full rounded-hero bg-white/10" />
-          <div className="flex h-11 items-center gap-2">
-            <Bone className="h-2.5 w-8 rounded-full bg-accent/80" />
-            <Bone className="size-2.5 rounded-full bg-white/30" />
+      <div className="mt-6 bg-forest text-ivory">
+        <div className={`${frame} py-8 sm:py-10`}>
+          <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-12">
+            <div className="grid min-w-0 gap-4">
+              <Bone className="h-10 w-3/5 bg-white/15" />
+              <div className="flex items-center gap-3">
+                <Bone className="size-12 rounded-2xl bg-white/15" />
+                <Bone className="h-5 w-40 bg-white/15" />
+              </div>
+              <Bone className="h-8 w-4/5 bg-white/15" />
+              <Bone className="h-5 w-28 bg-white/15" />
+            </div>
+            <Bone className="aspect-[4/3] w-full rounded-hero bg-white/10" />
+            <div className="flex h-11 items-center gap-2 lg:col-span-2">
+              <Bone className="h-2.5 w-8 rounded-full bg-accent/80" />
+              <Bone className="size-2.5 rounded-full bg-white/30" />
+            </div>
           </div>
         </div>
       </div>
-      <div className="mx-auto mt-10 w-full max-w-6xl px-5 sm:px-8">
+      <div className={`${frame} mt-10`}>
         <Bone className="h-8 w-48" />
         <div className="mt-4 flex gap-3 overflow-hidden">
           <Bone className="aspect-[4/5] w-56 shrink-0 rounded-2xl" />
           <Bone className="aspect-[4/5] w-56 shrink-0 rounded-2xl" />
         </div>
       </div>
-      <div className="mx-auto mt-10 w-full max-w-6xl px-5 sm:px-8">
+      <div className={`${frame} mt-10`}>
         <Bone className="h-8 w-40" />
         <Bone className="mt-4 h-36 w-full rounded-2xl" />
         <Bone className="mt-3 h-24 w-full rounded-2xl" />
       </div>
-      <div className="mx-auto mt-10 flex w-full max-w-6xl gap-3 overflow-hidden px-5 sm:px-8">
+      <div className={`${frame} mt-10 flex gap-3 overflow-hidden`}>
         <Bone className="h-[4.5rem] w-[17.5rem] shrink-0 rounded-lg" />
         <Bone className="h-[4.5rem] w-[17.5rem] shrink-0 rounded-lg" />
       </div>
@@ -58,7 +73,7 @@ export function HomePageSkeleton() {
 
 export function OfferCatalogueSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Duke ngarkuar ofertat" className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8">
+    <div aria-busy="true" aria-label="Duke ngarkuar ofertat" className={`${frame} py-8`}>
       <Bone className="h-3 w-24 rounded-full" />
       <Bone className="mt-3 h-14 w-2/3" />
       <Bone className="mt-4 h-5 w-52" />
@@ -91,7 +106,7 @@ export function OfferCatalogueSkeleton() {
 
 export function FlyerCatalogueSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Duke ngarkuar fletushkat" className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8">
+    <div aria-busy="true" aria-label="Duke ngarkuar fletushkat" className={`${frame} py-8`}>
       <Bone className="h-3 w-24 rounded-full" />
       <Bone className="mt-3 h-14 w-2/3" />
       <Bone className="mt-4 h-5 w-56" />
@@ -114,7 +129,7 @@ export function FlyerCatalogueSkeleton() {
 
 export function PartnerDirectorySkeleton() {
   return (
-    <div aria-busy="true" aria-label="Duke ngarkuar partnerët" className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8">
+    <div aria-busy="true" aria-label="Duke ngarkuar partnerët" className={`${frame} py-8`}>
       <Bone className="h-3 w-24 rounded-full" />
       <Bone className="mt-3 h-14 w-1/2" />
       <Bone className="mt-5 h-11 w-full max-w-xl rounded-full" />
@@ -142,9 +157,9 @@ export function PartnerDirectorySkeleton() {
 
 export function OfferDetailSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Duke ngarkuar ofertën" className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8">
+    <div aria-busy="true" aria-label="Duke ngarkuar ofertën" className={`${frame} py-8`}>
       <Bone className="h-4 w-64 max-w-full" />
-      <div className="mt-6 grid items-start gap-8 lg:grid-cols-12">
+      <div className="mt-6 grid items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
         <Bone className="aspect-[4/3] w-full rounded-2xl lg:col-span-7" />
         <div className="grid gap-3 lg:col-span-5">
           <Bone className="h-3 w-24 rounded-full" />
@@ -170,19 +185,23 @@ export function OfferDetailSkeleton() {
 export function FlyerDetailSkeleton() {
   return (
     <div aria-busy="true" aria-label="Duke ngarkuar fletushkën">
-      <div className="bg-forest px-5 py-8 sm:px-8">
-        <div className="mx-auto grid w-full max-w-6xl gap-3">
+      <div className="bg-forest text-ivory">
+        <div className={`${frame} py-8 sm:py-12`}>
           <Bone className="h-4 w-56 max-w-full bg-white/15" />
-          <div className="flex items-center gap-3">
-            <Bone className="size-7 rounded-lg bg-white/15" />
-            <Bone className="h-4 w-32 bg-white/15" />
+          <div className="mt-8 grid items-center gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] lg:gap-14">
+            <Bone className="aspect-[16/10] w-full rounded-hero bg-white/10" />
+            <div className="grid min-w-0 gap-3">
+              <Bone className="h-12 w-4/5 bg-white/15" />
+              <Bone className="h-4 w-2/3 bg-white/15" />
+              <div className="flex items-center gap-3">
+                <Bone className="size-7 rounded-lg bg-white/15" />
+                <Bone className="h-4 w-32 bg-white/15" />
+              </div>
+            </div>
           </div>
-          <Bone className="h-12 w-4/5 bg-white/15" />
-          <Bone className="h-4 w-2/3 bg-white/15" />
-          <Bone className="aspect-[4/5] w-full max-w-xs rounded-hero bg-white/10" />
         </div>
       </div>
-      <div className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8">
+      <div className={`${frame} py-8`}>
         <Bone className="h-8 w-36" />
         <div className="mt-4 grid gap-4">
           {Array.from({ length: 4 }, (_, index) => (
@@ -202,7 +221,7 @@ export function FlyerDetailSkeleton() {
 
 export function ShopDetailSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Duke ngarkuar dyqanin" className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8">
+    <div aria-busy="true" aria-label="Duke ngarkuar dyqanin" className={`${frame} py-8`}>
       <div className="rounded-2xl border border-line p-5">
         <Bone className="size-[4.5rem] rounded-2xl" />
         <Bone className="mt-3 h-3 w-24 rounded-full" />
