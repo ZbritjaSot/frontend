@@ -8,6 +8,7 @@ import {
 } from "@/components/chrome/DashboardShell";
 import { latestExpiredSubscriptions } from "@/features/admin/expiredSubscriptions";
 import { usePendingOffers } from "@/hooks/useAdminOffers";
+import { useMe } from "@/hooks/useAuth";
 import { useAdminSubscriptions } from "@/hooks/useAdminSubscriptions";
 
 const baseNav: DashboardNavItem[] = [
@@ -85,6 +86,7 @@ const baseNav: DashboardNavItem[] = [
 ];
 
 export function AdminDashboardShell({ children }: { children: ReactNode }) {
+  const { data: user } = useMe();
   const { data } = usePendingOffers();
   const { data: subscriptions } = useAdminSubscriptions();
   const pendingCount = data?.meta?.total ?? data?.data?.length ?? 0;
@@ -101,7 +103,14 @@ export function AdminDashboardShell({ children }: { children: ReactNode }) {
   });
 
   return (
-    <DashboardShell area="admin" nav={nav} showLogout>
+    <DashboardShell
+      area="admin"
+      nav={nav}
+      showLogout
+      identity={
+        user ? { name: user.name?.trim() || user.email, roleLabel: "Administrator" } : undefined
+      }
+    >
       {children}
     </DashboardShell>
   );

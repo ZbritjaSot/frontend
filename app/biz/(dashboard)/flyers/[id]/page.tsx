@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ViewOfferScreen } from "@/features/offers/ViewOfferScreen";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Fletushka",
@@ -12,5 +13,5 @@ type PageProps = {
 
 export default async function ViewBizFlyerPage({ params }: PageProps) {
   const { id } = await params;
-  return <ViewOfferScreen id={id} catalog="flyers" />;
+  return <PageWidth variant="list"><ViewOfferScreen id={id} catalog="flyers" /></PageWidth>;
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ManagerCreateOffer } from "@/features/biz/ManagerCreateOffer";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Krijo",
@@ -14,5 +15,5 @@ export default async function ManagerNewOfferPage({
   const params = await searchParams;
   const catalog = params.kind === "offers" ? "offers" : "flyers";
 
-  return <ManagerCreateOffer catalog={catalog} />;
+  return <PageWidth variant="form"><ManagerCreateOffer catalog={catalog} /></PageWidth>;
 }

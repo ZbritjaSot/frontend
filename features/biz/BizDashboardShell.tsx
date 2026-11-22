@@ -9,6 +9,7 @@ import {
 import { hasRole } from "@/features/auth/api";
 import { useMe } from "@/hooks/useAuth";
 import { usePendingOfferCount } from "@/hooks/useBizOffers";
+import { ShopReadOnly } from "@/features/biz/ShopSwitcher";
 import { useManagerReview } from "@/hooks/useManagerReview";
 
 const shopNav: DashboardNavItem[] = [
@@ -63,6 +64,10 @@ export function BizDashboardShell({ children }: { children: ReactNode }) {
   const reviewFlyers = useManagerReview(1, manager, "pending", "", "flyers");
   const reviewOffers = useManagerReview(1, manager, "pending", "", "offers");
 
+  const identity = user
+    ? { name: user.name?.trim() || user.email, roleLabel: manager ? "Menaxher" : "Biznes" }
+    : undefined;
+
   if (manager) {
     const waiting = review.data?.meta?.total ?? review.data?.data.length ?? 0;
     const flyerWaiting =
@@ -96,7 +101,15 @@ export function BizDashboardShell({ children }: { children: ReactNode }) {
     });
 
     return (
-      <DashboardShell area="biz" label="Menaxher" nav={nav} showLogout>
+      <DashboardShell
+        area="biz"
+        label="Menaxher"
+        nav={nav}
+        showLogout
+        identity={identity}
+        // ManagerShopSwitcher is built but hidden: no manager screen reads the acting shop yet (see UX-037).
+        // Re-enable with identityExtra={<ManagerShopSwitcher />} once one does.
+      >
         {children}
       </DashboardShell>
     );
@@ -123,7 +136,13 @@ export function BizDashboardShell({ children }: { children: ReactNode }) {
   });
 
   return (
-    <DashboardShell area="biz" nav={nav} showLogout>
+    <DashboardShell
+      area="biz"
+      nav={nav}
+      showLogout
+      identity={identity}
+      identityExtra={identity ? <ShopReadOnly /> : undefined}
+    >
       {children}
     </DashboardShell>
   );

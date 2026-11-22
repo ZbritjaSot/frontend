@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminExclusive } from "@/features/admin/AdminExclusive";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Kryefaqja",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminHomePage() {
-  return <AdminExclusive />;
+  return <PageWidth variant="wide"><AdminExclusive /></PageWidth>;
 }

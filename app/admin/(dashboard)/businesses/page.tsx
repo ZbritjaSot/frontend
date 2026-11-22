@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AdminBusinesses } from "@/features/admin/AdminBusinesses";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Bizneset",
@@ -16,5 +17,5 @@ export default async function AdminBusinessesPage({
   if (params.adrese) {
     redirect(`/admin/businesses/${params.adrese}`);
   }
-  return <AdminBusinesses initialScope={params.scope ?? ""} />;
+  return <PageWidth variant="list"><AdminBusinesses initialScope={params.scope ?? ""} /></PageWidth>;
 }

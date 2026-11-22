@@ -556,7 +556,7 @@ export function OfferForm({
         void save(false, "primary");
       }}
     >
-      <div className="sticky top-0 z-20 -mx-5 flex flex-wrap items-center justify-between gap-3 border-b border-line bg-canvas px-5 py-3 sm:-mx-8 sm:px-8">
+      <div className="sticky top-16 z-20 -mx-5 flex flex-wrap items-center justify-between gap-3 border-b border-line bg-canvas px-5 py-3 sm:-mx-8 sm:px-8 lg:top-0">
         <div className="min-w-0">
           <p className={`${micro} m-0`}>{kindLabel}</p>
           <p className="m-0 truncate text-lg font-bold">

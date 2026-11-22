@@ -195,3 +195,14 @@ html[data-theme="dark"] {
     animation: none;
   }
 }
+
+/* Dashboards scroll the document: keep the 4rem sticky mobile top bar from covering
+   skip-link targets, focused fields and the first form error. */
+@media (width < 64rem) {
+  html:has(#dash-main) {
+    scroll-padding-top: 4rem;
+  }
+}
+[data-offer-error] {
+  scroll-margin-top: 7rem;
+}

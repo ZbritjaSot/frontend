@@ -185,3 +185,50 @@ describe("DashboardShell grouped nav", () => {
     expect(screen.getByRole("link", { name: "Në pritje" }).getAttribute("aria-current")).toBe("page");
   });
 });
+
+describe("DashboardShell identity block and layout", () => {
+  const nav = [{ href: "/admin", label: "Paneli" }];
+
+  it("shows name, role and extra rows above Logout, truncating long values", () => {
+    installMatchMedia();
+    desktop = true;
+    render(
+      createElement(
+        DashboardShell,
+        {
+          area: "biz",
+          nav,
+          identity: { name: "Një Emër Shumë i Gjatë Përdoruesi", roleLabel: "Menaxher" },
+          identityExtra: createElement("p", null, "Dyqani: Albi Mall"),
+        },
+        createElement("p", null, "x"),
+      ),
+    );
+    const block = document.querySelector("[data-dash-identity]") as HTMLElement;
+    expect(block.textContent).toContain("Një Emër Shumë i Gjatë Përdoruesi");
+    expect(block.textContent).toContain("Menaxher");
+    expect(block.textContent).toContain("Dyqani: Albi Mall");
+    expect(screen.getByText("Menaxher").className).toContain("truncate");
+    expect(screen.getByText("Një Emër Shumë i Gjatë Përdoruesi").className).toContain("truncate");
+  });
+
+  it("renders no identity block without a user", () => {
+    installMatchMedia();
+    render(createElement(DashboardShell, { area: "admin", nav }, createElement("p", null, "x")));
+    expect(document.querySelector("[data-dash-identity]")).toBeNull();
+  });
+
+  it("scrolls with the document and flags the public link as opening a new tab", () => {
+    installMatchMedia();
+    desktop = true;
+    render(createElement(DashboardShell, { area: "admin", nav }, createElement("p", null, "x")));
+    const main = document.getElementById("dash-main") as HTMLElement;
+    expect(main.className).not.toContain("overflow");
+    expect(document.getElementById("dash-nav")?.className).toContain("lg:sticky");
+    expect(document.querySelector("header")?.className).toContain("sticky");
+    const link = screen.getByRole("link", { name: /Faqja publike/ });
+    expect(link.getAttribute("rel")).toBe("noopener noreferrer");
+    expect(link.getAttribute("target")).toBe("_blank");
+    expect(link.textContent).toContain("(hapet në skedë të re)");
+  });
+});

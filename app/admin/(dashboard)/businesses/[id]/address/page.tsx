@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminBusinessAddress } from "@/features/admin/AdminBusinessAddress";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Adresa",
@@ -12,5 +13,5 @@ export default async function AdminBusinessAddressPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <AdminBusinessAddress id={id} />;
+  return <PageWidth variant="form"><AdminBusinessAddress id={id} /></PageWidth>;
 }

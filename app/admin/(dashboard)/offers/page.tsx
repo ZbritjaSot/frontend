@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { AdminOffersBoard } from "@/features/admin/AdminOffersBoard";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Ofertat",
@@ -9,8 +10,10 @@ export const metadata: Metadata = {
 
 export default function AdminOffersPage() {
   return (
-    <Suspense>
-      <AdminOffersBoard />
-    </Suspense>
+    <PageWidth variant="list">
+      <Suspense>
+        <AdminOffersBoard />
+      </Suspense>
+    </PageWidth>
   );
 }

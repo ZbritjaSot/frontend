@@ -26,6 +26,8 @@ export function useLogout() {
       await logoutRequest();
     } finally {
       clearActingShopId();
+      // Drop every cached query so the next account on this browser never sees this one's data.
+      queryClient.clear();
       queryClient.setQueryData(meQueryKey, null);
       await queryClient.invalidateQueries({ queryKey: meQueryKey });
     }

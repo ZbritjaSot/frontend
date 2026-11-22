@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminNewsletter } from "@/features/admin/AdminNewsletter";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Buletini",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminNewsletterPage() {
-  return <AdminNewsletter />;
+  return <PageWidth variant="wide"><AdminNewsletter /></PageWidth>;
 }

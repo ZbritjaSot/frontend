@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ManagerEdit } from "@/features/biz/ManagerEdit";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Ndrysho fletushkën",
@@ -12,5 +13,5 @@ export default async function ManagerEditPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <ManagerEdit id={id} />;
+  return <PageWidth variant="form"><ManagerEdit id={id} /></PageWidth>;
 }

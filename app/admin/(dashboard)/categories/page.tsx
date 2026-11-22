@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminCategories } from "@/features/admin/AdminCategories";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Kategoritë",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminCategoriesPage() {
-  return <AdminCategories />;
+  return <PageWidth variant="list"><AdminCategories /></PageWidth>;
 }

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Spinner } from "@/components/ui/Spinner";
 import { AdminBusinessProfile } from "@/features/admin/AdminBusinessProfile";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Profili",
@@ -15,8 +16,10 @@ export default async function AdminBusinessProfilePage({
 }) {
   const { id } = await params;
   return (
-    <Suspense fallback={<Spinner label="Duke ngarkuar profilin" />}>
-      <AdminBusinessProfile id={id} />
-    </Suspense>
+    <PageWidth variant="list">
+      <Suspense fallback={<Spinner label="Duke ngarkuar profilin" />}>
+        <AdminBusinessProfile id={id} />
+      </Suspense>
+    </PageWidth>
   );
 }

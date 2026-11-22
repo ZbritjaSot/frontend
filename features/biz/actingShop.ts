@@ -1,5 +1,6 @@
 const SHOP_KEY = "zbritjasot-shop";
 const SHOP_EVENT = "zbritjasot-shop";
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function readActingShopId(): string | null {
   if (typeof window === "undefined") {
@@ -7,7 +8,8 @@ export function readActingShopId(): string | null {
   }
 
   const value = window.localStorage.getItem(SHOP_KEY);
-  return value && value !== "" ? value : null;
+  // Untrusted storage: only a UUID may ever become the X-Shop-Id header value.
+  return value && UUID.test(value) ? value : null;
 }
 
 export function writeActingShopId(id: string): void {

@@ -8,7 +8,9 @@ import { Spinner } from "@/components/ui/Spinner";
 import { loginWithCookies, logout } from "@/features/auth/api";
 import { PasswordField } from "@/features/auth/PasswordField";
 import { hasDashboardRole, postLoginPath } from "@/features/auth/postLoginPath";
+import { clearActingShopId } from "@/features/biz/actingShop";
 import { meQueryKey } from "@/hooks/useAuth";
+import type { User } from "@/types";
 import { validationMessage } from "@/lib/api";
 import { button, fieldError, fieldLabel, input } from "@/lib/ui";
 import { loginSchema } from "@/schemas/login";
@@ -64,6 +66,12 @@ export function LoginForm({ next, forgotHref }: LoginFormProps) {
         return;
       }
 
+      const previous = queryClient.getQueryData<User | null>(meQueryKey);
+      if (previous && previous.id !== user.id) {
+        // Different account in the same tab: discard the previous account's cache and acting shop.
+        queryClient.clear();
+        clearActingShopId();
+      }
       queryClient.setQueryData(meQueryKey, user);
       router.replace(postLoginPath(user, next));
     } catch (err) {

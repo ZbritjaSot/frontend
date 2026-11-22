@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminCreateBundle } from "@/features/admin/AdminCreateBundle";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Oferta të reja",
@@ -12,5 +13,5 @@ export default async function AdminNewOffersPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <AdminCreateBundle catalog="offers" businessId={id} />;
+  return <PageWidth variant="form"><AdminCreateBundle catalog="offers" businessId={id} /></PageWidth>;
 }

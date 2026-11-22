@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BizNewOfferScreen } from "@/features/offers/BizNewOfferScreen";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Fletushkë e re",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function BizNewFlyerPage() {
-  return <BizNewOfferScreen catalog="flyers" />;
+  return <PageWidth variant="form"><BizNewOfferScreen catalog="flyers" /></PageWidth>;
 }

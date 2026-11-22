@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminSubscriptions } from "@/features/admin/AdminSubscriptions";
+import { PageWidth } from "@/components/chrome/PageWidth";
 
 export const metadata: Metadata = {
   title: "Abonimet",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminSubscriptionsPage() {
-  return <AdminSubscriptions />;
+  return <PageWidth variant="list"><AdminSubscriptions /></PageWidth>;
 }
