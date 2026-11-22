@@ -8,6 +8,7 @@ import {
   isNotFound,
   recordPublicOfferView,
 } from "@/features/offers/api";
+import { isPublicFlyerBundle } from "@/features/public/Breadcrumbs";
 import { withCampaign } from "@/features/public/compose";
 import { EmptyNote, Frame } from "@/features/public/Frame";
 import { OfferDetail } from "@/features/offers/OfferDetail";
@@ -51,7 +52,7 @@ export default async function OfferPage({ params }: OfferPageProps) {
 
   try {
     offer = await fetchPublicOffer(id);
-    if (offer.bundle?.id) {
+    if (isPublicFlyerBundle(offer.bundle)) {
       try {
         const folder = await fetchPublicFolder(offer.bundle.id);
         related = withCampaign(folder)

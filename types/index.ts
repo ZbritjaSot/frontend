@@ -115,6 +115,8 @@ export type BizSubscription = {
 export type OfferBundleSummary = {
   id: string;
   title: string;
+  /** True for an individual (non-flyer) offer. Optional until the API field is live everywhere. */
+  is_standalone?: boolean;
   starts_at: string;
   expires_at: string;
 };
