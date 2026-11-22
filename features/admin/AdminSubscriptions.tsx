@@ -49,6 +49,7 @@ import {
 } from "@/features/admin/subscriptionDisplay";
 import type { PaymentMethod, Subscription } from "@/types";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { CellLabel, dataCell, dataRowCard } from "@/components/ui/DataRow";
 
 const textAreaClass = `${input({ multiline: true })} h-[calc(1.5em*4+1.4rem)] resize-none overflow-y-auto leading-normal`;
 
@@ -376,26 +377,29 @@ export function AdminSubscriptions() {
                 return (
                   <li
                     key={group.businessId}
-                    className="col-span-6 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
+                    className={`col-span-6 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4 ${dataRowCard}`}
                   >
-                    <p className="m-0 truncate text-base font-semibold">
+                    <p className={`m-0 truncate text-base font-semibold ${dataCell.title} ${dataCell.titleText}`}>
                       {group.businessName}
                     </p>
-                    <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums">
-                      {formatDateShortSq(group.latest.starts_at)} →{" "}
-                      {formatDateShortSq(group.latest.ends_at)}
+                    <p className={`m-0 text-sm font-semibold whitespace-nowrap tabular-nums ${dataCell.meta}`}>
+                      <CellLabel>Periudha</CellLabel>
+                      <span className="whitespace-nowrap">{formatDateShortSq(group.latest.starts_at)}</span> →{" "}
+                      <span className="whitespace-nowrap">{formatDateShortSq(group.latest.ends_at)}</span>
                     </p>
-                    <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-8">
+                    <p className={`m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-8 ${dataCell.metaNowrap}`}>
+                      <CellLabel>Çmimi</CellLabel>
                       {isTrialSubscription(group.latest)
                         ? "Provë falas"
                         : formatEurFromCents(group.latest.price)}
                     </p>
-                    <p className="m-0 text-sm font-semibold whitespace-nowrap md:pl-8">
+                    <p className={`m-0 text-sm font-semibold whitespace-nowrap md:pl-8 ${dataCell.metaNowrap}`}>
+                      <CellLabel>Pagesa</CellLabel>
                       {isTrialSubscription(group.latest)
                         ? "Pa pagesë"
                         : paymentMethodLabel(group.latest.payment_method)}
                     </p>
-                    <div className="flex flex-wrap items-center gap-1.5">
+                    <div className={`flex flex-wrap items-center gap-1.5 ${dataCell.statusWide}`}>
                       <Tooltip content={subscriptionStatusNote(group.latest)}>
                         <span
                           className={`${subscriptionStatusClass(group.latest)} mt-0! w-fit self-center!`}
@@ -413,7 +417,7 @@ export function AdminSubscriptions() {
                         </Tooltip>
                       ) : null}
                     </div>
-                    <div className="flex items-center gap-1.5 border-l border-line pl-4">
+                    <div className={`flex items-center gap-1.5 border-l border-line pl-4 ${dataCell.actions}`}>
                       <Tooltip content={open ? "Mbyll historinë" : "Shiko historinë"}>
                         <button
                           className={`${iconButton}${open ? " border-accent/60" : ""}`}
@@ -460,7 +464,7 @@ export function AdminSubscriptions() {
                       </Tooltip>
                     </div>
                     {open ? (
-                      <div className="-mx-4 border-t border-line bg-sunken px-4 py-2 md:col-span-6">
+                      <div className="-mx-4 border-t border-line bg-sunken px-4 py-2 md:col-span-6 max-md:order-5 max-md:basis-[calc(100%+2rem)]">
                         {group.history.map((sub, index) => (
                           <div
                             key={sub.id}

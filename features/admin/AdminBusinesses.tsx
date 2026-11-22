@@ -21,6 +21,7 @@ import { button, checkInput, fieldError, fieldLabel, iconButton, input, offerSta
 import { businessFormSchema, type BusinessFormInput } from "@/schemas/business";
 import type { Business } from "@/types";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { CellLabel, dataCell, dataRowCard } from "@/components/ui/DataRow";
 
 const emptyForm: BusinessFormInput = {
   name: "",
@@ -70,15 +71,15 @@ function ShopLine({
 
   return (
     <li
-      className={`col-span-4 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4${className ? ` ${className}` : ""}`}
+      className={`col-span-4 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4 ${dataRowCard}${className ? ` ${className}` : ""}`}
     >
-      <div className="min-w-0">
+      <div className={`min-w-0 ${dataCell.title}`}>
         <p className="m-0 flex min-w-0 items-center gap-3 text-base font-semibold">
           <ShopLogo name={business.name} logoUrl={business.logo_url} size="sm" />
           <span className="min-w-0">
-            <span className="block truncate">{business.name}</span>
+            <span className={`block truncate ${dataCell.titleText}`}>{business.name}</span>
             {place ? (
-              <span className="block truncate text-sm font-medium text-muted">{place}</span>
+              <span className={`block truncate text-sm font-medium text-muted ${dataCell.titleText}`}>{place}</span>
             ) : null}
           </span>
           {branch ? (
@@ -101,7 +102,8 @@ function ShopLine({
           </Tooltip>
         ) : null}
       </div>
-      <div className="min-w-0">
+      <div className={`min-w-0 ${dataCell.metaWide}`}>
+        <CellLabel block>Pronari</CellLabel>
         <p className="m-0 truncate text-base font-semibold">
           {business.owner?.name ?? "Pa pronar"}
         </p>
@@ -109,7 +111,7 @@ function ShopLine({
           <p className="m-0 truncate text-sm text-muted">{business.owner.email}</p>
         ) : null}
       </div>
-      <div className="flex flex-wrap items-center gap-1.5 md:ml-6">
+      <div className={`flex flex-wrap items-center gap-1.5 md:ml-6 ${dataCell.statusWide}`}>
         {business.is_approved === false ? (
           <Tooltip content="Biznesi pret aprovimin e administratës.">
             <span
@@ -150,7 +152,7 @@ function ShopLine({
           </Tooltip>
         ) : null}
       </div>
-      <div className="flex flex-wrap items-center gap-1.5 border-l border-line pl-4">
+      <div className={`flex flex-wrap items-center gap-1.5 border-l border-line pl-4 ${dataCell.actions}`}>
         {branchCount > 0 ? (
           <Tooltip content={open ? "Mbyll degët" : "Hap degët"}>
             <button

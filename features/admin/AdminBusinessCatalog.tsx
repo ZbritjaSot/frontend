@@ -15,6 +15,7 @@ import { validationMessage } from "@/lib/api";
 import { formatDateShortSq } from "@/lib/format";
 import { button, iconButton, offerStatusClass, panelLead } from "@/lib/ui";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { CellLabel, dataCell, dataRowCard } from "@/components/ui/DataRow";
 
 const STATUS_OPTIONS = [
   ["", "Të gjitha"],
@@ -145,33 +146,37 @@ export function AdminBusinessCatalog({
                   return (
                     <li
                       key={bundle.id}
-                      className="col-span-5 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4"
+                      className={`col-span-5 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4 ${dataRowCard}`}
                     >
-                      <div className="min-w-0">
+                      <div className={`min-w-0 ${dataCell.title}`}>
                         <Link
                           href={viewHref}
-                          className="truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg"
+                          className={`truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg ${dataCell.titleText}`}
                         >
                           {title}
                         </Link>
                         {bundle.status === "taken_down" && bundle.rejection_reason ? (
-                          <p className="m-0 truncate text-sm font-semibold text-danger">
+                          <p className={`m-0 truncate text-sm font-semibold text-danger ${dataCell.titleText}`}>
                             {bundle.rejection_reason}
                           </p>
                         ) : null}
                       </div>
-                      <p className="m-0 text-sm font-semibold tabular-nums md:pl-6">{count}</p>
-                      <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
+                      <p className={`m-0 text-sm font-semibold tabular-nums md:pl-6 ${dataCell.metaNowrap}`}>
+                        <CellLabel>{isFlyer ? "Produkte" : "Artikuj"}</CellLabel>
+                        {count}
+                      </p>
+                      <p className={`m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6 ${dataCell.metaNowrap}`}>
+                        <CellLabel>Skadon</CellLabel>
                         {formatDateShortSq(bundle.expires_at)}
                       </p>
-                      <Tooltip content={OFFER_STATUS_HINT[bundle.status]} className="w-fit self-center md:ml-6">
+                      <Tooltip content={OFFER_STATUS_HINT[bundle.status]} className={`w-fit self-center md:ml-6 ${dataCell.status}`}>
                         <span
                           className={`${offerStatusClass(bundle.status)} mt-0!`}
                         >
                           {OFFER_STATUS_LABEL[bundle.status]}
                         </span>
                       </Tooltip>
-                      <div className="flex items-center gap-1.5 border-l border-line pl-4">
+                      <div className={`flex items-center gap-1.5 border-l border-line pl-4 ${dataCell.actions}`}>
                         <Tooltip content="Shiko">
                           <Link
                             href={viewHref} className={iconButton} aria-label={`Shiko ${title}`}>

@@ -24,6 +24,7 @@ import { validationMessage } from "@/lib/api";
 import { button, checkInput, fieldError, fieldLabel, iconButton, input, offerStatusClass, pageTitle, panelLead } from "@/lib/ui";
 import type { ManagerAccount, ManagerPendingOffer } from "@/types";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { CellLabel, dataCell, dataRowCard } from "@/components/ui/DataRow";
 
 const managersKey = ["admin", "managers"] as const;
 
@@ -171,12 +172,16 @@ export function AdminManagers() {
                       key={manager.id}
                       className="col-span-4 border-b border-line last:border-b-0 md:grid md:grid-cols-subgrid"
                     >
-                      <div className="col-span-4 grid items-center gap-3 px-4 py-3 md:grid-cols-subgrid md:gap-x-4">
-                        <p className="m-0 truncate text-base font-semibold">
+                      <div className={`col-span-4 grid items-center gap-3 px-4 py-3 md:grid-cols-subgrid md:gap-x-4 ${dataRowCard}`}>
+                        <p className={`m-0 truncate text-base font-semibold ${dataCell.titleFull} ${dataCell.titleText}`}>
                           {manager.name || "Pa emër"}
                         </p>
-                        <p className="m-0 truncate text-sm text-muted">{manager.email}</p>
-                        <div className="flex min-w-0 flex-wrap gap-1.5">
+                        <p className={`m-0 truncate text-sm text-muted ${dataCell.meta}`}>
+                          <CellLabel>Email</CellLabel>
+                          {manager.email}
+                        </p>
+                        <div className={`flex min-w-0 flex-wrap gap-1.5 ${dataCell.metaWide}${manager.shops.length === 0 ? " max-md:hidden" : ""}`}>
+                          {manager.shops.length > 0 ? <CellLabel block>Dyqanet</CellLabel> : null}
                           {manager.shops.map((shop) => (
                             <span
                               key={shop.id}
@@ -189,7 +194,7 @@ export function AdminManagers() {
                             </span>
                           ))}
                         </div>
-                        <div className="flex items-center gap-1.5 border-l border-line pl-4">
+                        <div className={`flex items-center gap-1.5 border-l border-line pl-4 ${dataCell.actions}`}>
                           <Tooltip content="Ndrysho">
                             <button
                               className={iconButton}

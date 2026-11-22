@@ -8,6 +8,7 @@ import { OFFER_STATUS_LABEL, OFFER_STATUS_HINT } from "@/features/offers/status"
 import { checkInput, offerStatusClass, panelLead } from "@/lib/ui";
 import type { OfferBundle } from "@/types";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { CellLabel, dataCell, dataRowCard } from "@/components/ui/DataRow";
 
 type OfferBundleViewProps = {
   bundle: OfferBundle;
@@ -134,14 +135,14 @@ export function OfferBundleView({
                 return (
                   <li
                     key={item.id}
-                    className={`${spanClass} grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4${
+                    className={`${spanClass} grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4 ${dataRowCard}${
                       flagged || checked
                         ? " shadow-[inset_3px_0_0_var(--color-danger)]"
                         : ""
                     }`}
                   >
                     {selectable ? (
-                      <label className="m-0 flex size-9 cursor-pointer items-center justify-center">
+                      <label className="m-0 flex size-9 cursor-pointer items-center justify-center max-md:order-1 max-md:shrink-0">
                         <input
                           className={checkInput}
                           type="checkbox"
@@ -152,30 +153,35 @@ export function OfferBundleView({
                         />
                       </label>
                     ) : null}
-                    <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex min-w-0 items-center gap-3 max-md:order-1 max-md:grow max-md:basis-[calc(100%-3.25rem)]">
                       <ProductThumb name={item.name} url={item.image?.thumb_url} />
                       <div className="min-w-0">
-                      <p className="m-0 truncate text-base font-semibold">
+                      <p className="m-0 truncate text-base font-semibold max-md:whitespace-normal max-md:break-words">
                         {item.name}
                       </p>
                       {flagged && item.rejection_note ? (
-                        <p className="m-0 truncate text-sm font-semibold text-danger">
+                        <p className={`m-0 truncate text-sm font-semibold text-danger ${dataCell.titleText}`}>
                           {item.rejection_note}
                         </p>
                       ) : null}
                       </div>
                     </div>
-                    <p className="m-0 truncate text-sm font-semibold">
+                    <p className={`m-0 truncate text-sm font-semibold ${dataCell.meta}`}>
+                      <CellLabel>Kategoria</CellLabel>
                       {item.categories?.map((category) => category.name).join(" · ") || "Kategori"}
                     </p>
-                    {item.discount_percent != null ? (
-                      <span className="inline-flex w-fit items-center justify-center rounded-md bg-accent px-2 py-1 text-sm leading-none font-bold text-on-accent md:ml-6">
-                        {formatDiscountPercent(item.discount_percent)}
-                      </span>
-                    ) : (
-                      <span className="text-sm text-muted md:ml-6">—</span>
-                    )}
-                    <div className="md:pl-6">
+                    <span className="inline-flex items-center gap-1.5 max-md:order-3 md:contents">
+                      <CellLabel>Zbritja</CellLabel>
+                      {item.discount_percent != null ? (
+                        <span className="inline-flex w-fit items-center justify-center rounded-md bg-accent px-2 py-1 text-sm leading-none font-bold text-on-accent md:ml-6">
+                          {formatDiscountPercent(item.discount_percent)}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-muted md:ml-6">—</span>
+                      )}
+                    </span>
+                    <div className="max-md:order-3 max-md:flex max-md:items-baseline max-md:gap-x-1.5 md:pl-6">
+                      <CellLabel>Çmimi</CellLabel>
                       {item.discounted_price != null ? (
                         <>
                           <p className="m-0 text-sm font-bold tabular-nums">
@@ -192,7 +198,8 @@ export function OfferBundleView({
                       )}
                     </div>
                     {showViews ? (
-                      <p className="m-0 text-sm font-semibold tabular-nums md:pl-6">
+                      <p className={`m-0 text-sm font-semibold tabular-nums md:pl-6 ${dataCell.metaNowrap}`}>
+                        <CellLabel>Hapje</CellLabel>
                         {item.view_count}
                       </p>
                     ) : null}

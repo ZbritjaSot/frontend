@@ -16,6 +16,7 @@ import { validationMessage } from "@/lib/api";
 import { button, iconButton, offerStatusClass, panelLead } from "@/lib/ui";
 import type { OfferBundle } from "@/types";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { CellLabel, dataCell, dataRowCard } from "@/components/ui/DataRow";
 
 function PendingRow({
   bundle,
@@ -29,28 +30,33 @@ function PendingRow({
   const count = bundle.items_count ?? bundle.items?.length ?? 0;
 
   return (
-    <li className="col-span-6 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4">
+    <li className={`col-span-6 grid items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-subgrid md:gap-x-4 ${dataRowCard}`}>
       <Link
         href={`/admin/offers/${bundle.id}`}
-        className="truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg"
+        className={`truncate text-base font-semibold text-inherit no-underline hover:text-accent-fg ${dataCell.title} ${dataCell.titleText}`}
       >
         {bundleDisplayTitle(bundle)}
       </Link>
-      <p className="m-0 truncate text-sm font-semibold">
+      <p className={`m-0 truncate text-sm font-semibold ${dataCell.meta}`}>
+        <CellLabel>Biznesi</CellLabel>
         {bundle.business?.name ?? "Biznes"}
       </p>
-      <p className="m-0 text-sm font-semibold tabular-nums md:pl-6">{count}</p>
-      <p className="m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6">
+      <p className={`m-0 text-sm font-semibold tabular-nums md:pl-6 ${dataCell.metaNowrap}`}>
+        <CellLabel>Produkte</CellLabel>
+        {count}
+      </p>
+      <p className={`m-0 text-sm font-semibold whitespace-nowrap tabular-nums md:pl-6 ${dataCell.metaNowrap}`}>
+        <CellLabel>Skadon</CellLabel>
         {formatDateShortSq(bundle.expires_at)}
       </p>
-      <Tooltip content={OFFER_STATUS_HINT[bundle.status]} className="w-fit self-center md:ml-6">
+      <Tooltip content={OFFER_STATUS_HINT[bundle.status]} className={`w-fit self-center md:ml-6 ${dataCell.status}`}>
         <span
           className={`${offerStatusClass(bundle.status)} mt-0!`}
         >
           {OFFER_STATUS_LABEL[bundle.status]}
         </span>
       </Tooltip>
-      <div className="flex items-center gap-1.5 border-l border-line pl-4">
+      <div className={`flex items-center gap-1.5 border-l border-line pl-4 ${dataCell.actions}`}>
         <Tooltip content="Shiko">
           <Link
             href={`/admin/offers/${bundle.id}`}

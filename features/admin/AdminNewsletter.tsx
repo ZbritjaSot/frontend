@@ -1,11 +1,12 @@
 "use client";
 
 import { DeleteOutlinedIcon } from "@/components/ui/icons";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useId, useState, type FormEvent } from "react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
 import { TableSearch } from "@/components/ui/TableSearch";
+import { TabPanel, Tabs } from "@/components/ui/Tabs";
 import {
   NEWSLETTER_PAGE_SIZE,
   type NewsletterPick,
@@ -121,6 +122,7 @@ export function AdminNewsletter() {
   const [offers, setOffers] = useState<NewsletterPick[]>([]);
   const [bundles, setBundles] = useState<NewsletterPick[]>([]);
   const [shops, setShops] = useState<NewsletterPick[]>([]);
+  const tabsId = useId();
   const [tab, setTab] = useState<Kind>("offer");
   const [formError, setFormError] = useState<string | null>(null);
   const [sentCount, setSentCount] = useState<number | null>(null);
@@ -270,36 +272,33 @@ export function AdminNewsletter() {
               <p className="m-0 text-sm font-semibold text-ink">Përmbajtja</p>
               <p className="m-0 text-xs text-muted">Deri në 12 për lloj</p>
             </div>
-            <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Lloji i përmbajtjes">
-              {kinds.map((item) => {
+            <Tabs
+              variant="pill"
+              label="Lloji i përmbajtjes"
+              idPrefix={tabsId}
+              value={tab}
+              onChange={setTab}
+              tabs={kinds.map((item) => {
                 const count =
                   item.kind === "offer"
                     ? offers.length
                     : item.kind === "bundle"
                       ? bundles.length
                       : shops.length;
-                const selected = tab === item.kind;
-                return (
-                  <button
-                    key={item.kind}
-                    type="button"
-                    role="tab"
-                    aria-selected={selected}
-                    className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border px-3 text-sm font-semibold ${
-                      selected
-                        ? "border-accent bg-accent/15 text-ink"
-                        : "border-line bg-transparent text-muted hover:text-ink"
-                    }`}
-                    onClick={() => setTab(item.kind)}
-                  >
-                    {item.label}
-                    <span className={count > 0 ? "text-xs text-ink" : "text-xs text-muted"}>
-                      {count}
-                    </span>
-                  </button>
-                );
+                return {
+                  id: item.kind,
+                  label: (
+                    <>
+                      {item.label}
+                      <span className={count > 0 ? "text-xs text-ink" : "text-xs text-muted"}>
+                        {count}
+                      </span>
+                    </>
+                  ),
+                };
               })}
-            </div>
+            />
+            <TabPanel idPrefix={tabsId} id={tab}>
             <PickSearch
               key={tab}
               kind={activeKind.kind}
@@ -307,6 +306,7 @@ export function AdminNewsletter() {
               selected={activeSelected}
               onAdd={(item) => setActive([...activeSelected, item])}
             />
+            </TabPanel>
             {picked.length > 0 ? (
               <div className="grid gap-4">
                 {groups.map((group) =>
