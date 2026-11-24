@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CatalogFilters } from "@/features/public/CatalogFilters";
 import { DiscoverForm } from "@/features/public/DiscoverForm";
 import { FilterChips } from "@/features/public/FilterChips";
+import { BackToTop } from "@/features/public/BackToTop";
 import { Band, EmptyNote, Frame } from "@/features/public/Frame";
 import { PartnerBoard } from "@/features/public/PartnerBoard";
 import {
@@ -138,6 +139,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
           city={city}
         />
       )}
+      <BackToTop />
     </Band>
   );
 }

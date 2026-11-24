@@ -18,7 +18,15 @@ import {
 import { button } from "@/lib/ui";
 import type { CategorySummary, PublicBusiness, PublicFolder, PublicOffer } from "@/types";
 
+/** Listing across all categories, shown when the selected category is empty. */
+export type CatalogFallback = {
+  offers: PublicOffer[];
+  folders: PublicFolder[];
+  lastPage: number;
+};
+
 type ResultsViewProps = {
+  fallback?: CatalogFallback;
   folders: PublicFolder[];
   offers: PublicOffer[];
   categories: CategorySummary[];
@@ -39,6 +47,7 @@ type ResultsViewProps = {
 };
 
 export function ResultsView({
+  fallback,
   folders,
   offers,
   categories,
@@ -236,7 +245,24 @@ export function ResultsView({
         </div>
       ) : null}
 
-      {empty ? (
+      {empty && catalogue && katalog && category && !q && categoryName && fallback &&
+      (fallback.offers.length > 0 || fallback.folders.length > 0) ? (
+        <>
+          <EmptyNote
+            title={`Nuk ka ${flyerCatalogue ? "fletushka" : "oferta"} te ${categoryName} tani`}
+            body={`Shiko ${flyerCatalogue ? "fletushkat" : "ofertat"} nga të gjitha kategoritë.`}
+          />
+          <CatalogStream
+            key={`fallback|${katalog}|${city ?? ""}|${sort}`}
+            katalog={katalog}
+            offers={fallback.offers}
+            folders={fallback.folders}
+            lastPage={fallback.lastPage}
+            city={city}
+            sort={sort}
+          />
+        </>
+      ) : empty ? (
         <EmptyNote
           title={noActiveFlyers ? "Nuk ka fletushka aktive" : "Nuk u gjet asgjë"}
           body={

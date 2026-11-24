@@ -1,3 +1,4 @@
+import { BackToTop } from "@/features/public/BackToTop";
 import { CampaignSection } from "@/features/public/home/CampaignSection";
 import { CatalogSection } from "@/features/public/home/CatalogSection";
 import { CategoryBand } from "@/features/public/home/CategoryBand";
@@ -30,6 +31,7 @@ export function HomeView({ home }: { home: PublicHome }) {
       {sections.map((section) => (
         <HomeBlock key={section.key} section={section} home={home} />
       ))}
+      <BackToTop />
     </>
   );
 }

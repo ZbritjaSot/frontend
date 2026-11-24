@@ -1,5 +1,5 @@
 import { EmptyNote, Frame } from "@/features/public/Frame";
-import { ResultsView } from "@/features/public/ResultsView";
+import { ResultsView, type CatalogFallback } from "@/features/public/ResultsView";
 import {
   ApiError,
   fetchPublicCategories,
@@ -79,6 +79,7 @@ export async function CataloguePage({
   let offerTotal = 0;
   let folderTotal = 0;
   let errorMessage: string | null = null;
+  let fallback: CatalogFallback | undefined;
 
   try {
     const [folderResult, offerResult, categoryList, cityList] = await Promise.all([
@@ -113,6 +114,19 @@ export async function CataloguePage({
     folderLastPage = folderResult?.meta?.last_page ?? 1;
     offerTotal = offerResult?.meta?.total ?? offers.length;
     folderTotal = folderResult?.meta?.total ?? folders.length;
+
+    // An empty category stays selectable; keep visitors browsing by falling
+    // back to the same listing across all categories.
+    if (category && !q && offers.length === 0 && folders.length === 0) {
+      const base = { city, sort, page, perPage: katalog === "fletushka" ? 12 : 16 };
+      if (katalog === "fletushka") {
+        const result = await fetchPublicFolders(base).catch(() => null);
+        fallback = { offers: [], folders: result?.data ?? [], lastPage: result?.meta?.last_page ?? 1 };
+      } else {
+        const result = await fetchPublicOffers(base).catch(() => null);
+        fallback = { offers: result?.data ?? [], folders: [], lastPage: result?.meta?.last_page ?? 1 };
+      }
+    }
   } catch (error) {
     errorMessage =
       error instanceof ApiError
@@ -145,6 +159,7 @@ export async function CataloguePage({
       offerTotal={offerTotal}
       folderTotal={folderTotal}
       basePath={basePath}
+      fallback={fallback}
     />
   );
 }
