@@ -14,6 +14,11 @@ vi.mock("@/lib/api", async () => {
   };
 });
 
+vi.mock("@/hooks/usePublicCities", () => ({
+  publicCitiesQueryKey: ["cities"],
+  usePublicCities: () => ({ data: ["Prishtinë", "Prizren"], isPending: false, isError: false }),
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -99,19 +104,23 @@ describe("PartnerForm", () => {
     expectInvalid(name, "Shkruaj emrin.");
     expectInvalid(textbox("Email"), "Shkruaj email-in.");
     expectInvalid(textbox("Emri i dyqanit"), "Shkruaj emrin e dyqanit.");
-    expectInvalid(textbox("Qyteti"), "Shkruaj qytetin.");
+    const cityTrigger = document.getElementById("partner-city") as HTMLElement;
+    const cityError = document.getElementById(cityTrigger.getAttribute("aria-describedby") ?? "");
+    expect(cityError?.textContent).toBe("Zgjidh qytetin.");
+    expect(cityError?.getAttribute("role")).toBe("alert");
     expect(document.activeElement).toBe(name);
     expect(textbox("Mesazhi").hasAttribute("aria-invalid")).toBe(false);
     expect(apiFetch).not.toHaveBeenCalled();
   });
 
-  it("keeps the city as free text and sends a trimmed application", async () => {
+  it("picks the city from the configured list and sends a trimmed application", async () => {
     apiFetch.mockResolvedValueOnce(undefined);
     render(createElement(PartnerForm));
     fireEvent.change(textbox(/^Emri(?! i)/), { target: { value: " Ana " } });
     fireEvent.change(textbox("Email"), { target: { value: "ana@dyqani.com" } });
     fireEvent.change(textbox("Emri i dyqanit"), { target: { value: " Kafe " } });
-    fireEvent.change(textbox("Qyteti"), { target: { value: " Prishtinë " } });
+    fireEvent.click(document.getElementById("partner-city") as HTMLElement);
+    fireEvent.click(screen.getByRole("option", { name: "Prishtinë" }));
 
     fireEvent.click(screen.getByRole("button", { name: "Dërgo aplikimin" }));
 

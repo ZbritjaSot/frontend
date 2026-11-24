@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { CityField } from "@/components/ui/CityField";
 import { Field } from "@/components/ui/Field";
 import { Spinner } from "@/components/ui/Spinner";
 import { InquirySuccess } from "@/features/public/inquiry/InquirySuccess";
@@ -181,17 +182,13 @@ export function PartnerForm() {
           <div className="grid gap-5 sm:grid-cols-2">
             <Field id="partner-city" label="Qyteti" requirement="required" error={errors.city}>
               {(control) => (
-                <input
-                  {...control}
-                  name="city"
-                  autoComplete="address-level2"
+                <CityField
+                  id={control.id}
+                  aria-describedby={control["aria-describedby"]}
                   value={city}
-                  maxLength={120}
                   disabled={pending}
-                  placeholder="p.sh. Prishtinë"
-                  className={input({ size: "lg" })}
-                  onChange={(event) => {
-                    setCity(event.target.value);
+                  onChange={(next) => {
+                    setCity(next);
                     clearError("city");
                   }}
                 />

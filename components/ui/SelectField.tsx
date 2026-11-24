@@ -33,6 +33,7 @@ type SelectFieldProps = {
   disabled?: boolean;
   id?: string;
   "aria-label"?: string;
+  "aria-describedby"?: string;
   className?: string;
 };
 
@@ -45,6 +46,7 @@ export function SelectField({
   disabled = false,
   id,
   "aria-label": ariaLabel,
+  "aria-describedby": ariaDescribedBy,
   className,
 }: SelectFieldProps) {
   const listId = useId();
@@ -177,6 +179,7 @@ export function SelectField({
         aria-expanded={open}
         aria-controls={listId}
         aria-label={ariaLabel}
+        aria-describedby={ariaDescribedBy}
         disabled={disabled}
         onClick={() => {
           if (open) {

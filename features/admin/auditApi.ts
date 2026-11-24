@@ -29,6 +29,7 @@ export type AuditAction =
   | "home_recommended_ordered"
   | "placement_ordered"
   | "category_renamed"
+  | "city_renamed"
   | "section_titles";
 
 export type AuditLog = {

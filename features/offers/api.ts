@@ -129,21 +129,14 @@ export async function fetchPublicOffers(
   });
 }
 
-export async function fetchPublicCities(options?: { shops?: boolean }): Promise<string[]> {
-  const params = new URLSearchParams();
-  if (options?.shops) {
-    params.set("for", "shops");
-  }
-  const query = params.toString();
-  const payload = await apiFetch<{ data: string[] }>(
-    `/cities${query === "" ? "" : `?${query}`}`,
-    { ...PUBLIC_FETCH },
-  );
+/** Every active city from the admin-managed list, whether or not it has offers yet. */
+export async function fetchPublicCities(): Promise<string[]> {
+  const payload = await apiFetch<{ data: string[] }>("/cities", { ...PUBLIC_FETCH });
   return payload.data;
 }
 
 export async function fetchPublicCategories(): Promise<CategorySummary[]> {
-  const payload = await apiFetch<{ data: CategorySummary[] }>("/categories?has_offers=1", {
+  const payload = await apiFetch<{ data: CategorySummary[] }>("/categories", {
     next: { revalidate: 300 },
   });
   return payload.data;

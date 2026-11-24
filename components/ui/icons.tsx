@@ -28,6 +28,7 @@ export const LockOpenOutlinedIcon = make("lock-open");
 export const ChevronRightIcon = make("chevron-right");
 export const SendOutlinedIcon = make("send");
 export const HomeOutlinedIcon = make("home");
+export const PlaceOutlinedIcon = make("pin");
 export const HistoryOutlinedIcon = make("history");
 export const ExpandMoreIcon = make("chevron-down");
 export const DragIndicatorIcon = make("drag");

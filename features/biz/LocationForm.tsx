@@ -7,6 +7,7 @@ import { PlaceMap } from "@/components/place/PlaceMap";
 import { geocodeBizAddress, updateBizLocation } from "@/features/biz/api";
 import { bizBusinessQueryKey } from "@/hooks/useBizProfile";
 import { validationMessage } from "@/lib/api";
+import { CityField } from "@/components/ui/CityField";
 import { button, fieldError, input } from "@/lib/ui";
 import { mapsUrl } from "@/lib/maps";
 import { useWideScreen } from "@/lib/useWideScreen";
@@ -228,13 +229,10 @@ export function LocationForm({
             </label>
             <label className="flex flex-col gap-2">
               <span className={micro}>Qyteti</span>
-              <input
-                className={input()}
+              <CityField
                 value={city}
-                maxLength={255}
-                placeholder="Prishtinë"
-                onChange={(event) => {
-                  setCity(event.target.value);
+                onChange={(next) => {
+                  setCity(next);
                   setNotice(null);
                   setFindError(null);
                 }}
