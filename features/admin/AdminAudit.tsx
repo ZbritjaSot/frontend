@@ -42,6 +42,7 @@ const actionCopy: Record<AuditAction, string> = {
   home_recommended_ordered: "Renditi të rekomanduarat",
   placement_ordered: "Renditi Ekskluziven",
   category_renamed: "Ndryshoi kategorinë",
+  city_renamed: "Ndryshoi qytetin",
   section_titles: "Ndryshoi titujt e seksioneve",
 };
 

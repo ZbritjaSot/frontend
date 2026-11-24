@@ -73,7 +73,7 @@ describe("partner form validation", () => {
       name: "Shkruaj emrin.",
       email: "Shkruaj email-in.",
       businessName: "Shkruaj emrin e dyqanit.",
-      city: "Shkruaj qytetin.",
+      city: "Zgjidh qytetin.",
     });
   });
 

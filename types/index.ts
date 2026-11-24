@@ -24,6 +24,19 @@ export type Category = {
   updated_at?: string;
 };
 
+/** Admin city payload (matches CityResource). */
+export type City = {
+  id: string;
+  name: string;
+  slug: string;
+  is_active: boolean;
+  sort_order: number;
+  /** Businesses currently located in this city. */
+  businesses_count?: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
 export type BusinessSummary = {
   id: string;
   name: string;

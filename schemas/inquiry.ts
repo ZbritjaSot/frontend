@@ -36,7 +36,7 @@ export const partnerFormSchema = z.object({
     160,
     "Emri i dyqanit është shumë i gjatë.",
   ),
-  city: requiredText("Shkruaj qytetin.", 120, "Qyteti është shumë i gjatë."),
+  city: requiredText("Zgjidh qytetin.", 120, "Qyteti është shumë i gjatë."),
   phone: optionalText(40, "Telefoni është shumë i gjatë."),
   message: optionalText(5000, "Mesazhi është shumë i gjatë."),
 });

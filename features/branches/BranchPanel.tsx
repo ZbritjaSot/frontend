@@ -1,5 +1,6 @@
 "use client";
 
+import { CityField } from "@/components/ui/CityField";
 import { AddOutlinedIcon, DeleteOutlinedIcon, HomeOutlinedIcon } from "@/components/ui/icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -451,15 +452,11 @@ export function BranchPanel({ mode, business }: BranchPanelProps) {
             </label>
             <label className={fieldLabel}>
               <span>Qyteti</span>
-              <input
-                className={input()}
+              <CityField
                 value={city}
-                maxLength={255}
-                placeholder="Prishtinë"
                 disabled={pending}
-                required
-                onChange={(event) => {
-                  setCity(event.target.value);
+                onChange={(next) => {
+                  setCity(next);
                   setLatitude(null);
                   setLongitude(null);
                 }}

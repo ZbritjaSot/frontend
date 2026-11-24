@@ -1,6 +1,6 @@
 "use client";
 
-import { AccountTreeOutlinedIcon, AddOutlinedIcon, CategoryIcon, CollectionsOutlinedIcon, DashboardIcon, HistoryOutlinedIcon, HomeOutlinedIcon, MailOutlinedIcon, PaymentsIcon, PendingActionsIcon, PersonOutlinedIcon, StoreIcon } from "@/components/ui/icons";
+import { AccountTreeOutlinedIcon, AddOutlinedIcon, CategoryIcon, CollectionsOutlinedIcon, DashboardIcon, HistoryOutlinedIcon, HomeOutlinedIcon, MailOutlinedIcon, PaymentsIcon, PendingActionsIcon, PlaceOutlinedIcon, PersonOutlinedIcon, StoreIcon } from "@/components/ui/icons";
 import type { ReactNode } from "react";
 import {
   DashboardShell,
@@ -39,6 +39,12 @@ const baseNav: DashboardNavItem[] = [
     href: "/admin/categories",
     label: "Kategoritë",
     icon: <CategoryIcon fontSize="small" />,
+    group: "Katalogu",
+  },
+  {
+    href: "/admin/cities",
+    label: "Qytetet",
+    icon: <PlaceOutlinedIcon fontSize="small" />,
     group: "Katalogu",
   },
   {

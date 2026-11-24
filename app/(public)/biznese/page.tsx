@@ -63,7 +63,7 @@ export default async function BusinessDirectoryPage({ searchParams }: DirectoryP
         perPage: PUBLIC_BUSINESSES_PAGE_SIZE,
         rail: true,
       }),
-      fetchPublicCities({ shops: true }).catch(() => [] as string[]),
+      fetchPublicCities().catch(() => [] as string[]),
     ]);
     shops = result.data;
     cities = cityList;
