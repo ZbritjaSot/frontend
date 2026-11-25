@@ -1,9 +1,11 @@
 "use client";
 
+import { ErrorReporter } from "@/components/ErrorReporter";
 import { ErrorFallback } from "@/features/public/ErrorFallback";
 
 /** Inside `(public)/layout`, so the site header and footer stay mounted. */
 export default function PublicError({
+  error,
   reset,
   retry,
 }: {
@@ -12,5 +14,10 @@ export default function PublicError({
   /** Next 16.3+: re-fetches and re-renders (unlike `reset`, which only re-renders children). */
   retry?: () => void;
 }) {
-  return <ErrorFallback reset={retry ?? reset} variant="content" />;
+  return (
+    <>
+      <ErrorReporter error={error} />
+      <ErrorFallback reset={retry ?? reset} variant="content" />
+    </>
+  );
 }

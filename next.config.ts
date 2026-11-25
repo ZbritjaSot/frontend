@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
 import { imageRemoteHostnames } from "./lib/imageHosts";
 
 const securityHeaders = [
@@ -57,4 +58,12 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Source maps upload only when SENTRY_AUTH_TOKEN is set (CI/Vercel); otherwise the build is unchanged.
+export default withSentryConfig(nextConfig, {
+  org: "zbritjasot-shpk",
+  project: "frontend",
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  telemetry: false,
+  widenClientFileUpload: true,
+});
