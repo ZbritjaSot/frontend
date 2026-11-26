@@ -83,7 +83,7 @@ export function FlyerImageField({
             type="button"
             disabled={disabled || reading}
             aria-label={replaceLabel}
-            className={`relative block aspect-[5/2] w-full cursor-pointer overflow-hidden rounded-2xl disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${fileDropZoneClass(drop.active)}`}
+            className={`relative block aspect-video w-full cursor-pointer overflow-hidden rounded-2xl disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${fileDropZoneClass(drop.active)}`}
             onClick={() => {
               inputRef.current?.click();
             }}
