@@ -87,5 +87,61 @@ export function itemDraftToPayload({
         : null,
     purchase_url: purchase_url.trim() === "" ? null : purchase_url.trim(),
     gallery_image_id,
+    pricing_mode: mode,
   };
+}
+
+/** A gallery photo picked for a new product row. */
+export type GalleryPick = {
+  id: string;
+  title?: string | null;
+  thumb_url: string;
+};
+
+/** A row nobody has touched yet: the empty starter row of a new form. */
+export function isBlankItem(item: ItemDraft): boolean {
+  return (
+    !item.id &&
+    item.name.trim() === "" &&
+    item.gallery_image_id === null &&
+    item.category_ids.length === 0 &&
+    item.original_price === 0 &&
+    item.discounted_price === 0 &&
+    item.discount_percent.trim() === "" &&
+    item.purchase_url.trim() === ""
+  );
+}
+
+/**
+ * Bulk gallery selection → product rows. Each photo becomes one row titled from
+ * the photo (still editable). Untouched blank rows are replaced, so picking ten
+ * photos on a new form gives exactly ten rows. Photos already on a row are
+ * skipped so a second pick never duplicates a product.
+ */
+export function appendGalleryPicks(
+  items: ItemDraft[],
+  picks: readonly GalleryPick[],
+  options: { makeKey: (index: number) => string; categoryIds?: string[] },
+): ItemDraft[] {
+  const taken = new Set(
+    items.map((item) => item.gallery_image_id).filter((id): id is string => Boolean(id)),
+  );
+  const added: ItemDraft[] = [];
+  for (const pick of picks) {
+    if (taken.has(pick.id)) {
+      continue;
+    }
+    taken.add(pick.id);
+    added.push({
+      ...emptyItem(options.makeKey(added.length)),
+      name: pick.title?.trim() ?? "",
+      gallery_image_id: pick.id,
+      thumb_url: pick.thumb_url,
+      category_ids: [...(options.categoryIds ?? [])],
+    });
+  }
+  if (added.length === 0) {
+    return items;
+  }
+  return [...items.filter((item) => !isBlankItem(item)), ...added];
 }

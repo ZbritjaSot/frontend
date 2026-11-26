@@ -2,54 +2,30 @@
 
 import { AddPhotoAlternateOutlinedIcon, DeleteOutlinedIcon, ImageOutlinedIcon, SearchIcon } from "@/components/ui/icons";
 import Image from "next/image";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState, type FormEvent } from "react";
 import { Modal } from "@/components/ui/Modal";
+import { uploadManagerGallery } from "@/features/biz/managerApi";
+import { uploadAdminGallery, uploadBizGallery } from "@/features/gallery/api";
 import {
-  fetchManagerGallery,
-  uploadManagerGallery,
-} from "@/features/biz/managerApi";
-import {
-  fetchAdminGallery,
-  fetchAdminPlatformGallery,
-  fetchBizGallery,
-  fetchBizPlatformGallery,
-  uploadAdminGallery,
-  uploadBizGallery,
-} from "@/features/gallery/api";
+  bizGalleryQueryKey,
+  useGalleryPhotos,
+  type GalleryAudience,
+} from "@/features/gallery/useGalleryPhotos";
 import { DROP_HERE_LABEL, fileDropZoneClass, useFileDrop } from "@/hooks/useFileDrop";
 import { validationMessage } from "@/lib/api";
 import { button, fieldError, fieldLabel, input } from "@/lib/ui";
-import type { OfferImage, Paginated } from "@/types";
+import type { OfferImage } from "@/types";
 
-export const bizGalleryQueryKey = ["biz", "gallery"] as const;
+export { bizGalleryQueryKey };
 
-type GalleryAudience = "biz" | "admin" | "manager";
 type PickerTab = "upload" | "mine" | "platform";
-
-const PAGE_SIZE = 24;
 
 const tabs: { id: PickerTab; label: string }[] = [
   { id: "upload", label: "Shto imazh" },
   { id: "mine", label: "Galeria ime" },
   { id: "platform", label: "Galeria ZbritjaSot" },
 ];
-
-function mineGalleryKey(gallery: GalleryAudience, businessId?: string, q = "") {
-  if (gallery === "manager" && businessId) {
-    return ["biz", "review", "gallery", businessId, q] as const;
-  }
-  if (gallery === "admin" && businessId) {
-    return ["admin", "gallery", businessId, q] as const;
-  }
-  return [...bizGalleryQueryKey, q] as const;
-}
-
-function platformGalleryKey(gallery: GalleryAudience, q = "") {
-  return gallery === "admin"
-    ? (["admin", "platform-gallery", q] as const)
-    : (["biz", "platform-gallery", q] as const);
-}
 
 export function ItemPhoto({
   name,
@@ -93,49 +69,19 @@ export function ItemPhoto({
     setQ(search.trim());
   }
 
-  const mineKey = mineGalleryKey(gallery, businessId, q);
-  const platformKey = platformGalleryKey(gallery, q);
-
-  const minePhotos = useInfiniteQuery({
-    queryKey: mineKey,
-    queryFn: ({ pageParam }): Promise<Paginated<OfferImage>> => {
-      const params = { q, page: pageParam, per_page: PAGE_SIZE };
-      if (gallery === "manager" && businessId) {
-        return fetchManagerGallery(businessId, params);
-      }
-      if (gallery === "admin" && businessId) {
-        return fetchAdminGallery(businessId, params);
-      }
-      return fetchBizGallery(params);
-    },
-    initialPageParam: 1,
-    getNextPageParam: (last) => {
-      const meta = last.meta;
-      if (!meta || meta.current_page >= meta.last_page) {
-        return undefined;
-      }
-      return meta.current_page + 1;
-    },
+  const minePhotos = useGalleryPhotos({
+    source: "mine",
+    gallery,
+    businessId,
+    q,
     enabled: open && tab === "mine",
   });
 
-  const platformPhotos = useInfiniteQuery({
-    queryKey: platformKey,
-    queryFn: ({ pageParam }): Promise<Paginated<OfferImage>> => {
-      const params = { q, page: pageParam, per_page: PAGE_SIZE };
-      if (gallery === "admin") {
-        return fetchAdminPlatformGallery(params);
-      }
-      return fetchBizPlatformGallery(params);
-    },
-    initialPageParam: 1,
-    getNextPageParam: (last) => {
-      const meta = last.meta;
-      if (!meta || meta.current_page >= meta.last_page) {
-        return undefined;
-      }
-      return meta.current_page + 1;
-    },
+  const platformPhotos = useGalleryPhotos({
+    source: "platform",
+    gallery,
+    businessId,
+    q,
     enabled: open && tab === "platform",
   });
 

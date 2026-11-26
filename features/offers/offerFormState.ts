@@ -122,3 +122,39 @@ export function sameIds(a: readonly string[], b: readonly string[]): boolean {
   const set = new Set(a);
   return b.every((id) => set.has(id));
 }
+
+/** Server-only row checks, in the form's language. Anything else is shown as sent. */
+const SERVER_MESSAGES: Record<string, string> = {
+  "Choose a photo from this shop or the ZbritjaSot gallery.":
+    "Zgjidh një foto nga galeria jote ose nga galeria ZbritjaSot.",
+  "Choose at least one category.": "Zgjidh të paktën një kategori.",
+  "Enter a valid http or https URL.": "Shkruaj një link të vlefshëm http ose https.",
+  "Price is too high.": "Çmimi është shumë i lartë.",
+};
+
+/**
+ * Laravel 422 body → the same per-row errors the client schema produces, so a
+ * row the server rejects (e.g. a photo it cannot use) is marked on that row
+ * instead of only in a toast. Returns null when the body has no field errors.
+ */
+export function mapServerOfferErrors(body: unknown): OfferFormErrors | null {
+  if (!body || typeof body !== "object") {
+    return null;
+  }
+  const errors = (body as { errors?: unknown }).errors;
+  if (!errors || typeof errors !== "object") {
+    return null;
+  }
+  const issues: IssueLike[] = [];
+  for (const [key, messages] of Object.entries(errors as Record<string, unknown>)) {
+    const message = Array.isArray(messages) ? messages[0] : messages;
+    if (typeof message !== "string") {
+      continue;
+    }
+    const path = key
+      .split(".")
+      .map((part) => (/^\d+$/.test(part) ? Number(part) : part));
+    issues.push({ path, message: SERVER_MESSAGES[message] ?? message });
+  }
+  return issues.length > 0 ? mapOfferIssues(issues) : null;
+}
