@@ -15,8 +15,13 @@ import type { BizSubscription, OfferViewRange } from "@/types";
 const VIEW_RANGES: OfferViewRange[] = [7, 14, 30];
 /** Same window as Subscription::ENDING_SOON_DAYS. */
 const ENDING_SOON_MS = 7 * 24 * 60 * 60 * 1000;
+/**
+ * 2 columns on small screens, 4 on lg. The divider sits only between columns of the same row,
+ * so a wrapped row never starts with a stray line.
+ */
+const KPI_ROW = "mb-8 grid grid-cols-2 gap-y-5 border-b border-line pb-5 lg:grid-cols-4";
 const KPI_SHELL =
-  "flex min-w-0 flex-col gap-1 border-l border-line px-4 py-1 text-left first:border-l-0 first:pl-0";
+  "flex min-w-0 flex-col gap-1 border-l border-line py-1 pr-4 pl-5 text-left max-lg:odd:border-l-0 max-lg:odd:pl-0 lg:first:border-l-0 lg:first:pl-0";
 
 function subscriptionView(sub: BizSubscription): {
   label: string;
@@ -138,6 +143,7 @@ function KpiValue({
       value={failed ? "—" : value}
       href={failed ? undefined : href}
       tone={tone}
+      shellClassName={KPI_SHELL}
     />
   );
 }
@@ -254,7 +260,7 @@ export function BizHomePanel() {
         </section>
       )}
 
-      <div className="mb-8 flex flex-wrap gap-x-8 gap-y-4 border-b border-line pb-5">
+      <div className={KPI_ROW}>
         <KpiValue
           label="Në pritje"
           detail={pendingDetail(waitingFlyerTotal, waitingOfferTotal)}

@@ -15,9 +15,11 @@ type DashboardKpiProps = {
   href?: string;
   active?: boolean;
   onClick?: () => void;
+  /** Replaces the default layout/divider classes, for rows that lay KPIs out in a grid. */
+  shellClassName?: string;
 };
 
-const shell =
+const defaultShell =
   "flex min-w-0 flex-col gap-1 border-l border-line px-4 py-1 text-left first:border-l-0 first:pl-0";
 
 export function DashboardKpi({
@@ -28,7 +30,9 @@ export function DashboardKpi({
   href,
   active = false,
   onClick,
+  shellClassName,
 }: DashboardKpiProps) {
+  const shell = shellClassName ?? defaultShell;
   const body = (
     <>
       <span className={`text-2xl leading-none font-bold tracking-[-0.04em] tabular-nums ${toneClass[tone]}`}>

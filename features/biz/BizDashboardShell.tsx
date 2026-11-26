@@ -9,7 +9,6 @@ import {
 import { hasRole } from "@/features/auth/api";
 import { useMe } from "@/hooks/useAuth";
 import { usePendingOfferCount } from "@/hooks/useBizOffers";
-import { ShopReadOnly } from "@/features/biz/ShopSwitcher";
 import { useManagerReview } from "@/hooks/useManagerReview";
 
 const shopNav: DashboardNavItem[] = [
@@ -18,13 +17,20 @@ const shopNav: DashboardNavItem[] = [
     href: "/biz/flyers",
     label: "Fletushkat",
     icon: <DescriptionOutlinedIcon fontSize="small" />,
+    group: "Përmbajtja",
   },
   {
     href: "/biz/offers",
     label: "Ofertat",
     icon: <LocalOfferIcon fontSize="small" />,
+    group: "Përmbajtja",
   },
-  { href: "/biz/profile", label: "Profili", icon: <StoreIcon fontSize="small" /> },
+  {
+    href: "/biz/profile",
+    label: "Profili",
+    icon: <StoreIcon fontSize="small" />,
+    group: "Llogaria",
+  },
 ];
 
 const managerNav: DashboardNavItem[] = [
@@ -37,21 +43,25 @@ const managerNav: DashboardNavItem[] = [
     href: "/biz/flyers",
     label: "Fletushkat",
     icon: <DescriptionOutlinedIcon fontSize="small" />,
+    group: "Përmbajtja",
   },
   {
     href: "/biz/offers",
     label: "Ofertat",
     icon: <LocalOfferIcon fontSize="small" />,
+    group: "Përmbajtja",
   },
   {
     href: "/biz/shops",
     label: "Dyqanet",
     icon: <StoreIcon fontSize="small" />,
+    group: "Llogaria",
   },
   {
     href: "/biz/profile",
     label: "Profili",
     icon: <PersonOutlinedIcon fontSize="small" />,
+    group: "Llogaria",
   },
 ];
 
@@ -140,8 +150,8 @@ export function BizDashboardShell({ children }: { children: ReactNode }) {
       area="biz"
       nav={nav}
       showLogout
+      // The identity block already shows the business name; no separate "Dyqani aktiv" row.
       identity={identity}
-      identityExtra={identity ? <ShopReadOnly /> : undefined}
     >
       {children}
     </DashboardShell>
