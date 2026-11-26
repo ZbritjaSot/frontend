@@ -120,8 +120,8 @@ export default async function FolderPage({ params }: FolderPageProps) {
                 className="absolute -inset-3 -z-10 rounded-[2rem] bg-lime/15 blur-2xl"
               />
               <span
-                className={`relative block aspect-[16/10] overflow-hidden rounded-hero shadow-2xl ring-1 ring-ivory/15 ${
-                  hasFlyerImage ? "bg-forest" : "bg-white"
+                className={`relative block overflow-hidden rounded-hero shadow-2xl ring-1 ring-ivory/15 ${
+                  hasFlyerImage ? "aspect-[5/2] bg-forest" : "aspect-[16/10] bg-white"
                 }`}
               >
                 <ProductVisual

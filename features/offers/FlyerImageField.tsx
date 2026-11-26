@@ -71,7 +71,7 @@ export function FlyerImageField({
         Imazhi i fletushkës
       </p>
       <p className="m-0 mt-1 text-sm text-muted">
-        Opsionale. Foto e gjerë, 16:9. Rekomandohet 1920 × 1080 px. JPEG, PNG ose WebP, deri në 8 MB.
+        Opsionale. Foto e gjerë, 5:2. Rekomandohet 2700 × 1080 px. JPEG, PNG ose WebP, deri në 8 MB.
         Pa të, karta përdor foton e një produkti.
       </p>
       <div
@@ -83,7 +83,7 @@ export function FlyerImageField({
             type="button"
             disabled={disabled || reading}
             aria-label={replaceLabel}
-            className={`relative block aspect-video w-full cursor-pointer overflow-hidden rounded-2xl disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${fileDropZoneClass(drop.active)}`}
+            className={`relative block aspect-[5/2] w-full cursor-pointer overflow-hidden rounded-2xl disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${fileDropZoneClass(drop.active)}`}
             onClick={() => {
               inputRef.current?.click();
             }}
@@ -103,7 +103,7 @@ export function FlyerImageField({
             ) : (
               <span className="grid size-full place-items-center text-sm font-semibold text-muted">
                 <PhotoCameraOutlinedIcon sx={{ fontSize: 28 }} />
-                16:9
+                5:2
               </span>
             )}
             {previewUrl ? (

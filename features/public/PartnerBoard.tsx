@@ -237,6 +237,8 @@ function FlyerSlide({ flyer, inert }: { flyer: PublicFolder; inert: boolean }) {
             wash="plain"
             name={coverName}
             imageUrl={photo.thumbUrl}
+            // A 5:2 flyer banner shown whole in the 5:4 tile rather than cropped to its middle.
+            fit={flyer.image?.thumb_url ? "contain" : "cover"}
             sizes="176px"
           />
           <FlyerRail folder={flyer} size="sm" />

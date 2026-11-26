@@ -14,3 +14,6 @@ export const CAMPAIGN_CARD_COLUMNS =
 
 /** Rendered image width: 38vw on phones, 240px for 1-2 columns, 176px (11rem) three-up. */
 export const CAMPAIGN_CARD_IMAGE_SIZES = "(max-width: 640px) 38vw, (max-width: 1279px) 240px, 176px";
+
+/** A 5:2 flyer banner stacked on top of a grid card: full column width. */
+export const CAMPAIGN_BANNER_IMAGE_SIZES = "(max-width: 640px) 100vw, (max-width: 1279px) 50vw, 400px";

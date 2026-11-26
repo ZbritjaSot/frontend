@@ -1,4 +1,5 @@
 import {
+  CAMPAIGN_BANNER_IMAGE_SIZES,
   CAMPAIGN_CARD_COLUMNS,
   CAMPAIGN_CARD_IMAGE_SIZES,
   CAMPAIGN_GRID_CLASS,
@@ -27,6 +28,13 @@ export function CampaignPoster({
   const count = folderCount(folder);
   const photo = flyerPhoto(folder);
   const hasFlyerImage = Boolean(folder.image?.thumb_url);
+  /**
+   * Uploaded flyer images are 2700 × 1080 (5:2) banners. With one, every layout
+   * gives the image a ~5:2 slot (stacked above the copy, or a wide column) so it
+   * is not cover-cropped to a square; product-cover fallbacks keep the original
+   * layouts.
+   */
+  const banner = hasFlyerImage;
   const coverName = hasFlyerImage ? folder.title : (folder.cover?.name ?? lead?.name ?? folder.title);
   const coverUrl = photo.thumbUrl ?? lead?.image?.thumb_url;
   const meta = `${count} ${offerWord(count)} · deri më ${formatDateShortSq(folder.expires_at)}`;
@@ -46,16 +54,24 @@ export function CampaignPoster({
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className="group grid overflow-hidden rounded-2xl bg-forest text-ivory focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus sm:grid-cols-[minmax(8.5rem,0.8fr)_minmax(0,1.2fr)]"
+        className={`group grid overflow-hidden rounded-2xl bg-forest text-ivory focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus ${
+          banner
+            ? "sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]"
+            : "sm:grid-cols-[minmax(8.5rem,0.8fr)_minmax(0,1.2fr)]"
+        }`}
       >
-        <span className="relative block min-h-44 bg-white sm:min-h-56 [--color-focus:var(--color-lime)]">
+        <span
+          className={`relative block [--color-focus:var(--color-lime)] ${
+            banner ? "aspect-[5/2] bg-forest" : "min-h-44 bg-white sm:min-h-56"
+          }`}
+        >
           <ProductVisual
             fill
             eager={eager}
-            fit="contain"
+            fit={banner ? "cover" : "contain"}
             name={coverName}
-            imageUrl={coverUrl}
-            sizes="(max-width: 640px) 100vw, 420px"
+            imageUrl={banner ? (photo.detailUrl ?? coverUrl) : coverUrl}
+            sizes={banner ? "(max-width: 640px) 100vw, 760px" : "(max-width: 640px) 100vw, 420px"}
           />
           <FlyerRail folder={folder} size="md" />
           {heart}
@@ -80,15 +96,17 @@ export function CampaignPoster({
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className="group grid h-full min-h-24 grid-cols-[10.5rem_minmax(0,1fr)] overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 dark:bg-[#1a2420]"
+        className={`group grid h-full min-h-24 overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus dark:border-white/10 dark:bg-[#1a2420] ${
+          banner ? "grid-cols-1 sm:grid-cols-[15rem_minmax(0,1fr)]" : "grid-cols-[10.5rem_minmax(0,1fr)]"
+        }`}
       >
-        <span className="relative h-full min-h-24">
+        <span className={`relative ${banner ? "aspect-[5/2]" : "h-full min-h-24"}`}>
           <ProductVisual
             fill
             eager={eager}
             name={coverName}
             imageUrl={coverUrl}
-            sizes="168px"
+            sizes={banner ? "(max-width: 640px) 100vw, 240px" : "168px"}
           />
           <FlyerRail folder={folder} size="sm" />
           <span className="absolute top-1 right-1 z-20 scale-90">
@@ -120,16 +138,22 @@ export function CampaignPoster({
     return (
       <Link
         href={`/dosje/${folder.id}`}
-        className="group grid overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus sm:grid-cols-2 dark:border-white/10 dark:bg-[#1a2420]"
+        className={`group grid overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus dark:border-white/10 dark:bg-[#1a2420] ${
+          banner ? "sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]" : "sm:grid-cols-2"
+        }`}
       >
-        <span className="relative block min-h-48 overflow-hidden bg-white sm:h-full sm:min-h-64">
+        <span
+          className={`relative block overflow-hidden ${
+            banner ? "aspect-[5/2] bg-forest" : "min-h-48 bg-white sm:h-full sm:min-h-64"
+          }`}
+        >
           <ProductVisual
             fill
             eager={eager}
             fit={hasFlyerImage ? "cover" : "contain"}
             name={coverName}
-            imageUrl={coverUrl}
-            sizes="(max-width: 1024px) 100vw, 640px"
+            imageUrl={banner ? (photo.detailUrl ?? coverUrl) : coverUrl}
+            sizes={banner ? "(max-width: 640px) 100vw, 760px" : "(max-width: 1024px) 100vw, 640px"}
           />
           <FlyerRail folder={folder} size="md" />
           <span className="absolute top-4 right-4 z-20">
@@ -166,15 +190,19 @@ export function CampaignPoster({
       <div className="relative h-full min-w-0">
         <Link
           href={`/dosje/${folder.id}`}
-          className={`group grid h-full min-h-32 overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 sm:min-h-40 ${CAMPAIGN_CARD_COLUMNS} dark:border-white/10 dark:bg-[#1a2420]`}
+          className={`group grid h-full overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420] ${
+            banner ? "grid-cols-1 content-start" : `min-h-32 sm:min-h-40 ${CAMPAIGN_CARD_COLUMNS}`
+          }`}
         >
-          <span className="relative h-full min-h-32 overflow-hidden sm:min-h-40">
+          <span
+            className={`relative overflow-hidden ${banner ? "aspect-[5/2]" : "h-full min-h-32 sm:min-h-40"}`}
+          >
             <ProductVisual
               fill
               name={coverName}
               imageUrl={coverUrl}
               eager={eager}
-              sizes={CAMPAIGN_CARD_IMAGE_SIZES}
+              sizes={banner ? CAMPAIGN_BANNER_IMAGE_SIZES : CAMPAIGN_CARD_IMAGE_SIZES}
             />
             <FlyerRail folder={folder} size="sm" />
           </span>
@@ -200,7 +228,9 @@ export function CampaignPoster({
   return (
     <Link
       href={`/dosje/${folder.id}`}
-      className="group flex min-h-44 w-[min(88vw,32rem)] shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420]"
+      className={`group flex min-h-44 w-[min(88vw,32rem)] shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-elevated focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 dark:border-white/10 dark:bg-[#1a2420] ${
+        banner ? "flex-col-reverse" : ""
+      }`}
     >
       <span className="flex min-w-0 flex-1 flex-col justify-between p-5 sm:p-6">
         <span>
@@ -214,8 +244,16 @@ export function CampaignPoster({
         </span>
         <span className="mt-6 block text-sm leading-relaxed text-muted">{meta}</span>
       </span>
-      <span className="relative w-[42%] shrink-0 self-stretch overflow-hidden">
-        <ProductVisual fill name={coverName} imageUrl={coverUrl} eager={eager} sizes="240px" />
+      <span
+        className={`relative shrink-0 overflow-hidden ${banner ? "aspect-[5/2] w-full" : "w-[42%] self-stretch"}`}
+      >
+        <ProductVisual
+          fill
+          name={coverName}
+          imageUrl={coverUrl}
+          eager={eager}
+          sizes={banner ? "(max-width: 640px) 88vw, 512px" : "240px"}
+        />
         <FlyerRail folder={folder} size="md" />
         {heart}
       </span>

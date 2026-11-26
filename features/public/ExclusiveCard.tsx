@@ -50,6 +50,7 @@ export function ExclusiveCard({
             wash="plain"
             name={meta.imageName}
             imageUrl={meta.thumbUrl}
+            fit={meta.isBanner ? "contain" : "cover"}
             sizes={layout === "rail" ? "256px" : "(max-width: 1024px) 50vw, 280px"}
           />
           {meta.percent != null && meta.percent > 0 ? (
@@ -178,6 +179,7 @@ type CardMeta = {
   percent?: number | null;
   favoriteKind: "offer" | "flyer";
   favoriteId: string;
+  isBanner?: boolean;
 };
 
 function cardMeta(item: ExclusiveItem): CardMeta {
@@ -192,6 +194,8 @@ function cardMeta(item: ExclusiveItem): CardMeta {
       shop: folder.business?.name,
       logoUrl: folder.business?.logo_url,
       kindLabel: "Fletushkë",
+      // A 5:2 flyer banner shown whole in the 4:5 tile rather than cropped to its middle.
+      isBanner: Boolean(folder.image?.thumb_url),
       percent: folder.lead_discount_percent,
       favoriteKind: "flyer",
       favoriteId: folder.id,
