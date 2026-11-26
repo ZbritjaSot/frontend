@@ -48,11 +48,16 @@ export function CampaignPoster({
         href={`/dosje/${folder.id}`}
         className="group grid overflow-hidden rounded-2xl bg-forest text-ivory focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus sm:grid-cols-[minmax(8.5rem,0.8fr)_minmax(0,1.2fr)]"
       >
-        <span className="relative block min-h-44 bg-white sm:min-h-56 [--color-focus:var(--color-lime)]">
+        <span
+          className={`relative block min-h-44 sm:min-h-56 [--color-focus:var(--color-lime)] ${
+            hasFlyerImage ? "bg-forest" : "bg-white"
+          }`}
+        >
+          {/* A dedicated flyer banner fills the slot (like the feature card); product covers stay contained. */}
           <ProductVisual
             fill
             eager={eager}
-            fit="contain"
+            fit={hasFlyerImage ? "cover" : "contain"}
             name={coverName}
             imageUrl={coverUrl}
             sizes="(max-width: 640px) 100vw, 420px"
