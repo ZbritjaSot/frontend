@@ -169,13 +169,36 @@ describe("offer form validation", () => {
           items: [{ ...item, original_price: null, discounted_price: null, discount_percent: null }],
         }),
       ),
-    ).toContain("Vendos çmimin me zbritje ose përqindjen.");
+    ).toEqual(expect.arrayContaining(["Vendos çmimin e vjetër.", "Vendos çmimin e ri."]));
     expect(
       messages(folder({ items: [{ ...item, discounted_price: 200 }] })),
     ).toContain("Çmimi me zbritje duhet të jetë më i ulët se çmimi origjinal.");
     expect(
       messages(folder({ items: [{ ...item, discount_percent: 0 }] })),
     ).toContain("Zbritja duhet të jetë midis 1% dhe 99%.");
+  });
+
+  it("flags each empty price in price mode and only the percent in percent mode", () => {
+    const item = folder().items[0];
+    const issues = (items: unknown[]) => {
+      const parsed = offerBundleFormSchema.safeParse(folder({ items } as never));
+      return parsed.success ? [] : parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`);
+    };
+
+    expect(
+      issues([{ ...item, original_price: null, discounted_price: 150, pricing_mode: "price" }]),
+    ).toContain("items.0.original_price: Vendos çmimin e vjetër.");
+    expect(
+      issues([{ ...item, original_price: 200, discounted_price: null, pricing_mode: "price" }]),
+    ).toContain("items.0.discounted_price: Vendos çmimin e ri.");
+    const percentEmpty = issues([
+      { ...item, original_price: null, discounted_price: null, discount_percent: null, pricing_mode: "percent" },
+    ]);
+    expect(percentEmpty).toContain("items.0.discount_percent: Vendos përqindjen e zbritjes.");
+    expect(percentEmpty.some((line) => line.includes("price:"))).toBe(false);
+    expect(
+      issues([{ ...item, original_price: null, discounted_price: null, discount_percent: 20, pricing_mode: "percent" }]),
+    ).toEqual([]);
   });
 
   it("accepts an optional purchase url and rejects one that is too long", () => {

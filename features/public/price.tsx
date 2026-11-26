@@ -61,9 +61,11 @@ const railSize = {
 } as const;
 
 /**
- * Flat gradient rail flush to the bottom edge ("Side Rail" concept,
- * mounted along the bottom instead of the side — horizontal text, no rotation).
- * Place inside a relative, overflow-hidden image container.
+ * Flat rail flush to the bottom edge ("Side Rail" concept, mounted along the
+ * bottom instead of the side — horizontal text, no rotation). One solid band
+ * color per discount (no second gradient stop) so a given percentage reads
+ * the same in every section and on mobile. Place inside a relative,
+ * overflow-hidden image container.
  */
 export function DiscountRail({
   percent,
@@ -83,7 +85,7 @@ export function DiscountRail({
   return (
     <span
       className={`pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-center font-extrabold tracking-[0.03em] ${height} ${textSize} ${band.text}`}
-      style={{ background: `linear-gradient(135deg, ${band.from}, ${band.to})` }}
+      style={{ backgroundColor: band.from }}
       role="img"
       aria-label={label}
     >
@@ -175,8 +177,8 @@ export function discountSegments(
  * blocks, each randomly one of the discount bands actually present among
  * the flyer's own items (from `discountSegments`), flush against each
  * other with no gaps. Same height/position as `DiscountRail` at the same
- * `size` and the same 2-stop 135deg gradient treatment per segment — only
- * what fills the rail changes. No text/percentage inside any segment;
+ * `size`, each segment a flat band color like `DiscountRail` — only what
+ * fills the rail changes. No text/percentage inside any segment;
  * every other flyer's rail is untouched.
  */
 export function MultiDiscountRail({
@@ -202,7 +204,7 @@ export function MultiDiscountRail({
         <span
           key={`${segment.from}-${segment.to}-${index}`}
           className="flex-1"
-          style={{ background: `linear-gradient(135deg, ${segment.from}, ${segment.to})` }}
+          style={{ backgroundColor: segment.from }}
         />
       ))}
     </span>

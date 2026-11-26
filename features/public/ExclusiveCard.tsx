@@ -120,7 +120,7 @@ function BrandRow({
         ) : null}
         {shop ? (
           <span
-            className={`truncate font-bold tracking-tight text-charcoal dark:text-ivory ${
+            className={`truncate font-semibold tracking-tight text-charcoal/65 dark:text-ivory/70 ${
               compact ? "text-[0.78rem]" : "text-sm"
             }`}
           >

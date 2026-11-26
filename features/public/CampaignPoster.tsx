@@ -48,11 +48,16 @@ export function CampaignPoster({
         href={`/dosje/${folder.id}`}
         className="group grid overflow-hidden rounded-2xl bg-forest text-ivory focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus sm:grid-cols-[minmax(8.5rem,0.8fr)_minmax(0,1.2fr)]"
       >
-        <span className="relative block min-h-44 bg-white sm:min-h-56 [--color-focus:var(--color-lime)]">
+        <span
+          className={`relative block min-h-44 sm:min-h-56 [--color-focus:var(--color-lime)] ${
+            hasFlyerImage ? "bg-forest" : "bg-white"
+          }`}
+        >
+          {/* A dedicated flyer banner fills the slot (like the feature card); product covers stay contained. */}
           <ProductVisual
             fill
             eager={eager}
-            fit="contain"
+            fit={hasFlyerImage ? "cover" : "contain"}
             name={coverName}
             imageUrl={coverUrl}
             sizes="(max-width: 640px) 100vw, 420px"
@@ -146,7 +151,7 @@ export function CampaignPoster({
           <span>
             <span className="flex items-center gap-2.5">
               <ShopLogo name={shop} logoUrl={folder.business?.logo_url} size="sm" />
-              <span className="truncate text-sm font-semibold">{shop}</span>
+              <span className="truncate text-sm font-semibold text-muted">{shop}</span>
             </span>
             <span className="mt-4 line-clamp-3 block text-title-2 break-words">
               {folder.title}
@@ -181,7 +186,7 @@ export function CampaignPoster({
           <span className="flex min-w-0 flex-col justify-center gap-1.5 p-4 sm:p-5">
             <span className="flex min-w-0 items-center gap-2.5">
               <ShopLogo name={shop} logoUrl={folder.business?.logo_url} size="sm" />
-              <span className="min-w-0 truncate text-sm font-semibold">{shop}</span>
+              <span className="min-w-0 truncate text-sm font-semibold text-muted">{shop}</span>
             </span>
             <span className="line-clamp-2 text-base leading-5 font-extrabold tracking-tight sm:text-lg sm:leading-6">
               {folder.title}
@@ -206,7 +211,7 @@ export function CampaignPoster({
         <span>
           <span className="flex items-center gap-2.5">
             <ShopLogo name={shop} logoUrl={folder.business?.logo_url} size="sm" />
-            <span className="truncate text-sm font-semibold">{shop}</span>
+            <span className="truncate text-sm font-semibold text-muted">{shop}</span>
           </span>
           <span className="mt-6 line-clamp-3 block text-title-2 break-words">
             {folder.title}

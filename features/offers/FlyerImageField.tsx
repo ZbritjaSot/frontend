@@ -1,11 +1,10 @@
 "use client";
 
-import { DeleteOutlinedIcon, PhotoCameraOutlinedIcon } from "@/components/ui/icons";
+import { AddPhotoAlternateOutlinedIcon } from "@/components/ui/icons";
 import { useRef, useState } from "react";
 import { flyerImageFileError, readImageSize } from "@/features/offers/flyerImageFile";
 import { DROP_HERE_LABEL, fileDropZoneClass, useFileDrop } from "@/hooks/useFileDrop";
 import { fieldError } from "@/lib/ui";
-import { Tooltip } from "@/components/ui/Tooltip";
 
 export function FlyerImageField({
   previewUrl,
@@ -71,63 +70,50 @@ export function FlyerImageField({
         Imazhi i fletushkës
       </p>
       <p className="m-0 mt-1 text-sm text-muted">
-        Opsionale. Foto e gjerë, 16:9. Rekomandohet 1920 × 1080 px. JPEG, PNG ose WebP, deri në 8 MB.
+        Opsionale. Foto e gjerë, 5:2. Rekomandohet 2700 × 1080 px. JPEG, PNG ose WebP, deri në 8 MB.
         Pa të, karta përdor foton e një produkti.
       </p>
-      <div
-        className={`relative mt-3 w-full max-w-md ${reading ? "cursor-wait" : ""}`}
-        {...drop.dropProps}
-      >
-        <Tooltip content={replaceLabel}>
+      <div className="mt-3 flex items-center gap-3">
+        <div className={`relative ${reading ? "cursor-wait" : ""}`} {...drop.dropProps}>
           <button
             type="button"
             disabled={disabled || reading}
             aria-label={replaceLabel}
-            className={`relative block aspect-video w-full cursor-pointer overflow-hidden rounded-2xl disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${fileDropZoneClass(drop.active)}`}
+            title={replaceLabel}
+            className={`relative grid size-16 cursor-pointer place-items-center overflow-hidden rounded-2xl text-muted disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus sm:size-[4.75rem] ${fileDropZoneClass(drop.active)}`}
             onClick={() => {
               inputRef.current?.click();
             }}
           >
-            {drop.active ? (
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-10 grid place-items-center bg-accent/10 text-sm font-bold text-ink"
-              >
-                {DROP_HERE_LABEL}
-              </span>
-            ) : null}
             {previewUrl ? (
               // Native img: the preview is a local blob or an already-hosted flyer file.
               // eslint-disable-next-line @next/next/no-img-element
               <img src={previewUrl} alt="" className="absolute inset-0 size-full object-cover" />
             ) : (
-              <span className="grid size-full place-items-center text-sm font-semibold text-muted">
-                <PhotoCameraOutlinedIcon sx={{ fontSize: 28 }} />
-                16:9
-              </span>
+              <AddPhotoAlternateOutlinedIcon fontSize="small" />
             )}
-            {previewUrl ? (
-              <span className="pointer-events-none absolute right-2 bottom-2 grid size-8 place-items-center rounded-full bg-charcoal text-accent ring-2 ring-elevated">
-                <PhotoCameraOutlinedIcon sx={{ fontSize: 18 }} />
+            {drop.active ? (
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 grid place-items-center bg-accent/10 px-1 text-center text-[10px] font-bold leading-tight text-ink"
+              >
+                {DROP_HERE_LABEL}
               </span>
             ) : null}
           </button>
-        </Tooltip>
+        </div>
         {previewUrl ? (
-          <Tooltip content="Hiq imazhin e fletushkës">
-            <button
-              type="button"
-              disabled={disabled || reading}
-              aria-label="Hiq imazhin e fletushkës"
-              className="absolute -top-1.5 -right-1.5 grid size-6 cursor-pointer place-items-center rounded-full bg-elevated text-danger ring-2 ring-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:pointer-events-none disabled:opacity-60"
-              onClick={() => {
-                setError(null);
-                onClear();
-              }}
-            >
-              <DeleteOutlinedIcon sx={{ fontSize: 14 }} />
-            </button>
-          </Tooltip>
+          <button
+            type="button"
+            disabled={disabled || reading}
+            className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-danger hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:pointer-events-none disabled:opacity-60"
+            onClick={() => {
+              setError(null);
+              onClear();
+            }}
+          >
+            Hiq imazhin
+          </button>
         ) : null}
       </div>
       {error ? (

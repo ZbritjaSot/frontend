@@ -59,7 +59,8 @@ describe("mapOfferIssues", () => {
     const errors = mapOfferIssues(parsed.error.issues);
     expect(errors.items[0]?.name).toBe("Emri i produktit është i detyrueshëm.");
     expect(errors.items[0]?.category_ids).toBe("Zgjidh të paktën një kategori.");
-    expect(errors.items[0]?.discounted_price).toBe("Vendos çmimin me zbritje ose përqindjen.");
+    expect(errors.items[0]?.original_price).toBe("Vendos çmimin e vjetër.");
+    expect(errors.items[0]?.discounted_price).toBe("Vendos çmimin e ri.");
     expect(errors.form.starts_at).toBeDefined();
   });
 });

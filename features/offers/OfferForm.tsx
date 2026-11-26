@@ -1,6 +1,6 @@
 "use client";
 
-import { AddOutlinedIcon, DeleteOutlinedIcon } from "@/components/ui/icons";
+import { AddOutlinedIcon, CollectionsOutlinedIcon, DeleteOutlinedIcon } from "@/components/ui/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -8,6 +8,7 @@ import {
   fetchBizCompanyShops,
 } from "@/features/branches/api";
 import { fetchManagerCompanyShops } from "@/features/biz/managerApi";
+import { GalleryMultiPicker, type GalleryMultiPick } from "@/features/gallery/GalleryMultiPicker";
 import { ItemPhoto } from "@/features/gallery/ItemPhoto";
 import { FlyerImageField } from "@/features/offers/FlyerImageField";
 import { deleteFlyerImage, uploadFlyerImage } from "@/features/offers/flyerImageApi";
@@ -37,7 +38,7 @@ import {
 } from "@/lib/datetime";
 import { computeDiscountPercent } from "@/lib/discount";
 import { formatDateShortSq, formatEurFromCents } from "@/lib/format";
-import { validationMessage } from "@/lib/api";
+import { ApiError, validationMessage } from "@/lib/api";
 import { button, fieldError, fieldLabel, input } from "@/lib/ui";
 import type { BundleCatalog } from "@/features/offers/bizApi";
 import { CategoryChips } from "@/features/offers/CategoryChips";
@@ -45,11 +46,13 @@ import { DiscountModeFields } from "@/features/offers/DiscountModeFields";
 import {
   itemErrorCount,
   mapOfferIssues,
+  mapServerOfferErrors,
   offerFormSnapshot,
   sameIds,
   type OfferFormErrors,
 } from "@/features/offers/offerFormState";
 import {
+  appendGalleryPicks,
   emptyItem,
   itemDraftsFromOffer,
   itemDraftToPayload,
@@ -209,6 +212,9 @@ export function OfferForm({
   const [scrollTick, setScrollTick] = useState(0);
   const [activeAction, setActiveAction] = useState<"draft" | "primary" | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  /** Field errors from the last rejected save, shown on their rows until that row changes. */
+  const [serverErrors, setServerErrors] = useState<OfferFormErrors>(NO_ERRORS);
   /** Set right before a post-save navigation so the leave guard stays quiet. */
   const [leaving, setLeaving] = useState(false);
   const [baseline] = useState(() =>
@@ -293,7 +299,22 @@ export function OfferForm({
     return parsed.success ? NO_ERRORS : mapOfferIssues(parsed.error.issues);
   }, [formPayload, formSchema, scrollTick]);
   /** Errors stay hidden until the first submit attempt, then update live. */
-  const errors = submitAttempted ? validation : NO_ERRORS;
+  const errors = useMemo<OfferFormErrors>(() => {
+    const client = submitAttempted ? validation : NO_ERRORS;
+    if (serverErrors.count === 0) {
+      return client;
+    }
+    // Client messages win per field; the server fills in what only it can check.
+    const items: OfferFormErrors["items"] = { ...serverErrors.items };
+    for (const [index, row] of Object.entries(client.items)) {
+      items[Number(index)] = { ...items[Number(index)], ...row };
+    }
+    const form = { ...serverErrors.form, ...client.form };
+    const count =
+      Object.keys(form).length +
+      Object.values(items).reduce((sum, row) => sum + itemErrorCount(row), 0);
+    return { form, items, count };
+  }, [serverErrors, submitAttempted, validation]);
 
   const isDirty = useMemo(
     () =>
@@ -343,7 +364,12 @@ export function OfferForm({
       ?.focus({ preventScroll: true });
   }, [scrollTick]);
 
+  function clearServerErrors() {
+    setServerErrors((current) => (current.count === 0 ? current : NO_ERRORS));
+  }
+
   function patchItem(key: string, patch: Partial<ItemDraft>) {
+    clearServerErrors();
     setItems((prev) =>
       prev.map((item) => (item.key === key ? { ...item, ...patch } : item)),
     );
@@ -365,6 +391,34 @@ export function OfferForm({
     setItems((prev) => [...prev, emptyItem(`item-${Date.now()}`)]);
   }
 
+  function addGalleryPicks({ images, categoryId }: GalleryMultiPick) {
+    setBulkOpen(false);
+    clearServerErrors();
+    const stamp = Date.now();
+    const next = appendGalleryPicks(items, images, {
+      makeKey: (index) => `item-${stamp}-${index}`,
+      categoryIds: categoryId ? [categoryId] : [],
+    });
+    const added = next.length - items.filter((item) => next.includes(item)).length;
+    setItems(next);
+    if (isFlyer && !coverKey) {
+      setCoverKey(next.find((item) => item.thumb_url)?.key ?? null);
+    }
+    if (added > 0) {
+      showToast(added === 1 ? "U shtua 1 produkt." : `U shtuan ${added} produkte.`);
+    }
+  }
+
+  const takenImageIds = useMemo(
+    () =>
+      new Set(
+        items
+          .map((item) => item.gallery_image_id)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    [items],
+  );
+
   function removeItem(key: string) {
     const index = items.findIndex((item) => item.key === key);
     if (index < 0 || items.length <= 1) {
@@ -372,6 +426,7 @@ export function OfferForm({
     }
     const removed = items[index];
     const wasCover = coverKey === key;
+    clearServerErrors();
     setCoverKey((current) => (current === key ? null : current));
     setItems((prev) => (prev.length <= 1 ? prev : prev.filter((item) => item.key !== key)));
     showToast("U hoq produkti.", {
@@ -459,6 +514,21 @@ export function OfferForm({
       }
     } catch (err) {
       const message = validationMessage(err, "Nuk mundëm ta ruajmë ofertën.");
+      const fieldErrors =
+        err instanceof ApiError && err.status === 422 ? mapServerOfferErrors(err.body) : null;
+      if (fieldErrors) {
+        // Nothing was saved: mark every rejected row and take the user to the first one.
+        setServerErrors(fieldErrors);
+        setReviewOpen(false);
+        setScrollTick((tick) => tick + 1);
+        showToast(
+          fieldErrors.count === 1
+            ? "Asgjë nuk u ruajt. Rregullo gabimin e shënuar."
+            : `Asgjë nuk u ruajt. Rregullo ${fieldErrors.count} gabimet e shënuara.`,
+          { tone: "error" },
+        );
+        return;
+      }
       setError(message);
       showToast(message, { tone: "error" });
       if (thenSubmit) {
@@ -615,7 +685,10 @@ export function OfferForm({
               className={`${input()} text-2xl! font-bold tracking-[-0.03em]`}
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                clearServerErrors();
+                setTitle(e.target.value);
+              }}
               disabled={pending}
               required
               maxLength={255}
@@ -641,7 +714,10 @@ export function OfferForm({
             <span className={fieldLabel}>Fillon</span>
             <DateTimeField
               value={startsAt}
-              onChange={setStartsAt}
+              onChange={(value) => {
+                clearServerErrors();
+                setStartsAt(value);
+              }}
               disabled={pending}
               aria-label="Fillon"
               hourOnly
@@ -656,7 +732,10 @@ export function OfferForm({
             <span className={fieldLabel}>Skadon</span>
             <DateTimeField
               value={expiresAt}
-              onChange={setExpiresAt}
+              onChange={(value) => {
+                clearServerErrors();
+                setExpiresAt(value);
+              }}
               disabled={pending}
               aria-label="Skadon"
               hourOnly
@@ -986,15 +1065,26 @@ export function OfferForm({
             );
           })}
 
-          <button
-            type="button"
-            className="flex w-full cursor-pointer items-center gap-2 rounded-2xl border border-dashed border-line bg-transparent px-4 py-3 text-sm font-semibold text-muted hover:bg-sunken hover:text-ink disabled:cursor-wait disabled:opacity-65"
-            disabled={pending}
-            onClick={addItem}
-          >
-            <AddOutlinedIcon fontSize="small" />
-            {isFlyer ? "Shto produkt" : "Shto ofertë"}
-          </button>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              className="flex w-full cursor-pointer items-center gap-2 rounded-2xl border border-dashed border-accent/60 bg-accent/5 px-4 py-3 text-sm font-semibold text-ink hover:bg-accent/10 disabled:cursor-wait disabled:opacity-65"
+              disabled={pending}
+              onClick={() => setBulkOpen(true)}
+            >
+              <CollectionsOutlinedIcon fontSize="small" />
+              Zgjidh disa nga galeria
+            </button>
+            <button
+              type="button"
+              className="flex w-full cursor-pointer items-center gap-2 rounded-2xl border border-dashed border-line bg-transparent px-4 py-3 text-sm font-semibold text-muted hover:bg-sunken hover:text-ink disabled:cursor-wait disabled:opacity-65"
+              disabled={pending}
+              onClick={addItem}
+            >
+              <AddOutlinedIcon fontSize="small" />
+              {isFlyer ? "Shto produkt" : "Shto ofertë"}
+            </button>
+          </div>
           <div data-offer-error={errors.form.items || errors.form.other ? "" : undefined}>
             <FieldError id="offer-items-error" announce>
               {errors.form.items ?? errors.form.other}
@@ -1087,6 +1177,15 @@ export function OfferForm({
           })}
         </ul>
       </Modal>
+      <GalleryMultiPicker
+        open={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        onConfirm={addGalleryPicks}
+        gallery={audience === "manager" ? "manager" : audience === "admin" ? "admin" : "biz"}
+        businessId={audience === "biz" ? undefined : (businessId ?? offer?.business?.id)}
+        takenIds={takenImageIds}
+        categoryOptions={categoryOptions}
+      />
       <ConfirmModal
         open={cancelOpen}
         title="Të largohesh pa ruajtur?"

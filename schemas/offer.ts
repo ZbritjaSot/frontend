@@ -39,53 +39,51 @@ const offerItemSchema = z
       .nullable()
       .optional(),
     gallery_image_id: z.string().uuid().nullable().optional(),
+    /**
+     * Which pricing fields the row shows. Not sent to the API (toApiBody picks
+     * fields explicitly); it decides which empty field to flag. Without it, a
+     * row with no percent is treated as price mode.
+     */
+    pricing_mode: z.enum(["price", "percent"]).optional(),
   })
-  .refine(
-    (data) => data.discounted_price !== null || data.discount_percent !== null,
-    {
-      message: "Vendos çmimin me zbritje ose përqindjen.",
-      path: ["discounted_price"],
-    },
-  )
-  .refine(
-    (data) =>
-      data.discount_percent === null ||
-      (data.original_price === null && data.discounted_price === null),
-    {
-      message: "Zgjidh ose çmimet, ose përqindjen, jo të dyja.",
-      path: ["discount_percent"],
-    },
-  )
-  .refine(
-    (data) => data.discounted_price === null || data.original_price !== null,
-    {
-      message: "Çmimi origjinal duhet kur vendoset çmimi me zbritje.",
-      path: ["original_price"],
-    },
-  )
-  .refine(
-    (data) =>
-      data.discounted_price === null ||
-      data.original_price === null ||
-      data.discounted_price < data.original_price,
-    {
-      message: "Çmimi me zbritje duhet të jetë më i ulët se çmimi origjinal.",
-      path: ["discounted_price"],
-    },
-  )
-  .refine(
-    (data) => {
-      if (data.original_price === null || data.discounted_price === null) {
-        return true;
+  .superRefine((data, ctx) => {
+    const flag = (path: "original_price" | "discounted_price" | "discount_percent", message: string) =>
+      ctx.addIssue({ code: "custom", path: [path], message });
+    const priceMode = data.pricing_mode
+      ? data.pricing_mode === "price"
+      : data.discount_percent === null;
+
+    if (!priceMode) {
+      if (data.original_price !== null || data.discounted_price !== null) {
+        flag("discount_percent", "Zgjidh ose çmimet, ose përqindjen, jo të dyja.");
+      } else if (data.discount_percent === null) {
+        flag("discount_percent", "Vendos përqindjen e zbritjes.");
       }
-      const percent = computeDiscountPercent(data.original_price, data.discounted_price);
-      return percent >= MIN_DISCOUNT_PERCENT && percent <= MAX_DISCOUNT_PERCENT;
-    },
-    {
-      message: "Kjo zbritje është jashtë kufirit të lejuar prej 1%-99%.",
-      path: ["discounted_price"],
-    },
-  );
+      return;
+    }
+
+    if (data.discount_percent !== null) {
+      flag("discount_percent", "Zgjidh ose çmimet, ose përqindjen, jo të dyja.");
+    }
+    // "Me çmime": both prices are required, and each empty one is flagged on its own field.
+    if (data.original_price === null) {
+      flag("original_price", "Vendos çmimin e vjetër.");
+    }
+    if (data.discounted_price === null) {
+      flag("discounted_price", "Vendos çmimin e ri.");
+    }
+    if (data.original_price === null || data.discounted_price === null) {
+      return;
+    }
+    if (data.discounted_price >= data.original_price) {
+      flag("discounted_price", "Çmimi me zbritje duhet të jetë më i ulët se çmimi origjinal.");
+      return;
+    }
+    const percent = computeDiscountPercent(data.original_price, data.discounted_price);
+    if (percent < MIN_DISCOUNT_PERCENT || percent > MAX_DISCOUNT_PERCENT) {
+      flag("discounted_price", "Kjo zbritje është jashtë kufirit të lejuar prej 1%-99%.");
+    }
+  });
 
 const offerBundleBaseSchema = z
   .object({

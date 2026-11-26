@@ -1,6 +1,7 @@
 export const FLYER_IMAGE_MAX_BYTES = 8 * 1024 * 1024;
-export const FLYER_IMAGE_MIN_WIDTH = 1280;
-export const FLYER_IMAGE_MIN_HEIGHT = 720;
+/** Flyer banners are 2700 × 1080 (5:2); the server center-crops to that ratio. */
+export const FLYER_IMAGE_MIN_WIDTH = 1350;
+export const FLYER_IMAGE_MIN_HEIGHT = 540;
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
@@ -22,11 +23,11 @@ export function flyerImageFileError(
   }
 
   if (pixels.width <= pixels.height) {
-    return "Fotoja duhet të jetë e gjerë (më e gjerë se e lartë). Rekomandohet 16:9, 1920 × 1080 px.";
+    return "Fotoja duhet të jetë e gjerë (më e gjerë se e lartë). Rekomandohet 5:2, 2700 × 1080 px.";
   }
 
   if (pixels.width < FLYER_IMAGE_MIN_WIDTH || pixels.height < FLYER_IMAGE_MIN_HEIGHT) {
-    return "Fotoja duhet të jetë së paku 1280 × 720 px. Rekomandohet 1920 × 1080 px.";
+    return "Fotoja duhet të jetë së paku 1350 × 540 px. Rekomandohet 2700 × 1080 px.";
   }
 
   return null;
