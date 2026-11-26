@@ -78,7 +78,7 @@ function UrgentRow({ offer }: { offer: PublicOffer }) {
               logoUrl={offer.business.logo_url}
               size="xs"
             />
-            <span className="min-w-0 truncate text-xs font-extrabold tracking-tight text-ink">
+            <span className="min-w-0 truncate text-xs font-semibold tracking-tight text-muted">
               {offer.business.name}
             </span>
           </span>

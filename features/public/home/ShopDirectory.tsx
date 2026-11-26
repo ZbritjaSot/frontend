@@ -40,7 +40,6 @@ export function ShopDirectory({
       <SectionHeading
         kicker="Partnerë"
         title={title}
-        note="Një përzgjedhje e partnerëve me fletushka aktive. Lista e plotë është te Partnerët."
         action={<SeeAll href="/biznese">Shiko të gjitha</SeeAll>}
       />
       <div

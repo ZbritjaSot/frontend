@@ -51,7 +51,7 @@ export function ProductPoster({
                 logoUrl={offer.business?.logo_url}
                 size="xs"
               />
-              <span className="min-w-0 truncate text-sm font-extrabold tracking-tight text-ink">
+              <span className="min-w-0 truncate text-sm font-semibold tracking-tight text-muted">
                 {shop}
               </span>
             </span>

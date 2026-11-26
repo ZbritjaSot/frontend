@@ -254,7 +254,7 @@ function DealCopy({ offer }: { offer: PublicOffer }) {
           className="flex min-w-0 items-center gap-2.5 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
         >
           <ShopLogo name={shop} logoUrl={offer.business?.logo_url} size="md" />
-          <span className="truncate text-lg font-extrabold tracking-tight text-ivory sm:text-xl">
+          <span className="truncate text-lg font-semibold tracking-tight text-ivory/75 sm:text-xl">
             {shop}
           </span>
         </Link>
